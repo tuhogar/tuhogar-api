@@ -1,8 +1,10 @@
-export interface Account {
-    readonly _id: string,
+import { Document } from 'mongoose';
+
+export enum AccountStatus {
+    ACTIVE = 'ACTIVE',
+}
+
+export interface Account extends Document  {
     readonly planId: string,
-    readonly status: string,
-    readonly createdAt: Date,
-    readonly updatedAt: Date,
-    readonly finishedAt: Date,
+    readonly status: AccountStatus,
 }
