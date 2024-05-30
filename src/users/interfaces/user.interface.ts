@@ -6,7 +6,8 @@ export enum UserStatus {
 
 export enum UserRole {
     ADMIN = 'ADMIN',
-    USER = 'USER'
+    USER = 'USER',
+    MASTER = 'MASTER',
 }
 
 export interface User extends Document  {
@@ -15,4 +16,5 @@ export interface User extends Document  {
     readonly accountId: string,
     readonly userRole: UserRole,
     readonly status: UserStatus,
+    readonly uid: string;
 }

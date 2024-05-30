@@ -12,13 +12,4 @@ export class CreateUserDto {
     @IsEmail()
     @MaxLength(150)
     email: string;
-
-    @IsObjectId({ message: 'Invalid ObjectId' })
-    accountId: string;
-
-    @IsEnum(UserRole)
-    userRole: UserRole = UserRole.ADMIN;
-
-    @IsEnum(UserStatus)
-    status: UserStatus = UserStatus.ACTIVE;
 }

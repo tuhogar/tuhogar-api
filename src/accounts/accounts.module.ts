@@ -5,6 +5,7 @@ import { AccountsService } from './accounts.service';
 import { AccountSchema } from './interfaces/account.schema';
 import { PlansModule } from 'src/plans/plans.module';
 import { UsersModule } from 'src/users/users.module';
+import { FirebaseAdmin } from 'src/config/firebase.setup';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { UsersModule } from 'src/users/users.module';
     UsersModule,
   ],
   controllers: [AccountsController],
-  providers: [AccountsService]
+  providers: [AccountsService, FirebaseAdmin]
 })
 export class AccountsModule {}
