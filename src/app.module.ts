@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from '@nestjs/mongoose';
 import { AccountsModule } from './accounts/accounts.module';
 import { PlansModule } from './plans/plans.module';
@@ -9,10 +9,16 @@ import { AdvertisementsModule } from './advertisements/advertisements.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/tuhogar?retryWrites=true&w=majority'),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
     }),
     AccountsModule,
     PlansModule,
