@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAccountDto } from './dtos/create-account.dto';
 import { Account, AccountStatus } from './interfaces/account.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PlansService } from 'src/plans/plans.service';
-import { CreateUserDto } from 'src/users/dtos/create-user.dto';
-import { UserRole, UserStatus } from 'src/users/interfaces/user.interface';
+import { UserRole } from 'src/users/interfaces/user.interface';
 import { UsersService } from 'src/users/users.service';
-import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class AccountsService {
@@ -28,7 +25,7 @@ export class AccountsService {
 
     async create(planId: string, name: string, email: string, uid: string): Promise<void> {
         const plan = await this.plansService.getById(planId);
-        if (!plan) throw new Error('Plan do not exist');
+        if (!plan) throw new Error('Plan do not exists');
 
         const accountCreated = new this.accountModel({
             planId,

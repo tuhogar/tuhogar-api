@@ -12,13 +12,13 @@ export class UsersController {
         private readonly usersService: UsersService,
     ) {}
 
-    @Get('all')
+    @Get()
     @Auth('ADMIN')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User[]> {
         return this.usersService.getAllByAccountId(authenticatedUser.accountId);
     }
 
-    @Get()
+    @Get('me')
     @Auth()
     async get(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User> {
         const user = await this.usersService.getById(authenticatedUser.uid);

@@ -2,10 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
-import { CreateUserDto } from './dtos/create-user.dto';
 import { User, UserRole, UserStatus } from './interfaces/user.interface';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
-import { CreateAccountDto } from 'src/accounts/dtos/create-account.dto';
 import { ConfigService } from '@nestjs/config';
 import { AccountStatus } from 'src/accounts/interfaces/account.interface';
 

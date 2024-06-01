@@ -16,7 +16,7 @@ import { AdvertisementsModule } from './advertisements/advertisements.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
+        uri: configService.get<string>('MONGODB_URL'),
       }),
       inject: [ConfigService],
     }),

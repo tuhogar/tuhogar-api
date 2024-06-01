@@ -2,6 +2,7 @@ import { Document } from 'mongoose';
 
 export enum UserStatus {
     ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
 }
 
 export enum UserRole {
@@ -11,10 +12,10 @@ export enum UserRole {
 }
 
 export interface User extends Document  {
-    readonly name: string,
-    readonly email: string,
-    readonly accountId: string,
+    readonly name: String,
+    readonly email: String,
+    readonly accountId: String,
     readonly userRole: UserRole,
     readonly status: UserStatus,
-    readonly uid: string;
+    readonly uid: String;
 }
