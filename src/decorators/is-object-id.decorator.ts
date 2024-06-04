@@ -8,7 +8,7 @@ class IsObjectIdConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage() {
-    return 'Invalid MongoDB ObjectId';
+    return 'invalid.mongoDB.ObjectId';
   }
 }
 

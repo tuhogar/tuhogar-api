@@ -23,7 +23,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
         case 'invalid':
           customStatus = HttpStatus.BAD_REQUEST; // 400
           break;
-          case 'donotexists':
+          case 'notfound':
             customStatus = HttpStatus.NOT_FOUND; // 404
             break;
         default:

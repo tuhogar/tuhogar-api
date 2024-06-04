@@ -22,7 +22,7 @@ export class UsersController {
     @Auth()
     async get(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User> {
         const user = await this.usersService.getById(authenticatedUser.uid);
-        if (!user) throw new NotFoundException('User do not exists');
+        if (!user) throw new NotFoundException('notfound.user.do.not.exists');
 
         return user;
     }
