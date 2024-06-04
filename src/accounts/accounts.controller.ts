@@ -17,7 +17,19 @@ export class AccountsController {
     @Auth()
     @UsePipes(new ValidationPipe({transform: true}))
     async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createAccountDto: CreateAccountDto): Promise<void> {
-        return this.accountsService.create(createAccountDto.planId, createAccountDto.name, authenticatedUser.email, authenticatedUser.uid);
+        return this.accountsService.create(
+            createAccountDto.planId,
+            createAccountDto.name,
+            authenticatedUser.email,
+            authenticatedUser.uid,
+            createAccountDto.address,
+            createAccountDto.phone,
+            createAccountDto.whatsApp,
+            createAccountDto.documentType,
+            createAccountDto.documentNumber,
+            createAccountDto.webSite,
+            createAccountDto.socialMedia,
+        );
     }
 
     @Get()

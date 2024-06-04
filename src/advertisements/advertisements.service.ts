@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { Advertisement, AdvertisementStatus } from './interfaces/advertisement.interface';
+import { Advertisement, AdvertisementAmenity, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementStatus, AdvertisementTransactionType } from './interfaces/advertisement.interface';
 import { InjectModel } from '@nestjs/mongoose';
+import { Address } from 'src/addresses/intefaces/address.interface';
 
 @Injectable()
 export class AdvertisementsService {
@@ -13,9 +14,9 @@ export class AdvertisementsService {
         accountId: string, 
         userId: string, 
         description: string,
-        transactionType: string,
-        propertyStatus: string,
-        propertyType: string,
+        transactionType: AdvertisementTransactionType,
+        propertyStatus: AdvertisementPropertyStatus,
+        propertyType: AdvertisementPropertyType,
         allContentsIncluded: boolean,
         isResidentialComplex: boolean,
         isPenthouse: boolean,
@@ -26,14 +27,14 @@ export class AdvertisementsService {
         constructionYear: Number,
         socioEconomicLevel: Number,
         isHoaIncluded: boolean,
-        amenities: string[],
+        amenities: AdvertisementAmenity[],
         hoaFee: Number,
         lotArea: Number,
         floorArea: Number,
         price: Number,
         pricePerFloorArea: Number,
         pricePerLotArea: Number,
-        address: Object,
+        address: Address,
         tourUrl: string,
         videoUrl: string,
         isActive: boolean,

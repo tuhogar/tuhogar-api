@@ -22,7 +22,7 @@ export class IsSocioEconomicLevelConstraint implements ValidatorConstraintInterf
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'socioEconomicLevel must be between 1 and 6';
+        return 'invalid.socioEconomicLevel.must.be.between.1.and.6';
     }
 }
 

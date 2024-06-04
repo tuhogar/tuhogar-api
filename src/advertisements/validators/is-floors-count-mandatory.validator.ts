@@ -22,7 +22,7 @@ export class IsFloorsCountMandatoryConstraint implements ValidatorConstraintInte
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'floorsCount must be a number greater than 0 when propertyStatus is HOUSE, APARTMENT, OFFICE, WAREHOUSE, BUILDING or COMMERCIAL';
+        return 'invalid.floorsCount.must.be.a.number.greater.than.0.when.propertyStatus.is.HOUSE.APARTMENT.OFFICE.WAREHOUSE.BUILDING.or.COMMERCIAL';
     }
 }
 

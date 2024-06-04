@@ -2,10 +2,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
-import { User, UserRole, UserStatus } from './interfaces/user.interface';
+import { User, UserDocumentType, UserRole, UserSocialMedia, UserStatus } from './interfaces/user.interface';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { ConfigService } from '@nestjs/config';
 import { AccountStatus } from 'src/accounts/interfaces/account.interface';
+import { Address } from 'src/addresses/intefaces/address.interface';
 
 @Injectable()
 export class UsersService {
@@ -19,9 +20,24 @@ export class UsersService {
         this.firebaseApiKey = this.configService.get<string>('FIREBASE_API_KEY');
     }
 
-    async create(name: string, email: string, planId: string, accountId: string, accountStatus: AccountStatus, userRole: UserRole, uid: string): Promise<void> {
+    async create(
+        name: string,
+        email: string,
+        planId: string,
+        accountId: string,
+        accountStatus: AccountStatus,
+        userRole: UserRole,
+        uid: string,
+        address: Address,
+        phone: string,
+        whatsApp: string,
+        documentType: UserDocumentType,
+        documentNumber: string,
+        webSite: string,
+        socialMedia: UserSocialMedia,
+    ): Promise<void> {
         const userExists = await this.getByUid(uid);
-        if (userExists) throw new Error('User already exists.');
+        if (userExists) throw new Error('invalid.user.already.exists');
 
         const userCreated = new this.userModel({ 
             name,
@@ -29,6 +45,13 @@ export class UsersService {
             accountId,
             userRole,
             uid,
+            address,
+            phone,
+            whatsApp,
+            documentType,
+            documentNumber,
+            webSite,
+            socialMedia,
             status: UserStatus.ACTIVE,
          });
         await userCreated.save();
@@ -45,7 +68,7 @@ export class UsersService {
             });
         } catch(error) {
             await this.userModel.deleteOne({ _id: userCreated._id.toString() });
-            throw new UnauthorizedException();
+            throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
 
     }
@@ -75,7 +98,7 @@ export class UsersService {
     
           return response.data;
         } catch (error) {
-            throw new UnauthorizedException('Invalid email or password');
+            throw new UnauthorizedException('authorization.invalid.email.or.password');
           }
     }
 }

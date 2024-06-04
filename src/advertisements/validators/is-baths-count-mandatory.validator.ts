@@ -17,7 +17,7 @@ export class IsBathsCountMandatoryConstraint implements ValidatorConstraintInter
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'bathsCount must be a number greater than 0 when propertyStatus is HOUSE, APARTMENT or OFFICE';
+        return 'invalid.bathsCount.must.be.a.number.greater.than.0.when.propertyStatus.is.HOUSE.APARTMENT.or.OFFICE';
     }
 }
 

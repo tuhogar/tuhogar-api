@@ -1,4 +1,5 @@
 import { Date, Document } from 'mongoose';
+import { Address } from 'src/addresses/intefaces/address.interface';
 
 export enum AdvertisementStatus {
     ACTIVE = 'ACTIVE',
@@ -47,14 +48,6 @@ export enum AdvertisementAmenity {
     MINI_MARKET = 'MINI_MARKET',
     NATURAL_GAS = 'NATURAL_GAS',
 }
-
-export interface AdvertisementAddress {
-    readonly country: String;
-    readonly state: String;
-    readonly city: String;
-    readonly neighbourhood: String;
-}
-
 export interface Advertisement extends Document  {
     readonly accountId: String;
     readonly userId: String;
@@ -80,7 +73,7 @@ export interface Advertisement extends Document  {
     readonly price: Number;
     readonly pricePerFloorArea: Number;
     readonly pricePerLotArea: Number;
-    readonly address: AdvertisementAddress;
+    readonly address: Address;
     readonly photos: String[];
     readonly tourUrl: String;
     readonly videoUrl: String;

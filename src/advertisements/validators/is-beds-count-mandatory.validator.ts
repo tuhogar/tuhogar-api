@@ -17,7 +17,7 @@ export class IsBedsCountMandatoryConstraint implements ValidatorConstraintInterf
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'bedsCount must be a number greater than 0 when propertyStatus is HOUSE or APARTMENT';
+        return 'invalid.bedsCount.must.be.a.number.greater.than.0.when.propertyStatus.is.HOUSE.or.APARTMENT';
     }
 }
 
