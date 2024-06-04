@@ -19,4 +19,8 @@ export class PlansService {
     async getById(id: string): Promise<Plan> {
         return this.planModel.findOne({ _id: id });
     }
+
+    async create(plan: any): Promise<void> {
+        await this.planModel.create(plan);
+    }
 }

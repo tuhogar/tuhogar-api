@@ -13,4 +13,9 @@ export class PlansController {
     async getAll(): Promise<Plan[]> {
         return this.plansService.getAll();
     }
+
+    @Post()
+    async create(@Body() plan: any): Promise<void> {
+        await this.plansService.create(plan);
+    }
 }
