@@ -101,4 +101,8 @@ export class UsersService {
             throw new UnauthorizedException('authorization.invalid.email.or.password');
           }
     }
+
+    async delete(uid: string): Promise<void> {
+        await this.userModel.deleteOne({ uid }).exec();
+    }
 }

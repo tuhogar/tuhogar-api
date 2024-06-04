@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Auth } from 'src/decorators/auth.decorator';
 import { Authenticated } from 'src/decorators/authenticated.decorator';
@@ -30,5 +30,11 @@ export class UsersController {
     @Post('login')
     async login(@Body('email') email: string, @Body('password') password: string) {
         return this.usersService.login(email, password);
+    }
+
+    @Delete()
+    @Auth()
+    async delete(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
+        await this.usersService.delete(authenticatedUser.uid);
     }
 }
