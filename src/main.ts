@@ -10,6 +10,14 @@ async function bootstrap() {
   }));
   app.useGlobalFilters(new CustomExceptionFilter());
 
+  /*const corsOptions: CorsOptions = {
+    origin: 'http://localhost:3000', // Substitua pelo domínio que fará as requisições à sua API
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept',
+    credentials: true,
+  };*/
+
+  app.enableCors();
   await app.listen(3000);
 }
 bootstrap();
