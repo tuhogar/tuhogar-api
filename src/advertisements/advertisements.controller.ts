@@ -1,12 +1,13 @@
 import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AdvertisementsService } from './advertisements.service';
 import { Authenticated } from 'src/decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { Auth } from 'src/decorators/auth.decorator';
 import { CreateAdvertisementDto } from './dtos/create-advertisement.dto';
 import { Advertisement, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementStatus, AdvertisementTransactionType } from './interfaces/advertisement.interface';
-import { validate } from 'class-validator';
 
+@ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
 export class AdvertisementsController {
 
@@ -14,6 +15,7 @@ export class AdvertisementsController {
         private readonly advertisementsService: AdvertisementsService,
     ) {}
 
+    @ApiBearerAuth()
     @Post()
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
@@ -50,6 +52,7 @@ export class AdvertisementsController {
         );
     }
 
+    @ApiBearerAuth()
     @Get()
     @Auth('ADMIN', 'USER')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<Advertisement[]> {

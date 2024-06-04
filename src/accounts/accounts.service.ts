@@ -29,13 +29,13 @@ export class AccountsService {
         name: string,
         email: string,
         uid: string,
-        address: Address,
+        //address: Address,
         phone: string,
-        whatsApp: string,
+        //whatsApp: string,
         documentType: UserDocumentType,
         documentNumber: string,
-        webSite: string,
-        socialMedia: UserSocialMedia,
+        //webSite: string,
+        //socialMedia: UserSocialMedia,
     ): Promise<void> {
         const plan = await this.plansService.getById(planId);
         if (!plan) throw new Error('invalid.do.not.exists.plan');
@@ -55,13 +55,13 @@ export class AccountsService {
                 AccountStatus.ACTIVE,
                 UserRole.ADMIN,
                 uid,
-                address,
+                //address,
                 phone,
-                whatsApp,
+                //whatsApp,
                 documentType,
                 documentNumber,
-                webSite,
-                socialMedia,
+                //webSite,
+                //socialMedia,
             );
         } catch(error) {
             await this.accountModel.deleteOne({ _id: accountCreated._id.toString() });

@@ -28,13 +28,13 @@ export class UsersService {
         accountStatus: AccountStatus,
         userRole: UserRole,
         uid: string,
-        address: Address,
+        //address: Address,
         phone: string,
-        whatsApp: string,
+        //whatsApp: string,
         documentType: UserDocumentType,
         documentNumber: string,
-        webSite: string,
-        socialMedia: UserSocialMedia,
+        //webSite: string,
+        //socialMedia: UserSocialMedia,
     ): Promise<void> {
         const userExists = await this.getByUid(uid);
         if (userExists) throw new Error('invalid.user.already.exists');
@@ -45,13 +45,13 @@ export class UsersService {
             accountId,
             userRole,
             uid,
-            address,
+            //address,
             phone,
-            whatsApp,
+            //whatsApp,
             documentType,
             documentNumber,
-            webSite,
-            socialMedia,
+            //webSite,
+            //socialMedia,
             status: UserStatus.ACTIVE,
          });
         await userCreated.save();

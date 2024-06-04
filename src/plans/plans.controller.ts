@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { PlansService } from './plans.service';
 import { Plan } from './interfaces/plan.interface';
+import { ApiTags } from '@nestjs/swagger';
+import { CreatePlanDto } from './dtos/create-plan.dto';
 
+@ApiTags('v1/plans')
 @Controller('v1/plans')
 export class PlansController {
 
@@ -15,7 +18,7 @@ export class PlansController {
     }
 
     @Post()
-    async create(@Body() plan: any): Promise<void> {
-        await this.plansService.create(plan);
+    async create(@Body() createPlanDto: CreatePlanDto): Promise<void> {
+        await this.plansService.create(createPlanDto);
     }
 }
