@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class UpdateImagesOrdersAdvertisementDto {
+export class UpdateImageOrderAdvertisementDto {
     @ApiProperty()
     @IsNotEmpty({ message: 'invalid.id.should.not.be.empty' })
     @IsString({ message: 'invalid.id.must.be.a.string' })

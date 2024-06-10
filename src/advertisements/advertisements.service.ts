@@ -7,7 +7,7 @@ import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
-import { UpdateImagesOrdersAdvertisementDto } from './dtos/update-image-orders-advertisement.dto';
+import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
 
 export const imageFileFilter = (req, file, callback) => {
     if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
@@ -138,7 +138,7 @@ export class AdvertisementsService {
         fs.unlink(`./uploads/${photoToRemove.name}`, () => {});
     }
     
-    async updateImageOrders(advertisementid: string, updateImagesOrdersAdvertisementDto: UpdateImagesOrdersAdvertisementDto[]): Promise<void> {
+    async updateImageOrders(advertisementid: string, updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
         const advertisement = await this.advertisementModel.findById(advertisementid);
         if (!advertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
 

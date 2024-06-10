@@ -8,7 +8,7 @@ import { CreateAdvertisementDto } from './dtos/create-advertisement.dto';
 import { Advertisement, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementStatus, AdvertisementTransactionType } from './interfaces/advertisement.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { UpdateImagesOrdersAdvertisementDto } from './dtos/update-image-orders-advertisement.dto';
+import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -95,11 +95,11 @@ export class AdvertisementsController {
     }
 
     @ApiBearerAuth()
-    @ApiBody({ type: [UpdateImagesOrdersAdvertisementDto] })
+    @ApiBody({ type: [UpdateImageOrderAdvertisementDto] })
     @Put(':advertisementid/images')
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
-    async updateImageOrders(@Param('advertisementid') advertisementid: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImagesOrdersAdvertisementDto[]): Promise<void> {
+    async updateImageOrders(@Param('advertisementid') advertisementid: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
         await this.advertisementsService.updateImageOrders(advertisementid, updateImagesOrdersAdvertisementDto);
     }
 }

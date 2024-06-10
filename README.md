@@ -74,3 +74,4 @@ Nest is [MIT licensed](LICENSE).
 
 
 docker build -t giusti/tuhogar-api:latest .
+docker push giusti/tuhogar-api
