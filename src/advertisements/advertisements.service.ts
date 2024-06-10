@@ -6,6 +6,8 @@ import { Address } from 'src/addresses/intefaces/address.interface';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import { UpdateImagesOrdersAdvertisementDto } from './dtos/update-image-orders-advertisement.dto';
 
 export const imageFileFilter = (req, file, callback) => {
     if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
@@ -98,14 +100,63 @@ export class AdvertisementsService {
         return this.advertisementModel.find({ accountId }).exec();
     }
 
-    async updloadImage(advertisementid: string, fileName: string): Promise<void> {
-        const photoUrl = `${this.advertisementImagesUrl}/${fileName}`;
+    async updloadImage(advertisementid: string, fileName: string, filePath: string, order: number): Promise<void> {
+        try {
+            const url = `${this.advertisementImagesUrl}/${fileName}`;
+            const id = fileName.replace('-','.').split('.')[1];
+            
+            const updatedAdvertisement = await this.advertisementModel.findByIdAndUpdate(advertisementid,
+                { $push: { photos: { id, name: fileName, url, order } }},
+                { new: true }
+            ).exec();
 
-        const updatedAdvertisement = await this.advertisementModel.findByIdAndUpdate(advertisementid,
-            { $push: { photos: photoUrl }},
+            if (!updatedAdvertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
+        } catch(error) {
+            fs.unlink(filePath, () => {});
+            throw error;
+        }
+    }
+
+    async deleteImage(advertisementid: string, imageid: string): Promise<void> {
+        const advertisement = await this.advertisementModel.findById(advertisementid);
+        if (!advertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
+
+        const photos = advertisement.photos;
+        if(!photos) return;
+        
+        const photoToRemove = photos.find((a) => a.id === imageid);
+        if(!photoToRemove) return;
+
+        const newPhotos = photos.filter((a) => a.id !== imageid);
+
+        await this.advertisementModel.findByIdAndUpdate(
+            advertisementid,
+            { photos: newPhotos },
             { new: true }
-        ).exec();
+        );
 
-        if (!updatedAdvertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
+        fs.unlink(`./uploads/${photoToRemove.name}`, () => {});
+    }
+    
+    async updateImageOrders(advertisementid: string, updateImagesOrdersAdvertisementDto: UpdateImagesOrdersAdvertisementDto[]): Promise<void> {
+        const advertisement = await this.advertisementModel.findById(advertisementid);
+        if (!advertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
+
+        const photos = advertisement.photos;
+        if(!photos) return;
+
+        const newPhotos = updateImagesOrdersAdvertisementDto.map((a) => {
+            const photo = photos.find((b) => b.id === a.id);
+            if(!photo) throw new Error(`notfound.photo.id.${a.id}.do.not.exists`);
+            
+            photo.order = a.order;
+            return photo;
+        });
+
+        await this.advertisementModel.findByIdAndUpdate(
+            advertisementid,
+            { photos: newPhotos },
+            { new: true }
+        );
     }
 }

@@ -1,5 +1,5 @@
-import { BadRequestException, Body, Controller, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { AdvertisementsService, editFileName, imageFileFilter } from './advertisements.service';
 import { Authenticated } from 'src/decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
@@ -8,6 +8,8 @@ import { CreateAdvertisementDto } from './dtos/create-advertisement.dto';
 import { Advertisement, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementStatus, AdvertisementTransactionType } from './interfaces/advertisement.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { UpdateImagesOrdersAdvertisementDto } from './dtos/update-image-orders-advertisement.dto';
+
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
 export class AdvertisementsController {
@@ -60,6 +62,7 @@ export class AdvertisementsController {
         return this.advertisementsService.getAllByAccountId(authenticatedUser.accountId);
     }
 
+    @ApiBearerAuth()
     @Post(':advertisementid/images')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
@@ -80,8 +83,23 @@ export class AdvertisementsController {
                 ] 
             }
         )
-    ) file: Express.Multer.File): Promise<void> {
-        await this.advertisementsService.updloadImage(advertisementid, file.filename);
-        
+    ) file: Express.Multer.File, @Body('order') order: number): Promise<void> {
+        await this.advertisementsService.updloadImage(advertisementid, file.filename, file.path, +order);
+    }
+
+    @ApiBearerAuth()
+    @Delete(':advertisementid/images/:imageid')
+    @Auth('ADMIN', 'USER')
+    async deleteImage(@Param('advertisementid') advertisementid: string, @Param('imageid') imageid: string): Promise<void> {
+        await this.advertisementsService.deleteImage(advertisementid, imageid);
+    }
+
+    @ApiBearerAuth()
+    @ApiBody({ type: [UpdateImagesOrdersAdvertisementDto] })
+    @Put(':advertisementid/images')
+    @Auth('ADMIN', 'USER')
+    @UsePipes(new ValidationPipe({transform: true}))
+    async updateImageOrders(@Param('advertisementid') advertisementid: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImagesOrdersAdvertisementDto[]): Promise<void> {
+        await this.advertisementsService.updateImageOrders(advertisementid, updateImagesOrdersAdvertisementDto);
     }
 }

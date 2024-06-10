@@ -48,6 +48,13 @@ export enum AdvertisementAmenity {
     MINI_MARKET = 'MINI_MARKET',
     NATURAL_GAS = 'NATURAL_GAS',
 }
+
+export interface AdvertisementPhoto {
+    id: string;
+    name: string;
+    url: String;
+    order: Number;
+}
 export interface Advertisement extends Document  {
     readonly accountId: String;
     readonly userId: String;
@@ -74,7 +81,7 @@ export interface Advertisement extends Document  {
     readonly pricePerFloorArea: Number;
     readonly pricePerLotArea: Number;
     readonly address: Address;
-    readonly photos: String[];
+    readonly photos: AdvertisementPhoto[];
     readonly tourUrl: String;
     readonly videoUrl: String;
     readonly isActive: Boolean;
