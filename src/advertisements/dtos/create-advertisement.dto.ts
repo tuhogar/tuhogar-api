@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested, isNotEmpty } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { AdvertisementAmenity, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
 import { IsBedsCountMandatory } from "../validators/is-beds-count-mandatory.validator";

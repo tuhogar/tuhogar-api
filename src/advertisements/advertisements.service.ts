@@ -1,17 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { Advertisement, AdvertisementAmenity, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementStatus, AdvertisementTransactionType } from './interfaces/advertisement.interface';
+import { Advertisement } from './interfaces/advertisement.interface';
 import { InjectModel } from '@nestjs/mongoose';
-import { Address } from 'src/addresses/intefaces/address.interface';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
+import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
+import { CreateAdvertisementDto } from './dtos/create-advertisement.dto';
 
 export const imageFileFilter = (req, file, callback) => {
     if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-      return callback(new BadRequestException('Only image files are allowed!'), false);
+      return callback(new Error('invalid.only.image.files.are.allowed'), false);
     }
     callback(null, true);
   };
@@ -33,66 +34,10 @@ export class AdvertisementsService {
     }
 
     async create(
-        accountId: string, 
-        userId: string, 
-        description: string,
-        transactionType: AdvertisementTransactionType,
-        propertyStatus: AdvertisementPropertyStatus,
-        propertyType: AdvertisementPropertyType,
-        allContentsIncluded: boolean,
-        isResidentialComplex: boolean,
-        isPenthouse: boolean,
-        bedsCount: Number,
-        bathsCount: Number,
-        parkingCount: Number,
-        floorsCount: Number,
-        constructionYear: Number,
-        socioEconomicLevel: Number,
-        isHoaIncluded: boolean,
-        amenities: AdvertisementAmenity[],
-        hoaFee: Number,
-        lotArea: Number,
-        floorArea: Number,
-        price: Number,
-        pricePerFloorArea: Number,
-        pricePerLotArea: Number,
-        address: Address,
-        tourUrl: string,
-        videoUrl: string,
-        isActive: boolean,
-        isPaid: boolean,
+        authenticatedUser: AuthenticatedUser,
+        createAdvertisementsDto: CreateAdvertisementDto,
     ): Promise<void> {
-        const advertisementCreated = new this.advertisementModel({
-            accountId: accountId,
-            userId: userId,
-            description,
-            status: AdvertisementStatus.ACTIVE,
-            transactionType,
-            propertyStatus,
-            propertyType,
-            allContentsIncluded,
-            isResidentialComplex,
-            isPenthouse,
-            bedsCount,
-            bathsCount,
-            parkingCount,
-            floorsCount,
-            constructionYear,
-            socioEconomicLevel,
-            isHoaIncluded,
-            amenities,
-            hoaFee,
-            lotArea,
-            floorArea,
-            price,
-            pricePerFloorArea,
-            pricePerLotArea,
-            address,
-            tourUrl,
-            videoUrl,
-            isActive,
-            isPaid,
-        });
+        const advertisementCreated = new this.advertisementModel({ accountId: authenticatedUser.accountId, userId: authenticatedUser.userId, ...createAdvertisementsDto, });
         await advertisementCreated.save();
     }
 
@@ -100,26 +45,25 @@ export class AdvertisementsService {
         return this.advertisementModel.find({ accountId }).exec();
     }
 
-    async updloadImage(advertisementid: string, fileName: string, filePath: string, order: number): Promise<void> {
+    async updloadImage(accountId: string, advertisementid: string, fileName: string, filePath: string, order: number): Promise<void> {
         try {
             const url = `${this.advertisementImagesUrl}/${fileName}`;
             const id = fileName.replace('-','.').split('.')[1];
             
-            const updatedAdvertisement = await this.advertisementModel.findByIdAndUpdate(advertisementid,
+            const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ accountId, _id: advertisementid },
                 { $push: { photos: { id, name: fileName, url, order } }},
                 { new: true }
             ).exec();
 
-            if (!updatedAdvertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
+            if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
         } catch(error) {
             fs.unlink(filePath, () => {});
             throw error;
         }
     }
 
-    async deleteImage(advertisementid: string, imageid: string): Promise<void> {
-        const advertisement = await this.advertisementModel.findById(advertisementid);
-        if (!advertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
+    async deleteImage(accountId: string, advertisementid: string, imageid: string): Promise<void> {
+        const advertisement = await this.getByAccountIdAndId(accountId, advertisementid);
 
         const photos = advertisement.photos;
         if(!photos) return;
@@ -129,8 +73,8 @@ export class AdvertisementsService {
 
         const newPhotos = photos.filter((a) => a.id !== imageid);
 
-        await this.advertisementModel.findByIdAndUpdate(
-            advertisementid,
+        await this.advertisementModel.findOneAndUpdate(
+            { accountId, _id: advertisementid },
             { photos: newPhotos },
             { new: true }
         );
@@ -138,9 +82,8 @@ export class AdvertisementsService {
         fs.unlink(`./uploads/${photoToRemove.name}`, () => {});
     }
     
-    async updateImageOrders(advertisementid: string, updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
-        const advertisement = await this.advertisementModel.findById(advertisementid);
-        if (!advertisement) throw new NotFoundException('notfound.advertisement.do.not.exists');
+    async updateImageOrders(accountId: string, advertisementid: string, updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
+        const advertisement = await this.getByAccountIdAndId(accountId, advertisementid);
 
         const photos = advertisement.photos;
         if(!photos) return;
@@ -153,10 +96,17 @@ export class AdvertisementsService {
             return photo;
         });
 
-        await this.advertisementModel.findByIdAndUpdate(
-            advertisementid,
+        await this.advertisementModel.findOneAndUpdate(
+            { accountId, _id: advertisementid },
             { photos: newPhotos },
             { new: true }
         );
+    }
+
+    async getByAccountIdAndId(accountId: string, advertisementid: string): Promise<Advertisement> {
+        const advertisement = await this.advertisementModel.findOne({ accountId, _id: advertisementid });
+        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        return advertisement;
     }
 }

@@ -2,11 +2,13 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
-import { User, UserDocumentType, UserRole, UserSocialMedia, UserStatus } from './interfaces/user.interface';
+import { User, UserStatus } from './interfaces/user.interface';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { ConfigService } from '@nestjs/config';
-import { AccountStatus } from 'src/accounts/interfaces/account.interface';
-import { Address } from 'src/addresses/intefaces/address.interface';
+import { Account } from 'src/accounts/interfaces/account.interface';
+import { PatchUserDto } from './dtos/patch-user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 @Injectable()
 export class UsersService {
@@ -21,48 +23,29 @@ export class UsersService {
     }
 
     async create(
-        name: string,
-        email: string,
-        planId: string,
-        accountId: string,
-        accountStatus: AccountStatus,
-        userRole: UserRole,
-        uid: string,
-        //address: Address,
-        phone: string,
-        //whatsApp: string,
-        documentType: UserDocumentType,
-        documentNumber: string,
-        //webSite: string,
-        //socialMedia: UserSocialMedia,
+        authenticatedUser: AuthenticatedUser,
+        createUserDto: CreateUserDto,
+        accountCreated: Account,
     ): Promise<void> {
-        const userExists = await this.getByUid(uid);
+        const userExists = await this.getByUid(authenticatedUser.uid);
         if (userExists) throw new Error('invalid.user.already.exists');
 
-        const userCreated = new this.userModel({ 
-            name,
-            email,
-            accountId,
-            userRole,
-            uid,
-            //address,
-            phone,
-            //whatsApp,
-            documentType,
-            documentNumber,
-            //webSite,
-            //socialMedia,
+        const userCreated = new this.userModel({
+            ...createUserDto,
+            email: authenticatedUser.email,
+            uid: authenticatedUser.uid,
             status: UserStatus.ACTIVE,
+            accountId: accountCreated._id.toString(),
          });
         await userCreated.save();
         
         try {
             const app = this.admin.setup();
-            await app.auth().setCustomUserClaims(uid, { 
-                userRole,
-                planId,
-                accountId,
-                accountStatus,
+            await app.auth().setCustomUserClaims(authenticatedUser.uid, { 
+                userRole: createUserDto.userRole,
+                planId: accountCreated.planId,
+                accountId: accountCreated._id.toString(),
+                accountStatus: accountCreated.status,
                 userStatus: userCreated.status,
                 userId: userCreated._id.toString(),
             });
@@ -73,16 +56,15 @@ export class UsersService {
 
     }
 
-    async getByUid(uid: string): Promise<User> {
-        return this.userModel.findOne({ uid });
-    }
-
     async getAllByAccountId(accountId: string): Promise<User[]> {
         return this.userModel.find({ accountId }).exec();
     }
 
-    async getById(uid: string): Promise<User> {
-        return this.userModel.findOne({ uid }).exec();
+    async getByUid(uid: string): Promise<User> {
+        const user = await this.userModel.findOne({ uid }).exec();
+        if (!user) throw new Error('notfound.user.do.not.exists');
+
+        return user;
     }
 
     async login(email: string, password: string) {
@@ -104,5 +86,14 @@ export class UsersService {
 
     async delete(uid: string): Promise<void> {
         await this.userModel.deleteOne({ uid }).exec();
+    }
+
+    async patch(accountId: string, userId: string, patchUserDto: PatchUserDto): Promise<void> {
+        const updatedUser = await this.userModel.findOneAndUpdate({ accountId, _id: userId },
+            patchUserDto,
+            { new: true }
+        ).exec();
+
+        if (!updatedUser) throw new Error('notfound.user.do.not.exists');
     }
 }

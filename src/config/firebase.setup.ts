@@ -1,5 +1,4 @@
 import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
-import { readFile } from "fs/promises";
 import * as admin from "firebase-admin";
 import { ConfigService } from "@nestjs/config";
 

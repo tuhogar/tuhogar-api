@@ -1,13 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { IsObjectId } from "src/decorators/is-object-id.decorator";
-import { UserDocumentType } from "src/users/interfaces/user.interface";
+import { UserDocumentType, UserRole } from "../interfaces/user.interface";
 
-export class CreateAccountDto {
-
-    @ApiProperty()
-    @IsObjectId({ message: 'invalid.planId' })
-    planId: string;
+export class CreateUserDto {
 
     @ApiProperty()
     @IsString({ message: 'invalid.name.must.be.a.string' })
@@ -30,4 +25,9 @@ export class CreateAccountDto {
     @IsNotEmpty({ message: 'invalid.documentNumber.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.documentNumber.must.be.shorter.than.or.equal.to.30.characters' })
     documentNumber: string;
+
+    @ApiProperty()
+    @IsNotEmpty({ message: 'invalid.userRole.should.not.be.empty' })
+    @IsEnum(UserRole, { message: 'invalid.userRole.must.be.one.of.the.following.values.ADMIN.USER' })
+    userRole: UserRole;
 }
