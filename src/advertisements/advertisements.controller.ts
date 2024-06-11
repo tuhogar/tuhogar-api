@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AdvertisementsService, editFileName, imageFileFilter } from './advertisements.service';
 import { Authenticated } from 'src/decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
@@ -37,6 +37,19 @@ export class AdvertisementsController {
     }
 
     @ApiBearerAuth()
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+          type: 'object',
+          properties: {
+            order: { type: 'integer' },
+            file: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+        },
+      })
     @Post(':advertisementid/images')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
