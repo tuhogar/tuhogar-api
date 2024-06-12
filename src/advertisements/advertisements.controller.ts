@@ -113,7 +113,7 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Put(':advertisementid/status')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({ transform: true }))
     async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
         await this.advertisementsService.updateStatus(

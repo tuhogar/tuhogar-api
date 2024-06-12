@@ -46,5 +46,4 @@ export const AdvertisementSchema = new mongoose.Schema({
     isActive: Boolean,
     isPaid: Boolean,
     publishedAt: Date,
-    publicationExpirationDate: Date,
 }, { timestamps: true, collection: 'advertisements' });

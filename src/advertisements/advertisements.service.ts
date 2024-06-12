@@ -150,12 +150,16 @@ export class AdvertisementsService {
     ): Promise<void> {
         const filter = { _id: advertisementid, accountId: authenticatedUser.accountId };
         if (authenticatedUser.userRole == UserRole.MASTER) delete filter.accountId;
+        
+        let publishedAt = undefined;
+        if (updateStatusAdvertisementDto.status === AdvertisementStatus.ACTIVE) publishedAt = new Date();
 
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate(
             filter,
             { 
                 updatedUserId: authenticatedUser.userId,
                 ...updateStatusAdvertisementDto,
+                publishedAt,
             },
             { new: true }
         ).exec();

@@ -90,5 +90,4 @@ export interface Advertisement extends Document  {
     readonly tourUrl: String;
     readonly videoUrl: String;
     readonly publishedAt: Date;
-    readonly publicationExpirationDate: Date;
 }
