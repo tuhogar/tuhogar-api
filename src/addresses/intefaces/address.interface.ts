@@ -3,4 +3,5 @@ export interface Address {
     readonly state: String;
     readonly city: String;
     readonly neighbourhood: String;
+    readonly street: String;
 }

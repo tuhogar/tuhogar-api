@@ -18,20 +18,29 @@ export class CustomExceptionFilter implements ExceptionFilter {
     // Defina seus status code personalizados aqui
     if (typeof message === 'string') {
       const messageType = message.split('.')[0];
-
+     
       switch (messageType) {
         case 'invalid':
           customStatus = HttpStatus.BAD_REQUEST; // 400
           break;
-          case 'notfound':
-            customStatus = HttpStatus.NOT_FOUND; // 404
-            break;
+        case 'notfound':
+          customStatus = HttpStatus.NOT_FOUND; // 404
+          break;
+        case 'unauthorized':
+          customStatus = HttpStatus.UNAUTHORIZED; // 401
+          break;
         default:
           customStatus = status;
           break;
       }
 
       message = [message];
+    }
+    else {
+      if(message?.toString().includes('Unauthorized')) {
+        message = ['Unauthorized'];
+        customStatus = HttpStatus.UNAUTHORIZED; // 401
+      }
     }
 
     const statusDescription = HttpStatusDescriptions[customStatus] || 'Unknown Status';

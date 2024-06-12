@@ -39,4 +39,5 @@ export interface User extends Document  {
     readonly whatsApp: String;
     readonly webSite: String;
     readonly socialMedia: UserSocialMedia;
+    readonly description: String;
 }

@@ -17,4 +17,5 @@ export const UserSchema = new mongoose.Schema({
     whatsApp: String,
     webSite: String,
     socialMedia: Object,
+    description: String,
 }, { timestamps: true, collection: 'users' });

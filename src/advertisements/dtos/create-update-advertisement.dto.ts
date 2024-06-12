@@ -8,7 +8,7 @@ import { IsSocioEconomicLevel } from "../validators/is-socio-economic-level-vali
 import { AddressDto } from "src/addresses/dtos/address.dto";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class CreateAdvertisementDto {
+export class CreateUpdateAdvertisementDto {
     @ApiProperty()
     @IsEnum(AdvertisementTransactionType, { message: 'invalid.transactionType.must.be.one.of.the.following.values.RENT.SALE' })
     transactionType: AdvertisementTransactionType;
@@ -78,6 +78,7 @@ export class CreateAdvertisementDto {
     amenities: AdvertisementAmenity[];
 
     @ApiProperty()
+    @IsOptional()
     @IsNotEmpty({ message: 'invalid.description.should.not.be.empty' })
     @IsString({ message: 'invalid.description.must.be.a.string' })
     description: string;
@@ -99,14 +100,6 @@ export class CreateAdvertisementDto {
     price: number;
 
     @ApiProperty()
-    @IsNumber({}, { message: 'invalid.pricePerFloorArea.must.be.a.number.conforming.to.the.specified.constraints' })
-    pricePerFloorArea: number;
-
-    @ApiProperty()
-    @IsNumber({}, { message: 'invalid.pricePerLotArea.must.be.a.number.conforming.to.the.specified.constraints' })
-    pricePerLotArea: number;
-
-    @ApiProperty()
     @IsNotEmpty({ message: 'invalid.address.should.not.be.empty' })
     @ValidateNested()
     @Type(() => AddressDto)
@@ -121,13 +114,4 @@ export class CreateAdvertisementDto {
     @IsString({ message: 'invalid.videoUrl.must.be.a.string' })
     @IsOptional()
     videoUrl: string = null;
-
-    @ApiProperty()
-    @IsBoolean({ message: 'invalid.isActive.must.be.a.boolean.value'})
-    isActive: boolean;
-
-    @ApiProperty()
-    @IsBoolean({ message: 'invalid.isPaid.must.be.a.boolean.value'})
-    isPaid: boolean;
-
 }

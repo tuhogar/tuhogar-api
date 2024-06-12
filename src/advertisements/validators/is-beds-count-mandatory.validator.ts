@@ -1,9 +1,6 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
 import { AdvertisementPropertyStatus } from '../interfaces/advertisement.interface';
 
-
-
-
 @ValidatorConstraint({ async: false })
 export class IsBedsCountMandatoryConstraint implements ValidatorConstraintInterface {
     validate(bedsCount: any, args: ValidationArguments) {

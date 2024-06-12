@@ -5,6 +5,7 @@ import { AuthenticatedUser } from "src/users/interfaces/authenticated-user.inter
 import { AccountStatus } from "src/accounts/interfaces/account.interface";
 import { UserStatus } from "src/users/interfaces/user.interface";
 
+export const REQUEST_CONTEXT = '_requestContext';
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
@@ -24,7 +25,7 @@ export class AuthGuard implements CanActivate {
         const permissions = this.reflector.get<string[]>("permissions", context.getHandler());
         try {
             const claims = await app.auth().verifyIdToken(idToken);
-            request['user'] = { 
+            const user: AuthenticatedUser = { 
                 userRole: claims.userRole,
                 uid: claims.uid,
                 userId: claims.userId,
@@ -33,10 +34,13 @@ export class AuthGuard implements CanActivate {
                 planId: claims.planId,
                 accountId: claims.accountId,
                 accountStatus: claims.accountStatus,
-            } as AuthenticatedUser;
+            };
+
+            request['user'] = user;
+            request['body'][REQUEST_CONTEXT] = { user };
 
             if (permissions && permissions.length > 0) {
-                if (permissions.includes(claims.userRole) && claims.accountStatus === AccountStatus.ACTIVE && claims.userStatus === UserStatus.ACTIVE) {
+                if (permissions.includes(user.userRole) && user.accountStatus === AccountStatus.ACTIVE && user.userStatus === UserStatus.ACTIVE) {
                     return true;
                 } else {
                     throw new UnauthorizedException();

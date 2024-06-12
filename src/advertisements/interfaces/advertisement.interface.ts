@@ -4,6 +4,9 @@ import { Address } from 'src/addresses/intefaces/address.interface';
 export enum AdvertisementStatus {
     ACTIVE = 'ACTIVE',
     INACTIVE = 'INACTIVE',
+    PAUSED_BY_USER = 'PAUSED_BY_USER',
+    PAUSED_BY_APPLICATION = 'PAUSED_BY_APPLICATION',
+    WAITING_FOR_APPROVAL = 'WAITING_FOR_APPROVAL',
 }
 
 export enum AdvertisementTransactionType {
@@ -57,7 +60,9 @@ export interface AdvertisementPhoto {
 }
 export interface Advertisement extends Document  {
     readonly accountId: String;
-    readonly userId: String;
+    readonly createdUserId: String;
+    readonly updatedUserId: String;
+    readonly approvingUserId: String;
     readonly status: AdvertisementStatus;
     readonly transactionType: AdvertisementTransactionType;
     readonly propertyStatus: AdvertisementPropertyStatus;
@@ -84,8 +89,6 @@ export interface Advertisement extends Document  {
     readonly photos: AdvertisementPhoto[];
     readonly tourUrl: String;
     readonly videoUrl: String;
-    readonly isActive: Boolean;
-    readonly isPaid: Boolean;
     readonly publishedAt: Date;
-    readonly approvingUserId: String;
+    readonly publicationExpirationDate: Date;
 }

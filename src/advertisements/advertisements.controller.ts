@@ -4,11 +4,12 @@ import { AdvertisementsService, editFileName, imageFileFilter } from './advertis
 import { Authenticated } from 'src/decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { Auth } from 'src/decorators/auth.decorator';
-import { CreateAdvertisementDto } from './dtos/create-advertisement.dto';
+import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement.dto';
 import { Advertisement } from './interfaces/advertisement.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
+import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -22,10 +23,10 @@ export class AdvertisementsController {
     @Post()
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
-    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createAdvertisementsDto: CreateAdvertisementDto): Promise<void> {
+    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementsDto: CreateUpdateAdvertisementDto): Promise<void> {
         return this.advertisementsService.create(
             authenticatedUser,
-            createAdvertisementsDto,
+            createUpdateAdvertisementsDto,
         );
     }
 
@@ -89,5 +90,36 @@ export class AdvertisementsController {
     @UsePipes(new ValidationPipe({transform: true}))
     async updateImageOrders(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
         await this.advertisementsService.updateImageOrders(authenticatedUser.accountId, advertisementid, updateImagesOrdersAdvertisementDto);
+    }
+
+    @ApiBearerAuth()
+    @Put(':advertisementid')
+    @Auth('ADMIN', 'USER')
+    @UsePipes(new ValidationPipe({transform: true}))
+    async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
+        await this.advertisementsService.update(
+            authenticatedUser,
+            advertisementid,
+            createUpdateAdvertisementDto,
+        );
+    }
+
+    @ApiBearerAuth()
+    @Get('toapprove')
+    @Auth('MASTER')
+    async getAllToApprove(): Promise<Advertisement[]> {
+        return this.advertisementsService.getAllToApprove();
+    }
+
+    @ApiBearerAuth()
+    @Put(':advertisementid/status')
+    @Auth('ADMIN', 'USER')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
+        await this.advertisementsService.updateStatus(
+            authenticatedUser,
+            advertisementid,
+            updateStatusAdvertisementDto,
+        );
     }
 }

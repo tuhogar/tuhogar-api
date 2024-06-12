@@ -4,15 +4,21 @@ export const AdvertisementSchema = new mongoose.Schema({
     accountId: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Account',
-     },
-     userId: { 
+    },
+    createdUserId: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-     },
+    },
+    updatedUserId: { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    approvingUserId: { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
     description: String,
     status: String,
-
-
     transactionType: String,
     propertyStatus: String,
     propertyType: String,
@@ -40,5 +46,5 @@ export const AdvertisementSchema = new mongoose.Schema({
     isActive: Boolean,
     isPaid: Boolean,
     publishedAt: Date,
-    approvingUserId: String,
+    publicationExpirationDate: Date,
 }, { timestamps: true, collection: 'advertisements' });
