@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
 import { AdvertisementAmenity, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
 import { IsBedsCountMandatory } from "../validators/is-beds-count-mandatory.validator";
@@ -6,7 +6,7 @@ import { IsBathsCountMandatory } from "../validators/is-baths-count-mandatory.va
 import { IsFloorsCountMandatory } from "../validators/is-floors-count-mandatory.validator";
 import { IsSocioEconomicLevel } from "../validators/is-socio-economic-level-valid.validator";
 import { AddressDto } from "src/addresses/dtos/address.dto";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class CreateUpdateAdvertisementDto {
     @ApiProperty()
@@ -36,36 +36,36 @@ export class CreateUpdateAdvertisementDto {
     @IsBoolean({ message: 'invalid.isPenthouse.must.be.a.boolean.value'})
     isPenthouse: boolean;
 
-    @ApiProperty()
+    @ApiPropertyOptional()
     @IsBedsCountMandatory()
     @IsNumber({}, { message: 'invalid.bedsCount.must.be.a.number.conforming.to.the.specified.constraints' })
     @IsOptional()
-    bedsCount: number;
+    bedsCount: number = 0;
 
-    @ApiProperty()
+    @ApiPropertyOptional()
     @IsBathsCountMandatory()
     @IsNumber({}, { message: 'invalid.bathsCount.must.be.a.number.conforming.to.the.specified.constraints' })
     @IsOptional()
-    bathsCount: number;
+    bathsCount: number = 0;
 
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.parkingCount.must.be.a.number.conforming.to.the.specified.constraints' })
-    parkingCount: number;
+    parkingCount: number = 0;
 
-    @ApiProperty()
+    @ApiPropertyOptional()
     @IsFloorsCountMandatory()
     @IsNumber({}, { message: 'invalid.floorsCount.must.be.a.number.conforming.to.the.specified.constraints' })
     @IsOptional()
-    floorsCount: number;
+    floorsCount: number = 0;
 
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.constructionYear.must.be.a.number.conforming.to.the.specified.constraints' })
-    constructionYear: number;
+    constructionYear: number = 0;
 
-    @ApiProperty()
+    @ApiPropertyOptional()
     @IsSocioEconomicLevel()
     @IsNumber({}, { message: 'invalid.socioEconomicLevel.must.be.a.number.conforming.to.the.specified.constraints' })
-    socioEconomicLevel: number;
+    socioEconomicLevel: number = 0;
 
     @ApiProperty()
     @Transform(({ obj }) => !obj.isResidentialComplex ? false : obj.isHoaIncluded)
@@ -77,7 +77,7 @@ export class CreateUpdateAdvertisementDto {
     @IsEnum(AdvertisementAmenity, {message: 'invalid.amenities.must.be.one.of.the.following.values.BEACHFRONT.NEAR_BEACH.SWIMMING_POOL.GYM.SAUNA_STEAM_BATHHOT_TUB.COVERED_PARKING.GAMING_AREA.ELEVATOR.SPORTS_COURTS.BBQ.GARDEN.STORAGE.SECURITY.CORNER_HOUSE.AIR_CONDITIONER.AIR_HEATER.WATER_HEATER.MINI_MARKET.NATURAL_GAS', each: true })
     amenities: AdvertisementAmenity[];
 
-    @ApiProperty()
+    @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty({ message: 'invalid.description.should.not.be.empty' })
     @IsString({ message: 'invalid.description.must.be.a.string' })
@@ -85,19 +85,20 @@ export class CreateUpdateAdvertisementDto {
 
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.hoaFee.must.be.a.number.conforming.to.the.specified.constraints' })
-    hoaFee: number;
+    hoaFee: number = 0;
 
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.lotArea.must.be.a.number.conforming.to.the.specified.constraints' })
-    lotArea: number;
+    lotArea: number = 0;
 
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.floorArea.must.be.a.number.conforming.to.the.specified.constraints' })
-    floorArea: number;
+    floorArea: number = 0;
 
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.price.must.be.a.number.conforming.to.the.specified.constraints' })
-    price: number;
+    @Min(1, { message: 'price.must.not.be.less.than.0.99' })
+    price: number = 0;
 
     @ApiProperty()
     @IsNotEmpty({ message: 'invalid.address.should.not.be.empty' })
@@ -114,4 +115,15 @@ export class CreateUpdateAdvertisementDto {
     @IsString({ message: 'invalid.videoUrl.must.be.a.string' })
     @IsOptional()
     videoUrl: string = null;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber({}, { message: 'invalid.pricePerFloorArea.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Transform(({ obj }) => obj.price / (obj.floorArea || 1))
+    pricePerFloorArea: number = 0;
+
+    @ApiProperty()
+    @IsNumber({}, { message: 'invalid.pricePerLotArea.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Transform(({ obj }) => obj.price / (obj.lotArea || 1))
+    pricePerLotArea: number = 0;
 }

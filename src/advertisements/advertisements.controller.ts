@@ -23,10 +23,10 @@ export class AdvertisementsController {
     @Post()
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
-    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementsDto: CreateUpdateAdvertisementDto): Promise<void> {
+    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
         return this.advertisementsService.create(
             authenticatedUser,
-            createUpdateAdvertisementsDto,
+            createUpdateAdvertisementDto,
         );
     }
 
