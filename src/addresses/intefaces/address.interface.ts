@@ -1,7 +1,7 @@
 export interface Address {
-    readonly country: String;
-    readonly state: String;
-    readonly city: String;
-    readonly neighbourhood: String;
-    readonly street: String;
+    readonly country: string;
+    readonly state: string;
+    readonly city: string;
+    readonly neighbourhood: string;
+    readonly street: string;
 }

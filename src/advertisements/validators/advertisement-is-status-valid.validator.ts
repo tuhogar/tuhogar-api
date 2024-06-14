@@ -5,7 +5,7 @@ import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.inter
 import { UserRole } from 'src/users/interfaces/user.interface';
 
 @ValidatorConstraint({ async: false })
-export class IsStatusValidConstraint implements ValidatorConstraintInterface {
+export class AdvertisementIsStatusValidConstraint implements ValidatorConstraintInterface {
     validate(status: any, args: ValidationArguments) {
         const object = args.object as any;
 
@@ -29,14 +29,14 @@ export class IsStatusValidConstraint implements ValidatorConstraintInterface {
     }
 }
 
-export function IsStatusValid(validationOptions?: ValidationOptions) {
+export function AdvertisementIsStatusValid(validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
         registerDecorator({
             target: object.constructor,
             propertyName: propertyName,
             options: validationOptions,
             constraints: [],
-            validator: IsStatusValidConstraint,
+            validator: AdvertisementIsStatusValidConstraint,
         });
     };
 }

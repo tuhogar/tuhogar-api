@@ -1,5 +1,6 @@
 import { Date, Document } from 'mongoose';
 import { Address } from 'src/addresses/intefaces/address.interface';
+import { Amenity } from 'src/amenities/interfaces/amenities.interface';
 
 export enum AdvertisementStatus {
     ACTIVE = 'ACTIVE',
@@ -14,7 +15,7 @@ export enum AdvertisementTransactionType {
     SALE = 'SALE',
 }
 
-export enum AdvertisementPropertyStatus {
+export enum AdvertisementType {
     APARTMENT = 'APARTMENT',
     HOUSE = 'HOUSE',
     BUILDING = 'BUILDING',
@@ -24,70 +25,48 @@ export enum AdvertisementPropertyStatus {
     COMMERCIAL = 'COMMERCIAL',
 }
 
-export enum AdvertisementPropertyType {
+export enum AdvertisementConstructionType {
     UNDER_CONSTRUCTION = 'UNDER_CONSTRUCTION',
     READY_TO_MOVE = 'READY_TO_MOVE',
-}
-
-export enum AdvertisementAmenity {
-    BEACHFRONT = 'BEACHFRONT',
-    NEAR_BEACH = 'NEAR_BEACH',
-    SWIMMING_POOL = 'SWIMMING_POOL',
-    GYM = 'GYM',
-    SAUNA_STEAM_BATH = 'SAUNA_STEAM_BATH',
-    HOT_TUB = 'HOT_TUB',
-    COVERED_PARKING = 'COVERED_PARKING',
-    GAMING_AREA = 'GAMING_AREA',
-    ELEVATOR = 'ELEVATOR',
-    SPORTS_COURTS = 'SPORTS_COURTS',
-    BBQ = 'BBQ',
-    GARDEN = 'GARDEN',
-    STORAGE = 'STORAGE',
-    SECURITY = 'SECURITY',
-    CORNER_HOUSE = 'CORNER_HOUSE',
-    AIR_CONDITIONER = 'AIR_CONDITIONER',
-    AIR_HEATER = 'AIR_HEATER',
-    WATER_HEATER = 'WATER_HEATER',
-    MINI_MARKET = 'MINI_MARKET',
-    NATURAL_GAS = 'NATURAL_GAS',
 }
 
 export interface AdvertisementPhoto {
     id: string;
     name: string;
-    url: String;
-    order: Number;
+    url: string;
+    order: number;
 }
 export interface Advertisement extends Document  {
-    readonly accountId: String;
-    readonly createdUserId: String;
-    readonly updatedUserId: String;
-    readonly approvingUserId: String;
+    readonly accountId: string;
+    readonly createdUserId: string;
+    readonly updatedUserId: string;
+    readonly approvingUserId: string;
     readonly status: AdvertisementStatus;
+    readonly code: number;
     readonly transactionType: AdvertisementTransactionType;
-    readonly propertyStatus: AdvertisementPropertyStatus;
-    readonly propertyType: AdvertisementPropertyType;
-    readonly allContentsIncluded: Boolean;
-    readonly isResidentialComplex: Boolean;
-    readonly isPenthouse: Boolean;
-    readonly bedsCount: Number;
-    readonly bathsCount: Number;
-    readonly parkingCount: Number;
-    readonly floorsCount: Number;
-    readonly constructionYear: Number;
-    readonly socioEconomicLevel: Number;
-    readonly isHoaIncluded: Boolean;
-    readonly amenities: AdvertisementAmenity[];
-    readonly description: String;
-    readonly hoaFee: Number;
-    readonly lotArea: Number;
-    readonly floorArea: Number;
-    readonly price: Number;
-    readonly pricePerFloorArea: Number;
-    readonly pricePerLotArea: Number;
+    readonly type: AdvertisementType;
+    readonly constructionType: AdvertisementConstructionType;
+    readonly allContentsIncluded: boolean;
+    readonly isResidentialComplex: boolean;
+    readonly isPenthouse: boolean;
+    readonly bedsCount: number;
+    readonly bathsCount: number;
+    readonly parkingCount: number;
+    readonly floorsCount: number;
+    readonly constructionYear: number;
+    readonly socioEconomicLevel: number;
+    readonly isHoaIncluded: boolean;
+    readonly amenities: Amenity[];
+    readonly description: string;
+    readonly hoaFee: number;
+    readonly lotArea: number;
+    readonly floorArea: number;
+    readonly price: number;
+    readonly pricePerFloorArea: number;
+    readonly pricePerLotArea: number;
     readonly address: Address;
     readonly photos: AdvertisementPhoto[];
-    readonly tourUrl: String;
-    readonly videoUrl: String;
+    readonly tourUrl: string;
+    readonly videoUrl: string;
     readonly publishedAt: Date;
 }

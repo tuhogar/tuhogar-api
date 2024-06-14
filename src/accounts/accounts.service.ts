@@ -29,9 +29,6 @@ export class AccountsService {
     authenticatedUser: AuthenticatedUser,
     createAccountDto: CreateAccountDto,
   ): Promise<void> {
-    const plan = await this.plansService.getById(createAccountDto.planId);
-    if (!plan) throw new Error('invalid.do.not.exists.plan');
-
     const accountCreated = new this.accountModel({
       planId: createAccountDto.planId,
       status: AccountStatus.ACTIVE,

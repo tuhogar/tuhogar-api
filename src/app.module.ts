@@ -8,6 +8,8 @@ import { UsersModule } from './users/users.module';
 import { FirebaseAdmin } from './config/firebase.setup';
 import { AdvertisementsModule } from './advertisements/advertisements.module';
 import { join } from 'path';
+import { AdvertisementCodesModule } from './advertisement-codes/advertisement-codes.module';
+import { AmenitiesModule } from './amenities/amenities.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { join } from 'path';
     PlansModule,
     UsersModule,
     AdvertisementsModule,
+    AdvertisementCodesModule,
+    AmenitiesModule,
   ],
   controllers: [],
   providers: [FirebaseAdmin],

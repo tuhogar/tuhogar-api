@@ -1,34 +1,34 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
-import { AdvertisementPropertyStatus } from '../interfaces/advertisement.interface';
+import { AdvertisementType } from '../interfaces/advertisement.interface';
 
 
 
 
 @ValidatorConstraint({ async: false })
-export class IsBathsCountMandatoryConstraint implements ValidatorConstraintInterface {
+export class AdvertisementIsBathsCountMandatoryConstraint implements ValidatorConstraintInterface {
     validate(bathsCount: any, args: ValidationArguments) {
         const object = args.object as any;
-        const propertyStatus = object.propertyStatus;
+        const type = object.type;
 
-        if (propertyStatus === AdvertisementPropertyStatus.HOUSE || propertyStatus === AdvertisementPropertyStatus.APARTMENT || propertyStatus === AdvertisementPropertyStatus.OFFICE) {
+        if (type === AdvertisementType.HOUSE || type === AdvertisementType.APARTMENT || type === AdvertisementType.OFFICE) {
             return typeof bathsCount === 'number' && bathsCount > 0;
         }
         return true;
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'invalid.bathsCount.must.be.a.number.greater.than.0.when.propertyStatus.is.HOUSE.APARTMENT.or.OFFICE';
+        return 'invalid.bathsCount.must.be.a.number.greater.than.0.when.type.is.HOUSE.APARTMENT.or.OFFICE';
     }
 }
 
-export function IsBathsCountMandatory(validationOptions?: ValidationOptions) {
+export function AdvertisementIsBathsCountMandatory(validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
         registerDecorator({
             target: object.constructor,
             propertyName: propertyName,
             options: validationOptions,
             constraints: [],
-            validator: IsBathsCountMandatoryConstraint,
+            validator: AdvertisementIsBathsCountMandatoryConstraint,
         });
     };
 }

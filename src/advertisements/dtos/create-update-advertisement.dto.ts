@@ -1,12 +1,14 @@
 import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
-import { AdvertisementAmenity, AdvertisementPropertyStatus, AdvertisementPropertyType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
+import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
-import { IsBedsCountMandatory } from "../validators/is-beds-count-mandatory.validator";
-import { IsBathsCountMandatory } from "../validators/is-baths-count-mandatory.validator";
-import { IsFloorsCountMandatory } from "../validators/is-floors-count-mandatory.validator";
-import { IsSocioEconomicLevel } from "../validators/is-socio-economic-level-valid.validator";
+import { AdvertisementIsBedsCountMandatory } from "../validators/advertisement-is-beds-count-mandatory.validator";
+import { AdvertisementIsBathsCountMandatory } from "../validators/advertisement-is-baths-count-mandatory.validator";
+import { AdvertisementIsFloorsCountMandatory } from "../validators/advertisement-is-floors-count-mandatory.validator";
+import { AdvertisementIsSocioEconomicLevel } from "../validators/advertisement-is-socio-economic-level-valid.validator";
 import { AddressDto } from "src/addresses/dtos/address.dto";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Amenity } from "src/amenities/interfaces/amenities.interface";
+import { AmenityDto } from "src/amenities/dtos/amenities.dto";
 
 export class CreateUpdateAdvertisementDto {
     @ApiProperty()
@@ -14,12 +16,12 @@ export class CreateUpdateAdvertisementDto {
     transactionType: AdvertisementTransactionType;
 
     @ApiProperty()
-    @IsEnum(AdvertisementPropertyStatus, { message: 'invalid.propertyStatus.must.be.one.of.the.following.values.APARTMENT.HOUSE.BUILDING.LOT.WAREHOUSE.OFFICE.COMMERCIAL' })
-    propertyStatus: AdvertisementPropertyStatus;
+    @IsEnum(AdvertisementType, { message: 'invalid.type.must.be.one.of.the.following.values.APARTMENT.HOUSE.BUILDING.LOT.WAREHOUSE.OFFICE.COMMERCIAL' })
+    type: AdvertisementType;
 
     @ApiProperty()
-    @IsEnum(AdvertisementPropertyType, { message: 'invalid.propertyType.must.be.one.of.the.following.values.UNDER_CONSTRUCTION.READY_TO_MOVE' })
-    propertyType: AdvertisementPropertyType;
+    @IsEnum(AdvertisementConstructionType, { message: 'invalid.constructionType.must.be.one.of.the.following.values.UNDER_CONSTRUCTION.READY_TO_MOVE' })
+    constructionType: AdvertisementConstructionType;
 
     @ApiProperty()
     @Transform(({ obj }) => obj.transactionType !== AdvertisementTransactionType.SALE ? false : obj.allContentsIncluded)
@@ -27,23 +29,23 @@ export class CreateUpdateAdvertisementDto {
     allContentsIncluded: boolean;
 
     @ApiProperty()
-    @Transform(({ obj }) => obj.propertyStatus !== AdvertisementPropertyStatus.HOUSE && obj.propertyStatus !== AdvertisementPropertyStatus.APARTMENT ? false : obj.isResidentialComplex)
+    @Transform(({ obj }) => obj.type !== AdvertisementType.HOUSE && obj.type !== AdvertisementType.APARTMENT ? false : obj.isResidentialComplex)
     @IsBoolean({ message: 'invalid.isResidentialComplex.must.be.a.boolean.value'})
     isResidentialComplex: boolean;
 
     @ApiProperty()
-    @Transform(({ obj }) => obj.propertyStatus !== AdvertisementPropertyStatus.APARTMENT ? false : obj.isPenthouse)
+    @Transform(({ obj }) => obj.type !== AdvertisementType.APARTMENT ? false : obj.isPenthouse)
     @IsBoolean({ message: 'invalid.isPenthouse.must.be.a.boolean.value'})
     isPenthouse: boolean;
 
     @ApiPropertyOptional()
-    @IsBedsCountMandatory()
+    @AdvertisementIsBedsCountMandatory()
     @IsNumber({}, { message: 'invalid.bedsCount.must.be.a.number.conforming.to.the.specified.constraints' })
     @IsOptional()
     bedsCount: number = 0;
 
     @ApiPropertyOptional()
-    @IsBathsCountMandatory()
+    @AdvertisementIsBathsCountMandatory()
     @IsNumber({}, { message: 'invalid.bathsCount.must.be.a.number.conforming.to.the.specified.constraints' })
     @IsOptional()
     bathsCount: number = 0;
@@ -53,7 +55,7 @@ export class CreateUpdateAdvertisementDto {
     parkingCount: number = 0;
 
     @ApiPropertyOptional()
-    @IsFloorsCountMandatory()
+    @AdvertisementIsFloorsCountMandatory()
     @IsNumber({}, { message: 'invalid.floorsCount.must.be.a.number.conforming.to.the.specified.constraints' })
     @IsOptional()
     floorsCount: number = 0;
@@ -63,7 +65,7 @@ export class CreateUpdateAdvertisementDto {
     constructionYear: number = 0;
 
     @ApiPropertyOptional()
-    @IsSocioEconomicLevel()
+    @AdvertisementIsSocioEconomicLevel()
     @IsNumber({}, { message: 'invalid.socioEconomicLevel.must.be.a.number.conforming.to.the.specified.constraints' })
     socioEconomicLevel: number = 0;
 
@@ -72,10 +74,11 @@ export class CreateUpdateAdvertisementDto {
     @IsBoolean({ message: 'invalid.isHoaIncluded.must.be.a.boolean.value'})
     isHoaIncluded: boolean;
 
-    @ApiProperty()
-    @IsArray({ message: 'amenities must be an array' })
-    @IsEnum(AdvertisementAmenity, {message: 'invalid.amenities.must.be.one.of.the.following.values.BEACHFRONT.NEAR_BEACH.SWIMMING_POOL.GYM.SAUNA_STEAM_BATHHOT_TUB.COVERED_PARKING.GAMING_AREA.ELEVATOR.SPORTS_COURTS.BBQ.GARDEN.STORAGE.SECURITY.CORNER_HOUSE.AIR_CONDITIONER.AIR_HEATER.WATER_HEATER.MINI_MARKET.NATURAL_GAS', each: true })
-    amenities: AdvertisementAmenity[];
+    @ApiProperty({ type: [AmenityDto] })
+    @IsArray({ message: 'amenities.must.be.an.array' })
+    @ValidateNested({ each: true })
+    @Type(() => AmenityDto)
+    amenities: Amenity[];
 
     @ApiPropertyOptional()
     @IsOptional()
@@ -100,7 +103,7 @@ export class CreateUpdateAdvertisementDto {
     @Min(1, { message: 'price.must.not.be.less.than.0.99' })
     price: number = 0;
 
-    @ApiProperty()
+    @ApiProperty({ type: [AddressDto] })
     @IsNotEmpty({ message: 'invalid.address.should.not.be.empty' })
     @ValidateNested()
     @Type(() => AddressDto)

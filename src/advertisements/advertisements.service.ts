@@ -11,6 +11,7 @@ import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.inter
 import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement.dto';
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
 import { UserRole } from 'src/users/interfaces/user.interface';
+import { AdvertisementCodesService } from 'src/advertisement-codes/advertisement-codes.service';
 
 export const imageFileFilter = (req, file, callback) => {
     if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
@@ -30,6 +31,7 @@ export class AdvertisementsService {
     private advertisementImagesUrl: string;
     constructor(
         private configService: ConfigService,
+        private readonly advertisementCodesService: AdvertisementCodesService,
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
     ) {
         this.advertisementImagesUrl = this.configService.get<string>('ADVERTISEMENT_IMAGES_URL');
@@ -44,6 +46,7 @@ export class AdvertisementsService {
             createdUserId: authenticatedUser.userId, 
             updatedUserId: authenticatedUser.userId, 
             status: AdvertisementStatus.WAITING_FOR_APPROVAL,
+            code: await this.advertisementCodesService.generate(),
             ...createUpdateAdvertisementDto,
         });
         await advertisementCreated.save();
@@ -152,7 +155,11 @@ export class AdvertisementsService {
         if (authenticatedUser.userRole == UserRole.MASTER) delete filter.accountId;
         
         let publishedAt = undefined;
-        if (updateStatusAdvertisementDto.status === AdvertisementStatus.ACTIVE) publishedAt = new Date();
+        let approvingUserId = undefined;
+        if (updateStatusAdvertisementDto.status === AdvertisementStatus.ACTIVE) {
+            publishedAt = new Date();
+            approvingUserId = authenticatedUser.userId;
+        }
 
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate(
             filter,
@@ -160,6 +167,7 @@ export class AdvertisementsService {
                 updatedUserId: authenticatedUser.userId,
                 ...updateStatusAdvertisementDto,
                 publishedAt,
+                approvingUserId,
             },
             { new: true }
         ).exec();

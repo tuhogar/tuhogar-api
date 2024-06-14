@@ -26,18 +26,18 @@ export interface UserSocialMedia {
 }
 
 export interface User extends Document  {
-    readonly name: String,
-    readonly email: String,
-    readonly accountId: String,
+    readonly name: string,
+    readonly email: string,
+    readonly accountId: string,
     readonly userRole: UserRole,
     readonly status: UserStatus,
-    readonly uid: String;
+    readonly uid: string;
     readonly documentType: UserDocumentType;
-    readonly documentNumber: String;
+    readonly documentNumber: string;
     readonly address: Address;
-    readonly phone: String;
-    readonly whatsApp: String;
-    readonly webSite: String;
+    readonly phone: string;
+    readonly whatsApp: string;
+    readonly webSite: string;
     readonly socialMedia: UserSocialMedia;
-    readonly description: String;
+    readonly description: string;
 }

@@ -27,9 +27,6 @@ export class UsersService {
         createUserDto: CreateUserDto,
         accountCreated: Account,
     ): Promise<void> {
-        const userExists = await this.getByUid(authenticatedUser.uid);
-        if (userExists) throw new Error('invalid.user.already.exists');
-
         const userCreated = new this.userModel({
             ...createUserDto,
             email: authenticatedUser.email,

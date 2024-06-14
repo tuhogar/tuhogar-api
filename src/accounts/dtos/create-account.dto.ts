@@ -1,18 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { IsObjectId } from "src/decorators/is-object-id.decorator";
+import { IsEnum, IsMongoId, IsNotEmpty, IsString, MaxLength } from "class-validator";
+import { IsExistingPlan } from "src/plans/validators/is-existing-plan.validator";
 import { UserDocumentType } from "src/users/interfaces/user.interface";
+import { UserAlreadyExists } from "src/users/validators/user-already-exists.validator";
 
 export class CreateAccountDto {
 
     @ApiProperty()
-    @IsObjectId({ message: 'invalid.planId' })
+    @IsMongoId({ message: 'invalid.planId' })
+    @IsExistingPlan()
     planId: string;
 
     @ApiProperty()
     @IsString({ message: 'invalid.name.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.name.should.not.be.empty' })
     @MaxLength(150, { message: 'invalid.name.must.be.shorter.than.or.equal.to.150.characters' })
+    @UserAlreadyExists()
     name: string;
 
     @ApiProperty()

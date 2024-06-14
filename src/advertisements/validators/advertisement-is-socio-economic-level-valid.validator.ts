@@ -1,21 +1,21 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
-import { AdvertisementPropertyStatus } from '../interfaces/advertisement.interface';
+import { AdvertisementType } from '../interfaces/advertisement.interface';
 
 
 
 
 @ValidatorConstraint({ async: false })
-export class IsSocioEconomicLevelConstraint implements ValidatorConstraintInterface {
+export class AdvertisementIsSocioEconomicLevelConstraint implements ValidatorConstraintInterface {
     validate(socioEconomicLevel: any, args: ValidationArguments) {
         const object = args.object as any;
-        const propertyStatus = object.propertyStatus;
+        const type = object.type;
 
-        if (propertyStatus === AdvertisementPropertyStatus.HOUSE || 
-            propertyStatus === AdvertisementPropertyStatus.APARTMENT ||
-            propertyStatus === AdvertisementPropertyStatus.OFFICE ||
-            propertyStatus === AdvertisementPropertyStatus.WAREHOUSE ||
-            propertyStatus === AdvertisementPropertyStatus.BUILDING ||
-            propertyStatus === AdvertisementPropertyStatus.COMMERCIAL) {
+        if (type === AdvertisementType.HOUSE || 
+            type === AdvertisementType.APARTMENT ||
+            type === AdvertisementType.OFFICE ||
+            type === AdvertisementType.WAREHOUSE ||
+            type === AdvertisementType.BUILDING ||
+            type === AdvertisementType.COMMERCIAL) {
             return typeof socioEconomicLevel === 'number' && socioEconomicLevel > 0;
         }
         return true;
@@ -26,14 +26,14 @@ export class IsSocioEconomicLevelConstraint implements ValidatorConstraintInterf
     }
 }
 
-export function IsSocioEconomicLevel(validationOptions?: ValidationOptions) {
+export function AdvertisementIsSocioEconomicLevel(validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
         registerDecorator({
             target: object.constructor,
             propertyName: propertyName,
             options: validationOptions,
             constraints: [],
-            validator: IsSocioEconomicLevelConstraint,
+            validator: AdvertisementIsSocioEconomicLevelConstraint,
         });
     };
 }
