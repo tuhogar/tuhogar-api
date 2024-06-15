@@ -84,12 +84,17 @@ export class UsersService {
           }
     }
 
-    async delete(uid: string): Promise<void> {
+    async deleteMe(uid: string): Promise<void> {
         await this.userModel.deleteOne({ uid }).exec();
     }
 
-    async patch(accountId: string, userId: string, patchUserDto: PatchUserDto): Promise<void> {
-        const updatedUser = await this.userModel.findOneAndUpdate({ accountId, _id: userId },
+    async patch(authenticatedUser: AuthenticatedUser, userId: string, patchUserDto: PatchUserDto): Promise<void> {
+        const filter = {
+            _id: userId,
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+        };
+
+        const updatedUser = await this.userModel.findOneAndUpdate(filter,
             patchUserDto,
             { new: true }
         ).exec();
@@ -106,7 +111,7 @@ export class UsersService {
         const filter = {
             _id: userId,
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
-          };
+        };
 
         const updatingUser = await this.userModel.findOneAndUpdate(
             filter,
@@ -140,5 +145,17 @@ export class UsersService {
 
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
+    }
+
+    async delete(authenticatedUser: AuthenticatedUser, userId: string): Promise<void> {
+
+        const filter = {
+            _id: userId,
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+        };
+
+        const deletedUser = await this.userModel.deleteOne(filter).exec();
+
+        if (!deletedUser) throw new Error('notfound.user.do.not.exists');
     }
 }

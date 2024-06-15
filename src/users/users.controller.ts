@@ -38,27 +38,20 @@ export class UsersController {
     }
 
     @ApiBearerAuth()
-    @Delete()
+    @Delete('me')
     @Auth('MASTER', 'ADMIN', 'USER')
     // TODO: remover ou trocar, este endpoint é apenas para testes
-    async delete(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
-        await this.usersService.delete(authenticatedUser.uid);
-    }
-
-    @ApiBearerAuth()
-    @Patch('me')
-    @Auth('ADMIN', 'USER')
-    async patchMe(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() patchUserDto: PatchUserDto): Promise<void> {
-        await this.usersService.patch(authenticatedUser.accountId, authenticatedUser.userId, patchUserDto);
+    async deleteMe(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
+        await this.usersService.deleteMe(authenticatedUser.uid);
     }
 
     @ApiBearerAuth()
     @Patch(':userid')
-    @Auth('ADMIN')
+    @Auth('MASTER', 'ADMIN', 'USER')
     async patch(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string, @Body() patchUserDto: PatchUserDto): Promise<void> {
-        if(userId === authenticatedUser.userId) throw new Error('invalid.use.me.uri');
+        if(authenticatedUser.userRole === UserRole.USER && userId !== authenticatedUser.userId) throw new Error('Unauthorized');
         
-        await this.usersService.patch(authenticatedUser.accountId, userId, patchUserDto);
+        await this.usersService.patch(authenticatedUser, userId, patchUserDto);
     }
 
     @ApiBearerAuth()
@@ -68,5 +61,14 @@ export class UsersController {
         if(userId === authenticatedUser.userId) throw new Error('Unauthorized');
 
         await this.usersService.updateStatus(authenticatedUser, userId, updateStatusUserDto);
+    }
+
+    @ApiBearerAuth()
+    @Delete(':userid')
+    @Auth('ADMIN')
+    async delete(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string): Promise<void> {
+        if(userId === authenticatedUser.userId) throw new Error('Unauthorized');
+        
+        await this.usersService.delete(authenticatedUser, userId);
     }
 }

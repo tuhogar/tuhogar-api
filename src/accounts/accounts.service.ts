@@ -99,4 +99,8 @@ export class AccountsService {
   async getAdvertisements(accountId: string): Promise<Advertisement[]> {
     return this.advertisementsService.getAllByAccountId(accountId);
   }
+
+  async deleteUser(authenticatedUser: AuthenticatedUser, userId: string): Promise<void> {
+    await this.usersService.delete(authenticatedUser, userId);
+  }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { AccountsService } from './accounts.service';
@@ -52,5 +52,12 @@ export class AccountsController {
   @Auth('MASTER')
   async getAdvertisements(@Param('accountid') accountId: string): Promise<Advertisement[]> {
       return this.accountsService.getAdvertisements(accountId);
+  }
+
+  @ApiBearerAuth()
+  @Delete(':accountid/users/:userid')
+  @Auth('MASTER')
+  async deleteUser(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string): Promise<void> {
+      await this.accountsService.deleteUser(authenticatedUser, userId);
   }
 }
