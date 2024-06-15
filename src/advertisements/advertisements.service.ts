@@ -54,13 +54,13 @@ export class AdvertisementsService {
 
     async update(
         authenticatedUser: AuthenticatedUser,
-        advertisementid: string,
+        advertisementId: string,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
     ): Promise<void> {
 
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ 
             accountId: authenticatedUser.accountId,
-            _id: advertisementid
+            _id: advertisementId
         },
             { 
                 updatedUserId: authenticatedUser.userId,
@@ -77,12 +77,12 @@ export class AdvertisementsService {
         return this.advertisementModel.find({ accountId }).exec();
     }
 
-    async updloadImage(accountId: string, advertisementid: string, fileName: string, filePath: string, order: number): Promise<void> {
+    async updloadImage(accountId: string, advertisementId: string, fileName: string, filePath: string, order: number): Promise<void> {
         try {
             const url = `${this.advertisementImagesUrl}/${fileName}`;
             const id = fileName.replace('-','.').split('.')[1];
             
-            const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ accountId, _id: advertisementid },
+            const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ accountId, _id: advertisementId },
                 { $push: { photos: { id, name: fileName, url, order } }},
                 { new: true }
             ).exec();
@@ -94,8 +94,8 @@ export class AdvertisementsService {
         }
     }
 
-    async deleteImage(accountId: string, advertisementid: string, imageid: string): Promise<void> {
-        const advertisement = await this.getByAccountIdAndId(accountId, advertisementid);
+    async deleteImage(authenticatedUser: AuthenticatedUser, advertisementId: string, imageid: string): Promise<void> {
+        const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
 
         const photos = advertisement.photos;
         if(!photos) return;
@@ -106,7 +106,7 @@ export class AdvertisementsService {
         const newPhotos = photos.filter((a) => a.id !== imageid);
 
         await this.advertisementModel.findOneAndUpdate(
-            { accountId, _id: advertisementid },
+            { accountId: authenticatedUser.accountId, _id: advertisementId },
             { photos: newPhotos },
             { new: true }
         );
@@ -114,8 +114,8 @@ export class AdvertisementsService {
         fs.unlink(`./uploads/${photoToRemove.name}`, () => {});
     }
     
-    async updateImageOrders(accountId: string, advertisementid: string, updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
-        const advertisement = await this.getByAccountIdAndId(accountId, advertisementid);
+    async updateImageOrders(authenticatedUser: AuthenticatedUser, advertisementId: string, updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
+        const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
 
         const photos = advertisement.photos;
         if(!photos) return;
@@ -129,14 +129,19 @@ export class AdvertisementsService {
         });
 
         await this.advertisementModel.findOneAndUpdate(
-            { accountId, _id: advertisementid },
+            { accountId: authenticatedUser.accountId, _id: advertisementId },
             { photos: newPhotos },
             { new: true }
         );
     }
 
-    async getByAccountIdAndId(accountId: string, advertisementid: string): Promise<Advertisement> {
-        const advertisement = await this.advertisementModel.findOne({ accountId, _id: advertisementid });
+    async getByAccountIdAndId(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {
+        const filter = {
+            _id: advertisementId,
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+        };
+
+        const advertisement = await this.advertisementModel.findOne(filter);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
@@ -151,9 +156,11 @@ export class AdvertisementsService {
         advertisementId: string,
         updateStatusAdvertisementDto: UpdateStatusAdvertisementDto,
     ): Promise<void> {
-        const filter = { _id: advertisementId, accountId: authenticatedUser.accountId };
-        if (authenticatedUser.userRole == UserRole.MASTER) delete filter.accountId;
-        
+        const filter = {
+            _id: advertisementId,
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+        };
+
         let publishedAt = undefined;
         let approvingUserId = undefined;
         if (updateStatusAdvertisementDto.status === AdvertisementStatus.ACTIVE) {

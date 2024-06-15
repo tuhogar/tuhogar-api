@@ -6,12 +6,14 @@ import { AccountSchema } from './interfaces/account.schema';
 import { PlansModule } from 'src/plans/plans.module';
 import { UsersModule } from 'src/users/users.module';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
+import { AdvertisementsModule } from 'src/advertisements/advertisements.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Account', schema: AccountSchema }]),
     PlansModule,
     UsersModule,
+    AdvertisementsModule,
   ],
   controllers: [AccountsController],
   providers: [AccountsService, FirebaseAdmin]

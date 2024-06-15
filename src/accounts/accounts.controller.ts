@@ -8,6 +8,7 @@ import { Authenticated } from 'src/decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { UpdateStatusAccountDto } from './dtos/update-status-account.dto';
 import { User } from 'src/users/interfaces/user.interface';
+import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
 
 @ApiTags('v1/accounts')
 @Controller('v1/accounts')
@@ -44,5 +45,12 @@ export class AccountsController {
   @Auth('MASTER')
   async getUsers(@Param('accountid') accountId: string): Promise<User[]> {
       return this.accountsService.getUsers(accountId);
+  }
+
+  @ApiBearerAuth()
+  @Get(':accountid/advertisements')
+  @Auth('MASTER')
+  async getAdvertisements(@Param('accountid') accountId: string): Promise<Advertisement[]> {
+      return this.accountsService.getAdvertisements(accountId);
   }
 }

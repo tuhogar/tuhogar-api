@@ -14,6 +14,7 @@ import { AmenitiesModule } from 'src/amenities/amenities.module';
     AmenitiesModule,
   ],
   controllers: [AdvertisementsController],
-  providers: [AdvertisementsService, FirebaseAdmin]
+  providers: [AdvertisementsService, FirebaseAdmin],
+  exports: [AdvertisementsService],
 })
 export class AdvertisementsModule {}

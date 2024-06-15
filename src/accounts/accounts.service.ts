@@ -9,12 +9,15 @@ import { CreateAccountDto } from './dtos/create-account.dto';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { UpdateStatusAccountDto } from './dtos/update-status-account.dto';
 import { UpdateStatusUserDto } from 'src/users/dtos/update-status-user.dto';
+import { AdvertisementsService } from 'src/advertisements/advertisements.service';
+import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectModel('Account') private readonly accountModel: Model<Account>,
     private readonly usersService: UsersService,
+    private readonly advertisementsService: AdvertisementsService,
   ) {}
 
   async getAll(): Promise<Account[]> {
@@ -91,5 +94,9 @@ export class AccountsService {
 
   async getUsers(accountId: string): Promise<User[]> {
     return this.usersService.getAllByAccountId(accountId);
+  }
+
+  async getAdvertisements(accountId: string): Promise<Advertisement[]> {
+    return this.advertisementsService.getAllByAccountId(accountId);
   }
 }

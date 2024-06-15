@@ -61,7 +61,7 @@ export class AdvertisementsController {
         limits: { fileSize: 1 * 1024 * 1024 }, // 5MB limit
       }))
     @Auth('ADMIN', 'USER')
-    async upload(
+    async uploadImage(
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,
         @UploadedFile(
@@ -80,7 +80,7 @@ export class AdvertisementsController {
     @Delete(':advertisementid/images/:imageid')
     @Auth('ADMIN', 'USER')
     async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Param('imageid') imageid: string): Promise<void> {
-        await this.advertisementsService.deleteImage(authenticatedUser.accountId, advertisementId, imageid);
+        await this.advertisementsService.deleteImage(authenticatedUser, advertisementId, imageid);
     }
 
     @ApiBearerAuth()
@@ -89,7 +89,7 @@ export class AdvertisementsController {
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
     async updateImageOrders(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
-        await this.advertisementsService.updateImageOrders(authenticatedUser.accountId, advertisementId, updateImagesOrdersAdvertisementDto);
+        await this.advertisementsService.updateImageOrders(authenticatedUser, advertisementId, updateImagesOrdersAdvertisementDto);
     }
 
     @ApiBearerAuth()
@@ -120,6 +120,17 @@ export class AdvertisementsController {
             authenticatedUser,
             advertisementId,
             updateStatusAdvertisementDto,
+        );
+    }
+
+    @ApiBearerAuth()
+    @Get(':advertisementid')
+    @Auth('MASTER', 'ADMIN', 'USER')
+    @UsePipes(new ValidationPipe({transform: true}))
+    async get(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string): Promise<Advertisement> {
+        return this.advertisementsService.getByAccountIdAndId(
+            authenticatedUser,
+            advertisementId,
         );
     }
 }
