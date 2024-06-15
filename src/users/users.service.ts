@@ -2,13 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
-import { User, UserStatus } from './interfaces/user.interface';
+import { User, UserRole, UserStatus } from './interfaces/user.interface';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { ConfigService } from '@nestjs/config';
 import { Account } from 'src/accounts/interfaces/account.interface';
 import { PatchUserDto } from './dtos/patch-user.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { UpdateStatusUserDto } from './dtos/update-status-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -53,12 +54,14 @@ export class UsersService {
 
     }
 
-    async getAllByAccountId(accountId: string): Promise<User[]> {
-        return this.userModel.find({ accountId }).exec();
+    async getAllByAccountId(accountId: string, userRole?: UserRole): Promise<User[]> {
+        const filter = { accountId, ...(userRole && { userRole }) };
+        
+        return this.userModel.find(filter).exec();
     }
 
     async getByUid(uid: string): Promise<User> {
-        const user = await this.userModel.findOne({ uid }).exec();
+        const user = await this.userModel.findOne({ uid }).populate({ path: 'accountId' }).exec();
         if (!user) throw new Error('notfound.user.do.not.exists');
 
         return user;
@@ -92,5 +95,50 @@ export class UsersService {
         ).exec();
 
         if (!updatedUser) throw new Error('notfound.user.do.not.exists');
+    }
+
+    async updateStatus(
+        authenticatedUser: AuthenticatedUser,
+        userId: string,
+        updateStatusUserDto: UpdateStatusUserDto,
+    ): Promise<void> {
+
+        const filter = {
+            _id: userId,
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+          };
+
+        const updatingUser = await this.userModel.findOneAndUpdate(
+            filter,
+            { 
+                ...updateStatusUserDto,
+            },
+        ).exec();
+
+        if (!updatingUser) throw new Error('notfound.user.do.not.exists');
+
+        const updatingPopulatedUser = await updatingUser.populate({ path: 'accountId' }) as any;
+
+        try {
+            const app = this.admin.setup();
+            await app.auth().setCustomUserClaims(updatingUser.uid, { 
+                userRole: updatingUser.userRole,
+                planId: updatingPopulatedUser.accountId.planId.toString(),
+                accountId: updatingPopulatedUser.accountId._id.toString(),
+                accountStatus: updatingPopulatedUser.accountId.status,
+                userStatus: updateStatusUserDto.status,
+                userId: updatingUser._id.toString(),
+                
+            });
+        } catch(error) {
+            await this.userModel.findOneAndUpdate(
+                filter,
+                { 
+                    status: updatingUser.status,
+                },
+            ).exec();
+
+            throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
+        }
     }
 }

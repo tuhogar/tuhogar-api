@@ -25,7 +25,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
         case 'notfound':
           customStatus = HttpStatus.NOT_FOUND; // 404
           break;
-        case 'unauthorized':
+        case 'Unauthorized':
           customStatus = HttpStatus.UNAUTHORIZED; // 401
           break;
         default:

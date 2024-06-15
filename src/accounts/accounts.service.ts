@@ -2,18 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { Account, AccountStatus } from './interfaces/account.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PlansService } from 'src/plans/plans.service';
-import { UserRole } from 'src/users/interfaces/user.interface';
+import { User, UserRole, UserStatus } from 'src/users/interfaces/user.interface';
 import { UsersService } from 'src/users/users.service';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
+import { UpdateStatusAccountDto } from './dtos/update-status-account.dto';
+import { UpdateStatusUserDto } from 'src/users/dtos/update-status-user.dto';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectModel('Account') private readonly accountModel: Model<Account>,
-    private readonly plansService: PlansService,
     private readonly usersService: UsersService,
   ) {}
 
@@ -52,5 +52,44 @@ export class AccountsService {
       await this.accountModel.deleteOne({ _id: accountCreated._id.toString() });
       throw error;
     }
+  }
+
+  async updateStatus(
+    authenticatedUser: AuthenticatedUser,
+    accountId: string,
+    updateStatusAccountDto: UpdateStatusAccountDto,
+): Promise<void> {
+    const filter = { _id: accountId };
+    
+    const updatingAccount = await this.accountModel.findOneAndUpdate(
+        filter,
+        { 
+            ...updateStatusAccountDto,
+        },
+    ).exec();
+
+    if (!updatingAccount) throw new Error('notfound.account.do.not.exists');
+
+    try {
+        const users = await this.usersService.getAllByAccountId(accountId, UserRole.ADMIN);
+
+        users.forEach(async (a) => {
+          const updateStatusUserDto: UpdateStatusUserDto = { status: updateStatusAccountDto.status === AccountStatus.ACTIVE ? UserStatus.ACTIVE : UserStatus.INACTIVE }
+          await this.usersService.updateStatus(authenticatedUser, a._id.toString(), updateStatusUserDto);
+        });
+    } catch(error) {
+        await this.accountModel.findOneAndUpdate(
+            filter,
+            { 
+                status: updatingAccount.status,
+            },
+        ).exec();
+
+        throw error;
+    }
+  }
+
+  async getUsers(accountId: string): Promise<User[]> {
+    return this.usersService.getAllByAccountId(accountId);
   }
 }

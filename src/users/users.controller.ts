@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Auth } from 'src/decorators/auth.decorator';
 import { Authenticated } from 'src/decorators/authenticated.decorator';
@@ -7,6 +7,7 @@ import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dtos/login-dto';
 import { PatchUserDto } from './dtos/patch-user.dto';
+import { UpdateStatusUserDto } from './dtos/update-status-user.dto';
 
 @ApiTags('v1/users')
 @Controller('v1/users')
@@ -25,7 +26,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Get('me')
-    @Auth()
+    @Auth('MASTER', 'ADMIN', 'USER')
     async get(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User> {
         return this.usersService.getByUid(authenticatedUser.uid);
     }
@@ -38,7 +39,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Delete()
-    @Auth()
+    @Auth('MASTER', 'ADMIN', 'USER')
     // TODO: remover ou trocar, este endpoint é apenas para testes
     async delete(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
         await this.usersService.delete(authenticatedUser.uid);
@@ -58,5 +59,14 @@ export class UsersController {
         if(userId === authenticatedUser.userId) throw new Error('invalid.use.me.uri');
         
         await this.usersService.patch(authenticatedUser.accountId, userId, patchUserDto);
+    }
+
+    @ApiBearerAuth()
+    @Put(':userid/status')
+    @Auth('MASTER', 'ADMIN')
+    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string, @Body() updateStatusUserDto: UpdateStatusUserDto): Promise<void> {
+        if(userId === authenticatedUser.userId) throw new Error('Unauthorized');
+
+        await this.usersService.updateStatus(authenticatedUser, userId, updateStatusUserDto);
     }
 }

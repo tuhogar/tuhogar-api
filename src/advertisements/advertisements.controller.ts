@@ -63,7 +63,7 @@ export class AdvertisementsController {
     @Auth('ADMIN', 'USER')
     async upload(
         @Authenticated() authenticatedUser: AuthenticatedUser,
-        @Param('advertisementid') advertisementid: string,
+        @Param('advertisementid') advertisementId: string,
         @UploadedFile(
             new ParseFilePipe({ 
                 validators: [
@@ -73,14 +73,14 @@ export class AdvertisementsController {
             }
         )
     ) file: Express.Multer.File, @Body('order') order: number): Promise<void> {
-        await this.advertisementsService.updloadImage(authenticatedUser.accountId, advertisementid, file.filename, file.path, +order);
+        await this.advertisementsService.updloadImage(authenticatedUser.accountId, advertisementId, file.filename, file.path, +order);
     }
 
     @ApiBearerAuth()
     @Delete(':advertisementid/images/:imageid')
     @Auth('ADMIN', 'USER')
-    async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Param('imageid') imageid: string): Promise<void> {
-        await this.advertisementsService.deleteImage(authenticatedUser.accountId, advertisementid, imageid);
+    async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Param('imageid') imageid: string): Promise<void> {
+        await this.advertisementsService.deleteImage(authenticatedUser.accountId, advertisementId, imageid);
     }
 
     @ApiBearerAuth()
@@ -88,18 +88,18 @@ export class AdvertisementsController {
     @Put(':advertisementid/images')
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
-    async updateImageOrders(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
-        await this.advertisementsService.updateImageOrders(authenticatedUser.accountId, advertisementid, updateImagesOrdersAdvertisementDto);
+    async updateImageOrders(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
+        await this.advertisementsService.updateImageOrders(authenticatedUser.accountId, advertisementId, updateImagesOrdersAdvertisementDto);
     }
 
     @ApiBearerAuth()
     @Put(':advertisementid')
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
-    async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
+    async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
         await this.advertisementsService.update(
             authenticatedUser,
-            advertisementid,
+            advertisementId,
             createUpdateAdvertisementDto,
         );
     }
@@ -115,10 +115,10 @@ export class AdvertisementsController {
     @Put(':advertisementid/status')
     @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({ transform: true }))
-    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementid: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
+    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
         await this.advertisementsService.updateStatus(
             authenticatedUser,
-            advertisementid,
+            advertisementId,
             updateStatusAdvertisementDto,
         );
     }

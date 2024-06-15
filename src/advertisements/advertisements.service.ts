@@ -148,10 +148,10 @@ export class AdvertisementsService {
 
     async updateStatus(
         authenticatedUser: AuthenticatedUser,
-        advertisementid: string,
+        advertisementId: string,
         updateStatusAdvertisementDto: UpdateStatusAdvertisementDto,
     ): Promise<void> {
-        const filter = { _id: advertisementid, accountId: authenticatedUser.accountId };
+        const filter = { _id: advertisementId, accountId: authenticatedUser.accountId };
         if (authenticatedUser.userRole == UserRole.MASTER) delete filter.accountId;
         
         let publishedAt = undefined;
