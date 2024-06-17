@@ -30,15 +30,12 @@ export const imageFileFilter = (req, file, callback) => {
   
 @Injectable()
 export class AdvertisementsService {
-    private advertisementImagesUrl: string;
     constructor(
         private configService: ConfigService,
         private readonly advertisementCodesService: AdvertisementCodesService,
         private readonly algoliaService: AlgoliaService,
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
-    ) {
-        this.advertisementImagesUrl = this.configService.get<string>('ADVERTISEMENT_IMAGES_URL');
-    }
+    ) {}
 
     async create(
         authenticatedUser: AuthenticatedUser,
@@ -98,11 +95,10 @@ export class AdvertisementsService {
 
     async updloadImage(accountId: string, advertisementId: string, fileName: string, filePath: string, order: number): Promise<void> {
         try {
-            const url = `${this.advertisementImagesUrl}/${fileName}`;
             const id = fileName.replace('-','.').split('.')[1];
-            
+
             const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ accountId, _id: advertisementId },
-                { $push: { photos: { id, name: fileName, url, order } }},
+                { $push: { photos: { id, name: fileName, order } }},
                 { new: true }
             ).exec();
 
