@@ -25,7 +25,7 @@ export class AccountsService {
   }
 
   async getById(id: string): Promise<Account> {
-    return this.accountModel.findOne({ _id: id });
+    return this.accountModel.findOne({ _id: id }).exec();
   }
 
   async create(
@@ -52,7 +52,7 @@ export class AccountsService {
         accountCreated,
       );
     } catch (error) {
-      await this.accountModel.deleteOne({ _id: accountCreated._id.toString() });
+      await this.accountModel.deleteOne({ _id: accountCreated._id.toString() }).exec();
       throw error;
     }
   }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Query, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AdvertisementsService, editFileName, imageFileFilter } from './advertisements.service';
 import { Authenticated } from 'src/decorators/authenticated.decorator';
@@ -10,6 +10,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
+import { AlgoliaService } from 'src/algolia/algolia.service';
+import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -35,6 +37,24 @@ export class AdvertisementsController {
     @Auth('ADMIN', 'USER')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<Advertisement[]> {
         return this.advertisementsService.getAllByAccountId(authenticatedUser.accountId);
+    }
+
+    @ApiBearerAuth()
+    @Get('toapprove')
+    @Auth('MASTER')
+    async getAllToApprove(): Promise<Advertisement[]> {
+        return this.advertisementsService.getAllToApprove();
+    }
+
+    @Post('bulk')
+    @Auth('MASTER')
+    async bulk(): Promise<void> {
+        await this.advertisementsService.bulk();
+    }
+
+    @Get('actives')
+    async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<any> {
+        return this.advertisementsService.getActives(getActivesAdvertisementDto);
     }
 
     @ApiBearerAuth()
@@ -102,13 +122,6 @@ export class AdvertisementsController {
             advertisementId,
             createUpdateAdvertisementDto,
         );
-    }
-
-    @ApiBearerAuth()
-    @Get('toapprove')
-    @Auth('MASTER')
-    async getAllToApprove(): Promise<Advertisement[]> {
-        return this.advertisementsService.getAllToApprove();
     }
 
     @ApiBearerAuth()

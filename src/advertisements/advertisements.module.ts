@@ -6,12 +6,14 @@ import { AdvertisementSchema } from './interfaces/advertisement.schema';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { AdvertisementCodesModule } from 'src/advertisement-codes/advertisement-codes.module';
 import { AmenitiesModule } from 'src/amenities/amenities.module';
+import { AlgoliaModule } from 'src/algolia/algolia.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Advertisement', schema: AdvertisementSchema }]),
     AdvertisementCodesModule,
     AmenitiesModule,
+    AlgoliaModule,
   ],
   controllers: [AdvertisementsController],
   providers: [AdvertisementsService, FirebaseAdmin],

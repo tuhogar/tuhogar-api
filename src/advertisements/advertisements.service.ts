@@ -12,6 +12,8 @@ import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
 import { UserRole } from 'src/users/interfaces/user.interface';
 import { AdvertisementCodesService } from 'src/advertisement-codes/advertisement-codes.service';
+import { AlgoliaService } from 'src/algolia/algolia.service';
+import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 
 export const imageFileFilter = (req, file, callback) => {
     if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
@@ -32,6 +34,7 @@ export class AdvertisementsService {
     constructor(
         private configService: ConfigService,
         private readonly advertisementCodesService: AdvertisementCodesService,
+        private readonly algoliaService: AlgoliaService,
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
     ) {
         this.advertisementImagesUrl = this.configService.get<string>('ADVERTISEMENT_IMAGES_URL');
@@ -73,6 +76,22 @@ export class AdvertisementsService {
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
     }
 
+    async bulk(): Promise<void> {
+        const advertisements = await this.advertisementModel.find({ status: AdvertisementStatus.ACTIVE })
+        .select('code transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea address')
+        .lean()
+        .exec();
+
+        await this.algoliaService.bulk(advertisements);
+    }
+
+    async getActives(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<Advertisement[]> {
+        const advertisementIds = await this.algoliaService.get(getActivesAdvertisementDto);
+        if (!advertisementIds.length) throw Error('notfound.advertisements');
+
+        return this.advertisementModel.find({ _id: { $in: advertisementIds } }).exec();
+    }
+
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
         return this.advertisementModel.find({ accountId }).exec();
     }
@@ -109,7 +128,7 @@ export class AdvertisementsService {
             { accountId: authenticatedUser.accountId, _id: advertisementId },
             { photos: newPhotos },
             { new: true }
-        );
+        ).exec();
 
         fs.unlink(`./uploads/${photoToRemove.name}`, () => {});
     }
@@ -132,7 +151,7 @@ export class AdvertisementsService {
             { accountId: authenticatedUser.accountId, _id: advertisementId },
             { photos: newPhotos },
             { new: true }
-        );
+        ).exec();
     }
 
     async getByAccountIdAndId(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {
@@ -141,14 +160,14 @@ export class AdvertisementsService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const advertisement = await this.advertisementModel.findOne(filter);
+        const advertisement = await this.advertisementModel.findOne(filter).exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
     }
 
     async getAllToApprove(): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).sort({ createdAt: -1 });
+        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).sort({ createdAt: -1 }).exec();
     }
 
     async updateStatus(

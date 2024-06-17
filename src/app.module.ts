@@ -10,6 +10,7 @@ import { AdvertisementsModule } from './advertisements/advertisements.module';
 import { join } from 'path';
 import { AdvertisementCodesModule } from './advertisement-codes/advertisement-codes.module';
 import { AmenitiesModule } from './amenities/amenities.module';
+import { AlgoliaModule } from './algolia/algolia.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AmenitiesModule } from './amenities/amenities.module';
     AdvertisementsModule,
     AdvertisementCodesModule,
     AmenitiesModule,
+    AlgoliaModule,
   ],
   controllers: [],
   providers: [FirebaseAdmin],

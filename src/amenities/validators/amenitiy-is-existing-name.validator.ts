@@ -10,13 +10,15 @@ export class AmenityIsExistingNameConstraint implements ValidatorConstraintInter
   constructor(@InjectModel('Amenity') private readonly amenityModel: Model<Amenity>) {}
 
   async validate(name: string): Promise<boolean> {
+    if (!name) return false;
     const amenity = await this.amenityModel.findOne({ name }).exec();
     return !!amenity;
   }
 
   defaultMessage(args: ValidationArguments): string {
     const object = args.object as any;
-    return `invalid.amenity.${object.name}.does.not.exist`;
+    const data = object.name || object.amenities?.toString() || 'value';
+    return `invalid.amenity.${data}.does.not.exist`;
   }
 }
 

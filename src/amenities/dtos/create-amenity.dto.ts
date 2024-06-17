@@ -3,7 +3,7 @@ import { IsString } from 'class-validator';
 import { AmenityIsExistingKey } from '../validators/amenitiy-is-existing-key.validator';
 import { AmenityIsExistingName } from '../validators/amenitiy-is-existing-name.validator';
 
-export class AmenityDto {
+export class CreateAmenityDto {
   @ApiProperty()
   @IsString({ message: 'key.must.be.a.string' })
   @AmenityIsExistingKey()

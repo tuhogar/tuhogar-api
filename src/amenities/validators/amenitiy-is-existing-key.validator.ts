@@ -10,13 +10,15 @@ export class AmenityIsExistingKeyConstraint implements ValidatorConstraintInterf
   constructor(@InjectModel('Amenity') private readonly amenityModel: Model<Amenity>) {}
 
   async validate(key: string): Promise<boolean> {
+    if (!key) return false;
     const amenity = await this.amenityModel.findOne({ key }).exec();
     return !!amenity;
   }
 
   defaultMessage(args: ValidationArguments): string {
     const object = args.object as any;
-    return `invalid.amenity.${object.key}.does.not.exist`;
+    const data = object.key || object.amenities?.toString() || 'value';
+    return `invalid.amenity.${data}.does.not.exist`;
   }
 }
 

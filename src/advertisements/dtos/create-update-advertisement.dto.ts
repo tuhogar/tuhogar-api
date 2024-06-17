@@ -8,7 +8,7 @@ import { AdvertisementIsSocioEconomicLevel } from "../validators/advertisement-i
 import { AddressDto } from "src/addresses/dtos/address.dto";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Amenity } from "src/amenities/interfaces/amenities.interface";
-import { AmenityDto } from "src/amenities/dtos/amenities.dto";
+import { CreateAmenityDto } from "src/amenities/dtos/create-amenity.dto";
 
 export class CreateUpdateAdvertisementDto {
     @ApiProperty()
@@ -29,7 +29,7 @@ export class CreateUpdateAdvertisementDto {
     allContentsIncluded: boolean;
 
     @ApiProperty()
-    @Transform(({ obj }) => obj.type !== AdvertisementType.HOUSE && obj.type !== AdvertisementType.APARTMENT ? false : obj.isResidentialComplex)
+    @Transform(({ obj }) => obj.type !== AdvertisementType.HOUSE && obj.type !== AdvertisementType.APARTMENT && obj.type !== AdvertisementType.LOT ? false : obj.isResidentialComplex)
     @IsBoolean({ message: 'invalid.isResidentialComplex.must.be.a.boolean.value'})
     isResidentialComplex: boolean;
 
@@ -70,15 +70,14 @@ export class CreateUpdateAdvertisementDto {
     socioEconomicLevel: number = 0;
 
     @ApiProperty()
-    @Transform(({ obj }) => !obj.isResidentialComplex ? false : obj.isHoaIncluded)
     @IsBoolean({ message: 'invalid.isHoaIncluded.must.be.a.boolean.value'})
     isHoaIncluded: boolean;
 
-    @ApiProperty({ type: [AmenityDto] })
+    @ApiProperty({ type: [CreateAmenityDto] })
     @IsArray({ message: 'amenities.must.be.an.array' })
     @ValidateNested({ each: true })
-    @Type(() => AmenityDto)
-    amenities: Amenity[];
+    @Type(() => CreateAmenityDto)
+    amenities: CreateAmenityDto[];
 
     @ApiPropertyOptional()
     @IsOptional()

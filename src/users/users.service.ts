@@ -48,7 +48,7 @@ export class UsersService {
                 userId: userCreated._id.toString(),
             });
         } catch(error) {
-            await this.userModel.deleteOne({ _id: userCreated._id.toString() });
+            await this.userModel.deleteOne({ _id: userCreated._id.toString() }).exec();
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
 
@@ -157,5 +157,7 @@ export class UsersService {
         const deletedUser = await this.userModel.deleteOne(filter).exec();
 
         if (!deletedUser) throw new Error('notfound.user.do.not.exists');
+
+        // TODO: remove user on firebase
     }
 }
