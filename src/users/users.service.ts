@@ -14,6 +14,7 @@ import { UpdateStatusUserDto } from './dtos/update-status-user.dto';
 
 @Injectable()
 export class UsersService {
+    private imagesUrl: string;
     private firebaseApiKey: string;
 
     constructor(
@@ -21,6 +22,7 @@ export class UsersService {
         private readonly admin: FirebaseAdmin,
         @InjectModel('User') private readonly userModel: Model<User>,
     ) {
+        this.imagesUrl = this.configService.get<string>('IMAGES_URL');
         this.firebaseApiKey = this.configService.get<string>('FIREBASE_API_KEY');
     }
 
@@ -55,17 +57,26 @@ export class UsersService {
 
     }
 
+    private updatePhotoUrls(users: User[]): User[] {
+        return users.map(a => ({
+            ...a.toObject(),
+            photo: `${this.imagesUrl}/${a.photo}`,
+            })) as User[];
+    }
+
     async getAllByAccountId(accountId: string, userRole?: UserRole): Promise<User[]> {
         const filter = { accountId, ...(userRole && { userRole }) };
         
-        return this.userModel.find(filter).exec();
+        const users = await this.userModel.find(filter).exec();
+        return this.updatePhotoUrls(users);
     }
 
     async getByUid(uid: string): Promise<User> {
         const user = await this.userModel.findOne({ uid }).populate({ path: 'accountId' }).exec();
         if (!user) throw new Error('notfound.user.do.not.exists');
 
-        return user;
+        const [updatedUser] = this.updatePhotoUrls([user]);
+        return updatedUser;
     }
 
     async login(email: string, password: string) {

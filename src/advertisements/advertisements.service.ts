@@ -15,12 +15,16 @@ import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto
 
 @Injectable()
 export class AdvertisementsService {
+    private imagesUrl: string;
+
     constructor(
         private configService: ConfigService,
         private readonly advertisementCodesService: AdvertisementCodesService,
         private readonly algoliaService: AlgoliaService,
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
-    ) {}
+    ) {
+        this.imagesUrl = this.configService.get<string>('IMAGES_URL');
+    }
 
     async create(
         authenticatedUser: AuthenticatedUser,
@@ -67,15 +71,29 @@ export class AdvertisementsService {
         await this.algoliaService.bulk(advertisements);
     }
 
+    private updatePhotoUrls(advertisements: Advertisement[]): Advertisement[] {
+        return advertisements.map(ad => ({
+            ...ad.toObject(),
+            photos: ad.photos.map(photo => ({
+                ...photo,
+                url: `${this.imagesUrl}/${photo.name}`,
+            })),
+        })) as Advertisement[];
+    }
+
     async getActives(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<Advertisement[]> {
         const advertisementIds = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        return this.advertisementModel.find({ _id: { $in: advertisementIds } }).exec();
+        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).exec();
+        
+        return this.updatePhotoUrls(advertisements);
     }
 
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ accountId }).exec();
+        const advertisements = await this.advertisementModel.find({ accountId }).exec();
+
+        return this.updatePhotoUrls(advertisements);
     }
 
     async updloadImage(accountId: string, advertisementId: string, fileName: string, filePath: string, order: number): Promise<void> {
@@ -144,7 +162,8 @@ export class AdvertisementsService {
         const advertisement = await this.advertisementModel.findOne(filter).exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        return advertisement;
+        const [updatedAdvertisement] = this.updatePhotoUrls([advertisement]);
+        return updatedAdvertisement;
     }
 
     async getAllToApprove(): Promise<Advertisement[]> {

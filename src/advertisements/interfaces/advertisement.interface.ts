@@ -33,6 +33,7 @@ export enum AdvertisementConstructionType {
 export interface AdvertisementPhoto {
     id: string;
     name: string;
+    url: string,
     order: number;
 }
 export interface Advertisement extends Document  {
