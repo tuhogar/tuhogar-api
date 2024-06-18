@@ -40,4 +40,5 @@ export interface User extends Document  {
     readonly webSite: string;
     readonly socialMedia: UserSocialMedia;
     readonly description: string;
+    readonly photo: string;
 }

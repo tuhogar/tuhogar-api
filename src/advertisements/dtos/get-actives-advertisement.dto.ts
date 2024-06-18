@@ -4,6 +4,7 @@ import { Transform, Type } from "class-transformer";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { AmenityIsExistingKey } from "src/amenities/validators/amenitiy-is-existing-key.validator";
 import { IsGreaterThan } from "../validators/advertisement-is-greater-than.validator";
+import { TransformToBoolean } from "src/decorators/transform-to-boolean.decorator";
 
 export class GetActivesAdvertisementDto {
     @ApiPropertyOptional()
@@ -40,69 +41,25 @@ export class GetActivesAdvertisementDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsBoolean({ message: 'invalid.allContentsIncluded.must.be.a.boolean.value'})
-    @Transform(({ value }) => {
-        if (typeof value === 'boolean') {
-          return value;
-        }
-        if (typeof value === 'string') {
-          return value.toLowerCase() === 'true';
-        }
-        if (typeof value === 'number') {
-          return value !== 0;
-        }
-        return false;
-      })
+    @TransformToBoolean()
     allContentsIncluded: boolean;
     
     @ApiPropertyOptional()
     @IsOptional()
     @IsBoolean({ message: 'invalid.isResidentialComplex.must.be.a.boolean.value'})
-    @Transform(({ value }) => {
-        if (typeof value === 'boolean') {
-          return value;
-        }
-        if (typeof value === 'string') {
-          return value.toLowerCase() === 'true';
-        }
-        if (typeof value === 'number') {
-          return value !== 0;
-        }
-        return false;
-      })
+    @TransformToBoolean()
     isResidentialComplex: boolean;
     
     @ApiPropertyOptional()
     @IsOptional()
     @IsBoolean({ message: 'invalid.isPenthouse.must.be.a.boolean.value'})
-    @Transform(({ value }) => {
-        if (typeof value === 'boolean') {
-          return value;
-        }
-        if (typeof value === 'string') {
-          return value.toLowerCase() === 'true';
-        }
-        if (typeof value === 'number') {
-          return value !== 0;
-        }
-        return false;
-      })
+    @TransformToBoolean()
     isPenthouse: boolean;
     
     @ApiPropertyOptional()
     @IsOptional()
     @IsBoolean({ message: 'invalid.isHoaIncluded.must.be.a.boolean.value'})
-    @Transform(({ value }) => {
-        if (typeof value === 'boolean') {
-          return value;
-        }
-        if (typeof value === 'string') {
-          return value.toLowerCase() === 'true';
-        }
-        if (typeof value === 'number') {
-          return value !== 0;
-        }
-        return false;
-      })
+    @TransformToBoolean()
     isHoaIncluded: boolean;
     
     @ApiPropertyOptional()

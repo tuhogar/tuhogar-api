@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Query, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { AdvertisementsService, editFileName, imageFileFilter } from './advertisements.service';
+import { AdvertisementsService } from './advertisements.service';
 import { Authenticated } from 'src/decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { Auth } from 'src/decorators/auth.decorator';
@@ -12,6 +12,7 @@ import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-adve
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
 import { AlgoliaService } from 'src/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
+import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')

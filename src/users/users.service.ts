@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
+import * as fs from 'fs';
 import { User, UserRole, UserStatus } from './interfaces/user.interface';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { ConfigService } from '@nestjs/config';
@@ -159,5 +160,29 @@ export class UsersService {
         if (!deletedUser) throw new Error('notfound.user.do.not.exists');
 
         // TODO: remove user on firebase
+    }
+
+    async updloadImage(authenticatedUser: AuthenticatedUser, fileName: string, filePath: string): Promise<void> {
+        try {
+            const updatedUser = await this.userModel.findOneAndUpdate({ accountId: authenticatedUser.accountId, _id: authenticatedUser.userId },
+                { photo: fileName },
+                { new: true }
+            ).exec();
+
+            if (!updatedUser) throw new Error('notfound.user.do.not.exists');
+        } catch(error) {
+            fs.unlink(filePath, () => {});
+            throw error;
+        }
+    }
+
+    async deleteImage(authenticatedUser: AuthenticatedUser): Promise<void> {
+        const updatedUser = await this.userModel.findOneAndUpdate({ accountId: authenticatedUser.accountId, _id: authenticatedUser.userId },
+            { $unset: { photo: '' } },
+        ).exec();
+        
+        if (!updatedUser) throw new Error('notfound.user.do.not.exists');
+
+        fs.unlink(`./uploads/${updatedUser.photo}`, () => {});
     }
 }

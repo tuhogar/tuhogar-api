@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Advertisement, AdvertisementStatus } from './interfaces/advertisement.interface';
 import { InjectModel } from '@nestjs/mongoose';
-import { extname } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
@@ -15,19 +13,6 @@ import { AdvertisementCodesService } from 'src/advertisement-codes/advertisement
 import { AlgoliaService } from 'src/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 
-export const imageFileFilter = (req, file, callback) => {
-    if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-      return callback(new Error('invalid.only.image.files.are.allowed'), false);
-    }
-    callback(null, true);
-  };
-  
- export const editFileName = (req, file, callback) => {
-    const fileExtName = extname(file.originalname);
-    const randomName = uuidv4();
-    callback(null, `${req.params.advertisementid}-${randomName}${fileExtName}`);
-  };
-  
 @Injectable()
 export class AdvertisementsService {
     constructor(
