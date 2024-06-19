@@ -20,7 +20,7 @@ export class GetActivesAdvertisementDto {
     @IsEnum(AdvertisementTransactionType, { each: true })
     @Type(() => String)
     @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
-    transactionTypes: AdvertisementTransactionType[];
+    transactionType: AdvertisementTransactionType[];
 
     @ApiPropertyOptional()
     @IsOptional()
@@ -28,7 +28,7 @@ export class GetActivesAdvertisementDto {
     @IsEnum(AdvertisementType, { each: true })
     @Type(() => String)
     @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
-    types: AdvertisementType[];
+    type: AdvertisementType[];
 
     @ApiPropertyOptional()
     @IsOptional()
@@ -68,7 +68,7 @@ export class GetActivesAdvertisementDto {
     @Type(() => String)
     @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
     @AmenityIsExistingKey({ each: true })
-    amenities: string[];
+    amenity: string[];
 
     @ApiPropertyOptional()
     @IsOptional()
@@ -104,203 +104,203 @@ export class GetActivesAdvertisementDto {
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.bedsCountFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.bedsCountMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    bedsCountFrom: number = 0;
+    bedsCountMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.bedsCountTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.bedsCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('bedsCountFrom', { message: 'invalid.bedsCountTo.must.be.greater.than.or.equal.to.bedsCountFrom' })
-    bedsCountTo: number = 0;
+    @IsGreaterThan('bedsCountMin', { message: 'invalid.bedsCountMax.must.be.greater.than.or.equal.to.bedsCountMin' })
+    bedsCountMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.bathsCountFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.bathsCountMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    bathsCountFrom: number = 0;
+    bathsCountMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.bathsCountTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.bathsCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('bathsCountFrom', { message: 'invalid.bathsCountTo.must.be.greater.than.or.equal.to.bathsCountFrom' })
-    bathsCountTo: number = 0;
+    @IsGreaterThan('bathsCountMin', { message: 'invalid.bathsCountMax.must.be.greater.than.or.equal.to.bathsCountMin' })
+    bathsCountMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.parkingCountFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.parkingCountMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    parkingCountFrom: number = 0;
+    parkingCountMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.parkingCountTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.parkingCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('parkingCountFrom', { message: 'invalid.parkingCountTo.must.be.greater.than.or.equal.to.parkingCountFrom' })
-    parkingCountTo: number = 0;
+    @IsGreaterThan('parkingCountMin', { message: 'invalid.parkingCountMax.must.be.greater.than.or.equal.to.parkingCountMin' })
+    parkingCountMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.floorsCountFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.floorsCountMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    floorsCountFrom: number = 0;
+    floorsCountMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.floorsCountTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.floorsCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('floorsCountFrom', { message: 'invalid.floorsCountTo.must.be.greater.than.or.equal.to.floorsCountFrom' })
-    floorsCountTo: number = 0;
+    @IsGreaterThan('floorsCountMin', { message: 'invalid.floorsCountMax.must.be.greater.than.or.equal.to.floorsCountMin' })
+    floorsCountMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.constructionYearFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.constructionYearMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    constructionYearFrom: number = 0;
+    constructionYearMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.constructionYearTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.constructionYearMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('constructionYearFrom', { message: 'invalid.constructionYearTo.must.be.greater.than.or.equal.to.constructionYearFrom' })
-    constructionYearTo: number = 0;
+    @IsGreaterThan('constructionYearMin', { message: 'invalid.constructionYearMax.must.be.greater.than.or.equal.to.constructionYearMin' })
+    constructionYearMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.socioEconomicLevelFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.socioEconomicLevelMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    socioEconomicLevelFrom: number = 0;
+    socioEconomicLevelMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.socioEconomicLevelTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.socioEconomicLevelMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('socioEconomicLevelFrom', { message: 'invalid.socioEconomicLevelTo.must.be.greater.than.or.equal.to.socioEconomicLevelFrom' })
-    socioEconomicLevelTo: number = 0;
+    @IsGreaterThan('socioEconomicLevelMin', { message: 'invalid.socioEconomicLevelMax.must.be.greater.than.or.equal.to.socioEconomicLevelMin' })
+    socioEconomicLevelMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.hoaFeeFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.hoaFeeMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    hoaFeeFrom: number = 0;
+    hoaFeeMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.hoaFeeTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.hoaFeeMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('hoaFeeFrom', { message: 'invalid.hoaFeeTo.must.be.greater.than.or.equal.to.hoaFeeFrom' })
-    hoaFeeTo: number = 0;
+    @IsGreaterThan('hoaFeeMin', { message: 'invalid.hoaFeeMax.must.be.greater.than.or.equal.to.hoaFeeMin' })
+    hoaFeeMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.lotAreaFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.lotAreaMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    lotAreaFrom: number = 0;
+    lotAreaMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.lotAreaTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.lotAreaMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('lotAreaFrom', { message: 'invalid.lotAreaTo.must.be.greater.than.or.equal.to.lotAreaFrom' })
-    lotAreaTo: number = 0;
+    @IsGreaterThan('lotAreaMin', { message: 'invalid.lotAreaMax.must.be.greater.than.or.equal.to.lotAreaMin' })
+    lotAreaMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.floorAreaFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.floorAreaMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    floorAreaFrom: number = 0;
+    floorAreaMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.floorAreaTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.floorAreaMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('floorAreaFrom', { message: 'invalid.floorAreaTo.must.be.greater.than.or.equal.to.floorAreaFrom' })
-    floorAreaTo: number = 0;
+    @IsGreaterThan('floorAreaMin', { message: 'invalid.floorAreaMax.must.be.greater.than.or.equal.to.floorAreaMin' })
+    floorAreaMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.priceFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.priceMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    priceFrom: number = 0;
+    priceMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.priceTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.priceMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('priceFrom', { message: 'invalid.priceTo.must.be.greater.than.or.equal.to.priceFrom' })
-    priceTo: number = 0;
+    @IsGreaterThan('priceMin', { message: 'invalid.priceMax.must.be.greater.than.or.equal.to.priceMin' })
+    priceMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.pricePerFloorAreaFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.pricePerFloorAreaMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    pricePerFloorAreaFrom: number = 0;
+    pricePerFloorAreaMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.pricePerFloorAreaTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.pricePerFloorAreaMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('pricePerFloorAreaFrom', { message: 'invalid.pricePerFloorAreaTo.must.be.greater.than.or.equal.to.pricePerFloorAreaFrom' })
-    pricePerFloorAreaTo: number = 0;
+    @IsGreaterThan('pricePerFloorAreaMin', { message: 'invalid.pricePerFloorAreaMax.must.be.greater.than.or.equal.to.pricePerFloorAreaMin' })
+    pricePerFloorAreaMax: number = 0;
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.pricePerLotAreaFrom.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.pricePerLotAreaMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    pricePerLotAreaFrom: number = 0;
+    pricePerLotAreaMin: number = 0;
   
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
-    @IsNumber({}, { message: 'invalid.pricePerLotAreaTo.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsNumber({}, { message: 'invalid.pricePerLotAreaMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('pricePerLotAreaFrom', { message: 'invalid.pricePerLotAreaTo.must.be.greater.than.or.equal.to.pricePerLotAreaFrom' })
-    pricePerLotAreaTo: number = 0;
+    @IsGreaterThan('pricePerLotAreaMin', { message: 'invalid.pricePerLotAreaMax.must.be.greater.than.or.equal.to.pricePerLotAreaMin' })
+    pricePerLotAreaMax: number = 0;
 }

@@ -69,4 +69,5 @@ export interface Advertisement extends Document  {
     readonly tourUrl: string;
     readonly videoUrl: string;
     readonly publishedAt: Date;
+    readonly updatedAt: Date;
 }

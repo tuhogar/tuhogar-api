@@ -11,6 +11,7 @@ import { join } from 'path';
 import { AdvertisementCodesModule } from './advertisement-codes/advertisement-codes.module';
 import { AmenitiesModule } from './amenities/amenities.module';
 import { AlgoliaModule } from './algolia/algolia.module';
+import { BulkUpdateDateModule } from './bulk-update-date/bulk-update-date.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AlgoliaModule } from './algolia/algolia.module';
     AdvertisementCodesModule,
     AmenitiesModule,
     AlgoliaModule,
+    BulkUpdateDateModule,
   ],
   controllers: [],
   providers: [FirebaseAdmin],

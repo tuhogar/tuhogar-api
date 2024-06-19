@@ -28,37 +28,81 @@ export class AlgoliaService {
         }));
       }
 
+      async delete(objectID: string): Promise<void> {
+        await this.index.deleteObject(objectID);
+      }
+
       async get(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<string[]> {
-        console.log('------getActivesAdvertisementDto');
-        console.log(getActivesAdvertisementDto);
-        console.log('------getActivesAdvertisementDto');
+        let filters: string[] = [];
 
-        let filters = '';
+        const addRangeFilter = (field: string, min?: number, max?: number) => {
+          if (min > 0 || max > 0) {
+            filters.push(`${field}:${min} TO ${max}`);
+          }
+        };
+
+        const addMultiValueFilter = (field: string, values: string[] | undefined, clausule: string) => {
+          if (values && values.length > 0) {
+            const filter = values.map(value => `${field}:${value}`).join(` ${clausule} `);
+            filters.push(`(${filter})`);
+          }
+        };
+
         if (getActivesAdvertisementDto.code) {
-          filters += `code:${getActivesAdvertisementDto.code} `;
+          filters.push(`code:${getActivesAdvertisementDto.code}`);
         } else {
-          //if (getActivesAdvertisementDto.transactionTypes) {
-          //  filters += `transactionTypes:${getActivesAdvertisementDto.description}`
-          //}
+          addMultiValueFilter('transactionType', getActivesAdvertisementDto.transactionType, 'OR');
+          addMultiValueFilter('type', getActivesAdvertisementDto.type, 'OR');
+          addMultiValueFilter('constructionType', getActivesAdvertisementDto.constructionType, 'OR');
+          
+
+          if (getActivesAdvertisementDto.allContentsIncluded !== undefined) filters.push(`allContentsIncluded:${getActivesAdvertisementDto.allContentsIncluded}`);
+          if (getActivesAdvertisementDto.isResidentialComplex !== undefined) filters.push(`isResidentialComplex:${getActivesAdvertisementDto.isResidentialComplex}`);
+          if (getActivesAdvertisementDto.isPenthouse !== undefined) filters.push(`isPenthouse:${getActivesAdvertisementDto.isPenthouse}`);
+          if (getActivesAdvertisementDto.isHoaIncluded !== undefined) filters.push(`isHoaIncluded:${getActivesAdvertisementDto.isHoaIncluded}`);
+
+          addMultiValueFilter('amenities.key', getActivesAdvertisementDto.amenity, 'AND');
+    
+          addRangeFilter('bedsCount', getActivesAdvertisementDto.bedsCountMin, getActivesAdvertisementDto.bedsCountMax);
+          addRangeFilter('bathsCount', getActivesAdvertisementDto.bathsCountMin, getActivesAdvertisementDto.bathsCountMax);
+          addRangeFilter('parkingCount', getActivesAdvertisementDto.parkingCountMin, getActivesAdvertisementDto.parkingCountMax);
+          addRangeFilter('floorsCount', getActivesAdvertisementDto.floorsCountMin, getActivesAdvertisementDto.floorsCountMax);
+          addRangeFilter('constructionYear', getActivesAdvertisementDto.constructionYearMin, getActivesAdvertisementDto.constructionYearMax);
+          addRangeFilter('socioEconomicLevel', getActivesAdvertisementDto.socioEconomicLevelMin, getActivesAdvertisementDto.socioEconomicLevelMax);
+          addRangeFilter('hoaFee', getActivesAdvertisementDto.hoaFeeMin, getActivesAdvertisementDto.hoaFeeMax);
+          addRangeFilter('lotArea', getActivesAdvertisementDto.lotAreaMin, getActivesAdvertisementDto.lotAreaMax);
+          addRangeFilter('floorArea', getActivesAdvertisementDto.floorAreaMin, getActivesAdvertisementDto.floorAreaMax);
+          addRangeFilter('pricePerLotArea', getActivesAdvertisementDto.pricePerLotAreaMin, getActivesAdvertisementDto.pricePerLotAreaMax);
+          addRangeFilter('pricePerFloorArea', getActivesAdvertisementDto.pricePerFloorAreaMin, getActivesAdvertisementDto.pricePerFloorAreaMax);
         }
+        const filter = filters.join(' AND ');
 
-        console.log('------filters');
-        console.log(filters);
-        console.log('------filters');
+        const searchText: string[] = [];
+        const restrictSearchableAttributes: string[] = [];
 
+        const addSearchText = (field: string, value: string | undefined) => {
+          if (value) {
+            searchText.push(value);
+            restrictSearchableAttributes.push(`address.${field}`);
+          }
+        };
+        
+        addSearchText('country', getActivesAdvertisementDto.country);
+        addSearchText('state', getActivesAdvertisementDto.state);
+        addSearchText('city', getActivesAdvertisementDto.city);
+        addSearchText('neighbourhood', getActivesAdvertisementDto.neighbourhood);
+        addSearchText('street', getActivesAdvertisementDto.street);
 
+        const query = searchText.join(' ');
 
-        const { hits } = await this.index.search('', {
-            filters,
-            attributesToRetrieve: [],
-            attributesToHighlight: []
+        const { hits } = await this.index.search(query, {
+          filters: filter,
+          restrictSearchableAttributes: restrictSearchableAttributes.length > 0 ? restrictSearchableAttributes : undefined,
+          attributesToRetrieve: [],
+          attributesToHighlight: []
         });
 
         const objectIDs = hits.map((hit: any) => hit.objectID);
-
-        console.log('----objectIDs');
-        console.log(objectIDs);
-        console.log('----objectIDs');
 
         return objectIDs;
       }

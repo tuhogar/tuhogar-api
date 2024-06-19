@@ -12,6 +12,7 @@ import { UserRole } from 'src/users/interfaces/user.interface';
 import { AdvertisementCodesService } from 'src/advertisement-codes/advertisement-codes.service';
 import { AlgoliaService } from 'src/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
+import { BulkUpdateDateService } from 'src/bulk-update-date/bulk-update-date.service';
 
 @Injectable()
 export class AdvertisementsService {
@@ -21,6 +22,7 @@ export class AdvertisementsService {
         private configService: ConfigService,
         private readonly advertisementCodesService: AdvertisementCodesService,
         private readonly algoliaService: AlgoliaService,
+        private readonly bulkUpdateDateService: BulkUpdateDateService,
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
     ) {
         this.imagesUrl = this.configService.get<string>('IMAGES_URL');
@@ -63,18 +65,30 @@ export class AdvertisementsService {
     }
 
     async bulk(): Promise<void> {
-        const advertisements = await this.advertisementModel.find({ status: AdvertisementStatus.ACTIVE })
-        .select('code transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea address')
+        let lastUpdatedAt = (await this.bulkUpdateDateService.get())?.updatedAt || new Date(0);
+        
+        const advertisements = await this.advertisementModel.find({
+            status: AdvertisementStatus.ACTIVE,
+            updatedAt: { $gt: lastUpdatedAt },
+         })
+        .select('code transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea address updatedAt')
         .lean()
         .exec();
 
-        await this.algoliaService.bulk(advertisements);
+        if (advertisements.length > 0) {
+            await this.algoliaService.bulk(advertisements);
+            
+            const latestUpdatedAt = new Date(Math.max(...advertisements.map(a => new Date((a.updatedAt as unknown as string)).getTime())));
+            lastUpdatedAt = latestUpdatedAt;
+
+            await this.bulkUpdateDateService.update(latestUpdatedAt);
+        }
     }
 
     private updatePhotoUrls(advertisements: Advertisement[]): Advertisement[] {
-        return advertisements.map(ad => ({
-            ...ad.toObject(),
-            photos: ad.photos.map(photo => ({
+        return advertisements.map(a => ({
+            ...a.toObject(),
+            photos: a.photos.map(photo => ({
                 ...photo,
                 url: `${this.imagesUrl}/${photo.name}`,
             })),
@@ -199,5 +213,9 @@ export class AdvertisementsService {
         ).exec();
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        if (updateStatusAdvertisementDto.status !== AdvertisementStatus.ACTIVE) {
+            await this.algoliaService.delete(advertisementId);
+        }
     }
 }

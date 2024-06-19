@@ -7,6 +7,7 @@ import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { AdvertisementCodesModule } from 'src/advertisement-codes/advertisement-codes.module';
 import { AmenitiesModule } from 'src/amenities/amenities.module';
 import { AlgoliaModule } from 'src/algolia/algolia.module';
+import { BulkUpdateDateModule } from 'src/bulk-update-date/bulk-update-date.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AlgoliaModule } from 'src/algolia/algolia.module';
     AdvertisementCodesModule,
     AmenitiesModule,
     AlgoliaModule,
+    BulkUpdateDateModule,
   ],
   controllers: [AdvertisementsController],
   providers: [AdvertisementsService, FirebaseAdmin],
