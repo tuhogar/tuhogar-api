@@ -13,6 +13,7 @@ import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement
 import { AlgoliaService } from 'src/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
+import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -24,7 +25,7 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Post()
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
     async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
         return this.advertisementsService.create(
@@ -35,20 +36,20 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Get()
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<Advertisement[]> {
         return this.advertisementsService.getAllByAccountId(authenticatedUser.accountId);
     }
 
     @ApiBearerAuth()
     @Get('toapprove')
-    @Auth('MASTER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
     async getAllToApprove(): Promise<Advertisement[]> {
         return this.advertisementsService.getAllToApprove();
     }
 
     @Post('bulk')
-    @Auth('MASTER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
     async bulk(): Promise<void> {
         await this.advertisementsService.bulk();
     }
@@ -72,7 +73,7 @@ export class AdvertisementsController {
           },
         },
       })
-    @Post(':advertisementid/images')
+    @Post(':advertisementid/upload')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
           destination: './uploads',
@@ -81,7 +82,7 @@ export class AdvertisementsController {
         fileFilter: imageFileFilter,
         limits: { fileSize: 1 * 1024 * 1024 }, // 5MB limit
       }))
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     async uploadImage(
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,
@@ -98,8 +99,19 @@ export class AdvertisementsController {
     }
 
     @ApiBearerAuth()
+    @Post(':advertisementid/images')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
+    @UsePipes(new ValidationPipe({transform: true}))
+    async upload(
+        @Authenticated() authenticatedUser: AuthenticatedUser,
+        @Param('advertisementid') advertisementId: string,
+        @Body() uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
+        await this.advertisementsService.processImages(authenticatedUser.accountId, advertisementId, uploadImagesAdvertisementDto);
+    }
+
+    @ApiBearerAuth()
     @Delete(':advertisementid/images/:imageid')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Param('imageid') imageid: string): Promise<void> {
         await this.advertisementsService.deleteImage(authenticatedUser, advertisementId, imageid);
     }
@@ -107,7 +119,7 @@ export class AdvertisementsController {
     @ApiBearerAuth()
     @ApiBody({ type: [UpdateImageOrderAdvertisementDto] })
     @Put(':advertisementid/images')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
     async updateImageOrders(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
         await this.advertisementsService.updateImageOrders(authenticatedUser, advertisementId, updateImagesOrdersAdvertisementDto);
@@ -115,7 +127,7 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Put(':advertisementid')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
     async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
         await this.advertisementsService.update(
@@ -127,7 +139,7 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Put(':advertisementid/status')
-    @Auth('MASTER', 'ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({ transform: true }))
     async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
         await this.advertisementsService.updateStatus(
@@ -139,7 +151,7 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Get(':advertisementid')
-    @Auth('MASTER', 'ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
     async get(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string): Promise<Advertisement> {
         return this.advertisementsService.getByAccountIdAndId(

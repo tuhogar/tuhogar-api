@@ -28,35 +28,35 @@ export class AccountsController {
 
   @ApiBearerAuth()
   @Get()
-  @Auth('MASTER')
+  @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
   async getAll(): Promise<Account[]> {
     return this.accountsService.getAll();
   }
 
   @ApiBearerAuth()
   @Put(':accountid/status')
-  @Auth('MASTER')
+  @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
   async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() updateStatusAccountDto: UpdateStatusAccountDto): Promise<void> {
       await this.accountsService.updateStatus(authenticatedUser, accountId, updateStatusAccountDto);
   }
 
   @ApiBearerAuth()
   @Get(':accountid/users')
-  @Auth('MASTER')
+  @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
   async getUsers(@Param('accountid') accountId: string): Promise<User[]> {
       return this.accountsService.getUsers(accountId);
   }
 
   @ApiBearerAuth()
   @Get(':accountid/advertisements')
-  @Auth('MASTER')
+  @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
   async getAdvertisements(@Param('accountid') accountId: string): Promise<Advertisement[]> {
       return this.accountsService.getAdvertisements(accountId);
   }
 
   @ApiBearerAuth()
   @Delete(':accountid/users/:userid')
-  @Auth('MASTER')
+  @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
   async deleteUser(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string): Promise<void> {
       await this.accountsService.deleteUser(authenticatedUser, userId);
   }

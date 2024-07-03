@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { Advertisement, AdvertisementStatus } from './interfaces/advertisement.interface';
+import { Advertisement, AdvertisementPhoto, AdvertisementStatus } from './interfaces/advertisement.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
+import * as sharp from 'sharp';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement.dto';
@@ -13,10 +16,12 @@ import { AdvertisementCodesService } from 'src/advertisement-codes/advertisement
 import { AlgoliaService } from 'src/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 import { BulkUpdateDateService } from 'src/bulk-update-date/bulk-update-date.service';
+import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
 
 @Injectable()
 export class AdvertisementsService {
     private imagesUrl: string;
+    private readonly uploadDir = path.join(__dirname, '..', '..', 'uploads');
 
     constructor(
         private configService: ConfigService,
@@ -26,6 +31,10 @@ export class AdvertisementsService {
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
     ) {
         this.imagesUrl = this.configService.get<string>('IMAGES_URL');
+
+        if (!fs.existsSync(this.uploadDir)) {
+            fs.mkdirSync(this.uploadDir, { recursive: true });
+        }
     }
 
     async create(
@@ -91,6 +100,7 @@ export class AdvertisementsService {
             photos: a.photos.map(photo => ({
                 ...photo,
                 url: `${this.imagesUrl}/${photo.name}`,
+                thumbnailUrl: `${this.imagesUrl}/${photo.thumbnailName}`,
             })),
         })) as Advertisement[];
     }
@@ -218,4 +228,54 @@ export class AdvertisementsService {
             await this.algoliaService.delete(advertisementId);
         }
     }
+
+    async processImages(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
+        const advertisement = await this.advertisementModel.findById(advertisementId);
+        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+        const photos = advertisement.photos;
+        const newPhotos: AdvertisementPhoto[] = [];
+    
+        for (const image of uploadImagesAdvertisementDto.images) {
+            if (!image.id) {
+                const fileName = image.name.split('.');
+                const extention = fileName[fileName.length-1];
+
+                const randomId = uuidv4();
+                const imageName = `${advertisementId}-${randomId}.${extention}`;
+                const imageThumbnailName = `${advertisementId}-${randomId}-thumbnail.${extention}`;
+
+                const originalFilePath = path.join(this.uploadDir, imageName);
+                const thumbnailFilePath = path.join(this.uploadDir, imageThumbnailName);
+
+                // Salvar imagem original
+                await fs.promises.writeFile(originalFilePath, Buffer.from(image.content));
+            
+                // Criar thumbnail
+                await sharp(Buffer.from(image.content))
+                    .resize(352, 352)
+                    .toFile(thumbnailFilePath);
+            
+                    newPhotos.push({
+                    id: randomId,
+                    name: imageName,
+                    thumbnailName: imageThumbnailName,
+                    order: image.order,
+                });
+            } else {
+                const photo = photos.find((a) => a.id === image.id);
+                if (!photo)throw new Error(`notfound.advertisement.photo.id.${image.id}.do.not.exists`);
+                photo.order = image.order;
+
+                newPhotos.push(photo);
+            }
+        }
+
+        const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate(
+            { accountId, _id: advertisementId },
+            { photos: newPhotos },
+            { new: true }
+        ).exec();
+
+        if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
+      }
 }

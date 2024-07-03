@@ -22,14 +22,14 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Get()
-    @Auth('ADMIN')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User[]> {
         return this.usersService.getAllByAccountId(authenticatedUser.accountId);
     }
 
     @ApiBearerAuth()
     @Get('me')
-    @Auth('MASTER', 'ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER', 'ADMIN', 'USER')
     async get(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User> {
         return this.usersService.getByUid(authenticatedUser.uid);
     }
@@ -42,7 +42,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Delete('me')
-    @Auth('MASTER', 'ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER', 'ADMIN', 'USER')
     // TODO: remover ou trocar, este endpoint é apenas para testes
     async deleteMe(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
         await this.usersService.deleteMe(authenticatedUser.uid);
@@ -50,7 +50,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Patch(':userid')
-    @Auth('MASTER', 'ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER', 'ADMIN', 'USER')
     async patch(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string, @Body() patchUserDto: PatchUserDto): Promise<void> {
         if(authenticatedUser.userRole === UserRole.USER && userId !== authenticatedUser.userId) throw new Error('Unauthorized');
         
@@ -59,7 +59,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Put(':userid/status')
-    @Auth('MASTER', 'ADMIN')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER', 'ADMIN')
     async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string, @Body() updateStatusUserDto: UpdateStatusUserDto): Promise<void> {
         if(userId === authenticatedUser.userId) throw new Error('Unauthorized');
 
@@ -68,7 +68,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Delete(':userid')
-    @Auth('ADMIN')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN')
     async delete(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string): Promise<void> {
         if(userId === authenticatedUser.userId) throw new Error('Unauthorized');
         
@@ -86,7 +86,7 @@ export class UsersController {
         fileFilter: imageFileFilter,
         limits: { fileSize: 1 * 1024 * 1024 }, // 5MB limit
       }))
-    @Auth('ADMIN', 'USER')
+      @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     async uploadImage(
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @UploadedFile(
@@ -103,7 +103,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Delete('me/images')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
     async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
         await this.usersService.deleteImage(authenticatedUser);
     }
