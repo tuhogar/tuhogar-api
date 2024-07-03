@@ -46,4 +46,4 @@ export class UploadImagesAdvertisementDto {
     @ValidateNested({ each: true })
     @Type(() => ImageAdvertisementDto)
     images: ImageAdvertisementDto[];
-  }
+}

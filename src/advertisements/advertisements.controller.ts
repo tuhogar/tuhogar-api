@@ -10,10 +10,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
-import { AlgoliaService } from 'src/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
 import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
+import { UpdateStatusAllAdvertisementsDto } from './dtos/update-status-all-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -57,6 +57,17 @@ export class AdvertisementsController {
     @Get('actives')
     async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<any> {
         return this.advertisementsService.getActives(getActivesAdvertisementDto);
+    }
+
+    @ApiBearerAuth()
+    @Put('status')
+    @Auth('MASTER', 'ADMIN', 'USER')//@Auth('MASTER')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async updateStatusActiveOrInactive(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() updateStatusAllAdvertisementsDto: UpdateStatusAllAdvertisementsDto): Promise<void> {
+        await this.advertisementsService.updateStatusAll(
+            authenticatedUser.userId,
+            updateStatusAllAdvertisementsDto,
+        );
     }
 
     @ApiBearerAuth()
@@ -112,6 +123,8 @@ export class AdvertisementsController {
     @ApiBearerAuth()
     @Delete(':advertisementid/images/:imageid')
     @Auth('MASTER', 'ADMIN', 'USER')//@Auth('ADMIN', 'USER')
+    // TODO: este endpoint não vai mais existir? existirá somente o endpoint que faz o upload recebendo um array?
+    // Como faremos para excluir uma imagem de um anúncio?
     async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Param('imageid') imageid: string): Promise<void> {
         await this.advertisementsService.deleteImage(authenticatedUser, advertisementId, imageid);
     }

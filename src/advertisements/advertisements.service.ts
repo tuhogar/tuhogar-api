@@ -17,6 +17,7 @@ import { AlgoliaService } from 'src/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 import { BulkUpdateDateService } from 'src/bulk-update-date/bulk-update-date.service';
 import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
+import { UpdateStatusAllAdvertisementsDto } from './dtos/update-status-all-advertisement.dto';
 
 @Injectable()
 export class AdvertisementsService {
@@ -226,6 +227,39 @@ export class AdvertisementsService {
 
         if (updateStatusAdvertisementDto.status !== AdvertisementStatus.ACTIVE) {
             await this.algoliaService.delete(advertisementId);
+        }
+    }
+
+    async updateStatusAll(
+        userId: string,
+        updateStatusAllAdvertisementsDto: UpdateStatusAllAdvertisementsDto,
+    ): Promise<void> {
+        const advertisementIds = updateStatusAllAdvertisementsDto.advertisements.map((a) => a.id);
+
+        let publishedAt = undefined;
+        let approvingUserId = undefined;
+        if (updateStatusAllAdvertisementsDto.status === AdvertisementStatus.ACTIVE) {
+            publishedAt = new Date();
+            approvingUserId = userId;
+        }
+
+        const update = {
+            updatedUserId: userId,
+            status: updateStatusAllAdvertisementsDto.status,
+            publishedAt,
+            approvingUserId,
+          };
+
+        const updatedAdvertisement = await this.advertisementModel.updateMany(
+            { _id: { $in: advertisementIds } },
+            update,
+            { new: true }
+        ).exec();
+
+        if (updatedAdvertisement.upsertedCount === 0) throw new Error('notfound.advertisement.do.not.exists');
+
+        if (updateStatusAllAdvertisementsDto.status !== AdvertisementStatus.ACTIVE) {
+            updateStatusAllAdvertisementsDto.advertisements.forEach(async (a) => await this.algoliaService.delete(a.id));
         }
     }
 
