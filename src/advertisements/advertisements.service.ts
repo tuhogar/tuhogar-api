@@ -7,7 +7,6 @@ import * as fs from 'fs';
 import * as sharp from 'sharp';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement.dto';
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
@@ -121,22 +120,6 @@ export class AdvertisementsService {
         return this.updatePhotoUrls(advertisements);
     }
 
-    async updloadImage(accountId: string, advertisementId: string, fileName: string, filePath: string, order: number): Promise<void> {
-        try {
-            const id = fileName.replace('-','.').split('.')[1];
-
-            const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ accountId, _id: advertisementId },
-                { $push: { photos: { id, name: fileName, order } }},
-                { new: true }
-            ).exec();
-
-            if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
-        } catch(error) {
-            fs.unlink(filePath, () => {});
-            throw error;
-        }
-    }
-
     async deleteImage(authenticatedUser: AuthenticatedUser, advertisementId: string, imageid: string): Promise<void> {
         const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
 
@@ -157,27 +140,6 @@ export class AdvertisementsService {
         fs.unlink(`./uploads/${photoToRemove.name}`, () => {});
     }
     
-    async updateImageOrders(authenticatedUser: AuthenticatedUser, advertisementId: string, updateImagesOrdersAdvertisementDto: UpdateImageOrderAdvertisementDto[]): Promise<void> {
-        const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
-
-        const photos = advertisement.photos;
-        if(!photos) return;
-
-        const newPhotos = updateImagesOrdersAdvertisementDto.map((a) => {
-            const photo = photos.find((b) => b.id === a.id);
-            if(!photo) throw new Error(`notfound.photo.id.${a.id}.do.not.exists`);
-            
-            photo.order = a.order;
-            return photo;
-        });
-
-        await this.advertisementModel.findOneAndUpdate(
-            { accountId: authenticatedUser.accountId, _id: advertisementId },
-            { photos: newPhotos },
-            { new: true }
-        ).exec();
-    }
-
     async getByAccountIdAndId(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {
         const filter = {
             _id: advertisementId,
@@ -311,5 +273,5 @@ export class AdvertisementsService {
         ).exec();
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
-      }
+    }
 }

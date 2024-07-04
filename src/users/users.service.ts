@@ -11,6 +11,7 @@ import { PatchUserDto } from './dtos/patch-user.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { UpdateStatusUserDto } from './dtos/update-status-user.dto';
+import { CreateUserMasterDto } from './dtos/create-user-master.dto';
 
 @Injectable()
 export class UsersService {
@@ -57,26 +58,44 @@ export class UsersService {
 
     }
 
-    private updatePhotoUrls(users: User[]): User[] {
-        return users.map(a => ({
-            ...a.toObject(),
-            photo: `${this.imagesUrl}/${a.photo}`,
-            })) as User[];
-    }
+    async createMaster(
+        authenticatedUser: AuthenticatedUser,
+        createUserMasterDto: CreateUserMasterDto,
+    ): Promise<void> {
+        const userCreated = new this.userModel({
+            ...createUserMasterDto,
+            userRole: UserRole.MASTER,
+            email: authenticatedUser.email,
+            uid: authenticatedUser.uid,
+            status: UserStatus.ACTIVE,
+         });
+        await userCreated.save();
+        
+        try {
+            const app = this.admin.setup();
+            await app.auth().setCustomUserClaims(authenticatedUser.uid, { 
+                userRole: UserRole.MASTER,
+                userStatus: userCreated.status,
+                userId: userCreated._id.toString(),
+            });
+        } catch(error) {
+            await this.userModel.deleteOne({ _id: userCreated._id.toString() }).exec();
+            throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
+        }
 
+    }
+   
     async getAllByAccountId(accountId: string, userRole?: UserRole): Promise<User[]> {
         const filter = { accountId, ...(userRole && { userRole }) };
         
-        const users = await this.userModel.find(filter).exec();
-        return this.updatePhotoUrls(users);
+        return this.userModel.find(filter).exec();
     }
 
     async getByUid(uid: string): Promise<User> {
         const user = await this.userModel.findOne({ uid }).populate({ path: 'accountId' }).exec();
         if (!user) throw new Error('notfound.user.do.not.exists');
 
-        const [updatedUser] = this.updatePhotoUrls([user]);
-        return updatedUser;
+        return user;
     }
 
     async login(email: string, password: string) {
@@ -171,29 +190,5 @@ export class UsersService {
         if (!deletedUser) throw new Error('notfound.user.do.not.exists');
 
         // TODO: remove user on firebase
-    }
-
-    async updloadImage(authenticatedUser: AuthenticatedUser, fileName: string, filePath: string): Promise<void> {
-        try {
-            const updatedUser = await this.userModel.findOneAndUpdate({ accountId: authenticatedUser.accountId, _id: authenticatedUser.userId },
-                { photo: fileName },
-                { new: true }
-            ).exec();
-
-            if (!updatedUser) throw new Error('notfound.user.do.not.exists');
-        } catch(error) {
-            fs.unlink(filePath, () => {});
-            throw error;
-        }
-    }
-
-    async deleteImage(authenticatedUser: AuthenticatedUser): Promise<void> {
-        const updatedUser = await this.userModel.findOneAndUpdate({ accountId: authenticatedUser.accountId, _id: authenticatedUser.userId },
-            { $unset: { photo: '' } },
-        ).exec();
-        
-        if (!updatedUser) throw new Error('notfound.user.do.not.exists');
-
-        fs.unlink(`./uploads/${updatedUser.photo}`, () => {});
     }
 }

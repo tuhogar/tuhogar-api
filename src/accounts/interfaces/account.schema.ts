@@ -5,5 +5,6 @@ export const AccountSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Plan',
      },
+    photo: String,
     status: String,
 }, { timestamps: true, collection: 'accounts' });

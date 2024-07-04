@@ -18,5 +18,4 @@ export const UserSchema = new mongoose.Schema({
     webSite: String,
     socialMedia: Object,
     description: String,
-    photo: String,
 }, { timestamps: true, collection: 'users' });

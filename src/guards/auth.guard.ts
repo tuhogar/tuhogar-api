@@ -3,7 +3,7 @@ import { Reflector } from "@nestjs/core";
 import { FirebaseAdmin } from "../config/firebase.setup";
 import { AuthenticatedUser } from "src/users/interfaces/authenticated-user.interface";
 import { AccountStatus } from "src/accounts/interfaces/account.interface";
-import { UserStatus } from "src/users/interfaces/user.interface";
+import { UserRole, UserStatus } from "src/users/interfaces/user.interface";
 
 export const REQUEST_CONTEXT = '_requestContext';
 @Injectable()
@@ -40,7 +40,7 @@ export class AuthGuard implements CanActivate {
             request['body'][REQUEST_CONTEXT] = { user };
 
             if (permissions && permissions.length > 0) {
-                if (permissions.includes(user.userRole) && user.accountStatus === AccountStatus.ACTIVE && user.userStatus === UserStatus.ACTIVE) {
+                if (permissions.includes(user.userRole) && (user.userRole === UserRole.MASTER || user.accountStatus === AccountStatus.ACTIVE) && user.userStatus === UserStatus.ACTIVE) {
                     return true;
                 } else {
                     throw new UnauthorizedException();

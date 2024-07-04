@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Account, AccountStatus } from './interfaces/account.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as fs from 'fs';
+import * as sharp from 'sharp';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { User, UserRole, UserStatus } from 'src/users/interfaces/user.interface';
 import { UsersService } from 'src/users/users.service';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
@@ -11,21 +15,44 @@ import { UpdateStatusAccountDto } from './dtos/update-status-account.dto';
 import { UpdateStatusUserDto } from 'src/users/dtos/update-status-user.dto';
 import { AdvertisementsService } from 'src/advertisements/advertisements.service';
 import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
+import { UploadImageAccountDto } from './dtos/upload-image-account.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AccountsService {
+  private imagesUrl: string;
+  private readonly uploadDir = path.join(__dirname, '..', '..', 'uploads');
+
   constructor(
     @InjectModel('Account') private readonly accountModel: Model<Account>,
+    private configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly advertisementsService: AdvertisementsService,
-  ) {}
+  ) {
+    this.imagesUrl = this.configService.get<string>('IMAGES_URL');
+
+        if (!fs.existsSync(this.uploadDir)) {
+            fs.mkdirSync(this.uploadDir, { recursive: true });
+        }
+  }
+
+  private updatePhotoUrls(accounts: Account[]): Account[] {
+    return accounts.map(a => ({
+        ...a.toObject(),
+        photo: `${this.imagesUrl}/${a.photo}`,
+        })) as Account[];
+  }
 
   async getAll(): Promise<Account[]> {
-    return this.accountModel.find().populate('planId').exec();
+    const accounts = await this.accountModel.find().populate('planId').exec();
+    return this.updatePhotoUrls(accounts);
   }
 
   async getById(id: string): Promise<Account> {
-    return this.accountModel.findOne({ _id: id }).exec();
+    const account = await this.accountModel.findOne({ _id: id }).exec();
+    
+    const [updatedAccount] = this.updatePhotoUrls([account]);
+    return updatedAccount;
   }
 
   async create(
@@ -74,7 +101,7 @@ export class AccountsService {
     if (!updatingAccount) throw new Error('notfound.account.do.not.exists');
 
     try {
-        const users = await this.usersService.getAllByAccountId(accountId, UserRole.ADMIN);
+        const users = await this.usersService.getAllByAccountId(accountId, updateStatusAccountDto.status === AccountStatus.ACTIVE ? UserRole.ADMIN : undefined);
 
         users.forEach(async (a) => {
           const updateStatusUserDto: UpdateStatusUserDto = { status: updateStatusAccountDto.status === AccountStatus.ACTIVE ? UserStatus.ACTIVE : UserStatus.INACTIVE }
@@ -102,5 +129,45 @@ export class AccountsService {
 
   async deleteUser(authenticatedUser: AuthenticatedUser, userId: string): Promise<void> {
     await this.usersService.delete(authenticatedUser, userId);
+  }
+
+  async processImage(authenticatedUser: AuthenticatedUser, uploadImageAccountDto: UploadImageAccountDto): Promise<void> {
+    const account = await this.accountModel.findById(authenticatedUser.accountId);
+    if (!account) throw new Error('notfound.account.do.not.exists');
+
+    const photo = account.photo;
+    if (photo) {
+      fs.unlink(`./uploads/${photo}`, () => {});
+    }
+
+    const fileName = uploadImageAccountDto.name.split('.');
+    const extention = fileName[fileName.length-1];
+
+    const randomId = uuidv4();
+    const imageName = `${authenticatedUser.userId}-${randomId}.${extention}`;
+
+    const originalFilePath = path.join(this.uploadDir, imageName);
+
+    await sharp(Buffer.from(uploadImageAccountDto.content))
+        .resize(352, 352)
+        .toFile(originalFilePath);
+   
+    const updatedAccount = await this.accountModel.findByIdAndUpdate(
+        authenticatedUser.accountId,
+        { photo: imageName },
+        { new: true }
+    ).exec();
+
+    if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
+  }
+
+  async deleteImage(authenticatedUser: AuthenticatedUser): Promise<void> {
+    const updatedAccount = await this.accountModel.findByIdAndUpdate(authenticatedUser.accountId,
+        { $unset: { photo: '' } },
+    ).exec();
+    
+    if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
+
+    fs.unlink(`./uploads/${updatedAccount.photo}`, () => {});
   }
 }

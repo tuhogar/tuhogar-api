@@ -7,5 +7,6 @@ export enum AccountStatus {
 
 export interface Account extends Document  {
     readonly planId: string,
+    readonly photo: string;
     readonly status: AccountStatus,
 }
