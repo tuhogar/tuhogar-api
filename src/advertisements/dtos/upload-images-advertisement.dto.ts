@@ -4,7 +4,7 @@ import { Type } from "class-transformer";
 import { AdvertisementIsMandatoryImageFieldIfNotId } from "../validators/advertisement-is-mandatory-image-field-if-not-id.validator";
 import { AdvertisementIsNotMandatoryImageFieldIfId } from "../validators/advertisement-is-mandatory-image-field-if-id.validator";
 
-class ImageAdvertisementDto {
+class UploadImageAdvertisementDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty({ message: 'invalid.id.should.not.be.empty' })
@@ -44,6 +44,6 @@ class ImageAdvertisementDto {
 export class UploadImagesAdvertisementDto {
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => ImageAdvertisementDto)
-    images: ImageAdvertisementDto[];
+    @Type(() => UploadImageAdvertisementDto)
+    images: UploadImageAdvertisementDto[];
 }

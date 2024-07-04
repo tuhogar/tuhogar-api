@@ -17,6 +17,7 @@ import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto
 import { BulkUpdateDateService } from 'src/bulk-update-date/bulk-update-date.service';
 import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
 import { UpdateStatusAllAdvertisementsDto } from './dtos/update-status-all-advertisement.dto';
+import { DeleteImagesAdvertisementDto } from './dtos/delete-images-advertisement.dto';
 
 @Injectable()
 export class AdvertisementsService {
@@ -120,16 +121,18 @@ export class AdvertisementsService {
         return this.updatePhotoUrls(advertisements);
     }
 
-    async deleteImage(authenticatedUser: AuthenticatedUser, advertisementId: string, imageid: string): Promise<void> {
+    async deleteImages(authenticatedUser: AuthenticatedUser, advertisementId: string, deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
         const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
 
         const photos = advertisement.photos;
         if(!photos) return;
-        
-        const photoToRemove = photos.find((a) => a.id === imageid);
-        if(!photoToRemove) return;
 
-        const newPhotos = photos.filter((a) => a.id !== imageid);
+        const imageIds = deleteImagesAdvertisementDto.images.map((a) => a.id);
+        
+        const photosToRemove = photos.filter((a) => imageIds.includes(a.id));
+        if(!photosToRemove) return;
+
+        const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
 
         await this.advertisementModel.findOneAndUpdate(
             { accountId: authenticatedUser.accountId, _id: advertisementId },
@@ -137,7 +140,10 @@ export class AdvertisementsService {
             { new: true }
         ).exec();
 
-        fs.unlink(`./uploads/${photoToRemove.name}`, () => {});
+        photosToRemove.forEach((a) => {
+            fs.unlink(`./uploads/${a.name}`, () => {});
+            fs.unlink(`./uploads/${a.thumbnailName}`, () => {});
+        });
     }
     
     async getByAccountIdAndId(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {

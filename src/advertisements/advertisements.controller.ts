@@ -6,11 +6,11 @@ import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.inter
 import { Auth } from 'src/decorators/auth.decorator';
 import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement.dto';
 import { Advertisement } from './interfaces/advertisement.interface';
-import { UpdateImageOrderAdvertisementDto } from './dtos/update-image-order-advertisement.dto';
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
 import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto';
 import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
 import { UpdateStatusAllAdvertisementsDto } from './dtos/update-status-all-advertisement.dto';
+import { DeleteImagesAdvertisementDto } from './dtos/delete-images-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -79,12 +79,13 @@ export class AdvertisementsController {
     }
 
     @ApiBearerAuth()
-    @Delete(':advertisementid/images/:imageid')
+    @Delete(':advertisementid/images')
     @Auth('ADMIN', 'USER')
-    // TODO: este endpoint não vai mais existir? existirá somente o endpoint que faz o upload recebendo um array?
-    // Como faremos para excluir uma imagem de um anúncio?
-    async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Param('imageid') imageid: string): Promise<void> {
-        await this.advertisementsService.deleteImage(authenticatedUser, advertisementId, imageid);
+    async deleteImages(
+        @Authenticated() authenticatedUser: AuthenticatedUser,
+        @Param('advertisementid') advertisementId: string,
+        @Body() deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
+        await this.advertisementsService.deleteImages(authenticatedUser, advertisementId, deleteImagesAdvertisementDto);
     }
 
     @ApiBearerAuth()
