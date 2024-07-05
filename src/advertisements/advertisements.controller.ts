@@ -11,6 +11,8 @@ import { GetActivesAdvertisementDto } from './dtos/get-actives-advertisement.dto
 import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
 import { UpdateStatusAllAdvertisementsDto } from './dtos/update-status-all-advertisement.dto';
 import { DeleteImagesAdvertisementDto } from './dtos/delete-images-advertisement.dto';
+import { DeleteAdvertisementsDto } from './dtos/delete-advertisements.dto';
+import { SlugifyPipe } from './pipes/slugify-pipe';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -23,6 +25,7 @@ export class AdvertisementsController {
     @ApiBearerAuth()
     @Post()
     @Auth('ADMIN', 'USER')
+    @UsePipes(SlugifyPipe)
     @UsePipes(new ValidationPipe({transform: true}))
     async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
         return this.advertisementsService.create(
@@ -91,6 +94,7 @@ export class AdvertisementsController {
     @ApiBearerAuth()
     @Put(':advertisementid')
     @Auth('ADMIN', 'USER')
+    @UsePipes(SlugifyPipe)
     @UsePipes(new ValidationPipe({transform: true}))
     async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
         await this.advertisementsService.update(
@@ -121,5 +125,12 @@ export class AdvertisementsController {
             authenticatedUser,
             advertisementId,
         );
+    }
+
+    @ApiBearerAuth()
+    @Delete()
+    @Auth('MASTER')
+    async deleteAll(@Body() deleteAdvertisementsDto: DeleteAdvertisementsDto ): Promise<void> {
+        await this.advertisementsService.deleteAll(deleteAdvertisementsDto);
     }
 }

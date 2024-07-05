@@ -40,6 +40,7 @@ export const AdvertisementSchema = new mongoose.Schema({
     price: Number,
     pricePerFloorArea: Number,
     pricePerLotArea: Number,
+    propertyTax: Number,
     address: Object,
     photos: Array,
     tourUrl: String,

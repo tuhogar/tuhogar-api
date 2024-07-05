@@ -66,6 +66,7 @@ export interface Advertisement extends Document  {
     readonly price: number;
     readonly pricePerFloorArea: number;
     readonly pricePerLotArea: number;
+    readonly propertyTax: number;
     readonly address: Address;
     readonly photos: AdvertisementPhoto[];
     readonly tourUrl: string;

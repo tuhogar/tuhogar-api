@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import slugify from "slugify";
 
 export class AddressDto {
     @ApiPropertyOptional()
@@ -31,4 +33,13 @@ export class AddressDto {
     @IsNotEmpty({ message: 'address.street.should.not.be.empty' })
     @IsString({ message: 'invalid.address.street.must.be.a.string' })
     street: string;
+
+    @Transform(({ obj }) => slugify(obj.state, { lower: true, strict: true }))
+    stateSlug: string;
+
+    @Transform(({ obj }) => slugify(obj.city, { lower: true, strict: true }))
+    citySlug: string;
+
+    @Transform(({ obj }) => slugify(obj.neighbourhood, { lower: true, strict: true }))
+    neighbourhoodSlug: string;
 }

@@ -18,6 +18,9 @@ import { BulkUpdateDateService } from 'src/bulk-update-date/bulk-update-date.ser
 import { UploadImagesAdvertisementDto } from './dtos/upload-images-advertisement.dto';
 import { UpdateStatusAllAdvertisementsDto } from './dtos/update-status-all-advertisement.dto';
 import { DeleteImagesAdvertisementDto } from './dtos/delete-images-advertisement.dto';
+import { DeleteAdvertisementsDto } from './dtos/delete-advertisements.dto';
+import { plainToClass } from 'class-transformer';
+import { AddressDto } from 'src/addresses/dtos/address.dto';
 
 @Injectable()
 export class AdvertisementsService {
@@ -42,6 +45,8 @@ export class AdvertisementsService {
         authenticatedUser: AuthenticatedUser,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
     ): Promise<void> {
+        createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
+        
         const advertisementCreated = new this.advertisementModel({ 
             accountId: authenticatedUser.accountId, 
             createdUserId: authenticatedUser.userId, 
@@ -121,31 +126,6 @@ export class AdvertisementsService {
         return this.updatePhotoUrls(advertisements);
     }
 
-    async deleteImages(authenticatedUser: AuthenticatedUser, advertisementId: string, deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
-        const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
-
-        const photos = advertisement.photos;
-        if(!photos) return;
-
-        const imageIds = deleteImagesAdvertisementDto.images.map((a) => a.id);
-        
-        const photosToRemove = photos.filter((a) => imageIds.includes(a.id));
-        if(!photosToRemove) return;
-
-        const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
-
-        await this.advertisementModel.findOneAndUpdate(
-            { accountId: authenticatedUser.accountId, _id: advertisementId },
-            { photos: newPhotos },
-            { new: true }
-        ).exec();
-
-        photosToRemove.forEach((a) => {
-            fs.unlink(`./uploads/${a.name}`, () => {});
-            fs.unlink(`./uploads/${a.thumbnailName}`, () => {});
-        });
-    }
-    
     async getByAccountIdAndId(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {
         const filter = {
             _id: advertisementId,
@@ -279,5 +259,51 @@ export class AdvertisementsService {
         ).exec();
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
+    }
+
+    async deleteImages(authenticatedUser: AuthenticatedUser, advertisementId: string, deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
+        const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
+
+        const photos = advertisement.photos;
+        if(!photos) return;
+
+        const imageIds = deleteImagesAdvertisementDto.images.map((a) => a.id);
+        
+        const photosToRemove = photos.filter((a) => imageIds.includes(a.id));
+        if(!photosToRemove) return;
+
+        const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
+
+        await this.advertisementModel.findOneAndUpdate(
+            { accountId: authenticatedUser.accountId, _id: advertisementId },
+            { photos: newPhotos },
+            { new: true }
+        ).exec();
+
+        photosToRemove.forEach((a) => {
+            fs.unlink(`./uploads/${a.name}`, () => {});
+            fs.unlink(`./uploads/${a.thumbnailName}`, () => {});
+        });
+    }
+
+    async deleteAll(deleteAdvertisementsDto: DeleteAdvertisementsDto): Promise<void> {
+        const advertisementIds = deleteAdvertisementsDto.advertisements.map((a) => a.id);
+        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).exec();
+        const photoNames: string[] = [];
+        advertisements.forEach((a) => {
+            a.photos.forEach((b) => {
+                photoNames.push(b.name);
+                photoNames.push(b.thumbnailName);
+            })
+        })
+
+        if(!photoNames.length) return;
+        
+        await this.advertisementModel.deleteMany({ _id: { $in: advertisementIds } }).exec();
+
+        
+        photoNames.forEach((a) => {
+            fs.unlink(`./uploads/${a}`, () => {});
+        });
     }
 }

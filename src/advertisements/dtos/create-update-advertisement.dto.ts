@@ -9,6 +9,7 @@ import { AddressDto } from "src/addresses/dtos/address.dto";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Amenity } from "src/amenities/interfaces/amenities.interface";
 import { CreateAmenityDto } from "src/amenities/dtos/create-amenity.dto";
+import { AdvertisementIsPropertyTaxMandatory } from "../validators/advertisement-is-property-tax-mandatory.validator";
 
 export class CreateUpdateAdvertisementDto {
     @ApiProperty()
@@ -101,6 +102,12 @@ export class CreateUpdateAdvertisementDto {
     @IsNumber({}, { message: 'invalid.price.must.be.a.number.conforming.to.the.specified.constraints' })
     @Min(1, { message: 'price.must.not.be.less.than.0.99' })
     price: number = 0;
+
+    @ApiPropertyOptional()
+    @AdvertisementIsPropertyTaxMandatory()
+    @IsNumber({}, { message: 'invalid.propertyTax.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsOptional()
+    propertyTax: number = 0;
 
     @ApiProperty({ type: [AddressDto] })
     @IsNotEmpty({ message: 'invalid.address.should.not.be.empty' })
