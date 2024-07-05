@@ -303,4 +303,21 @@ export class GetActivesAdvertisementDto {
     @Type(() => Number)
     @IsGreaterThan('pricePerLotAreaMin', { message: 'invalid.pricePerLotAreaMax.must.be.greater.than.or.equal.to.pricePerLotAreaMin' })
     pricePerLotAreaMax: number = 0;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty()
+    @Transform(({ value }) => parseFloat(value))
+    @IsNumber({}, { message: 'invalid.propertyTaxMin.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Type(() => Number)
+    propertyTaxMin: number = 0;
+  
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty()
+    @Transform(({ value }) => parseFloat(value))
+    @IsNumber({}, { message: 'invalid.propertyTaxMax.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Type(() => Number)
+    @IsGreaterThan('propertyTaxMin', { message: 'invalid.propertyTaxMax.must.be.greater.than.or.equal.to.propertyTaxMin' })
+    propertyTaxMax: number = 0;
 }

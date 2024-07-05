@@ -74,6 +74,7 @@ export class AlgoliaService {
           addRangeFilter('floorArea', getActivesAdvertisementDto.floorAreaMin, getActivesAdvertisementDto.floorAreaMax);
           addRangeFilter('pricePerLotArea', getActivesAdvertisementDto.pricePerLotAreaMin, getActivesAdvertisementDto.pricePerLotAreaMax);
           addRangeFilter('pricePerFloorArea', getActivesAdvertisementDto.pricePerFloorAreaMin, getActivesAdvertisementDto.pricePerFloorAreaMax);
+          addRangeFilter('propertyTax', getActivesAdvertisementDto.propertyTaxMin, getActivesAdvertisementDto.propertyTaxMax);
         }
         const filter = filters.join(' AND ');
 

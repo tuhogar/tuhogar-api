@@ -204,7 +204,7 @@ export class AdvertisementsService {
             { new: true }
         ).exec();
 
-        if (updatedAdvertisement.upsertedCount === 0) throw new Error('notfound.advertisement.do.not.exists');
+        if (updatedAdvertisement.upsertedCount === 0 && updatedAdvertisement.modifiedCount === 0 && updatedAdvertisement.matchedCount === 0) throw new Error('notfound.advertisement.do.not.exists');
 
         if (updateStatusAllAdvertisementsDto.status !== AdvertisementStatus.ACTIVE) {
             updateStatusAllAdvertisementsDto.advertisements.forEach(async (a) => await this.algoliaService.delete(a.id));
