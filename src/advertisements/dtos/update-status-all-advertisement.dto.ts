@@ -12,6 +12,7 @@ export class UpdateStatusAllAdvertisementDto {
 }
 
 export class UpdateStatusAllAdvertisementsDto {
+    @ApiProperty({ type: [UpdateStatusAllAdvertisementDto] })
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => UpdateStatusAllAdvertisementDto)

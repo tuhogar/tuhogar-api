@@ -18,7 +18,7 @@ class UploadImageAdvertisementDto {
     @AdvertisementIsMandatoryImageFieldIfNotId()
     name: string;
 
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({type: [ArrayBuffer]})
     @IsOptional()
     @IsNotEmpty({ message: 'invalid.content.should.not.be.empty' })
     @AdvertisementIsMandatoryImageFieldIfNotId()
@@ -42,6 +42,7 @@ class UploadImageAdvertisementDto {
 }
 
 export class UploadImagesAdvertisementDto {
+    @ApiProperty({ type: [UploadImageAdvertisementDto] })
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => UploadImageAdvertisementDto)

@@ -10,6 +10,7 @@ class DeleteAdvertisementDto {
 }
 
 export class DeleteAdvertisementsDto {
+    @ApiProperty({ type: [DeleteAdvertisementDto] })
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => DeleteAdvertisementDto)
