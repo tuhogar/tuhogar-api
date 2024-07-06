@@ -93,6 +93,9 @@ export class AlgoliaService {
         addSearchText('city', getActivesAdvertisementDto.city);
         addSearchText('neighbourhood', getActivesAdvertisementDto.neighbourhood);
         addSearchText('street', getActivesAdvertisementDto.street);
+        addSearchText('stateSlug', getActivesAdvertisementDto.stateSlug);
+        addSearchText('citySlug', getActivesAdvertisementDto.citySlug);
+        addSearchText('neighbourhoodSlug', getActivesAdvertisementDto.neighbourhoodSlug);
 
         const query = searchText.join(' ');
 

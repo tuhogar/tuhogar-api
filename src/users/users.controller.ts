@@ -18,6 +18,7 @@ export class UsersController {
         private readonly usersService: UsersService,
     ) {}
 
+    /*
     @ApiBearerAuth()
     @Post('user-master-user')
     @Auth()
@@ -27,6 +28,7 @@ export class UsersController {
             createUserMasterDto,
         );
     }
+    */
 
     @ApiBearerAuth()
     @Get()
@@ -37,7 +39,7 @@ export class UsersController {
 
     @ApiBearerAuth()
     @Get('me')
-    @Auth('MASTER', 'ADMIN', 'USER')
+    @Auth()
     async get(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User> {
         return this.usersService.getByUid(authenticatedUser.uid);
     }
@@ -48,6 +50,7 @@ export class UsersController {
         return this.usersService.login(loginDto.email, loginDto.password);
     }
 
+    /*
     @ApiBearerAuth()
     @Delete('me')
     @Auth('MASTER', 'ADMIN', 'USER')
@@ -55,6 +58,7 @@ export class UsersController {
     async deleteMe(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
         await this.usersService.deleteMe(authenticatedUser.uid);
     }
+    */
 
     @ApiBearerAuth()
     @Patch(':userid')

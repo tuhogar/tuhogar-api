@@ -42,6 +42,13 @@ export class AdvertisementsController {
     }
 
     @ApiBearerAuth()
+    @Get('registrations')
+    @Auth('MASTER')
+    async getAdvertisementRegistrations(@Query('period') period: 'week' | 'month'): Promise<any[]> {
+        return this.advertisementsService.getAdvertisementRegistrations(period);
+    }
+
+    @ApiBearerAuth()
     @Get('toapprove')
     @Auth('MASTER')
     async getAllToApprove(): Promise<Advertisement[]> {

@@ -86,7 +86,7 @@ export class AdvertisementsService {
             status: AdvertisementStatus.ACTIVE,
             updatedAt: { $gt: lastUpdatedAt },
          })
-        .select('code transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea address updatedAt')
+        .select('code transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
         .lean()
         .exec();
 
@@ -306,4 +306,36 @@ export class AdvertisementsService {
             fs.unlink(`./uploads/${a}`, () => {});
         });
     }
+
+    async getAdvertisementRegistrations(period: 'week' | 'month'): Promise<any[]> {
+        let groupId: any;
+        if (period === 'week') {
+          groupId = {
+            year: { $year: '$createdAt' },
+            week: { $week: '$createdAt' },
+          };
+        } else {
+          groupId = {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+          };
+        }
+    
+        const advertisements = await this.advertisementModel.aggregate([
+          {
+            $group: {
+              _id: groupId,
+              count: { $sum: 1 }
+            }
+          },
+          {
+            $sort: {
+              '_id.year': 1,
+              ...(period === 'week' ? { '_id.week': 1 } : { '_id.month': 1 })
+            }
+          }
+        ]);
+    
+        return advertisements;
+      }
 }

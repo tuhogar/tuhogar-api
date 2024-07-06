@@ -58,6 +58,7 @@ export class UsersService {
 
     }
 
+    /*
     async createMaster(
         authenticatedUser: AuthenticatedUser,
         createUserMasterDto: CreateUserMasterDto,
@@ -82,8 +83,8 @@ export class UsersService {
             await this.userModel.deleteOne({ _id: userCreated._id.toString() }).exec();
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
-
     }
+    */
    
     async getAllByAccountId(accountId: string, userRole?: UserRole): Promise<User[]> {
         const filter = { accountId, ...(userRole && { userRole }) };
@@ -115,9 +116,11 @@ export class UsersService {
           }
     }
 
+    /*
     async deleteMe(uid: string): Promise<void> {
         await this.userModel.deleteOne({ uid }).exec();
     }
+    */
 
     async patch(authenticatedUser: AuthenticatedUser, userId: string, patchUserDto: PatchUserDto): Promise<void> {
         const filter = {
@@ -185,10 +188,16 @@ export class UsersService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const deletedUser = await this.userModel.deleteOne(filter).exec();
+        const user = await this.userModel.findOne(filter).exec();
+        if (!user) throw new Error('notfound.user.do.not.exists');
 
-        if (!deletedUser) throw new Error('notfound.user.do.not.exists');
+        await this.userModel.deleteOne(filter).exec();
 
-        // TODO: remove user on firebase
+        try {
+            const app = this.admin.setup();
+            await app.auth().deleteUser(user.uid);
+        } catch(error) {
+            throw new UnauthorizedException('authorization.error.deleting.user.data.on.the.authentication.server');
+        }
     }
 }

@@ -170,4 +170,75 @@ export class AccountsService {
 
     fs.unlink(`./uploads/${updatedAccount.photo}`, () => {});
   }
+
+  async findInactiveAccounts(): Promise<Account[]> {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const accounts = await this.accountModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $lt: twentyFourHoursAgo
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'advertisements',
+          localField: '_id',
+          foreignField: 'accountId',
+          as: 'advertisements'
+        }
+      },
+      {
+        $match: {
+          'advertisements': { $size: 0 }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          planId: 1,
+          status: 1,
+          createdAt: 1,
+          updatedAt: 1
+        }
+      }
+    ]);
+
+    return accounts;
+  }
+
+  async getAccountRegistrations(period: 'week' | 'month'): Promise<any[]> {
+    let groupId: any;
+    if (period === 'week') {
+      groupId = {
+        year: { $year: '$createdAt' },
+        week: { $week: '$createdAt' },
+      };
+    } else {
+      groupId = {
+        year: { $year: '$createdAt' },
+        month: { $month: '$createdAt' },
+      };
+    }
+
+    const accounts = await this.accountModel.aggregate([
+      {
+        $group: {
+          _id: groupId,
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: {
+          '_id.year': 1,
+          '_id.week': 1,
+          '_id.month': 1
+        }
+      }
+    ]);
+
+    return accounts;
+  }
 }

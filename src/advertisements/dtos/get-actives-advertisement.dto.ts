@@ -102,6 +102,24 @@ export class GetActivesAdvertisementDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsNotEmpty({ message: 'address.stateSlug.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.stateSlug.must.be.a.string' })
+    stateSlug: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.citySlug.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.citySlug.must.be.a.string' })
+    citySlug: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.neighbourhoodSlug.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.neighbourhoodSlug.must.be.a.string' })
+    neighbourhoodSlug: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
     @IsNumber({}, { message: 'invalid.bedsCountMin.must.be.a.number.conforming.to.the.specified.constraints' })
