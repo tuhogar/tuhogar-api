@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
 import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
 import { AdvertisementIsBedsCountMandatory } from "../validators/advertisement-is-beds-count-mandatory.validator";
@@ -7,9 +7,8 @@ import { AdvertisementIsFloorsCountMandatory } from "../validators/advertisement
 import { AdvertisementIsSocioEconomicLevel } from "../validators/advertisement-is-socio-economic-level-valid.validator";
 import { AddressDto } from "src/addresses/dtos/address.dto";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Amenity } from "src/amenities/interfaces/amenities.interface";
-import { CreateAmenityDto } from "src/amenities/dtos/create-amenity.dto";
 import { AdvertisementIsPropertyTaxMandatory } from "../validators/advertisement-is-property-tax-mandatory.validator";
+import { AmenityIsExistingId } from "src/amenities/validators/amenitiy-is-existing-id.validator";
 
 export class CreateUpdateAdvertisementDto {
     @ApiProperty()
@@ -74,11 +73,11 @@ export class CreateUpdateAdvertisementDto {
     @IsBoolean({ message: 'invalid.isHoaIncluded.must.be.a.boolean.value'})
     isHoaIncluded: boolean;
 
-    @ApiProperty({ type: [CreateAmenityDto] })
+    @ApiProperty({ type: [String] })
     @IsArray({ message: 'amenities.must.be.an.array' })
-    @ValidateNested({ each: true })
-    @Type(() => CreateAmenityDto)
-    amenities: CreateAmenityDto[];
+    @IsMongoId({ each: true, message: 'invalid.planId' })
+    @AmenityIsExistingId({ each: true, message: 'each.amenity.id.must.exist' })
+    amenities: string[];
 
     @ApiPropertyOptional()
     @IsOptional()

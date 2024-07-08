@@ -12,9 +12,11 @@ import { AdvertisementCodesModule } from './advertisement-codes/advertisement-co
 import { AmenitiesModule } from './amenities/amenities.module';
 import { AlgoliaModule } from './algolia/algolia.module';
 import { BulkUpdateDateModule } from './bulk-update-date/bulk-update-date.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",

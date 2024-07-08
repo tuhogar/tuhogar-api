@@ -6,13 +6,12 @@ import * as fs from 'fs';
 import * as sharp from 'sharp';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { User, UserRole, UserStatus } from 'src/users/interfaces/user.interface';
+import { User, UserRole } from 'src/users/interfaces/user.interface';
 import { UsersService } from 'src/users/users.service';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { UpdateStatusAccountDto } from './dtos/update-status-account.dto';
-import { UpdateStatusUserDto } from 'src/users/dtos/update-status-user.dto';
 import { AdvertisementsService } from 'src/advertisements/advertisements.service';
 import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
 import { UploadImageAccountDto } from './dtos/upload-image-account.dto';
@@ -101,12 +100,7 @@ export class AccountsService {
     if (!updatingAccount) throw new Error('notfound.account.do.not.exists');
 
     try {
-        const users = await this.usersService.getAllByAccountId(accountId, updateStatusAccountDto.status === AccountStatus.ACTIVE ? UserRole.ADMIN : undefined);
-
-        users.forEach(async (a) => {
-          const updateStatusUserDto: UpdateStatusUserDto = { status: updateStatusAccountDto.status === AccountStatus.ACTIVE ? UserStatus.ACTIVE : UserStatus.INACTIVE }
-          await this.usersService.updateStatus(authenticatedUser, a._id.toString(), updateStatusUserDto);
-        });
+        await this.usersService.updateAllStatus(authenticatedUser, accountId,  updateStatusAccountDto.status);
     } catch(error) {
         await this.accountModel.findOneAndUpdate(
             filter,

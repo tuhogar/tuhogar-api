@@ -1,10 +1,10 @@
 import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { AmenityIsExistingKey } from "src/amenities/validators/amenitiy-is-existing-key.validator";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsGreaterThan } from "../validators/advertisement-is-greater-than.validator";
 import { TransformToBoolean } from "src/decorators/transform-to-boolean.decorator";
+import { AmenityIsExistingId } from "src/amenities/validators/amenitiy-is-existing-id.validator";
 
 export class GetActivesAdvertisementDto {
     @ApiPropertyOptional()
@@ -67,7 +67,7 @@ export class GetActivesAdvertisementDto {
     @IsArray({ message: 'amenities.must.be.an.array' })
     @Type(() => String)
     @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
-    @AmenityIsExistingKey({ each: true })
+    @AmenityIsExistingId({ each: true })
     amenity: string[];
 
     @ApiPropertyOptional()

@@ -91,6 +91,4 @@ export class AccountsController {
   async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
       await this.accountsService.deleteImage(authenticatedUser);
   }
-
-  
 }

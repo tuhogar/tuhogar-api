@@ -1,35 +1,35 @@
 import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Amenity } from '../interfaces/amenities.interface';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class AmenityIsExistingKeyConstraint implements ValidatorConstraintInterface {
+export class AmenityIsExistingIdConstraint implements ValidatorConstraintInterface {
   constructor(@InjectModel('Amenity') private readonly amenityModel: Model<Amenity>) {}
 
-  async validate(key: string): Promise<boolean> {
-    if (!key) return false;
-    const amenity = await this.amenityModel.findOne({ key }).exec();
+  async validate(id: string): Promise<boolean> {
+    if (!id) return false;
+    const amenity = await this.amenityModel.findById(id).exec();
     return !!amenity;
   }
 
   defaultMessage(args: ValidationArguments): string {
     const object = args.object as any;
-    const data = object.key || object.amenities?.toString() || 'value';
+    const data = object.id || object.amenities?.toString() || 'value';
     return `invalid.amenity.${data}.does.not.exist`;
   }
 }
 
-export function AmenityIsExistingKey(validationOptions?: ValidationOptions) {
+export function AmenityIsExistingId(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       constraints: [],
-      validator: AmenityIsExistingKeyConstraint,
+      validator: AmenityIsExistingIdConstraint,
     });
   };
 }

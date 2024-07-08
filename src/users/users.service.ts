@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import { User, UserRole, UserStatus } from './interfaces/user.interface';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { ConfigService } from '@nestjs/config';
-import { Account } from 'src/accounts/interfaces/account.interface';
+import { Account, AccountStatus } from 'src/accounts/interfaces/account.interface';
 import { PatchUserDto } from './dtos/patch-user.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
@@ -179,6 +179,15 @@ export class UsersService {
 
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
+    }
+
+    async updateAllStatus(authenticatedUser: AuthenticatedUser, accountId: string, status: AccountStatus): Promise<void> {
+        const users = await this.getAllByAccountId(accountId, status === AccountStatus.ACTIVE ? UserRole.ADMIN : undefined);
+
+        users.forEach(async (a) => {
+          const updateStatusUserDto: UpdateStatusUserDto = { status: status === AccountStatus.ACTIVE ? UserStatus.ACTIVE : UserStatus.INACTIVE }
+          await this.updateStatus(authenticatedUser, a._id.toString(), updateStatusUserDto);
+        });
     }
 
     async delete(authenticatedUser: AuthenticatedUser, userId: string): Promise<void> {

@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { Advertisement, AdvertisementPhoto, AdvertisementStatus } from './interfaces/advertisement.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
 import * as fs from 'fs';
 import * as sharp from 'sharp';
 import * as path from 'path';
@@ -79,6 +80,7 @@ export class AdvertisementsService {
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
     }
 
+    @Cron('*/1 * * * *')
     async bulk(): Promise<void> {
         let lastUpdatedAt = (await this.bulkUpdateDateService.get())?.updatedAt || new Date(0);
         
@@ -115,13 +117,13 @@ export class AdvertisementsService {
         const advertisementIds = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).exec();
+        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').exec();
         
         return this.updatePhotoUrls(advertisements);
     }
 
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
-        const advertisements = await this.advertisementModel.find({ accountId }).exec();
+        const advertisements = await this.advertisementModel.find({ accountId }).populate('amenities').exec();
 
         return this.updatePhotoUrls(advertisements);
     }
@@ -132,7 +134,7 @@ export class AdvertisementsService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const advertisement = await this.advertisementModel.findOne(filter).exec();
+        const advertisement = await this.advertisementModel.findOne(filter).populate('amenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         const [updatedAdvertisement] = this.updatePhotoUrls([advertisement]);
@@ -140,7 +142,7 @@ export class AdvertisementsService {
     }
 
     async getAllToApprove(): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).sort({ createdAt: -1 }).exec();
+        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').sort({ createdAt: -1 }).exec();
     }
 
     async updateStatus(
@@ -289,6 +291,9 @@ export class AdvertisementsService {
     async deleteAll(deleteAdvertisementsDto: DeleteAdvertisementsDto): Promise<void> {
         const advertisementIds = deleteAdvertisementsDto.advertisements.map((a) => a.id);
         const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).exec();
+
+        await this.advertisementModel.deleteMany({ _id: { $in: advertisementIds } }).exec();
+
         const photoNames: string[] = [];
         advertisements.forEach((a) => {
             a.photos.forEach((b) => {
@@ -298,9 +303,6 @@ export class AdvertisementsService {
         })
 
         if(!photoNames.length) return;
-        
-        await this.advertisementModel.deleteMany({ _id: { $in: advertisementIds } }).exec();
-
         
         photoNames.forEach((a) => {
             fs.unlink(`./uploads/${a}`, () => {});
