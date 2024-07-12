@@ -12,6 +12,6 @@ export class AmenitiesService {
     ) {}
 
     async getAll(): Promise<Amenity[]> {
-        return this.amenityModel.find().exec();
+        return this.amenityModel.find().sort({ name: 1 }).exec();
     }
 }
