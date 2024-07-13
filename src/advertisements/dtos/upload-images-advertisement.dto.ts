@@ -28,8 +28,8 @@ class UploadImageAdvertisementDto {
     @IsOptional()
     @IsString({ message: 'invalid.contentType.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.contentType.should.not.be.empty' })
-    @Matches(/^(image\/jpeg|image\/jpg|image\/img|image\/png)$/, {
-        message: 'invalid.contentType.must.be.one.of.the.following.types.image/jpeg.image/jpg.image/img.image/png',
+    @Matches(/^(image\/jpeg|image\/jpg|image\/webp|image\/png)$/, {
+        message: 'invalid.contentType.must.be.one.of.the.following.types.image/jpeg.image/jpg.image/webp.image/png',
     })
     @AdvertisementIsMandatoryImageFieldIfNotId()
     contentType: string;
