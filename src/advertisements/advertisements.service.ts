@@ -132,6 +132,19 @@ export class AdvertisementsService {
         return this.updatePhotoUrls(advertisements);
     }
 
+    async getByAccountIdAndId(authenticatedUser: AuthenticatedUser,advertisementId: string): Promise<Advertisement> {
+        const filter = {
+            _id: advertisementId,
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+        };
+
+        const advertisement = await this.advertisementModel.findOne(filter).populate('amenities').exec();
+        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        const [updatedAdvertisement] = this.updatePhotoUrls([advertisement]);
+        return updatedAdvertisement;
+    }
+
     async get(advertisementId: string): Promise<Advertisement> {
         const advertisement = await this.advertisementModel.findById(advertisementId).populate('amenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
