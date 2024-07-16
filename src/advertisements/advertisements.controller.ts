@@ -27,7 +27,7 @@ export class AdvertisementsController {
     @Auth('ADMIN', 'USER')
     @UsePipes(SlugifyPipe)
     @UsePipes(new ValidationPipe({transform: true}))
-    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
+    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<{ id: string }> {
         return this.advertisementsService.create(
             authenticatedUser,
             createUpdateAdvertisementDto,
@@ -103,8 +103,8 @@ export class AdvertisementsController {
     @Auth('ADMIN', 'USER')
     @UsePipes(SlugifyPipe)
     @UsePipes(new ValidationPipe({transform: true}))
-    async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<void> {
-        await this.advertisementsService.update(
+    async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<{ id: string }> {
+        return await this.advertisementsService.update(
             authenticatedUser,
             advertisementId,
             createUpdateAdvertisementDto,
@@ -115,8 +115,8 @@ export class AdvertisementsController {
     @Put(':advertisementid/status')
     @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({ transform: true }))
-    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
-        await this.advertisementsService.updateStatus(
+    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<{ id: string }> {
+        return await this.advertisementsService.updateStatus(
             authenticatedUser,
             advertisementId,
             updateStatusAdvertisementDto,
@@ -125,13 +125,9 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Get(':advertisementid')
-    @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
-    async get(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string): Promise<Advertisement> {
-        return this.advertisementsService.getByAccountIdAndId(
-            authenticatedUser,
-            advertisementId,
-        );
+    async get(@Param('advertisementid') advertisementId: string): Promise<Advertisement> {
+        return this.advertisementsService.get(advertisementId);
     }
 
     @ApiBearerAuth()

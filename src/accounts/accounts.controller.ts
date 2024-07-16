@@ -23,7 +23,7 @@ export class AccountsController {
   async create(
     @Authenticated() authenticatedUser: AuthenticatedUser,
     @Body() createAccountDto: CreateAccountDto,
-  ): Promise<void> {
+  ): Promise<{ id: string }> {
     return this.accountsService.create(authenticatedUser, createAccountDto);
   }
 
@@ -51,8 +51,8 @@ export class AccountsController {
   @ApiBearerAuth()
   @Put(':accountid/status')
   @Auth('MASTER')
-  async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() updateStatusAccountDto: UpdateStatusAccountDto): Promise<void> {
-      await this.accountsService.updateStatus(authenticatedUser, accountId, updateStatusAccountDto);
+  async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() updateStatusAccountDto: UpdateStatusAccountDto): Promise<{ id: string }> {
+      return await this.accountsService.updateStatus(authenticatedUser, accountId, updateStatusAccountDto);
   }
 
   @ApiBearerAuth()

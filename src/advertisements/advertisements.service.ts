@@ -45,7 +45,7 @@ export class AdvertisementsService {
     async create(
         authenticatedUser: AuthenticatedUser,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
-    ): Promise<void> {
+    ): Promise<{ id: string }> {
         createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
         
         const advertisementCreated = new this.advertisementModel({ 
@@ -57,13 +57,15 @@ export class AdvertisementsService {
             ...createUpdateAdvertisementDto,
         });
         await advertisementCreated.save();
+
+        return { id: advertisementCreated._id.toString() };
     }
 
     async update(
         authenticatedUser: AuthenticatedUser,
         advertisementId: string,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
-    ): Promise<void> {
+    ): Promise<{ id: string }> {
 
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ 
             accountId: authenticatedUser.accountId,
@@ -78,6 +80,8 @@ export class AdvertisementsService {
         ).exec();
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        return { id: updatedAdvertisement._id.toString() };
     }
 
     @Cron('*/1 * * * *')
@@ -128,13 +132,8 @@ export class AdvertisementsService {
         return this.updatePhotoUrls(advertisements);
     }
 
-    async getByAccountIdAndId(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {
-        const filter = {
-            _id: advertisementId,
-            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
-        };
-
-        const advertisement = await this.advertisementModel.findOne(filter).populate('amenities').exec();
+    async get(advertisementId: string): Promise<Advertisement> {
+        const advertisement = await this.advertisementModel.findById(advertisementId).populate('amenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         const [updatedAdvertisement] = this.updatePhotoUrls([advertisement]);
@@ -149,7 +148,7 @@ export class AdvertisementsService {
         authenticatedUser: AuthenticatedUser,
         advertisementId: string,
         updateStatusAdvertisementDto: UpdateStatusAdvertisementDto,
-    ): Promise<void> {
+    ): Promise<{ id: string }> {
         const filter = {
             _id: advertisementId,
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
@@ -178,6 +177,8 @@ export class AdvertisementsService {
         if (updateStatusAdvertisementDto.status !== AdvertisementStatus.ACTIVE) {
             await this.algoliaService.delete(advertisementId);
         }
+
+        return { id: updatedAdvertisement._id.toString() };
     }
 
     async updateStatusAll(
@@ -264,7 +265,7 @@ export class AdvertisementsService {
     }
 
     async deleteImages(authenticatedUser: AuthenticatedUser, advertisementId: string, deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
-        const advertisement = await this.getByAccountIdAndId(authenticatedUser, advertisementId);
+        const advertisement = await this.get(advertisementId);
 
         const photos = advertisement.photos;
         if(!photos) return;

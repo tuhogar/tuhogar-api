@@ -57,7 +57,7 @@ export class AccountsService {
   async create(
     authenticatedUser: AuthenticatedUser,
     createAccountDto: CreateAccountDto,
-  ): Promise<void> {
+  ): Promise<{ id: string }> {
     const accountCreated = new this.accountModel({
       planId: createAccountDto.planId,
       status: AccountStatus.ACTIVE,
@@ -77,17 +77,20 @@ export class AccountsService {
         createUserDto,
         accountCreated,
       );
+
     } catch (error) {
       await this.accountModel.deleteOne({ _id: accountCreated._id.toString() }).exec();
       throw error;
     }
+
+    return { id: accountCreated._id.toString() };
   }
 
   async updateStatus(
     authenticatedUser: AuthenticatedUser,
     accountId: string,
     updateStatusAccountDto: UpdateStatusAccountDto,
-): Promise<void> {
+): Promise<{ id: string }> {
     const filter = { _id: accountId };
     
     const updatingAccount = await this.accountModel.findOneAndUpdate(
@@ -111,6 +114,8 @@ export class AccountsService {
 
         throw error;
     }
+
+    return { id: updatingAccount._id.toString() };
   }
 
   async getUsers(accountId: string): Promise<User[]> {

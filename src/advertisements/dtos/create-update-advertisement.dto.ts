@@ -127,11 +127,11 @@ export class CreateUpdateAdvertisementDto {
     @ApiProperty()
     @IsOptional()
     @IsNumber({}, { message: 'invalid.pricePerFloorArea.must.be.a.number.conforming.to.the.specified.constraints' })
-    @Transform(({ obj }) => obj.price / (obj.floorArea || 1))
+    @Transform(({ obj }) => Math.floor(obj.price / (obj.floorArea || 1)))
     pricePerFloorArea: number = 0;
 
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.pricePerLotArea.must.be.a.number.conforming.to.the.specified.constraints' })
-    @Transform(({ obj }) => obj.price / (obj.lotArea || 1))
+    @Transform(({ obj }) => Math.floor(obj.price / (obj.lotArea || 1)))
     pricePerLotArea: number = 0;
 }
