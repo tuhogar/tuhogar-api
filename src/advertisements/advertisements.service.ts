@@ -310,11 +310,17 @@ export class AdvertisementsService {
         });
     }
 
-    async deleteAll(deleteAdvertisementsDto: DeleteAdvertisementsDto): Promise<void> {
+    async deleteAll(authenticatedUser: AuthenticatedUser, deleteAdvertisementsDto: DeleteAdvertisementsDto): Promise<void> {
         const advertisementIds = deleteAdvertisementsDto.advertisements.map((a) => a.id);
-        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).exec();
 
-        await this.advertisementModel.deleteMany({ _id: { $in: advertisementIds } }).exec();
+        const filter = {
+            _id: { $in: advertisementIds },
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+        };
+
+        const advertisements = await this.advertisementModel.find(filter).exec();
+
+        await this.advertisementModel.deleteMany(filter).exec();
 
         const photoNames: string[] = [];
         advertisements.forEach((a) => {

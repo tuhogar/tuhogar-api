@@ -140,8 +140,8 @@ export class AdvertisementsController {
 
     @ApiBearerAuth()
     @Delete()
-    @Auth('MASTER')
-    async deleteAll(@Body() deleteAdvertisementsDto: DeleteAdvertisementsDto ): Promise<void> {
-        await this.advertisementsService.deleteAll(deleteAdvertisementsDto);
+    @Auth('MASTER', 'ADMIN', 'USER')
+    async deleteAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() deleteAdvertisementsDto: DeleteAdvertisementsDto ): Promise<void> {
+        await this.advertisementsService.deleteAll(authenticatedUser, deleteAdvertisementsDto);
     }
 }
