@@ -245,11 +245,14 @@ export class AdvertisementsService {
                 const originalFilePath = path.join(this.uploadDir, imageName);
                 const thumbnailFilePath = path.join(this.uploadDir, imageThumbnailName);
 
+                // Decodificar base64
+                const imageData = Buffer.from(image.content, 'base64');
+
                 // Salvar imagem original
-                await fs.promises.writeFile(originalFilePath, Buffer.from(image.content));
+                await fs.promises.writeFile(originalFilePath, imageData);
             
                 // Criar thumbnail
-                await sharp(Buffer.from(image.content))
+                await sharp(imageData)
                     .resize(352, 352)
                     .toFile(thumbnailFilePath);
             

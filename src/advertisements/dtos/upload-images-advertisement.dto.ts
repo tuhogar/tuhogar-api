@@ -18,11 +18,12 @@ class UploadImageAdvertisementDto {
     @AdvertisementIsMandatoryImageFieldIfNotId()
     name: string;
 
-    @ApiPropertyOptional({type: [ArrayBuffer]})
+    @ApiPropertyOptional({type: [String]})
     @IsOptional()
     @IsNotEmpty({ message: 'invalid.content.should.not.be.empty' })
     @AdvertisementIsMandatoryImageFieldIfNotId()
-    content: ArrayBuffer;
+    @IsString({ message: 'invalid.content.must.be.a.string' })
+    content: string;
 
     @ApiPropertyOptional()
     @IsOptional()
