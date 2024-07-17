@@ -127,7 +127,7 @@ export class AdvertisementsService {
     }
 
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
-        const advertisements = await this.advertisementModel.find({ accountId }).populate('amenities').exec();
+        const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').exec();
 
         return this.updatePhotoUrls(advertisements);
     }
