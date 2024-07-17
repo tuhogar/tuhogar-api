@@ -195,27 +195,32 @@ export class AdvertisementsService {
     }
 
     async updateStatusAll(
-        userId: string,
+        authenticatedUser: AuthenticatedUser,
         updateStatusAllAdvertisementsDto: UpdateStatusAllAdvertisementsDto,
     ): Promise<void> {
         const advertisementIds = updateStatusAllAdvertisementsDto.advertisements.map((a) => a.id);
+
+        const filter = {
+            _id: { $in: advertisementIds },
+            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
+        };
 
         let publishedAt = undefined;
         let approvingUserId = undefined;
         if (updateStatusAllAdvertisementsDto.status === AdvertisementStatus.ACTIVE) {
             publishedAt = new Date();
-            approvingUserId = userId;
+            approvingUserId = authenticatedUser.userId;
         }
 
         const update = {
-            updatedUserId: userId,
+            updatedUserId: authenticatedUser.userId,
             status: updateStatusAllAdvertisementsDto.status,
             publishedAt,
             approvingUserId,
           };
 
         const updatedAdvertisement = await this.advertisementModel.updateMany(
-            { _id: { $in: advertisementIds } },
+            filter,
             update,
             { new: true }
         ).exec();
