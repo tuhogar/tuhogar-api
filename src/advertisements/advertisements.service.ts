@@ -22,6 +22,7 @@ import { DeleteImagesAdvertisementDto } from './dtos/delete-images-advertisement
 import { DeleteAdvertisementsDto } from './dtos/delete-advertisements.dto';
 import { plainToClass } from 'class-transformer';
 import { AddressDto } from 'src/addresses/dtos/address.dto';
+import { OpenAiService } from 'src/open-ai/open-ai.service';
 
 @Injectable()
 export class AdvertisementsService {
@@ -33,6 +34,7 @@ export class AdvertisementsService {
         private readonly advertisementCodesService: AdvertisementCodesService,
         private readonly algoliaService: AlgoliaService,
         private readonly bulkUpdateDateService: BulkUpdateDateService,
+        private readonly openAiService: OpenAiService,
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
     ) {
         this.imagesUrl = this.configService.get<string>('IMAGES_URL');
@@ -367,5 +369,21 @@ export class AdvertisementsService {
         ]);
     
         return advertisements;
+    }
+
+    async findSimilarDocuments(query: string) {
+        const embedding = await this.openAiService.getEmbedding(query);
+    
+        return this.advertisementModel.aggregate([
+            {
+                "$vectorSearch": {
+                "queryVector": embedding,
+                "path": "plot_embedding",
+                "numCandidates": 100,
+                "limit": 5,
+                "index": "advertisements_vector_index",
+                }
+            }
+            ]).exec();
       }
 }

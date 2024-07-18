@@ -75,7 +75,7 @@ export class CreateUpdateAdvertisementDto {
 
     @ApiProperty({ type: [String] })
     @IsArray({ message: 'amenities.must.be.an.array' })
-    @IsMongoId({ each: true, message: 'invalid.planId' })
+    @IsMongoId({ each: true, message: 'invalid.amenityId' })
     @AmenityIsExistingId({ each: true, message: 'each.amenity.id.must.exist' })
     amenities: string[];
 

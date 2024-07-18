@@ -8,6 +8,7 @@ import { AdvertisementCodesModule } from 'src/advertisement-codes/advertisement-
 import { AmenitiesModule } from 'src/amenities/amenities.module';
 import { AlgoliaModule } from 'src/algolia/algolia.module';
 import { BulkUpdateDateModule } from 'src/bulk-update-date/bulk-update-date.module';
+import { OpenAiModule } from 'src/open-ai/open-ai.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { BulkUpdateDateModule } from 'src/bulk-update-date/bulk-update-date.modu
     AmenitiesModule,
     AlgoliaModule,
     BulkUpdateDateModule,
+    OpenAiModule,
   ],
   controllers: [AdvertisementsController],
   providers: [AdvertisementsService, FirebaseAdmin],

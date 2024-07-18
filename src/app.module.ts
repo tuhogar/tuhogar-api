@@ -13,6 +13,9 @@ import { AmenitiesModule } from './amenities/amenities.module';
 import { AlgoliaModule } from './algolia/algolia.module';
 import { BulkUpdateDateModule } from './bulk-update-date/bulk-update-date.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { OpenAiModule } from './open-ai/open-ai.module';
+import { AdvertisementReasonsModule } from './advertisement-reasons/advertisement-reasons.module';
+import { AdvertisementReportsModule } from './advertisement-reports/advertisement-reports.module';
 
 @Module({
   imports: [
@@ -42,6 +45,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     AmenitiesModule,
     AlgoliaModule,
     BulkUpdateDateModule,
+    OpenAiModule,
+    AdvertisementReasonsModule,
+    AdvertisementReportsModule,
   ],
   controllers: [],
   providers: [FirebaseAdmin],

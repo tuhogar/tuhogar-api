@@ -84,6 +84,11 @@ export class AdvertisementsController {
         );
     }
 
+    @Get('find-similar')
+    async findSimilarDocuments(@Query('query') query: string) {
+        return this.advertisementsService.findSimilarDocuments(query);
+    }
+
     @ApiBearerAuth()
     @Post(':advertisementid/images')
     @Auth('ADMIN', 'USER')

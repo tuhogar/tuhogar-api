@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Plan } from './interfaces/plan.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CreatePlanDto } from './dtos/create-plan.dto';
 
 @Injectable()
 export class PlansService {
@@ -20,7 +21,7 @@ export class PlansService {
         return this.planModel.findOne({ _id: id });
     }
 
-    async create(plan: any): Promise<void> {
-        await this.planModel.create(plan);
+    async create(createPlanDto: CreatePlanDto): Promise<void> {
+        await this.planModel.create(createPlanDto);
     }
 }
