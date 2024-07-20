@@ -11,8 +11,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  console.log('MONGODB_URL (ConfigService):', configService.get<string>('MONGODB_URL'));
-  console.log('MONGODB_URL (process.env):', process.env.MONGODB_URL);
+  console.error('MONGODB_URL (ConfigService):', configService.get<string>('MONGODB_URL'));
+  console.error('MONGODB_URL (process.env):', process.env.MONGODB_URL);
 
   if (!configService.get<string>('MONGODB_URL')) {
     throw new Error('Missing MONGODB_URL environment variable');
