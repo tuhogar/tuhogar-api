@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -54,4 +54,12 @@ import { ImageUploadModule } from './image-upload/image-upload.module';
   controllers: [],
   providers: [FirebaseAdmin],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private configService: ConfigService) {}
+
+  onModuleInit() {
+    console.log('-------------');
+    console.log('MONGODB_URL:', this.configService.get<string>('MONGODB_URL'));
+    console.log('-------------');
+  }
+}
