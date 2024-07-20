@@ -12,6 +12,8 @@ RUN npm run build
 # Etapa de produção
 FROM node:20
 
+ENV MONGODB_URL=mongodb+srv://tuhogar-db:ENsZWHRXKn05paIL@cluster0.cg0fztr.mongodb.net/tuhogar?retryWrites=true&w=majority&appName=Cluster0
+
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist

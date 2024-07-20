@@ -34,7 +34,7 @@ import { ImageUploadModule } from './image-upload/image-upload.module';
         })
       ],
       useFactory: async (configService: ConfigService) => ({
-        uri: 'mongodb+srv://tuhogar-db:ENsZWHRXKn05paIL@cluster0.cg0fztr.mongodb.net/tuhogar?retryWrites=true&w=majority&appName=Cluster0',
+        uri: configService.get<string>('MONGODB_URL'),
       }),
       inject: [ConfigService],
     }),
