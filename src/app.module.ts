@@ -34,7 +34,7 @@ import { ImageUploadModule } from './image-upload/image-upload.module';
         })
       ],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URL'),
+        uri: process.env.MONGODB_URL,
       }),
       inject: [ConfigService],
     }),
