@@ -12,8 +12,6 @@ RUN npm run build
 # Etapa de produção
 FROM node:20
 
-ARG MONGODB_URL
-
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
