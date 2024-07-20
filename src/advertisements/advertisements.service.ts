@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Advertisement, AdvertisementPhoto, AdvertisementStatus } from './interfaces/advertisement.interface';
 import { InjectModel } from '@nestjs/mongoose';
-import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
-import * as fs from 'fs';
-import * as sharp from 'sharp';
-import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement.dto';
@@ -23,26 +19,18 @@ import { DeleteAdvertisementsDto } from './dtos/delete-advertisements.dto';
 import { plainToClass } from 'class-transformer';
 import { AddressDto } from 'src/addresses/dtos/address.dto';
 import { OpenAiService } from 'src/open-ai/open-ai.service';
+import { ImageUploadService } from 'src/image-upload/image-upload.service';
 
 @Injectable()
 export class AdvertisementsService {
-    private imagesUrl: string;
-    private readonly uploadDir = path.join(__dirname, '..', '..', 'uploads');
-
     constructor(
-        private configService: ConfigService,
         private readonly advertisementCodesService: AdvertisementCodesService,
         private readonly algoliaService: AlgoliaService,
         private readonly bulkUpdateDateService: BulkUpdateDateService,
         private readonly openAiService: OpenAiService,
+        private readonly imageUploadService: ImageUploadService,
         @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
-    ) {
-        this.imagesUrl = this.configService.get<string>('IMAGES_URL');
-
-        if (!fs.existsSync(this.uploadDir)) {
-            fs.mkdirSync(this.uploadDir, { recursive: true });
-        }
-    }
+    ) {}
 
     async create(
         authenticatedUser: AuthenticatedUser,
@@ -68,7 +56,6 @@ export class AdvertisementsService {
         advertisementId: string,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
     ): Promise<{ id: string }> {
-
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ 
             accountId: authenticatedUser.accountId,
             _id: advertisementId
@@ -108,30 +95,15 @@ export class AdvertisementsService {
         }
     }
 
-    private updatePhotoUrls(advertisements: Advertisement[]): Advertisement[] {
-        return advertisements.map(a => ({
-            ...a.toObject(),
-            photos: a.photos.map(photo => ({
-                ...photo,
-                url: `${this.imagesUrl}/${photo.name}`,
-                thumbnailUrl: `${this.imagesUrl}/${photo.thumbnailName}`,
-            })),
-        })) as Advertisement[];
-    }
-
     async getActives(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<Advertisement[]> {
         const advertisementIds = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').exec();
-        
-        return this.updatePhotoUrls(advertisements);
+        return this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').exec();
     }
 
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
-        const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').exec();
-
-        return this.updatePhotoUrls(advertisements);
+        return this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').exec();
     }
 
     async getByAccountIdAndId(authenticatedUser: AuthenticatedUser,advertisementId: string): Promise<Advertisement> {
@@ -143,16 +115,14 @@ export class AdvertisementsService {
         const advertisement = await this.advertisementModel.findOne(filter).populate('amenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        const [updatedAdvertisement] = this.updatePhotoUrls([advertisement]);
-        return updatedAdvertisement;
+        return advertisement;
     }
 
     async get(advertisementId: string): Promise<Advertisement> {
         const advertisement = await this.advertisementModel.findById(advertisementId).populate('amenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        const [updatedAdvertisement] = this.updatePhotoUrls([advertisement]);
-        return updatedAdvertisement;
+        return advertisement;
     }
 
     async getAllToApprove(): Promise<Advertisement[]> {
@@ -242,41 +212,44 @@ export class AdvertisementsService {
     
         for (const image of uploadImagesAdvertisementDto.images) {
             if (!image.id) {
-                const fileName = image.name.split('.');
-                const extention = fileName[fileName.length-1];
-
                 const randomId = uuidv4();
-                const imageName = `${advertisementId}-${randomId}.${extention}`;
-                const imageThumbnailName = `${advertisementId}-${randomId}-thumbnail.${extention}`;
-
-                const originalFilePath = path.join(this.uploadDir, imageName);
-                const thumbnailFilePath = path.join(this.uploadDir, imageThumbnailName);
+                const imageName = `${advertisementId}-${randomId}`;
+                //const imageThumbnailName = `${advertisementId}-${randomId}-thumbnail`;
 
                 // Decodificar base64
-                const imageData = Buffer.from(image.content, 'base64');
+                //const imageData = Buffer.from(image.content, 'base64');
 
-                // Salvar imagem original
-                await fs.promises.writeFile(originalFilePath, imageData);
-            
                 // Criar thumbnail
-                await sharp(imageData)
-                    .resize(352, 352)
-                    .toFile(thumbnailFilePath);
+                //const thumbnailBuffer = await sharp(imageData)
+                //    .resize(352, 352)
+                //    .toBuffer();
             
-                    newPhotos.push({
+                const imageUrl = await this.imageUploadService.uploadBase64Image(image.content, image.contentType, imageName, 'advertisements');
+                const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
+                //await this.imageUploadService.uploadImageBuffer(thumbnailBuffer, image.contentType, imageThumbnailName);
+                const imageThumbnailUrl = imageUrlStr.replace('upload/', 'upload/c_thumb,w_352,h_352,g_face/');
+
+                newPhotos.push({
                     id: randomId,
-                    name: imageName,
-                    thumbnailName: imageThumbnailName,
+                    name: imageUrlStr.split('/')[imageUrlStr.split('/').length-1],
+                    url: imageUrlStr,
+                    thumbnailUrl: imageThumbnailUrl,
                     order: image.order,
                 });
             } else {
                 const photo = photos.find((a) => a.id === image.id);
-                if (!photo)throw new Error(`notfound.advertisement.photo.id.${image.id}.do.not.exists`);
+                if (!photo) throw new Error(`notfound.advertisement.photo.id.${image.id}.do.not.exists`);
                 photo.order = image.order;
 
                 newPhotos.push(photo);
             }
         }
+
+        photos.forEach(async (a) => {
+            const photo = uploadImagesAdvertisementDto.images.find((b) => b.id === a.id);
+            if (!photo) await this.imageUploadService.deleteImage(this.getPublicIdFromImageUrl(a.url));
+
+        });
 
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate(
             { accountId, _id: advertisementId },
@@ -306,9 +279,8 @@ export class AdvertisementsService {
             { new: true }
         ).exec();
 
-        photosToRemove.forEach((a) => {
-            fs.unlink(`./uploads/${a.name}`, () => {});
-            fs.unlink(`./uploads/${a.thumbnailName}`, () => {});
+        photosToRemove.forEach(async (a) => {
+            await this.imageUploadService.deleteImage(this.getPublicIdFromImageUrl(a.url));
         });
     }
 
@@ -324,18 +296,17 @@ export class AdvertisementsService {
 
         await this.advertisementModel.deleteMany(filter).exec();
 
-        const photoNames: string[] = [];
+        const photoUrls: string[] = [];
         advertisements.forEach((a) => {
             a.photos.forEach((b) => {
-                photoNames.push(b.name);
-                photoNames.push(b.thumbnailName);
+                photoUrls.push(b.url);
             })
         })
 
-        if(!photoNames.length) return;
+        if(!photoUrls.length) return;
         
-        photoNames.forEach((a) => {
-            fs.unlink(`./uploads/${a}`, () => {});
+        photoUrls.forEach(async (a) => {
+            await this.imageUploadService.deleteImage(this.getPublicIdFromImageUrl(a));
         });
     }
 
@@ -385,5 +356,10 @@ export class AdvertisementsService {
                 }
             }
             ]).exec();
+    }
+
+    private getPublicIdFromImageUrl(imageUrl: string): string {
+        const split = imageUrl.split('/');
+        return `${split[split.length-2]}/${split[split.length-1].split('.')[0]  }`;
       }
 }

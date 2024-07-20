@@ -9,6 +9,7 @@ import { AmenitiesModule } from 'src/amenities/amenities.module';
 import { AlgoliaModule } from 'src/algolia/algolia.module';
 import { BulkUpdateDateModule } from 'src/bulk-update-date/bulk-update-date.module';
 import { OpenAiModule } from 'src/open-ai/open-ai.module';
+import { ImageUploadModule } from 'src/image-upload/image-upload.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { OpenAiModule } from 'src/open-ai/open-ai.module';
     AlgoliaModule,
     BulkUpdateDateModule,
     OpenAiModule,
+    ImageUploadModule,
   ],
   controllers: [AdvertisementsController],
   providers: [AdvertisementsService, FirebaseAdmin],

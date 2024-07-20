@@ -9,13 +9,14 @@ export class UploadImageAccountDto {
 
     @ApiProperty()
     @IsNotEmpty({ message: 'invalid.content.should.not.be.empty' })
-    content: ArrayBuffer;
+    @IsString({ message: 'invalid.content.must.be.a.string' })
+    content: string;
 
     @ApiProperty()
     @IsString({ message: 'invalid.contentType.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.contentType.should.not.be.empty' })
-    @Matches(/^(image\/jpeg|image\/jpg|image\/img|image\/png)$/, {
-        message: 'invalid.contentType.must.be.one.of.the.following.types.image/jpeg.image/jpg.image/img.image/png',
+    @Matches(/^(image\/jpeg|image\/jpg|image\/webp|image\/png)$/, {
+        message: 'invalid.contentType.must.be.one.of.the.following.types.image/jpeg.image/jpg.image/webp.image/png',
     })
     contentType: string;
 }

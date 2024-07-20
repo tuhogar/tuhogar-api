@@ -33,9 +33,8 @@ export enum AdvertisementConstructionType {
 export interface AdvertisementPhoto {
     id: string;
     name: string;
-    thumbnailName: string;
-    url?: string,
-    thumbnailUrl?: string,
+    url: string;
+    thumbnailUrl: string;
     order: number;
 }
 export interface Advertisement extends Document  {

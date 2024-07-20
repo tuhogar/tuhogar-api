@@ -16,6 +16,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { OpenAiModule } from './open-ai/open-ai.module';
 import { AdvertisementReasonsModule } from './advertisement-reasons/advertisement-reasons.module';
 import { AdvertisementReportsModule } from './advertisement-reports/advertisement-reports.module';
+import { ImageUploadModule } from './image-upload/image-upload.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AdvertisementReportsModule } from './advertisement-reports/advertisemen
     OpenAiModule,
     AdvertisementReasonsModule,
     AdvertisementReportsModule,
+    ImageUploadModule,
   ],
   controllers: [],
   providers: [FirebaseAdmin],

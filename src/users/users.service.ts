@@ -93,7 +93,7 @@ export class UsersService {
     }
 
     async getByUid(uid: string): Promise<User> {
-        const user = await this.userModel.findOne({ uid }).exec();
+        const user = await this.userModel.findOne({ uid }).populate('accountId').exec();
         if (!user) throw new Error('notfound.user.do.not.exists');
 
         return user;
