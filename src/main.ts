@@ -5,19 +5,9 @@ import * as bodyParser from 'body-parser';
 import { CustomExceptionFilter } from './filters/custom-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
-import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  const configService = app.get(ConfigService);
-  console.error('MONGODB_URL (ConfigService):', configService.get<string>('MONGODB_URL'));
-  console.error('MONGODB_URL (process.env):', process.env.MONGODB_URL);
-
-  if (!configService.get<string>('MONGODB_URL')) {
-    throw new Error('Missing MONGODB_URL environment variable');
-  }
-
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('Tuhogar API')
