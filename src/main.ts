@@ -7,6 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 
 async function bootstrap() {
+  console.log('MONGODB_URL:', process.env.MONGODB_URL);
   const app = await NestFactory.create(AppModule);
   // Swagger Configuration
   const config = new DocumentBuilder()
