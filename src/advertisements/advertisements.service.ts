@@ -96,9 +96,6 @@ export class AdvertisementsService {
     }
 
     async getActives(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[], count: number }> {
-        console.log('----getActivesAdvertisementDto');
-        console.log(getActivesAdvertisementDto);
-        console.log('----getActivesAdvertisementDto');
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
