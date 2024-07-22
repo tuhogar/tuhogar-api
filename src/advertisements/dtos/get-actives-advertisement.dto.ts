@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
 import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
 import { ApiPropertyOptional } from "@nestjs/swagger";
@@ -338,4 +338,20 @@ export class GetActivesAdvertisementDto {
     @Type(() => Number)
     @IsGreaterThan('propertyTaxMin', { message: 'invalid.propertyTaxMax.must.be.greater.than.or.equal.to.propertyTaxMin' })
     propertyTaxMax: number = 0;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty()
+    @IsNumber({}, { message: 'invalid.page.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Type(() => Number)
+    @Min(0, { message: 'page.must.not.be.less.than.0' })
+    page: number;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty()
+    @IsNumber({}, { message: 'invalid.limit.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Type(() => Number)
+    @Min(1, { message: 'limit.must.not.be.less.than.1' })
+    limit: number;
 }

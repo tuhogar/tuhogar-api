@@ -95,11 +95,16 @@ export class AdvertisementsService {
         }
     }
 
-    async getActives(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<Advertisement[]> {
-        const advertisementIds = await this.algoliaService.get(getActivesAdvertisementDto);
+    async getActives(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[], count: number }> {
+        console.log('----getActivesAdvertisementDto');
+        console.log(getActivesAdvertisementDto);
+        console.log('----getActivesAdvertisementDto');
+        const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        return this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').exec();
+        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').exec();
+
+        return { data: advertisements, count };
     }
 
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {

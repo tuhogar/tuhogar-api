@@ -31,7 +31,7 @@ export class AlgoliaService {
         await this.index.deleteObject(objectID);
       }
 
-      async get(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<string[]> {
+      async get(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: string[], count: number }> {
         let filters: string[] = [];
 
         const addRangeFilter = (field: string, min?: number, max?: number) => {
@@ -98,15 +98,20 @@ export class AlgoliaService {
 
         const query = searchText.join(' ');
 
-        const { hits } = await this.index.search(query, {
+        const options = {
           filters: filter,
           restrictSearchableAttributes: restrictSearchableAttributes.length > 0 ? restrictSearchableAttributes : undefined,
           attributesToRetrieve: [],
-          attributesToHighlight: []
-        });
+          attributesToHighlight: [],
+        };
+
+        if (getActivesAdvertisementDto.page) options['page'] = getActivesAdvertisementDto.page;
+        if (getActivesAdvertisementDto.limit) options['hitsPerPage'] = getActivesAdvertisementDto.limit;
+
+        const { hits, nbHits: count } = await this.index.search(query, options);
 
         const objectIDs = hits.map((hit: any) => hit.objectID);
 
-        return objectIDs;
+        return { data: objectIDs, count };
       }
 }
