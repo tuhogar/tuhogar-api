@@ -4,6 +4,7 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } f
 import { AddressDto } from "../../addresses/dtos/address.dto";
 import { SocialMediaDto } from "./create-social-media.dto";
 import { UserDocumentType } from "../interfaces/user.interface";
+import { Property } from "src/decorators/property.decorator";
 
 export class PatchUserDto {
 
@@ -12,6 +13,7 @@ export class PatchUserDto {
     @IsString()
     @IsNotEmpty({ message: 'invalid.name.should.not.be.empty' })
     @MaxLength(150, { message: 'invalid.name.must.be.shorter.than.or.equal.to.150.characters' })
+    @Property()
     name: string;
 
     @ApiPropertyOptional()
@@ -19,6 +21,7 @@ export class PatchUserDto {
     @IsNotEmpty({ message: 'invalid.address.should.not.be.empty' })
     @ValidateNested()
     @Type(() => AddressDto)
+    @Property()
     address: AddressDto;
 
     @ApiPropertyOptional()
@@ -26,6 +29,7 @@ export class PatchUserDto {
     @IsString()
     @IsNotEmpty({ message: 'invalid.phone.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.phone.must.be.shorter.than.or.equal.to.30.characters' })
+    @Property()
     phone: string;
 
     @ApiPropertyOptional()
@@ -33,6 +37,7 @@ export class PatchUserDto {
     @IsString({ message: 'invalid.whatsApp.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.whatsApp.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.whatsApp.must.be.shorter.than.or.equal.to.30.characters' })
+    @Property()
     whatsApp: string;
 
     @ApiPropertyOptional()
@@ -40,6 +45,7 @@ export class PatchUserDto {
     @IsString({ message: 'invalid.webSite.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.webSite.should.not.be.empty' })
     @MaxLength(150, { message: 'invalid.webSite.must.be.shorter.than.or.equal.to.150.characters' })
+    @Property()
     webSite: string;
 
     @ApiPropertyOptional()
@@ -47,6 +53,7 @@ export class PatchUserDto {
     @IsNotEmpty({ message: 'invalid.socialMedia.should.not.be.empty' })
     @ValidateNested()
     @Type(() => SocialMediaDto)
+    @Property()
     socialMedia: SocialMediaDto;
 
     @ApiPropertyOptional()
@@ -54,5 +61,6 @@ export class PatchUserDto {
     @IsString({ message: 'invalid.description.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.description.should.not.be.empty' })
     @MaxLength(300, { message: 'invalid.description.must.be.shorter.than.or.equal.to.300.characters' })
+    @Property()
     description: string;
 }

@@ -131,10 +131,6 @@ export class AccountsService {
     
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
 
-    console.log('---this.getPublicIdFromImageUrl(updatedAccount.photo)');
-    console.log(this.getPublicIdFromImageUrl(updatedAccount.photo));
-    console.log('---this.getPublicIdFromImageUrl(updatedAccount.photo)');
-
     await this.imageUploadService.deleteImage(this.getPublicIdFromImageUrl(updatedAccount.photo));
   }
 
