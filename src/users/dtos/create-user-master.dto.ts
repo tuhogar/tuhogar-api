@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { UserDocumentType, UserRole } from "../interfaces/user.interface";
+import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
 export class CreateUserMasterDto {
 

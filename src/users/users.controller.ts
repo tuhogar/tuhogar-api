@@ -8,7 +8,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dtos/login-dto';
 import { PatchUserDto } from './dtos/patch-user.dto';
 import { UpdateStatusUserDto } from './dtos/update-status-user.dto';
-import { CreateUserMasterDto } from './dtos/create-user-master.dto';
 
 @ApiTags('v1/users')
 @Controller('v1/users')
