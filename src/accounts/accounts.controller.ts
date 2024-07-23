@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { AccountsService } from './accounts.service';
@@ -10,6 +10,7 @@ import { UpdateStatusAccountDto } from './dtos/update-status-account.dto';
 import { User } from 'src/users/interfaces/user.interface';
 import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
 import { UploadImageAccountDto } from './dtos/upload-image-account.dto';
+import { PatchAccountDto } from './dtos/patch-account.dto';
 
 @ApiTags('v1/accounts')
 @Controller('v1/accounts')
@@ -46,6 +47,19 @@ export class AccountsController {
   @Auth('MASTER')
   async getAccountRegistrations(@Query('period') period: 'week' | 'month'): Promise<any[]> {
     return this.accountsService.getAccountRegistrations(period);
+  }
+
+  @ApiBearerAuth()
+  @Get(':accountid')
+  async get(@Param('accountid') accountId: string): Promise<Account> {
+      return this.accountsService.getById(accountId);
+  }
+
+  @ApiBearerAuth()
+  @Patch(':accountid')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  async patch(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() patchAccountDto: PatchAccountDto): Promise<void> {
+      await this.accountsService.patch(authenticatedUser, accountId, patchAccountDto);
   }
 
   @ApiBearerAuth()

@@ -12,6 +12,7 @@ import { AdvertisementsService } from 'src/advertisements/advertisements.service
 import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
 import { UploadImageAccountDto } from './dtos/upload-image-account.dto';
 import { ImageUploadService } from 'src/image-upload/image-upload.service';
+import { PatchAccountDto } from './dtos/patch-account.dto';
 
 @Injectable()
 export class AccountsService {
@@ -27,7 +28,7 @@ export class AccountsService {
   }
 
   async getById(id: string): Promise<Account> {
-    return this.accountModel.findOne({ _id: id }).exec();
+    return this.accountModel.findOne({ _id: id }).select('_id name description phone socialMedia webSite whatsApp address photo').exec();
   }
 
   async create(
@@ -36,6 +37,11 @@ export class AccountsService {
   ): Promise<{ id: string }> {
     const accountCreated = new this.accountModel({
       planId: createAccountDto.planId,
+      name: createAccountDto.name,
+      email: authenticatedUser.email,
+      phone: createAccountDto.phone,
+      documentType: createAccountDto.documentType,
+      documentNumber: createAccountDto.documentNumber,
       status: AccountStatus.ACTIVE,
     });
     await accountCreated.save();
@@ -43,9 +49,6 @@ export class AccountsService {
     try {
       const createUserDto = new CreateUserDto();
       createUserDto.name = createAccountDto.name;
-      createUserDto.phone = createAccountDto.phone;
-      createUserDto.documentType = createAccountDto.documentType;
-      createUserDto.documentNumber = createAccountDto.documentNumber;
       createUserDto.userRole = UserRole.ADMIN;
 
       await this.usersService.create(
@@ -61,6 +64,20 @@ export class AccountsService {
 
     return { id: accountCreated._id.toString() };
   }
+
+  async patch(authenticatedUser: AuthenticatedUser, accountId: string, patchAccountDto: PatchAccountDto): Promise<void> {
+    const filter = {
+        _id: accountId,
+        ...(authenticatedUser.userRole !== UserRole.MASTER && { _id: authenticatedUser.accountId })
+    };
+
+    const updatedAccount = await this.accountModel.findOneAndUpdate(filter,
+        patchAccountDto,
+        { new: true }
+    ).exec();
+
+    if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
+}
 
   async updateStatus(
     authenticatedUser: AuthenticatedUser,

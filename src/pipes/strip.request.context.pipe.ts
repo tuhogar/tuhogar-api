@@ -9,7 +9,7 @@ import { UpdateStatusAdvertisementDto } from 'src/advertisements/dtos/update-sta
 import { CreatePlanDto } from 'src/plans/dtos/create-plan.dto';
 import { PatchUserDto } from 'src/users/dtos/patch-user.dto';
 import { AddressDto } from 'src/addresses/dtos/address.dto';
-import { SocialMediaDto } from 'src/users/dtos/create-social-media.dto';
+import { SocialMediaDto } from 'src/social-media/dtos/create-social-media.dto';
 
 const DtoMap = new Map<string, any>([
   ['CreateUpdateAdvertisementDto', CreateUpdateAdvertisementDto],

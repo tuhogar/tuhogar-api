@@ -10,12 +10,6 @@ export const UserSchema = new mongoose.Schema({
      },
     userRole: String,
     status: String,
-    documentType: String,
-    documentNumber: String,
-    address: Object,
     phone: String,
     whatsApp: String,
-    webSite: String,
-    socialMedia: Object,
-    description: String,
 }, { timestamps: true, collection: 'users' });

@@ -3,7 +3,7 @@ import { cloudinary } from '../cloudinary.config';
 
 @Injectable()
 export class ImageUploadService {
-  async uploadBase64Image(base64: string, type: string, name: string, folder: string) {
+  async uploadBase64Image(base64: string, type: string, name: string, folder: string): Promise<string> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.upload(
         `data:${type};base64,${base64}`,
