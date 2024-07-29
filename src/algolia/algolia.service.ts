@@ -55,6 +55,7 @@ export class AlgoliaService {
           addMultiValueFilter('constructionType', getActivesAdvertisementDto.constructionType, 'OR');
           
 
+          if (getActivesAdvertisementDto.accountId !== undefined) filters.push(`accountId:${getActivesAdvertisementDto.accountId}`);
           if (getActivesAdvertisementDto.allContentsIncluded !== undefined) filters.push(`allContentsIncluded:${getActivesAdvertisementDto.allContentsIncluded}`);
           if (getActivesAdvertisementDto.isResidentialComplex !== undefined) filters.push(`isResidentialComplex:${getActivesAdvertisementDto.isResidentialComplex}`);
           if (getActivesAdvertisementDto.isPenthouse !== undefined) filters.push(`isPenthouse:${getActivesAdvertisementDto.isPenthouse}`);
