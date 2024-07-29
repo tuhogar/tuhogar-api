@@ -104,15 +104,17 @@ export class AdvertisementsService {
             case AdvertisementActivesOrderBy.HIGHEST_PRICE:
                 orderBy = { price: -1 };
                 break;
-                case AdvertisementActivesOrderBy.LOWEST_PRICE:
-                    orderBy = { price: 1 };
-                    break;
-                case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
-                    orderBy = { pricePerFloorArea: -1 };
-                    break;
-                case AdvertisementActivesOrderBy.LOWEST_PRICE_M2:
-                    orderBy = { pricePerFloorArea: 1 };
-                    break;
+            case AdvertisementActivesOrderBy.LOWEST_PRICE:
+                orderBy = { price: 1 };
+                break;
+            case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
+                orderBy = { pricePerFloorArea: -1 };
+                break;
+            case AdvertisementActivesOrderBy.LOWEST_PRICE_M2:
+                orderBy = { pricePerFloorArea: 1 };
+                break;
+            default:
+                break;
         }
 
         const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').sort(orderBy).exec();
