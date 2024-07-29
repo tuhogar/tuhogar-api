@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { Advertisement, AdvertisementPhoto, AdvertisementStatus } from './interfaces/advertisement.interface';
+import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus } from './interfaces/advertisement.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
@@ -81,7 +81,7 @@ export class AdvertisementsService {
             status: AdvertisementStatus.ACTIVE,
             updatedAt: { $gt: lastUpdatedAt },
          })
-        .select('code transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
+        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
         .lean()
         .exec();
 
@@ -99,7 +99,23 @@ export class AdvertisementsService {
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').exec();
+        let orderBy = undefined;
+        switch (getActivesAdvertisementDto.orderBy) {
+            case AdvertisementActivesOrderBy.HIGHEST_PRICE:
+                orderBy = { price: -1 };
+                break;
+                case AdvertisementActivesOrderBy.LOWEST_PRICE:
+                    orderBy = { price: 1 };
+                    break;
+                case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
+                    orderBy = { pricePerFloorArea: -1 };
+                    break;
+                case AdvertisementActivesOrderBy.LOWEST_PRICE_M2:
+                    orderBy = { pricePerFloorArea: 1 };
+                    break;
+        }
+
+        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').sort(orderBy).exec();
 
         return { data: advertisements, count };
     }
@@ -128,7 +144,7 @@ export class AdvertisementsService {
     }
 
     async getAllToApprove(): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').sort({ createdAt: -1 }).exec();
+        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').sort({ updatedAt: -1 }).exec();
     }
 
     async updateStatus(

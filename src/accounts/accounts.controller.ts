@@ -49,6 +49,15 @@ export class AccountsController {
     return this.accountsService.getAccountRegistrations(period);
   }
 
+  @Post('subscription')
+  async subscription(
+    @Body() body: any,
+  ): Promise<void> {
+    console.log('----body');
+    console.log(body);
+    console.log('----body');
+  }
+
   @ApiBearerAuth()
   @Get(':accountid')
   async get(@Param('accountid') accountId: string): Promise<Account> {

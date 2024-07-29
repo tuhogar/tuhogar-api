@@ -1,5 +1,5 @@
-import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
-import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
+import { IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
+import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType, AdvertisementActivesOrderBy } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsGreaterThan } from "../validators/advertisement-is-greater-than.validator";
@@ -7,6 +7,11 @@ import { TransformToBoolean } from "src/decorators/transform-to-boolean.decorato
 import { AmenityIsExistingId } from "src/amenities/validators/amenitiy-is-existing-id.validator";
 
 export class GetActivesAdvertisementDto {
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsMongoId({ message: 'invalid.accountId' })
+    accountId: string;
+
     @ApiPropertyOptional()
     @IsOptional()
     @Transform(({ value }) => parseFloat(value))
@@ -354,4 +359,9 @@ export class GetActivesAdvertisementDto {
     @Type(() => Number)
     @Min(1, { message: 'limit.must.not.be.less.than.1' })
     limit: number;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsEnum(AdvertisementActivesOrderBy, { message: 'invalid.advertisement.actives.order.by.must.be.one.of.the.following.values.highest_price.lowest_price.highest_price_m2.lowest_price_m2' })
+    orderBy: AdvertisementActivesOrderBy;
 }

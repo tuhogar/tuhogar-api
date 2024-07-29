@@ -2,6 +2,13 @@ import { Date, Document } from 'mongoose';
 import { Address } from 'src/addresses/intefaces/address.interface';
 import { Amenity } from 'src/amenities/interfaces/amenities.interface';
 
+export enum AdvertisementActivesOrderBy {
+    HIGHEST_PRICE = 'highest_price',
+    LOWEST_PRICE = 'lowest_price',
+    HIGHEST_PRICE_M2 = 'highest_price_m2',
+    LOWEST_PRICE_M2 = 'lowest_price_m2',
+}
+
 export enum AdvertisementStatus {
     ACTIVE = 'ACTIVE',
     INACTIVE = 'INACTIVE',
