@@ -7,4 +7,6 @@ export interface Address {
     readonly stateSlug: string;
     readonly citySlug: string;
     readonly neighbourhoodSlug: string;
+    readonly latitude: number;
+    readonly longitude: number;
 }
