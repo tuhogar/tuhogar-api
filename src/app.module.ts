@@ -17,6 +17,7 @@ import { OpenAiModule } from './open-ai/open-ai.module';
 import { AdvertisementReasonsModule } from './advertisement-reasons/advertisement-reasons.module';
 import { AdvertisementReportsModule } from './advertisement-reports/advertisement-reports.module';
 import { ImageUploadModule } from './image-upload/image-upload.module';
+import { PayUModule } from './payments/payu/payu.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ImageUploadModule } from './image-upload/image-upload.module';
     AdvertisementReasonsModule,
     AdvertisementReportsModule,
     ImageUploadModule,
+    PayUModule,
   ],
   controllers: [],
   providers: [FirebaseAdmin],

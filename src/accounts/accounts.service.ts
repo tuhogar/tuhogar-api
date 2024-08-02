@@ -13,6 +13,7 @@ import { Advertisement } from 'src/advertisements/interfaces/advertisement.inter
 import { UploadImageAccountDto } from './dtos/upload-image-account.dto';
 import { ImageUploadService } from 'src/image-upload/image-upload.service';
 import { PatchAccountDto } from './dtos/patch-account.dto';
+import { PayUService } from 'src/payments/payu/payu.service';
 
 @Injectable()
 export class AccountsService {
@@ -21,6 +22,7 @@ export class AccountsService {
     private readonly usersService: UsersService,
     private readonly advertisementsService: AdvertisementsService,
     private readonly imageUploadService: ImageUploadService,
+    private readonly payUService: PayUService,
   ) {}
 
   async getAll(): Promise<Account[]> {
@@ -225,5 +227,9 @@ export class AccountsService {
   private getPublicIdFromImageUrl(imageUrl: string): string {
     const split = imageUrl.split('/');
     return `${split[split.length-2]}/${split[split.length-1].split('.')[0]  }`;
+  }
+
+  async subscription(body: any): Promise<void> {
+    await this.payUService.subscription(body);
   }
 }

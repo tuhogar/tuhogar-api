@@ -53,9 +53,7 @@ export class AccountsController {
   async subscription(
     @Body() body: any,
   ): Promise<void> {
-    console.log('----body');
-    console.log(body);
-    console.log('----body');
+    await this.accountsService.subscription(body);
   }
 
   @ApiBearerAuth()

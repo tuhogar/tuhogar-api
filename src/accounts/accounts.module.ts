@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 import { FirebaseAdmin } from 'src/config/firebase.setup';
 import { AdvertisementsModule } from 'src/advertisements/advertisements.module';
 import { ImageUploadModule } from 'src/image-upload/image-upload.module';
+import { PayUModule } from 'src/payments/payu/payu.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ImageUploadModule } from 'src/image-upload/image-upload.module';
     UsersModule,
     AdvertisementsModule,
     ImageUploadModule,
+    PayUModule,
   ],
   controllers: [AccountsController],
   providers: [AccountsService, FirebaseAdmin]

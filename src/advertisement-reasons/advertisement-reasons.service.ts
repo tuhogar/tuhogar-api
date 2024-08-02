@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AdvertisementReason } from './interfaces/advertisement-reasons.interface';
@@ -8,7 +7,6 @@ import { CreateUpdateAdvertisementReasonDto } from './dtos/create-update-adverti
 @Injectable()
 export class AdvertisementReasonsService {
     constructor(
-        private configService: ConfigService,
         @InjectModel('AdvertisementReason') private readonly advertisementReasonModel: Model<AdvertisementReason>,
     ) {}
 
