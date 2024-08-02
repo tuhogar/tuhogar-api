@@ -107,7 +107,7 @@ export class AlgoliaService {
           attributesToHighlight: [],
         };
 
-        if (getActivesAdvertisementDto.page) options['page'] = getActivesAdvertisementDto.page;
+        if (getActivesAdvertisementDto.page) options['page'] = getActivesAdvertisementDto.page - 1;
         if (getActivesAdvertisementDto.limit) options['hitsPerPage'] = getActivesAdvertisementDto.limit;
 
         const { hits, nbHits: count } = await this.index.search(query, options);
