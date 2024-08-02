@@ -72,6 +72,7 @@ export class AlgoliaService {
           addRangeFilter('hoaFee', getActivesAdvertisementDto.hoaFeeMin, getActivesAdvertisementDto.hoaFeeMax);
           addRangeFilter('lotArea', getActivesAdvertisementDto.lotAreaMin, getActivesAdvertisementDto.lotAreaMax);
           addRangeFilter('floorArea', getActivesAdvertisementDto.floorAreaMin, getActivesAdvertisementDto.floorAreaMax);
+          addRangeFilter('price', getActivesAdvertisementDto.priceMin, getActivesAdvertisementDto.priceMax);
           addRangeFilter('pricePerLotArea', getActivesAdvertisementDto.pricePerLotAreaMin, getActivesAdvertisementDto.pricePerLotAreaMax);
           addRangeFilter('pricePerFloorArea', getActivesAdvertisementDto.pricePerFloorAreaMin, getActivesAdvertisementDto.pricePerFloorAreaMax);
           addRangeFilter('propertyTax', getActivesAdvertisementDto.propertyTaxMin, getActivesAdvertisementDto.propertyTaxMax);

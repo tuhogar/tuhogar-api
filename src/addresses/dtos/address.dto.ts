@@ -44,7 +44,10 @@ export class AddressDto {
     @Property()
     stateSlug: string;
 
-    @Transform(({ obj }) => slugify(obj.city, { lower: true, strict: true }))
+    @Transform(({ obj }) => {
+        const adjusted = obj.city.replace(/,|\.|D\.C\./g, '').trim();
+        return slugify(adjusted, { lower: true, strict: true });
+      })
     @Property()
     citySlug: string;
 

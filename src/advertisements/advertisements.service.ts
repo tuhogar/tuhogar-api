@@ -316,6 +316,8 @@ export class AdvertisementsService {
 
         await this.advertisementModel.deleteMany(filter).exec();
 
+        advertisements.forEach(async (a) => await this.algoliaService.delete(a._id.toString()));
+
         const photoUrls: string[] = [];
         advertisements.forEach((a) => {
             a.photos.forEach((b) => {
