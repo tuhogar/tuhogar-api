@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import slugify from "slugify";
 import { Property } from "src/decorators/property.decorator";
 
@@ -57,4 +57,16 @@ export class AddressDto {
     @Transform(({ obj }) => slugify(obj.neighbourhood, { lower: true, strict: true }))
     @Property()
     neighbourhoodSlug: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNumber({}, { message: 'invalid.latitude.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Property()
+    latitude: number;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNumber({}, { message: 'invalid.longitude.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Property()
+    longitude: number;
 }
