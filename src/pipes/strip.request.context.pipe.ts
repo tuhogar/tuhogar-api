@@ -42,6 +42,8 @@ export class StripRequestContextPipe implements PipeTransform {
     }
 
     const allowedProperties = getProperties(DtoMap.get(metatype.name));
+    if (!allowedProperties) return value;
+
     allowedProperties.forEach((a) => {
       if (DtoMap.has(a)) {
         const allowedProperties = getProperties(DtoMap.get(a));
