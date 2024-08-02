@@ -349,7 +349,7 @@ export class GetActivesAdvertisementDto {
     @IsNotEmpty()
     @IsNumber({}, { message: 'invalid.page.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @Min(0, { message: 'page.must.not.be.less.than.0' })
+    @Min(1, { message: 'page.must.not.be.less.than.1' })
     page: number;
 
     @ApiPropertyOptional()
