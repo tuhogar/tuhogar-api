@@ -56,19 +56,26 @@ export class AdvertisementsService {
         advertisementId: string,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
     ): Promise<{ id: string }> {
+
+        const advertisement = await this.advertisementModel.findOne({ _id: advertisementId, accountId: authenticatedUser.accountId });
+        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        const update: any = { 
+            updatedUserId: authenticatedUser.userId,
+            ...createUpdateAdvertisementDto
+        }
+
+        if (createUpdateAdvertisementDto.description !== advertisement.description) {
+            update.status = AdvertisementStatus.WAITING_FOR_APPROVAL;
+        }
+
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ 
             accountId: authenticatedUser.accountId,
             _id: advertisementId
         },
-            { 
-                updatedUserId: authenticatedUser.userId,
-                status: AdvertisementStatus.WAITING_FOR_APPROVAL,
-                ...createUpdateAdvertisementDto
-            },
-            { new: true }
+        update,
+        { new: true }
         ).exec();
-
-        if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return { id: updatedAdvertisement._id.toString() };
     }
@@ -273,7 +280,10 @@ export class AdvertisementsService {
 
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate(
             { accountId, _id: advertisementId },
-            { photos: newPhotos },
+            { 
+                photos: newPhotos,
+                status: AdvertisementStatus.WAITING_FOR_APPROVAL,
+             },
             { new: true }
         ).exec();
 
@@ -383,5 +393,5 @@ export class AdvertisementsService {
     private getPublicIdFromImageUrl(imageUrl: string): string {
         const split = imageUrl.split('/');
         return `${split[split.length-2]}/${split[split.length-1].split('.')[0]  }`;
-      }
+    }
 }
