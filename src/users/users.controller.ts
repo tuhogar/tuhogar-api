@@ -8,6 +8,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dtos/login-dto';
 import { PatchUserDto } from './dtos/patch-user.dto';
 import { UpdateStatusUserDto } from './dtos/update-status-user.dto';
+import { CreateFavoriteAdvertisementDto } from './dtos/create-favorite-advertisement.dto';
 
 @ApiTags('v1/users')
 @Controller('v1/users')
@@ -47,6 +48,27 @@ export class UsersController {
     // TODO: remover?, este endpoint é apenas para testes
     async login(@Body() loginDto: LoginDto) {
         return this.usersService.login(loginDto.email, loginDto.password);
+    }
+
+    @ApiBearerAuth()
+    @Post('favorites')
+    @Auth('ADMIN', 'USER')
+    async createFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createFavoriteAdvertisementDto: CreateFavoriteAdvertisementDto): Promise<void> {
+        await this.usersService.createFavorite(authenticatedUser.userId, createFavoriteAdvertisementDto.id);
+    }
+
+    @ApiBearerAuth()
+    @Get('favorites')
+    @Auth('ADMIN', 'USER')
+    async getFavorites(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<any[]> {
+        return this.usersService.getFavorites(authenticatedUser.userId);
+    }
+
+    @ApiBearerAuth()
+    @Delete('favorites/:advertisementid')
+    @Auth('ADMIN', 'USER')
+    async deleteFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string): Promise<void> {
+        await this.usersService.deleteFavorite(authenticatedUser.userId, advertisementId);
     }
 
     /*

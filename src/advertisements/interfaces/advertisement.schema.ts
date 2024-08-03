@@ -34,7 +34,7 @@ export const AdvertisementSchema = new mongoose.Schema({
     socioEconomicLevel: Number,
     isHoaIncluded: Boolean,
     amenities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }],
-   hoaFee: Number,
+    hoaFee: Number,
     lotArea: Number,
     floorArea: Number,
     price: Number,

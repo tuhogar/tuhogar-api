@@ -90,6 +90,14 @@ export class AdvertisementsController {
     }
 
     @ApiBearerAuth()
+    @Get(':advertisementid')
+    @Auth('MASTER', 'ADMIN', 'USER')
+    @UsePipes(new ValidationPipe({transform: true}))
+    async get(@Authenticated() authenticatedUser: AuthenticatedUser,@Param('advertisementid') advertisementId: string): Promise<Advertisement> {
+        return this.advertisementsService.getByAccountIdAndId(authenticatedUser, advertisementId);
+    }
+
+    @ApiBearerAuth()
     @Post(':advertisementid/images')
     @Auth('ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
@@ -133,14 +141,6 @@ export class AdvertisementsController {
             advertisementId,
             updateStatusAdvertisementDto,
         );
-    }
-
-    @ApiBearerAuth()
-    @Get(':advertisementid')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    @UsePipes(new ValidationPipe({transform: true}))
-    async get(@Authenticated() authenticatedUser: AuthenticatedUser,@Param('advertisementid') advertisementId: string): Promise<Advertisement> {
-        return this.advertisementsService.getByAccountIdAndId(authenticatedUser, advertisementId);
     }
 
     @ApiBearerAuth()

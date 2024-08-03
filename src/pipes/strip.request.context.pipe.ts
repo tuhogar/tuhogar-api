@@ -10,6 +10,7 @@ import { CreatePlanDto } from 'src/plans/dtos/create-plan.dto';
 import { PatchUserDto } from 'src/users/dtos/patch-user.dto';
 import { AddressDto } from 'src/addresses/dtos/address.dto';
 import { SocialMediaDto } from 'src/social-media/dtos/create-social-media.dto';
+import { CreateFavoriteAdvertisementDto } from 'src/users/dtos/create-favorite-advertisement.dto';
 
 const DtoMap = new Map<string, any>([
   ['CreateUpdateAdvertisementDto', CreateUpdateAdvertisementDto],
@@ -22,6 +23,7 @@ const DtoMap = new Map<string, any>([
   ['PatchUserDto', PatchUserDto],
   ['address', AddressDto],
   ['socialMedia', SocialMediaDto],
+  ['CreateFavoriteAdvertisementDto', CreateFavoriteAdvertisementDto],
 ]);
 
 function cleanObject(obj, allowedProps) {

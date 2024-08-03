@@ -12,6 +12,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { UpdateStatusUserDto } from './dtos/update-status-user.dto';
 import { CreateUserMasterDto } from './dtos/create-user-master.dto';
+import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
 
 @Injectable()
 export class UsersService {
@@ -209,4 +210,36 @@ export class UsersService {
             throw new UnauthorizedException('authorization.error.deleting.user.data.on.the.authentication.server');
         }
     }
+
+    async createFavorite(userId: string, advertisementId: string): Promise<void> {
+        const user = await this.userModel.findByIdAndUpdate(
+            userId,
+            { $addToSet: { advertisementFavorites: advertisementId } },
+            { new: true }
+          );
+      
+          if (!user) throw new Error('notfound.user.do.not.exists');
+    }
+
+    async getFavorites(userId: string): Promise<Advertisement[]> {
+        const user = await this.userModel.findById(userId).populate({
+            path: 'advertisementFavorites',
+            populate: { path: 'amenities' },
+        }).exec();
+        if (!user) throw new Error('notfound.user.do.not.exists');
+
+        return user.advertisementFavorites as Advertisement[];
+    }
+
+    async deleteFavorite(userId: string, advertisementId: string): Promise<void> {
+        const user = await this.userModel.findByIdAndUpdate(
+          userId,
+          { $pull: { advertisementFavorites: advertisementId } },
+          { new: true }
+        );
+    
+        if (!user) {
+            if (!user) throw new Error('notfound.user.do.not.exists');
+        }
+      }
 }

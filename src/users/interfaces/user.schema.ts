@@ -12,4 +12,5 @@ export const UserSchema = new mongoose.Schema({
     status: String,
     phone: String,
     whatsApp: String,
+    advertisementFavorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' }],
 }, { timestamps: true, collection: 'users' });

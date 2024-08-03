@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { Advertisement } from 'src/advertisements/interfaces/advertisement.interface';
 
 export enum UserStatus {
     ACTIVE = 'ACTIVE',
@@ -20,4 +21,5 @@ export interface User extends Document  {
     readonly uid: string;
     readonly phone: string;
     readonly whatsApp: string;
+    readonly advertisementFavorites: Advertisement[];
 }
