@@ -125,6 +125,24 @@ export class GetActivesAdvertisementDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsNotEmpty({ message: 'address.postalCode.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.postalCode.must.be.a.string' })
+    postalCode: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.placeId.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.placeId.must.be.a.string' })
+    placeId: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.establishment.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.establishment.must.be.a.string' })
+    establishment: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
     @IsNumber({}, { message: 'invalid.bedsCountMin.must.be.a.number.conforming.to.the.specified.constraints' })
