@@ -69,4 +69,25 @@ export class AddressDto {
     @IsNumber({}, { message: 'invalid.longitude.must.be.a.number.conforming.to.the.specified.constraints' })
     @Property()
     longitude: number;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.postalCode.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.postalCode.must.be.a.string' })
+    @Property()
+    postalCode: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.placeId.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.placeId.must.be.a.string' })
+    @Property()
+    placeId: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.establishment.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.establishment.must.be.a.string' })
+    @Property()
+    establishment: string;
 }
