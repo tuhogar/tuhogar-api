@@ -9,4 +9,7 @@ export interface Address {
     readonly neighbourhoodSlug: string;
     readonly latitude: number;
     readonly longitude: number;
+    readonly postalCode: string;
+    readonly placeId: string;
+    readonly establishment: string;
 }
