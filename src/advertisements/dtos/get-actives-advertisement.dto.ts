@@ -155,7 +155,6 @@ export class GetActivesAdvertisementDto {
     @Transform(({ value }) => parseFloat(value))
     @IsNumber({}, { message: 'invalid.bedsCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('bedsCountMin', { message: 'invalid.bedsCountMax.must.be.greater.than.or.equal.to.bedsCountMin' })
     bedsCountMax: number = 0;
 
     @ApiPropertyOptional()
@@ -172,7 +171,6 @@ export class GetActivesAdvertisementDto {
     @Transform(({ value }) => parseFloat(value))
     @IsNumber({}, { message: 'invalid.bathsCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('bathsCountMin', { message: 'invalid.bathsCountMax.must.be.greater.than.or.equal.to.bathsCountMin' })
     bathsCountMax: number = 0;
 
     @ApiPropertyOptional()
@@ -189,7 +187,6 @@ export class GetActivesAdvertisementDto {
     @Transform(({ value }) => parseFloat(value))
     @IsNumber({}, { message: 'invalid.parkingCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('parkingCountMin', { message: 'invalid.parkingCountMax.must.be.greater.than.or.equal.to.parkingCountMin' })
     parkingCountMax: number = 0;
 
     @ApiPropertyOptional()

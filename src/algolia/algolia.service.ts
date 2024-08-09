@@ -35,10 +35,14 @@ export class AlgoliaService {
         let filters: string[] = [];
 
         const addRangeFilter = (field: string, min?: number, max?: number) => {
-          if (min > 0 || max > 0) {
+          if (min > 0 && max > 0) {
             filters.push(`${field}:${min} TO ${max}`);
+          } else if (min > 0) {
+            filters.push(`${field} >= ${min}`);
+          } else if (max > 0) {
+            filters.push(`${field} <= ${max}`);
           }
-        };
+      };
 
         const addMultiValueFilter = (field: string, values: string[] | undefined, clausule: string) => {
           if (values && values.length > 0) {
@@ -62,7 +66,7 @@ export class AlgoliaService {
           if (getActivesAdvertisementDto.isHoaIncluded !== undefined) filters.push(`isHoaIncluded:${getActivesAdvertisementDto.isHoaIncluded}`);
 
           addMultiValueFilter('amenities', getActivesAdvertisementDto.amenity, 'AND');
-    
+
           addRangeFilter('bedsCount', getActivesAdvertisementDto.bedsCountMin, getActivesAdvertisementDto.bedsCountMax);
           addRangeFilter('bathsCount', getActivesAdvertisementDto.bathsCountMin, getActivesAdvertisementDto.bathsCountMax);
           addRangeFilter('parkingCount', getActivesAdvertisementDto.parkingCountMin, getActivesAdvertisementDto.parkingCountMax);
