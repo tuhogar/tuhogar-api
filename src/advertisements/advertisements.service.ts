@@ -57,6 +57,8 @@ export class AdvertisementsService {
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
     ): Promise<{ id: string }> {
 
+        let removeOnAlgolia = false;
+
         const advertisement = await this.advertisementModel.findOne({ _id: advertisementId, accountId: authenticatedUser.accountId });
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
@@ -67,6 +69,7 @@ export class AdvertisementsService {
 
         if (createUpdateAdvertisementDto.description !== advertisement.description) {
             update.status = AdvertisementStatus.WAITING_FOR_APPROVAL;
+            removeOnAlgolia = true;
         }
 
         const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ 
@@ -76,6 +79,8 @@ export class AdvertisementsService {
         update,
         { new: true }
         ).exec();
+
+        if (removeOnAlgolia) await this.algoliaService.delete(updatedAdvertisement._id.toString());
 
         return { id: updatedAdvertisement._id.toString() };
     }
@@ -125,6 +130,8 @@ export class AdvertisementsService {
         }
 
         const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').sort(orderBy).exec();
+
+        advertisements.sort(() => Math.random() - 0.5);
 
         return { data: advertisements, count };
     }
@@ -288,6 +295,8 @@ export class AdvertisementsService {
         ).exec();
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        await this.algoliaService.delete(updatedAdvertisement._id.toString());
     }
 
     async deleteImages(authenticatedUser: AuthenticatedUser, advertisementId: string, deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
