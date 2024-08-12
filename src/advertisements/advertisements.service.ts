@@ -160,6 +160,13 @@ export class AdvertisementsService {
         return advertisement;
     }
 
+    async getActive(advertisementId: string): Promise<Advertisement> {
+        const advertisement = await this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').exec();
+        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        return advertisement;
+    }
+
     async getAllToApprove(): Promise<Advertisement[]> {
         return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').sort({ updatedAt: -1 }).exec();
     }

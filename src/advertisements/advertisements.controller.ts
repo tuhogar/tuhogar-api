@@ -70,7 +70,7 @@ export class AdvertisementsController {
     @Get('actives/:advertisementid')
     @UsePipes(new ValidationPipe({transform: true}))
     async getActive(@Param('advertisementid') advertisementId: string): Promise<Advertisement> {
-        return this.advertisementsService.get(advertisementId);
+        return this.advertisementsService.getActive(advertisementId);
     }
 
     @ApiBearerAuth()
