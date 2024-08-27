@@ -450,4 +450,23 @@ export class AdvertisementsService {
         const split = imageUrl.split('/');
         return `${split[split.length-2]}/${split[split.length-1].split('.')[0]  }`;
     }
+
+    async findAllWithReports(): Promise<Advertisement[]> {
+        return this.advertisementModel.aggregate([
+            {
+              $lookup: {
+                from: 'advertisement-reports',
+                localField: '_id',
+                foreignField: 'advertisementId',
+                as: 'advertisementReports',
+              },
+            },
+            {
+              $match: { 'advertisementReports': { $ne: [] } },
+            },
+            {
+              $sort: { 'advertisementReports._id': -1 },
+            },
+          ]).exec();
+    }
 }
