@@ -94,6 +94,14 @@ export class CreateUpdateAdvertisementDto {
     @Property()
     amenities: string[];
 
+    @ApiPropertyOptional({ type: [String] })
+    @IsArray({ message: 'communityAmenities.must.be.an.array' })
+    @IsMongoId({ each: true, message: 'invalid.amenityId' })
+    @AmenityIsExistingId({ each: true, message: 'each.communityAmenities.id.must.exist' })
+    @IsOptional()
+    @Property()
+    communityAmenities: string[];
+
     @ApiPropertyOptional()
     @IsOptional()
     @IsNotEmpty({ message: 'invalid.description.should.not.be.empty' })

@@ -65,6 +65,7 @@ export interface Advertisement extends Document  {
     readonly socioEconomicLevel: number;
     readonly isHoaIncluded: boolean;
     readonly amenities: Amenity[];
+    readonly communityAmenities: Amenity[];
     readonly description: string;
     readonly hoaFee: number;
     readonly lotArea: number;
