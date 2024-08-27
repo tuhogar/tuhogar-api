@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsISO8601, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
 import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../interfaces/advertisement.interface';
 import { Transform, Type } from "class-transformer";
 import { AdvertisementIsBedsCountMandatory } from "../validators/advertisement-is-beds-count-mandatory.validator";
@@ -160,4 +160,16 @@ export class CreateUpdateAdvertisementDto {
     @Transform(({ obj }) => Math.floor(obj.price / (obj.lotArea || 1)))
     @Property()
     pricePerLotArea: number = 0;
+
+    @ApiProperty()
+    @IsBoolean({ message: 'invalid.isVacant.must.be.a.boolean.value'})
+    @Property()
+    isVacant: boolean;
+
+    @ApiProperty()
+    @IsString({ message: 'invalid.isVacant.must.be.a.string' })
+    @IsISO8601()
+    @IsOptional()
+    @Property()
+    vacancyDate: string;
 }

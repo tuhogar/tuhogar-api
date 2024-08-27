@@ -79,4 +79,6 @@ export interface Advertisement extends Document  {
     readonly videoUrl: string;
     readonly publishedAt: Date;
     readonly updatedAt: Date;
+    readonly isVacant: boolean;
+    readonly vacancyDate: Date;
 }
