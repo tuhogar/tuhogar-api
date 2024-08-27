@@ -130,7 +130,7 @@ export class AdvertisementsService {
                 break;
         }
 
-        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').sort(orderBy).exec();
+        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').populate('communityAmenities').sort(orderBy).exec();
 
         advertisements.sort(() => Math.random() - 0.5);
 
@@ -138,7 +138,7 @@ export class AdvertisementsService {
     }
 
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').exec();
+        return this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
     }
 
     async getByAccountIdAndId(authenticatedUser: AuthenticatedUser,advertisementId: string): Promise<Advertisement> {
@@ -147,28 +147,28 @@ export class AdvertisementsService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const advertisement = await this.advertisementModel.findOne(filter).populate('amenities').exec();
+        const advertisement = await this.advertisementModel.findOne(filter).populate('amenities').populate('communityAmenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
     }
 
     async get(advertisementId: string): Promise<Advertisement> {
-        const advertisement = await this.advertisementModel.findById(advertisementId).populate('amenities').exec();
+        const advertisement = await this.advertisementModel.findById(advertisementId).populate('amenities').populate('communityAmenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
     }
 
     async getActive(advertisementId: string): Promise<Advertisement> {
-        const advertisement = await this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').exec();
+        const advertisement = await this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').populate('communityAmenities').exec();
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
     }
 
     async getAllToApprove(): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').sort({ updatedAt: -1 }).exec();
+        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').populate('communityAmenities').sort({ updatedAt: -1 }).exec();
     }
 
     async updateStatus(
