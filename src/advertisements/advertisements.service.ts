@@ -93,7 +93,7 @@ export class AdvertisementsService {
             status: AdvertisementStatus.ACTIVE,
             updatedAt: { $gt: lastUpdatedAt },
          })
-        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
+        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities communityAmenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
         .lean()
         .exec();
 
