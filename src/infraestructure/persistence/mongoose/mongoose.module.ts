@@ -1,16 +1,16 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule as MongooseModuleLib } from "@nestjs/mongoose";
-import { PlanSchema } from "./schemas/plan.schema";
-import { AmenitySchema } from "./schemas/amenity.schema";
-import { BulkUpdateDateSchema } from "./schemas/bulk-update-date.schema";
-import { AdvertisementReportSchema } from "./schemas/advertisement-report.schema";
-import { AdvertisementReasonSchema } from "./schemas/advertisement-reason.schema";
-import { AdvertisementCodeSchema } from "./schemas/advertisement-code.schema";
-import { UserSchema } from "./schemas/user.schema";
+import { Plan, PlanSchema } from "./entities/plan.entity";
+import { Amenity, AmenitySchema } from "./entities/amenity.entity";
+import { BulkUpdateDate, BulkUpdateDateSchema } from "./entities/bulk-update-date.entity";
+import { AdvertisementReport, AdvertisementReportSchema } from "./entities/advertisement-report.entity";
+import { AdvertisementReason, AdvertisementReasonSchema } from "./entities/advertisement-reason.entity";
+import { AdvertisementCode, AdvertisementCodeSchema } from "./entities/advertisement-code.entity";
+import { User, UserSchema } from "./entities/user.entity";
 import { Account, AccountSchema } from "./entities/account.entity";
-import { AdvertisementSchema } from "./schemas/advertisement.schema";
-import { PayUConfirmationSchema } from "./schemas/payu.schema";
+import { Advertisement, AdvertisementSchema } from "./entities/advertisement.entity";
+import { PayUConfirmationSchema } from "./entities/payu.entity";
 import { IAccountRepository } from "src/application/interfaces/repositories/account.repository.interface";
 import { MongooseAccountRepository } from "./repositories/mongoose-account.repository";
 
@@ -27,25 +27,25 @@ import { MongooseAccountRepository } from "./repositories/mongoose-account.repos
         }),
         MongooseModuleLib.forFeature([
           { name: Account.name, schema: AccountSchema },
-          { name: 'AdvertisementCode', schema: AdvertisementCodeSchema },
-          { name: 'AdvertisementReason', schema: AdvertisementReasonSchema },
-          { name: 'AdvertisementReport', schema: AdvertisementReportSchema },
-          { name: 'Advertisement', schema: AdvertisementSchema },
-          { name: 'Amenity', schema: AmenitySchema },
-          { name: 'BulkUpdateDate', schema: BulkUpdateDateSchema },
-          { name: 'Plan', schema: PlanSchema },
-          { name: 'User', schema: UserSchema },
+          { name: AdvertisementCode.name, schema: AdvertisementCodeSchema },
+          { name: AdvertisementReason.name, schema: AdvertisementReasonSchema },
+          { name: AdvertisementReport.name, schema: AdvertisementReportSchema },
+          { name: Advertisement.name, schema: AdvertisementSchema },
+          { name: Amenity.name, schema: AmenitySchema },
+          { name: BulkUpdateDate.name, schema: BulkUpdateDateSchema },
+          { name: Plan.name, schema: PlanSchema },
+          { name: User.name, schema: UserSchema },
           { name: 'PayUConfirmation', schema: PayUConfirmationSchema },
       ]),
     ],
     providers: [
       {
-        provide: 'IAccountRepository',
+        provide: IAccountRepository,
         useClass: MongooseAccountRepository,
       }
     ],
     exports: [
-      'IAccountRepository',
+      IAccountRepository,
     ],
 })
 export class MongooseModule {}

@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from "@nestjs/common";
-import { MongooseModule } from "@nestjs/mongoose";
+import { MongooseModule } from "./mongoose/mongoose.module";
 
 interface DatabaseOptions {
     type: 'prisma' | 'mongoose';

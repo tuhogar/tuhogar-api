@@ -23,8 +23,6 @@ import { CloudinaryModule } from "../cloudinary/cloudinary.module";
 import { OpenAiModule } from "../open-ai/open-ai.module";
 import { AlgoliaModule } from "../algolia/algolia.module";
 import { FirebaseAdmin } from "../config/firebase.config";
-import { MongooseModule } from "@nestjs/mongoose";
-import { PersistenceModule } from "../persistence/persistence.module";
 
 @Module({
     imports: [

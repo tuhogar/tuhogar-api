@@ -5,22 +5,22 @@ import { Account, AccountStatus } from "src/domain/entities/account.interface";
 import { AuthenticatedUser } from "src/domain/entities/authenticated-user.interface";
 import { CreateAccountDto } from "src/infraestructure/http/dtos/account/create-account.dto";
 import { PatchAccountDto } from "src/infraestructure/http/dtos/account/patch-account.dto";
-import { UpdateStatusAccountDto } from "src/infraestructure/http/dtos/account/update-status-account.dto";
+import { Account as AccountMongoose } from "../entities/account.entity"
 
 export class MongooseAccountRepository implements IAccountRepository {
     constructor(
-        @InjectModel('Account') private readonly accountModel: Model<Account>,
+        @InjectModel(AccountMongoose.name) private readonly accountModel: Model<AccountMongoose>,
     ) {}
     
-    async getAll(): Promise<Account[]> {
+    async getAll(): Promise<any> { // async getAll(): Promise<Account[]> {
         return this.accountModel.find().populate('planId').exec();
     }
     
-    async getById(id: string): Promise<Account> {
+    async getById(id: string): Promise<any> { // async getById(id: string): Promise<Account> {
         return this.accountModel.findOne({ _id: id }).select('_id name description phone socialMedia webSite whatsApp address photo').exec();
     }
     
-    async create(authenticatedUser: AuthenticatedUser, createAccountDto: CreateAccountDto): Promise<Account> {
+    async create(authenticatedUser: AuthenticatedUser, createAccountDto: CreateAccountDto): Promise<any> { // async create(authenticatedUser: AuthenticatedUser, createAccountDto: CreateAccountDto): Promise<Account> {
         const accountCreated = new this.accountModel({
             planId: createAccountDto.planId,
             name: createAccountDto.name,
@@ -36,18 +36,18 @@ export class MongooseAccountRepository implements IAccountRepository {
         return accountCreated;
     }
     
-    async patch(filter: any, patchAccountDto: PatchAccountDto): Promise<Account> {
+    async patch(filter: any, patchAccountDto: PatchAccountDto): Promise<any> { // async patch(filter: any, patchAccountDto: PatchAccountDto): Promise<Account> {
         return this.accountModel.findOneAndUpdate(filter,
             patchAccountDto,
             { new: true }
         ).exec();
     }
     
-    async findOneAndUpdateForUpdateStatus(filter: any, update: any): Promise<Account> {
+    async findOneAndUpdateForUpdateStatus(filter: any, update: any): Promise<any> { // async findOneAndUpdateForUpdateStatus(filter: any, update: any): Promise<Account> {
         return this.accountModel.findOneAndUpdate(
             filter,
             update,
-        );
+        ).exec();
     }
     
     async findByIdAndUpdateForProcessImage(accountId: string, imageUrlStr: string): Promise<any> {
@@ -58,7 +58,7 @@ export class MongooseAccountRepository implements IAccountRepository {
         ).exec();
     }
     
-    async findByIdAndUpdateForDeleteImage(accountId: string): Promise<Account> {
+    async findByIdAndUpdateForDeleteImage(accountId: string): Promise<any> { // async findByIdAndUpdateForDeleteImage(accountId: string): Promise<Account> {
         return this.accountModel.findByIdAndUpdate(accountId,
             { $unset: { photo: '' } },
         ).exec();

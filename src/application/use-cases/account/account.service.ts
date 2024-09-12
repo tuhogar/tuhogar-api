@@ -17,7 +17,7 @@ import { IAccountRepository } from 'src/application/interfaces/repositories/acco
 @Injectable()
 export class AccountService {
   constructor(
-    @Inject('IAccountRepository') private readonly accountRepository: IAccountRepository,
+    private readonly accountRepository: IAccountRepository,
     private readonly userService: UserService,
     private readonly advertisementService: AdvertisementService,
     private readonly cloudinaryService: CloudinaryService,

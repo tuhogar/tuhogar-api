@@ -3,7 +3,6 @@ import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from '@nestjs/schedule';
 import { PersistenceModule } from './infraestructure/persistence/persistence.module';
 import { HttpModule } from './infraestructure/http/http.module';
-import { TuhogarModule } from './application/tuhogar.module';
 
 @Module({
   imports: [
@@ -15,7 +14,7 @@ import { TuhogarModule } from './application/tuhogar.module';
       type: 'mongoose',
       global: true,
     }),
-    TuhogarModule,
+    HttpModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [],

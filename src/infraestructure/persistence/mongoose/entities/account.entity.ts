@@ -9,43 +9,43 @@ export class Account {
     planId: mongoose.Schema.Types.ObjectId;
 
     @Prop()
-    photo: String;
+    photo: string;
 
     @Prop()
-    name: String;
+    name: string;
 
     @Prop()
-    email: String;
+    email: string;
 
     @Prop()
-    documentType: String;
+    documentType: string;
 
     @Prop()
-    documentNumber: String;
+    documentNumber: string;
 
     @Prop()
     address: Object;
     
     @Prop()
-    phone: String;
+    phone: string;
 
     @Prop()
-    whatsApp: String;
+    whatsApp: string;
 
     @Prop()
-    webSite: String;
+    webSite: string;
 
     @Prop()
     socialMedia: Object;
 
     @Prop()
-    description: String;
+    description: string;
 
     @Prop()
-    status: String;
+    status: string;
 }
 
 
 const AccountSchema = SchemaFactory.createForClass(Account);
 
-export { AccountSchema }
+export { AccountSchema };
