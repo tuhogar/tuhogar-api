@@ -16,13 +16,13 @@ export class AdvertisementIsSocioEconomicLevelConstraint implements ValidatorCon
             type === AdvertisementType.WAREHOUSE ||
             type === AdvertisementType.BUILDING ||
             type === AdvertisementType.COMMERCIAL) {
-            return typeof socioEconomicLevel === 'number' && socioEconomicLevel > 0;
+            return typeof socioEconomicLevel === 'number' && socioEconomicLevel >= 0;
         }
         return true;
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'invalid.socioEconomicLevel.must.be.between.1.and.6';
+        return 'invalid.socioEconomicLevel.must.be.between.0.and.6';
     }
 }
 

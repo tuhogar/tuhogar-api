@@ -131,7 +131,12 @@ export class AccountsService {
 
     const imageName = authenticatedUser.accountId;
 
-    const imageUrl = await this.imageUploadService.uploadBase64Image(uploadImageAccountDto.content, uploadImageAccountDto.contentType, imageName, 'accounts');
+    let imageContent = uploadImageAccountDto.content;
+    if (!uploadImageAccountDto.contentType.includes('webp')) {
+      imageContent = await this.imageUploadService.convertToWebP(imageContent);
+  }
+
+    const imageUrl = await this.imageUploadService.uploadBase64Image(imageContent, 'image/webp', imageName, 'accounts');
     const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
    
     const updatedAccount = await this.accountModel.findByIdAndUpdate(

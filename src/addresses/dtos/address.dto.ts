@@ -1,7 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
-import slugify from "slugify";
 import { Property } from "src/decorators/property.decorator";
 
 export class AddressDto {
@@ -40,22 +38,13 @@ export class AddressDto {
     @Property()
     street: string;
 
-    @Transform(({ obj }) => {
-      const adjusted = obj.state.replace(/,|\.|D\.C\./g, '').trim();
-      return slugify(adjusted, { lower: true, strict: true });
-    })
     @Property()
     stateSlug: string;
 
-    @Transform(({ obj }) => {
-        const adjusted = obj.city.replace(/,|\.|D\.C\./g, '').trim();
-        return slugify(adjusted, { lower: true, strict: true });
-      })
     @Property()
     citySlug: string;
 
-    @Transform(({ obj }) => slugify(obj.neighbourhood, { lower: true, strict: true }))
-    @Property()
+      @Property()
     neighbourhoodSlug: string;
 
     @ApiPropertyOptional()

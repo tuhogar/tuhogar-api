@@ -8,9 +8,9 @@ import { SocialMediaDto } from "src/social-media/dtos/create-social-media.dto";
 
 export class PatchAccountDto {
 
-    @ApiProperty()
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsString({ message: 'invalid.name.must.be.a.string' })
-    @IsNotEmpty({ message: 'invalid.name.should.not.be.empty' })
     @MaxLength(150, { message: 'invalid.name.must.be.shorter.than.or.equal.to.150.characters' })
     name: string;
 
@@ -61,13 +61,12 @@ export class PatchAccountDto {
     @Property()
     description: string;
 
-    @ApiPropertyOptional()
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty({ message: 'invalid.documentNumber.should.not.be.empty' })
     @IsEnum(AccountDocumentType, { message: 'invalid.documentType.must.be.one.of.the.following.values.CC.CE.NIT' })
     documentType: AccountDocumentType;
 
-    @ApiPropertyOptional()
-    @IsOptional()
+    @ApiProperty()
     @IsString({ message: 'invalid.documentNumber.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.documentNumber.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.documentNumber.must.be.shorter.than.or.equal.to.30.characters' })

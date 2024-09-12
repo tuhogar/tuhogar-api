@@ -4,7 +4,6 @@ import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, Adverti
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
-import * as sharp from 'sharp';
 import { AuthenticatedUser } from 'src/users/interfaces/authenticated-user.interface';
 import { CreateUpdateAdvertisementDto } from './dtos/create-update-advertisement.dto';
 import { UpdateStatusAdvertisementDto } from './dtos/update-status-advertisement.dto';
@@ -94,7 +93,7 @@ export class AdvertisementsService {
             status: AdvertisementStatus.ACTIVE,
             updatedAt: { $gt: lastUpdatedAt },
          })
-        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
+        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities communityAmenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
         .lean()
         .exec();
 
@@ -246,37 +245,6 @@ export class AdvertisementsService {
         }
     }
 
-    private async resizeImage(base64Image: string, maxWidth: number, maxHeight: number): Promise<string> {
-        const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
-        const imgBuffer = Buffer.from(base64Data, 'base64');
-    
-        // Obtém as dimensões da imagem
-        const metadata = await sharp(imgBuffer).metadata();
-        const { width, height } = metadata;
-    
-        // Redimensiona a imagem somente se ela for maior que 1920x1080
-        if (width > maxWidth || height > maxHeight) {
-            const resizedBuffer = await sharp(imgBuffer)
-                .resize({ width: maxWidth, height: maxHeight, fit: 'inside' })
-                .toBuffer();
-            return resizedBuffer.toString('base64');
-        }
-    
-        // Retorna a imagem original se for menor ou igual ao tamanho máximo
-        return base64Image;
-    }
-
-    private async convertToWebP(base64Image: string): Promise<string> {
-        const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
-        const imgBuffer = Buffer.from(base64Data, 'base64');
-    
-        const webpBuffer = await sharp(imgBuffer)
-            .webp({ quality: 80 })
-            .toBuffer();
-    
-        return webpBuffer.toString('base64');
-    }
-
     async processImages(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
         const advertisement = await this.advertisementModel.findById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
@@ -297,12 +265,12 @@ export class AdvertisementsService {
                 //    .resize(352, 352)
                 //    .toBuffer();
 
-                const resizedImageContent = await this.resizeImage(image.content, 1920, 1080);
+                const resizedImageContent = await this.imageUploadService.resizeImage(image.content, 1920, 1080);
 
 
                 let imageContent = resizedImageContent;
                 if (!image.contentType.includes('webp')) {
-                    imageContent = await this.convertToWebP(imageContent);
+                    imageContent = await this.imageUploadService.convertToWebP(imageContent);
                 }
             
                 const imageUrl = await this.imageUploadService.uploadBase64Image(imageContent, 'image/webp', imageName, 'advertisements');
