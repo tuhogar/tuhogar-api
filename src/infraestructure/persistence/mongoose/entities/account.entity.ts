@@ -23,7 +23,7 @@ export class Account {
     @Prop()
     documentNumber: string;
 
-    @Prop()
+    @Prop({ type: Object })
     address: Object;
     
     @Prop()
@@ -35,7 +35,7 @@ export class Account {
     @Prop()
     webSite: string;
 
-    @Prop()
+    @Prop({ type: Object })
     socialMedia: Object;
 
     @Prop()

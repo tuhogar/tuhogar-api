@@ -2,7 +2,6 @@ import { Account } from "src/domain/entities/account.interface";
 import { AuthenticatedUser } from "src/domain/entities/authenticated-user.interface";
 import { CreateAccountDto } from "src/infraestructure/http/dtos/account/create-account.dto";
 import { PatchAccountDto } from "src/infraestructure/http/dtos/account/patch-account.dto";
-import { UpdateStatusAccountDto } from "src/infraestructure/http/dtos/account/update-status-account.dto";
 
 export abstract class IAccountRepository {
     abstract getAll(): Promise<Account[]>

@@ -89,10 +89,10 @@ export class Advertisement {
     @Prop()
     propertyTax: number;
 
-    @Prop()
+    @Prop({ type: Object })
     address: Object;
 
-    @Prop()
+    @Prop([{ type: Object }])
     photos: [Object];
 
     @Prop()

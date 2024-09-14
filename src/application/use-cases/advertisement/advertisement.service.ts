@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
 import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus } from 'src/domain/entities/advertisement.interface';
-import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
 import * as sharp from 'sharp';
@@ -21,6 +19,7 @@ import { plainToClass } from 'class-transformer';
 import { AddressDto } from 'src/infraestructure/http/dtos/address/address.dto';
 import { OpenAiService } from 'src/infraestructure/open-ai/open-ai.service';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
+import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 
 @Injectable()
 export class AdvertisementService {
@@ -30,7 +29,7 @@ export class AdvertisementService {
         private readonly bulkUpdateDateService: BulkUpdateDateService,
         private readonly openAiService: OpenAiService,
         private readonly imageUploadService: CloudinaryService,
-        @InjectModel('Advertisement') private readonly advertisementModel: Model<Advertisement>,
+        private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
     async create(
@@ -39,7 +38,7 @@ export class AdvertisementService {
     ): Promise<{ id: string }> {
         createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
         
-        const advertisementCreated = new this.advertisementModel({ 
+        const advertisementCreated = await this.advertisementRepository.create({
             accountId: authenticatedUser.accountId, 
             createdUserId: authenticatedUser.userId, 
             updatedUserId: authenticatedUser.userId, 
@@ -47,9 +46,8 @@ export class AdvertisementService {
             code: await this.advertisementCodeService.generate(),
             ...createUpdateAdvertisementDto,
         });
-        await advertisementCreated.save();
 
-        return { id: advertisementCreated._id.toString() };
+        return { id: advertisementCreated.id };
     }
 
     async update(
@@ -60,7 +58,7 @@ export class AdvertisementService {
 
         let removeOnAlgolia = false;
 
-        const advertisement = await this.advertisementModel.findOne({ _id: advertisementId, accountId: authenticatedUser.accountId });
+        const advertisement = await this.advertisementRepository.findOne(advertisementId, authenticatedUser.accountId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         const update: any = { 
@@ -73,13 +71,7 @@ export class AdvertisementService {
             removeOnAlgolia = true;
         }
 
-        const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate({ 
-            accountId: authenticatedUser.accountId,
-            _id: advertisementId
-        },
-        update,
-        { new: true }
-        ).exec();
+        const updatedAdvertisement = await this.advertisementRepository.findOneAndUpdate(advertisementId, authenticatedUser.accountId, update);
 
         if (removeOnAlgolia) await this.algoliaService.delete(updatedAdvertisement._id.toString());
 
@@ -90,13 +82,7 @@ export class AdvertisementService {
     async bulk(): Promise<void> {
         let lastUpdatedAt = (await this.bulkUpdateDateService.get())?.updatedAt || new Date(0);
         
-        const advertisements = await this.advertisementModel.find({
-            status: AdvertisementStatus.ACTIVE,
-            updatedAt: { $gt: lastUpdatedAt },
-         })
-        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
-        .lean()
-        .exec();
+        const advertisements = await this.advertisementRepository.findForBulk(lastUpdatedAt);
 
         if (advertisements.length > 0) {
             await this.algoliaService.bulk(advertisements);
@@ -130,7 +116,7 @@ export class AdvertisementService {
                 break;
         }
 
-        const advertisements = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').sort(orderBy).exec();
+        const advertisements = await this.advertisementRepository.findForActives(advertisementIds, orderBy);
 
         advertisements.sort(() => Math.random() - 0.5);
 
@@ -138,7 +124,7 @@ export class AdvertisementService {
     }
 
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').exec();
+        return this.advertisementRepository.getAllByAccountId(accountId);
     }
 
     async getByAccountIdAndId(authenticatedUser: AuthenticatedUser,advertisementId: string): Promise<Advertisement> {
@@ -147,28 +133,28 @@ export class AdvertisementService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const advertisement = await this.advertisementModel.findOne(filter).populate('amenities').exec();
+        const advertisement = await this.advertisementRepository.getByAccountIdAndId(filter);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
     }
 
     async get(advertisementId: string): Promise<Advertisement> {
-        const advertisement = await this.advertisementModel.findById(advertisementId).populate('amenities').exec();
+        const advertisement = await this.advertisementRepository.get(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
     }
 
     async getActive(advertisementId: string): Promise<Advertisement> {
-        const advertisement = await this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').exec();
+        const advertisement = await this.advertisementRepository.getActive(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;
     }
 
     async getAllToApprove(): Promise<Advertisement[]> {
-        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').sort({ updatedAt: -1 }).exec();
+        return this.advertisementRepository.getAllToApprove();
     }
 
     async updateStatus(
@@ -188,16 +174,7 @@ export class AdvertisementService {
             approvingUserId = authenticatedUser.userId;
         }
 
-        const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate(
-            filter,
-            { 
-                updatedUserId: authenticatedUser.userId,
-                ...updateStatusAdvertisementDto,
-                publishedAt,
-                approvingUserId,
-            },
-            { new: true }
-        ).exec();
+        const updatedAdvertisement = await this.advertisementRepository.findForUpdateStatus(authenticatedUser.userId, filter, updateStatusAdvertisementDto, publishedAt, approvingUserId);
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
@@ -205,7 +182,7 @@ export class AdvertisementService {
             await this.algoliaService.delete(advertisementId);
         }
 
-        return { id: updatedAdvertisement._id.toString() };
+        return { id: updatedAdvertisement.id };
     }
 
     async updateStatusAll(
@@ -233,11 +210,7 @@ export class AdvertisementService {
             approvingUserId,
           };
 
-        const updatedAdvertisement = await this.advertisementModel.updateMany(
-            filter,
-            update,
-            { new: true }
-        ).exec();
+        const updatedAdvertisement = await this.advertisementRepository.updateStatusAll(filter, update);
 
         if (updatedAdvertisement.upsertedCount === 0 && updatedAdvertisement.modifiedCount === 0 && updatedAdvertisement.matchedCount === 0) throw new Error('notfound.advertisement.do.not.exists');
 
@@ -278,7 +251,7 @@ export class AdvertisementService {
     }
 
     async processImages(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
-        const advertisement = await this.advertisementModel.findById(advertisementId);
+        const advertisement = await this.advertisementRepository.findById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
         const photos = advertisement.photos;
         const newPhotos: AdvertisementPhoto[] = [];
@@ -332,14 +305,7 @@ export class AdvertisementService {
 
         });
 
-        const updatedAdvertisement = await this.advertisementModel.findOneAndUpdate(
-            { accountId, _id: advertisementId },
-            { 
-                photos: newPhotos,
-                status: AdvertisementStatus.WAITING_FOR_APPROVAL,
-             },
-            { new: true }
-        ).exec();
+        const updatedAdvertisement = await this.advertisementRepository.updateProcessPhotos(accountId, advertisementId, newPhotos);
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
@@ -359,11 +325,7 @@ export class AdvertisementService {
 
         const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
 
-        await this.advertisementModel.findOneAndUpdate(
-            { accountId: authenticatedUser.accountId, _id: advertisementId },
-            { photos: newPhotos },
-            { new: true }
-        ).exec();
+        await this.advertisementRepository.updateForDeletePhotos(authenticatedUser.accountId, advertisementId, newPhotos);
 
         photosToRemove.forEach(async (a) => {
             await this.imageUploadService.deleteImage(this.getPublicIdFromImageUrl(a.url));
@@ -378,9 +340,9 @@ export class AdvertisementService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const advertisements = await this.advertisementModel.find(filter).exec();
+        const advertisements = await this.advertisementRepository.find(filter);
 
-        await this.advertisementModel.deleteMany(filter).exec();
+        await this.advertisementRepository.deleteMany(filter);
 
         advertisements.forEach(async (a) => await this.algoliaService.delete(a._id.toString()));
 
@@ -399,51 +361,13 @@ export class AdvertisementService {
     }
 
     async getAdvertisementRegistrations(period: 'week' | 'month'): Promise<any[]> {
-        let groupId: any;
-        if (period === 'week') {
-          groupId = {
-            year: { $year: '$createdAt' },
-            week: { $week: '$createdAt' },
-          };
-        } else {
-          groupId = {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' },
-          };
-        }
-    
-        const advertisements = await this.advertisementModel.aggregate([
-          {
-            $group: {
-              _id: groupId,
-              count: { $sum: 1 }
-            }
-          },
-          {
-            $sort: {
-              '_id.year': 1,
-              ...(period === 'week' ? { '_id.week': 1 } : { '_id.month': 1 })
-            }
-          }
-        ]);
-    
-        return advertisements;
+        return this.advertisementRepository.getAdvertisementRegistrations(period);
     }
 
     async findSimilarDocuments(query: string) {
         const embedding = await this.openAiService.getEmbedding(query);
     
-        return this.advertisementModel.aggregate([
-            {
-                "$vectorSearch": {
-                "queryVector": embedding,
-                "path": "plot_embedding",
-                "numCandidates": 100,
-                "limit": 5,
-                "index": "advertisements_vector_index",
-                }
-            }
-            ]).exec();
+        return this.advertisementRepository.findSimilarDocuments(embedding);
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {

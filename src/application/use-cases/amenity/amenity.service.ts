@@ -1,17 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { IAmenityRepository } from 'src/application/interfaces/repositories/amenity.repository.interface';
 import { Amenity } from 'src/domain/entities/amenity.interface';
 
 @Injectable()
 export class AmenityService {
     constructor(
-        private configService: ConfigService,
-        @InjectModel('Amenity') private readonly amenityModel: Model<Amenity>,
+        private readonly amenityRepository: IAmenityRepository,
     ) {}
 
     async getAll(): Promise<Amenity[]> {
-        return this.amenityModel.find().sort({ name: 1 }).exec();
+        return this.amenityRepository.getAll();
     }
 }

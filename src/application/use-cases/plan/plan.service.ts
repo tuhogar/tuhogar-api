@@ -4,24 +4,24 @@ import { Plan } from 'src/domain/entities/plan.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreatePlanDto } from 'src/infraestructure/http/dtos/plan/create-plan.dto';
+import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 
 @Injectable()
 export class PlanService {
 
     constructor(
-        @InjectModel('Plan') private readonly planModel: Model<Plan>,
-
+        private readonly planyRepository: IPlanRepository,
     ) {}
 
     async getAll(): Promise<Plan[]> {
-        return this.planModel.find();
+        return this.planyRepository.getAll();
     }
 
     async getById(id: string): Promise<Plan> {
-        return this.planModel.findOne({ _id: id });
+        return this.planyRepository.getById(id);
     }
 
     async create(createPlanDto: CreatePlanDto): Promise<void> {
-        await this.planModel.create(createPlanDto);
+        await this.planyRepository.create(createPlanDto);
     }
 }

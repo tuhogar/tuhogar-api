@@ -17,7 +17,6 @@ import { AdvertisementService } from "src/application/use-cases/advertisement/ad
 import { AdvertisementController } from "./controllers/advertisement-controller";
 import { AmenityService } from "src/application/use-cases/amenity/amenity.service";
 import { BulkUpdateDateService } from "src/application/use-cases/bulk-update-date/bulk-update-date.service";
-import { PayUService } from "src/application/use-cases/payu/payu.service";
 import { PlanService } from "src/application/use-cases/plan/plan.service";
 import { CloudinaryModule } from "../cloudinary/cloudinary.module";
 import { OpenAiModule } from "../open-ai/open-ai.module";
@@ -38,7 +37,6 @@ import { FirebaseAdmin } from "../config/firebase.config";
         AdvertisementService,
         AmenityService,
         BulkUpdateDateService,
-        PayUService,
         PlanService,
         UserService,
         IsExistingAdvertisementReasonConstraint,

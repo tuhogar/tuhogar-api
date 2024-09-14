@@ -2,25 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { IBulkUpdateDateRepository } from 'src/application/interfaces/repositories/bulk-update-date.repository.interface';
 import { BulkUpdateDate } from 'src/domain/entities/bulk-update-date.interface';
 
 @Injectable()
 export class BulkUpdateDateService {
     constructor(
-        private configService: ConfigService,
-        @InjectModel('BulkUpdateDate') private readonly bulkUpdateDateModel: Model<BulkUpdateDate>,
+        private readonly bulkUpdateDateRepository: IBulkUpdateDateRepository,
     ) {
     }
 
     async update(updatedAt: Date): Promise<void> {
-        await this.bulkUpdateDateModel.findOneAndUpdate(
-            {},
-            { updatedAt },
-            { new: true, upsert: true }
-          ).exec();
+        await this.bulkUpdateDateRepository.update(updatedAt);
     }
 
     async get(): Promise<BulkUpdateDate> {
-        return this.bulkUpdateDateModel.findOne();
+        return this.bulkUpdateDateRepository.get();
     }
 }

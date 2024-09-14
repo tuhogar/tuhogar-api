@@ -11,7 +11,6 @@ import { Advertisement } from 'src/domain/entities/advertisement.interface';
 import { UploadImageAccountDto } from 'src/infraestructure/http/dtos/account/upload-image-account.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { PatchAccountDto } from 'src/infraestructure/http/dtos/account/patch-account.dto';
-import { PayUService } from 'src/application/use-cases/payu/payu.service';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 
 @Injectable()
@@ -21,7 +20,6 @@ export class AccountService {
     private readonly userService: UserService,
     private readonly advertisementService: AdvertisementService,
     private readonly cloudinaryService: CloudinaryService,
-    private readonly payUService: PayUService,
   ) {}
 
   async getAll(): Promise<Account[]> {
@@ -142,9 +140,5 @@ export class AccountService {
   private getPublicIdFromImageUrl(imageUrl: string): string {
     const split = imageUrl.split('/');
     return `${split[split.length-2]}/${split[split.length-1].split('.')[0]  }`;
-  }
-
-  async subscription(body: any): Promise<void> {
-    await this.payUService.subscription(body);
   }
 }

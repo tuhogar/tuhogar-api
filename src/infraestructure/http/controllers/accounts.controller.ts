@@ -38,13 +38,6 @@ export class AccountController {
     return this.accountService.getAccountRegistrations(period);
   }
 
-  @Post('subscription')
-  async subscription(
-    @Body() body: any,
-  ): Promise<void> {
-    await this.accountService.subscription(body);
-  }
-
   @ApiBearerAuth()
   @Get(':accountid')
   async get(@Param('accountid') accountId: string): Promise<Account> {

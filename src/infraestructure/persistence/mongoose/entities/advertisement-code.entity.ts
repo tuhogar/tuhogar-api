@@ -5,8 +5,8 @@ import * as mongoose from 'mongoose';
 export class AdvertisementCode {
     _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop()
-    code: { type: Number, required: true };
+    @Prop({ type: Number, required: true })
+    code: number;
 }
 
 const AdvertisementCodeSchema = SchemaFactory.createForClass(AdvertisementCode);
