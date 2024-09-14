@@ -10,6 +10,10 @@ export class MongooseAdvertisementReasonRepository implements IAdvertisementReas
         @InjectModel(AdvertisementReasonMongoose.name) private readonly advertisementReasonModel: Model<AdvertisementReasonMongoose>,
     ) {}
     
+    async findById(advertisementReasonId: string): Promise<any> {
+        return this.advertisementReasonModel.findById(advertisementReasonId).exec();
+    }
+    
     async getAll(): Promise<any[]> {
         return this.advertisementReasonModel.find().sort({ name: 1 }).exec();
     }

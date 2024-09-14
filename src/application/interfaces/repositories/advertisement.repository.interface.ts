@@ -24,4 +24,5 @@ export abstract class IAdvertisementRepository {
     abstract deleteMany(filter: any): Promise<void>
     abstract getAdvertisementRegistrations(period: 'week' | 'month'): Promise<any[]>
     abstract findSimilarDocuments(embedding: number[]): Promise<any[]>
+    abstract findAllWithReports(): Promise<Advertisement[]>
 }

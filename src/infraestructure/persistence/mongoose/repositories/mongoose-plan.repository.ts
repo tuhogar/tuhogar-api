@@ -14,8 +14,8 @@ export class MongoosePlanRepository implements IPlanRepository {
         return this.planModel.find();
     }
     
-    async getById(id: string): Promise<any> {
-        return this.planModel.findOne({ _id: id }).exec();
+    async getById(planId: string): Promise<any> {
+        return this.planModel.findById(planId).exec();
     }
     
     async create(createPlanDto: CreatePlanDto): Promise<void> {

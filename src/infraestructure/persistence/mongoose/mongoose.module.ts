@@ -26,6 +26,8 @@ import { IPlanRepository } from "src/application/interfaces/repositories/plan.re
 import { MongoosePlanRepository } from "./repositories/mongoose-plan.repository";
 import { IAdvertisementRepository } from "src/application/interfaces/repositories/advertisement.repository.interface";
 import { MongooseAdvertisementRepository } from "./repositories/mongoose-advertisement.repository";
+import { IUserRepository } from "src/application/interfaces/repositories/user.repository.interface";
+import { MongooseUserRepository } from "./repositories/mongoose-user.repository";
 
 @Module({
     imports: [
@@ -83,6 +85,10 @@ import { MongooseAdvertisementRepository } from "./repositories/mongoose-adverti
         provide: IPlanRepository,
         useClass: MongoosePlanRepository,
       },
+      {
+        provide: IUserRepository,
+        useClass: MongooseUserRepository,
+      },
     ],
     exports: [
       IAccountRepository,
@@ -93,6 +99,7 @@ import { MongooseAdvertisementRepository } from "./repositories/mongoose-adverti
       IAmenityRepository,
       IBulkUpdateDateRepository,
       IPlanRepository,
+      IUserRepository,
     ],
 })
 export class MongooseModule {}

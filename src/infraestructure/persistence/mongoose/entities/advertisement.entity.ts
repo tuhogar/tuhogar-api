@@ -68,6 +68,9 @@ export class Advertisement {
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
     amenities: [mongoose.Schema.Types.ObjectId];
 
+    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
+    communityAmenities: [mongoose.Schema.Types.ObjectId];
+
     @Prop()
     hoaFee: number;
 
@@ -109,6 +112,12 @@ export class Advertisement {
 
     @Prop()
     publishedAt: Date;
+
+    @Prop()
+    isVacant: Boolean;
+
+    @Prop()
+    vacancyDate: Date;
 }
 
 const AdvertisementSchema = SchemaFactory.createForClass(Advertisement);

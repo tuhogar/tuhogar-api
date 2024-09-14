@@ -8,8 +8,11 @@ export class SlugifyPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     if (typeof value === 'object' && value !== null) {
       if (value.address) {
-        value.address.stateSlug = slugify(value.address.state, { lower: true, strict: true });
-        value.address.citySlug = slugify(value.address.city, { lower: true, strict: true });
+        const adjustedState = value.address.state?.replace(/,|\.|D\.C\./g, '').trim();
+        const adjustedCity = value.address.city?.replace(/,|\.|D\.C\./g, '').trim();
+
+        value.address.stateSlug = adjustedState ? slugify(adjustedState, { lower: true, strict: true }) : undefined;
+        value.address.citySlug = adjustedCity ? slugify(adjustedCity, { lower: true, strict: true }) : undefined;
         value.address.neighbourhoodSlug = slugify(value.address.neighbourhood, { lower: true, strict: true });
       }
     }

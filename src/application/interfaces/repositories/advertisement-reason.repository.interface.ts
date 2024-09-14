@@ -6,4 +6,5 @@ export abstract class IAdvertisementReasonRepository {
     abstract create(createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<void>
     abstract delete(advertisementReasonId: string): Promise<void>
     abstract update(advertisementReasonId: string, createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto ): Promise<{ id: string }>
+    abstract findById(advertisementReasonId: string): Promise<AdvertisementReason>
 }

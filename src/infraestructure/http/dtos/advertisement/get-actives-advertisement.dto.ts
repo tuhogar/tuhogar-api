@@ -77,6 +77,14 @@ export class GetActivesAdvertisementDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsArray({ message: 'communityAmenity.must.be.an.array' })
+    @Type(() => String)
+    @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+    @AmenityIsExistingId({ each: true })
+    communityAmenity: string[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsNotEmpty({ message: 'address.country.should.not.be.empty' })
     @IsString({ message: 'invalid.address.country.must.be.a.string' })
     country: string;

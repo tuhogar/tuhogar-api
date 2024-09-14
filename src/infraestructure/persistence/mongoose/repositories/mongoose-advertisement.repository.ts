@@ -42,35 +42,35 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
             status: AdvertisementStatus.ACTIVE,
             updatedAt: { $gt: lastUpdatedAt },
          })
-        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
+        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities communityAmenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
         .lean()
         .exec();
     }
     
     
     async findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<any[]> {
-        return this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').sort(orderBy).exec()
+        return this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').populate('communityAmenities').sort(orderBy).exec()
     }
     
     
     async getAllByAccountId(accountId: string): Promise<any[]> {
-        return this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').exec();
+        return this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
     }
     
     async getByAccountIdAndId(filter: any): Promise<any> {
-        return this.advertisementModel.findOne(filter).populate('amenities').exec();
+        return this.advertisementModel.findOne(filter).populate('amenities').populate('communityAmenities').exec();
     }
     
     async get(advertisementId: string): Promise<any> {
-        return this.advertisementModel.findById(advertisementId).populate('amenities').exec()
+        return this.advertisementModel.findById(advertisementId).populate('amenities').populate('communityAmenities').exec()
     }
     
     async getActive(advertisementId: string): Promise<any> {
-        return this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').exec();
+        return this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').populate('communityAmenities').exec();
     }
     
     async getAllToApprove(): Promise<any[]> {
-        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').sort({ updatedAt: -1 }).exec();
+        return this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').populate('communityAmenities').sort({ updatedAt: -1 }).exec();
     }
     
     async findForUpdateStatus(userId: string, filter: any, updateStatusAdvertisementDto: UpdateStatusAdvertisementDto, publishedAt: any = undefined, approvingUserId: any = undefined): Promise<any> {
@@ -169,5 +169,24 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
                 }
             }
             ]).exec();
+    }
+
+    async findAllWithReports(): Promise<Advertisement[]> {
+        return this.advertisementModel.aggregate([
+            {
+              $lookup: {
+                from: 'advertisement-reports',
+                localField: '_id',
+                foreignField: 'advertisementId',
+                as: 'advertisementReports',
+              },
+            },
+            {
+              $match: { 'advertisementReports': { $ne: [] } },
+            },
+            {
+              $sort: { 'advertisementReports._id': -1 },
+            },
+          ]).exec();
     }
 }

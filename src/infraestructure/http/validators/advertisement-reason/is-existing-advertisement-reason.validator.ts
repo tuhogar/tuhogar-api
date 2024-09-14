@@ -3,14 +3,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AdvertisementReason } from 'src/domain/entities/advertisement-reason.interface';
+import { IAdvertisementReasonRepository } from 'src/application/interfaces/repositories/advertisement-reason.repository.interface';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class IsExistingAdvertisementReasonConstraint implements ValidatorConstraintInterface {
-  constructor(@InjectModel('AdvertisementReason') private readonly advertisementReasonModel: Model<AdvertisementReason>) {}
+  constructor(private readonly advertisementReasonRepository: IAdvertisementReasonRepository,) {}
 
   async validate(advertisementReasonId: string): Promise<boolean> {
-    const advertisementReason = await this.advertisementReasonModel.findById(advertisementReasonId).exec();
+    const advertisementReason = await this.advertisementReasonRepository.findById(advertisementReasonId);
     return !!advertisementReason;
   }
 

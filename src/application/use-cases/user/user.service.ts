@@ -1,8 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import axios from 'axios';
-import * as fs from 'fs';
 import { User, UserRole, UserStatus } from 'src/domain/entities/user.interface';
 import { FirebaseAdmin } from 'src/infraestructure/config/firebase.config';
 import { ConfigService } from '@nestjs/config';
@@ -13,18 +10,17 @@ import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interf
 import { UpdateStatusUserDto } from 'src/infraestructure/http/dtos/user/update-status-user.dto';
 import { CreateUserMasterDto } from 'src/infraestructure/http/dtos/user/create-user-master.dto';
 import { Advertisement } from 'src/domain/entities/advertisement.interface';
+import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()
 export class UserService {
-    private imagesUrl: string;
     private firebaseApiKey: string;
 
     constructor(
         private configService: ConfigService,
         private readonly admin: FirebaseAdmin,
-        @InjectModel('User') private readonly userModel: Model<User>,
+        private readonly userRepository: IUserRepository,
     ) {
-        this.imagesUrl = this.configService.get<string>('IMAGES_URL');
         this.firebaseApiKey = this.configService.get<string>('FIREBASE_API_KEY');
     }
 
@@ -33,14 +29,7 @@ export class UserService {
         createUserDto: CreateUserDto,
         accountCreated: Account,
     ): Promise<void> {
-        const userCreated = new this.userModel({
-            ...createUserDto,
-            email: authenticatedUser.email,
-            uid: authenticatedUser.uid,
-            status: UserStatus.ACTIVE,
-            accountId: accountCreated.id,
-         });
-        await userCreated.save();
+        const userCreated = await this.userRepository.create(authenticatedUser, createUserDto, accountCreated);
         
         try {
             const app = this.admin.setup();
@@ -53,7 +42,7 @@ export class UserService {
                 userId: userCreated._id.toString(),
             });
         } catch(error) {
-            await this.userModel.deleteOne({ _id: userCreated._id.toString() }).exec();
+            await this.userRepository.deleteOne({ _id: userCreated._id.toString() });
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
 
@@ -90,11 +79,11 @@ export class UserService {
     async getAllByAccountId(accountId: string, userRole?: UserRole): Promise<User[]> {
         const filter = { accountId, ...(userRole && { userRole }) };
         
-        return this.userModel.find(filter).exec();
+        return this.userRepository.find(filter);
     }
 
     async getByUid(uid: string): Promise<User> {
-        const user = await this.userModel.findOne({ uid }).populate('accountId').exec();
+        const user = await this.userRepository.findOne({ uid });
         if (!user) throw new Error('notfound.user.do.not.exists');
 
         return user;
@@ -129,10 +118,7 @@ export class UserService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const updatedUser = await this.userModel.findOneAndUpdate(filter,
-            patchUserDto,
-            { new: true }
-        ).exec();
+        const updatedUser = await this.userRepository.patch(filter, patchUserDto);
 
         if (!updatedUser) throw new Error('notfound.user.do.not.exists');
     }
@@ -148,12 +134,7 @@ export class UserService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const updatingUser = await this.userModel.findOneAndUpdate(
-            filter,
-            { 
-                ...updateStatusUserDto,
-            },
-        ).exec();
+        const updatingUser = await this.userRepository.findOneAndUpdate(filter, { ...updateStatusUserDto });
 
         if (!updatingUser) throw new Error('notfound.user.do.not.exists');
 
@@ -171,12 +152,7 @@ export class UserService {
                 
             });
         } catch(error) {
-            await this.userModel.findOneAndUpdate(
-                filter,
-                { 
-                    status: updatingUser.status,
-                },
-            ).exec();
+            await this.userRepository.findOneAndUpdate(filter, { status: updatingUser.status });
 
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
@@ -198,10 +174,10 @@ export class UserService {
             ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
         };
 
-        const user = await this.userModel.findOne(filter).exec();
+        const user = await this.userRepository.findOne(filter);
         if (!user) throw new Error('notfound.user.do.not.exists');
 
-        await this.userModel.deleteOne(filter).exec();
+        await this.userRepository.deleteOne(filter);
 
         try {
             const app = this.admin.setup();
@@ -212,31 +188,20 @@ export class UserService {
     }
 
     async createFavorite(userId: string, advertisementId: string): Promise<void> {
-        const user = await this.userModel.findByIdAndUpdate(
-            userId,
-            { $addToSet: { advertisementFavorites: advertisementId } },
-            { new: true }
-          );
+        const user = await this.userRepository.findByIdAndUpdate(userId, { $addToSet: { advertisementFavorites: advertisementId } });
       
           if (!user) throw new Error('notfound.user.do.not.exists');
     }
 
     async getFavorites(userId: string): Promise<Advertisement[]> {
-        const user = await this.userModel.findById(userId).populate({
-            path: 'advertisementFavorites',
-            populate: { path: 'amenities' },
-        }).exec();
+        const user = await this.userRepository.findById(userId);
         if (!user) throw new Error('notfound.user.do.not.exists');
 
         return user.advertisementFavorites as Advertisement[];
     }
 
     async deleteFavorite(userId: string, advertisementId: string): Promise<void> {
-        const user = await this.userModel.findByIdAndUpdate(
-          userId,
-          { $pull: { advertisementFavorites: advertisementId } },
-          { new: true }
-        );
+        const user = await this.userRepository.findByIdAndUpdate(userId, { $pull: { advertisementFavorites: advertisementId } });
     
         if (!user) {
             if (!user) throw new Error('notfound.user.do.not.exists');

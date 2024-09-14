@@ -22,6 +22,7 @@ import { CloudinaryModule } from "../cloudinary/cloudinary.module";
 import { OpenAiModule } from "../open-ai/open-ai.module";
 import { AlgoliaModule } from "../algolia/algolia.module";
 import { FirebaseAdmin } from "../config/firebase.config";
+import { UserController } from "./controllers/user.controller";
 
 @Module({
     imports: [
@@ -52,6 +53,7 @@ import { FirebaseAdmin } from "../config/firebase.config";
         AdvertisementController,
         AmenityController,
         PlanController,
+        UserController,
         ],
 })
 export class HttpModule {}

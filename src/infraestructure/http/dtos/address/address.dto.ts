@@ -40,21 +40,12 @@ export class AddressDto {
     @Property()
     street: string;
 
-    @Transform(({ obj }) => {
-      const adjusted = obj.state.replace(/,|\.|D\.C\./g, '').trim();
-      return slugify(adjusted, { lower: true, strict: true });
-    })
     @Property()
     stateSlug: string;
 
-    @Transform(({ obj }) => {
-        const adjusted = obj.city.replace(/,|\.|D\.C\./g, '').trim();
-        return slugify(adjusted, { lower: true, strict: true });
-      })
     @Property()
     citySlug: string;
 
-    @Transform(({ obj }) => slugify(obj.neighbourhood, { lower: true, strict: true }))
     @Property()
     neighbourhoodSlug: string;
 

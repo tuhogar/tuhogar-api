@@ -38,7 +38,6 @@ export class CreateAccountDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsString({ message: 'invalid.documentNumber.must.be.a.string' })
-    @IsNotEmpty({ message: 'invalid.documentNumber.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.documentNumber.must.be.shorter.than.or.equal.to.30.characters' })
     @Property()
     documentNumber: string;

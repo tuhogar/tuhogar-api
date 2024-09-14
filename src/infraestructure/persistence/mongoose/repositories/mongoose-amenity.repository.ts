@@ -12,4 +12,8 @@ export class MongooseAmenityRepository implements IAmenityRepository {
     async getAll(): Promise<any[]> {
         return this.amenityModel.find().sort({ name: 1 }).exec();
     }
+
+    async findById(amenityId: string): Promise<any> {
+        return this.amenityModel.findById(amenityId).exec();
+    }
 }
