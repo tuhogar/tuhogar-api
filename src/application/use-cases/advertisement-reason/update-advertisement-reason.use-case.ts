@@ -16,7 +16,7 @@ export class UpdateAdvertisementReasonUseCase {
         createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto,
     ): Promise<{ id: string }> {
 
-        const updatedAdvertisementReason = await this.advertisementReasonRepository.update(advertisementReasonId, createUpdateAdvertisementReasonDto);
+        const updatedAdvertisementReason = await this.advertisementReasonRepository.findOneAndUpdate(advertisementReasonId, createUpdateAdvertisementReasonDto);
 
         if (!updatedAdvertisementReason) throw new Error('notfound.advertisement.do.not.exists');
 

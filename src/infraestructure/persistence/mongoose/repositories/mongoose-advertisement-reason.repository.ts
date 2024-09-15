@@ -14,7 +14,7 @@ export class MongooseAdvertisementReasonRepository implements IAdvertisementReas
         return this.advertisementReasonModel.findById(advertisementReasonId).exec();
     }
     
-    async getAll(): Promise<any[]> {
+    async find(): Promise<any[]> {
         return this.advertisementReasonModel.find().sort({ name: 1 }).exec();
     }
     
@@ -22,11 +22,11 @@ export class MongooseAdvertisementReasonRepository implements IAdvertisementReas
         await this.advertisementReasonModel.create(createUpdateAdvertisementReasonDto);
     }
     
-    async delete(advertisementReasonId: string): Promise<void> {
+    async deleteOne(advertisementReasonId: string): Promise<void> {
         await this.advertisementReasonModel.deleteOne({ _id: advertisementReasonId }).exec();
     }
     
-    async update(advertisementReasonId: string, createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<any> {
+    async findOneAndUpdate(advertisementReasonId: string, createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<any> {
         return await this.advertisementReasonModel.findOneAndUpdate({ 
             _id: advertisementReasonId
         },

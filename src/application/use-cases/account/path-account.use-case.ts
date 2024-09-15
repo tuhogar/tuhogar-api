@@ -16,7 +16,7 @@ export class PathAccountUseCase {
         ...(authenticatedUser.userRole !== UserRole.MASTER && { _id: authenticatedUser.accountId })
     };
 
-    const updatedAccount = await this.accountRepository.patch(filter, patchAccountDto);
+    const updatedAccount = await this.accountRepository.findOneAndUpdate(filter, patchAccountDto, true);
 
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
   }

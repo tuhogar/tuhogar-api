@@ -39,32 +39,21 @@ export class MongooseUserRepository implements IUserRepository {
         return this.userModel.findOne(filter).populate('accountId').exec();
     }
     
-    async patch(filter: any, patchUserDto: PatchUserDto): Promise<any> {
-        return this.userModel.findOneAndUpdate(filter,
-            patchUserDto,
-            { new: true }
-        ).exec();
-    }
-    
-    async findOneAndUpdate(filter: any, data: any): Promise<any> {
+    async findOneAndUpdate(filter: any, data: any, returnNew: boolean = false): Promise<any> {
         return this.userModel.findOneAndUpdate(
             filter,
             data,
+            { new: returnNew }
         ).exec();
-    }
-    
-    async findByIdAndUpdate(userId: string, data: any): Promise<any> {
-        return this.userModel.findByIdAndUpdate(
-            userId,
-            data,
-            { new: true }
-          ).exec();
     }
     
     async findById(userId: string): Promise<any> {
         return this.userModel.findById(userId).populate({
             path: 'advertisementFavorites',
-            populate: { path: 'amenities' },
+            populate: [
+                { path: 'amenities' },
+                { path: 'communityAmenities' }
+            ],
         }).exec();
     }
 }

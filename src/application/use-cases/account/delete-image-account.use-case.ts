@@ -12,7 +12,10 @@ export class DeleteImageAccountUseCase {
   ) {}
 
   async execute(authenticatedUser: AuthenticatedUser): Promise<void> {
-    const updatedAccount = await this.accountRepository.findByIdAndUpdateForDeleteImage(authenticatedUser.accountId);
+    const updatedAccount = await this.accountRepository.findOneAndUpdate(
+      { accountId: authenticatedUser.accountId },
+      { $unset: { photo: '' } }
+    );
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
 
     await this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(updatedAccount.photo));

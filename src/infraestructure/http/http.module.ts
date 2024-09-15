@@ -45,7 +45,7 @@ import { FindInactivesAccountUseCase } from "src/application/use-cases/account/f
 import { GetAdvertisementsAccountUseCase } from "src/application/use-cases/account/get-advertisements-account.use-case";
 import { GetAllAccountUseCase } from "src/application/use-cases/account/get-all-account.use-case";
 import { GetByIdAccountUseCase } from "src/application/use-cases/account/get-by-id-account.use-case";
-import { GetRegistrationsAccountUseCase } from "src/application/use-cases/account/get-registrations-account.use-case";
+import { GetRegisteredAccountsUseCase } from "src/application/use-cases/account/get-registered-accounts.use-case";
 import { GetUsersAccountUseCase } from "src/application/use-cases/account/get-users-account.use-case";
 import { PathAccountUseCase } from "src/application/use-cases/account/path-account.use-case";
 import { ProcessImageAccountUseCase } from "src/application/use-cases/account/process-image-account.use-case";
@@ -61,12 +61,12 @@ import { GetAdvertisementUseCase } from "src/application/use-cases/advertisement
 import { GetAllByAccountIdAdvertisementUseCase } from "src/application/use-cases/advertisement/get-all-by-account-id-advertisement.use-case";
 import { GetAllToApproveAdvertisementUseCase } from "src/application/use-cases/advertisement/get-all-to-approve-advertisement.use-case";
 import { GetByAccountIdAndIdAdvertisementUseCase } from "src/application/use-cases/advertisement/get-by-account-id-and-id-advertisement.use-case";
-import { GetRegistrationsAdvertisementUseCase } from "src/application/use-cases/advertisement/get-registrations-advertisement.use-case";
 import { ProcesssImagesAdvertisementuseCase } from "src/application/use-cases/advertisement/process-images-advertisement.use-case";
 import { UpdateAdvertisementUseCase } from "src/application/use-cases/advertisement/update-advertisement.use-case";
 import { UpdateStatusAdvertisementUseCase } from "src/application/use-cases/advertisement/update-status-advertisement.use-case";
 import { UpdateStatusAllAdvertisementUseCase } from "src/application/use-cases/advertisement/update-status-all-advertisement.use-case";
 import { DeleteImagesAdvertisementUseCase } from "src/application/use-cases/advertisement/delete-images-advertisement.use-case";
+import { GetRegisteredAdvertisementsUseCase } from "src/application/use-cases/advertisement/get-registered-advertisements.use-case";
 
 @Module({
     imports: [
@@ -84,7 +84,7 @@ import { DeleteImagesAdvertisementUseCase } from "src/application/use-cases/adve
         GetAdvertisementsAccountUseCase,
         GetAllAccountUseCase,
         GetByIdAccountUseCase,
-        GetRegistrationsAccountUseCase,
+        GetRegisteredAccountsUseCase,
         GetUsersAccountUseCase,
         PathAccountUseCase,
         ProcessImageAccountUseCase,
@@ -109,7 +109,7 @@ import { DeleteImagesAdvertisementUseCase } from "src/application/use-cases/adve
         GetAllByAccountIdAdvertisementUseCase,
         GetAllToApproveAdvertisementUseCase,
         GetByAccountIdAndIdAdvertisementUseCase,
-        GetRegistrationsAdvertisementUseCase,
+        GetRegisteredAdvertisementsUseCase,
         ProcesssImagesAdvertisementuseCase,
         UpdateAdvertisementUseCase,
         UpdateStatusAdvertisementUseCase,

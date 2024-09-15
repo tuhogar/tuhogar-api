@@ -8,7 +8,7 @@ export class MongooseAdvertisementCodeRepository implements IAdvertisementCodeRe
         @InjectModel(AdvertisementCodeMongoose.name) private readonly advertisementCodeModel: Model<AdvertisementCodeMongoose>,
     ) {}
 
-    async generate(): Promise<number> {
+    async findOneAndUpdate(): Promise<number> {
         const result = await this.advertisementCodeModel.findOneAndUpdate(
             {},
             { $inc: { code: 1 } },

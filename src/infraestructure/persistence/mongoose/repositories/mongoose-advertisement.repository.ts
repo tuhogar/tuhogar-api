@@ -15,18 +15,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     constructor(
         @InjectModel(AdvertisementMongoose.name) private readonly advertisementModel: Model<AdvertisementMongoose>,
     ) {}
-    
-    async create(data: any): Promise<{ id: string; }> {
-        const advertisementCreated = new this.advertisementModel(data);
-        await advertisementCreated.save();
 
-        return { id: advertisementCreated._id.toString() };
-    }
-    
-    async findOne(advertisementId: string, accountId: string): Promise<any> {
-        this.advertisementModel.findOne({ _id: advertisementId, accountId })
-    }
-    
     async findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<any> {
         return this.advertisementModel.findOneAndUpdate({ 
             accountId,
@@ -51,7 +40,6 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     async findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<any[]> {
         return this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').populate('communityAmenities').sort(orderBy).exec()
     }
-    
     
     async getAllByAccountId(accountId: string): Promise<any[]> {
         return this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
@@ -94,10 +82,6 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         ).exec();
     }
     
-    async findById(advertisementId: string): Promise<Advertisement> {
-        return this.advertisementModel.findById(advertisementId);
-    }
-    
     async updateProcessPhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[]): Promise<any> {
         return this.advertisementModel.findOneAndUpdate(
             { accountId, _id: advertisementId },
@@ -117,15 +101,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         ).exec();
     }
     
-    async find(filter: any): Promise<any[]> {
-        return this.advertisementModel.find(filter).exec()
-    }
-    
-    async deleteMany(filter: any): Promise<void> {
-        await this.advertisementModel.deleteMany(filter).exec();
-    }
-    
-    async getAdvertisementRegistrations(period: "week" | "month"): Promise<any[]> {
+    async getRegisteredAdvertisements(period: "week" | "month"): Promise<any[]> {
         let groupId: any;
         if (period === 'week') {
           groupId = {
@@ -169,6 +145,30 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
                 }
             }
             ]).exec();
+    }
+
+
+    async deleteMany(filter: any): Promise<void> {
+        await this.advertisementModel.deleteMany(filter).exec();
+    }
+
+    async find(filter: any): Promise<any[]> {
+        return this.advertisementModel.find(filter).exec()
+    }
+
+    async findById(advertisementId: string): Promise<Advertisement> {
+        return this.advertisementModel.findById(advertisementId);
+    }
+
+    async findOne(advertisementId: string, accountId: string): Promise<any> {
+        this.advertisementModel.findOne({ _id: advertisementId, accountId })
+    }
+
+    async create(data: any): Promise<{ id: string; }> {
+        const advertisementCreated = new this.advertisementModel(data);
+        await advertisementCreated.save();
+
+        return { id: advertisementCreated._id.toString() };
     }
 
     async findAllWithReports(): Promise<Advertisement[]> {

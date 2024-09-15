@@ -18,7 +18,7 @@ export class UpdateStatusAccountUseCase {
   ): Promise<{ id: string }> {
     const filter = { _id: accountId };
 
-    const updatingAccount = await this.accountRepository.findOneAndUpdateForUpdateStatus(filter, { 
+    const updatingAccount = await this.accountRepository.findOneAndUpdate(filter, { 
       ...updateStatusAccountDto,
     });
     
@@ -27,7 +27,7 @@ export class UpdateStatusAccountUseCase {
     try {
         await this.updateAllStatusUserUseCase.execute(authenticatedUser, accountId,  updateStatusAccountDto.status);
     } catch(error) {
-        await this.accountRepository.findOneAndUpdateForUpdateStatus(
+        await this.accountRepository.findOneAndUpdate(
             filter,
             { 
                 status: updatingAccount.status,

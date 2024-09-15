@@ -10,6 +10,6 @@ export class GetBulkUpdateDateUseCase {
     }
 
     async execute(): Promise<BulkUpdateDate> {
-        return this.bulkUpdateDateRepository.get();
+        return this.bulkUpdateDateRepository.findOne();
     }
 }

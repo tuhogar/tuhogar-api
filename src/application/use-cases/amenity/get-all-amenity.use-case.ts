@@ -9,6 +9,6 @@ export class GetAllAmenityUseCase {
     ) {}
 
     async execute(): Promise<Amenity[]> {
-        return this.amenityRepository.getAll();
+        return this.amenityRepository.find();
     }
 }

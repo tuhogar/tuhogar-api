@@ -9,6 +9,6 @@ export class GetAllAccountUseCase {
   ) {}
 
   async execute(): Promise<Account[]> {
-    return this.accountRepository.getAll();
+    return this.accountRepository.find();
   }
 }

@@ -2,7 +2,7 @@ import { AdvertisementReport } from "src/domain/entities/advertisement-report.in
 import { CreateAdvertisementReportDto } from "src/infraestructure/http/dtos/advertisement-report/create-advertisement-report.dto";
 
 export abstract class IAdvertisementReportRepository {
-    abstract getByAdvertisementId(advertisementId: string): Promise<AdvertisementReport[]>
+    abstract find(advertisementId: string): Promise<AdvertisementReport[]>
     abstract create(createAdvertisementReportDto: CreateAdvertisementReportDto): Promise<{ id: string }>
-    abstract delete(advertisementReportId: string): Promise<void>
+    abstract deleteOne(advertisementReportId: string): Promise<void>
 }

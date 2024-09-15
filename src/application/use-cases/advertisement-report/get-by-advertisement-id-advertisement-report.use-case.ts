@@ -12,6 +12,6 @@ export class GetByAdvertisementIdAdvertisementReportUseCase {
     ) {}
 
     async execute(advertisementId: string): Promise<AdvertisementReport[]> {
-        return this.advertisementReportRepository.getByAdvertisementId(advertisementId);
+        return this.advertisementReportRepository.find(advertisementId);
     }
 }

@@ -17,7 +17,7 @@ import { FindInactivesAccountUseCase } from 'src/application/use-cases/account/f
 import { GetAdvertisementsAccountUseCase } from 'src/application/use-cases/account/get-advertisements-account.use-case';
 import { GetAllAccountUseCase } from 'src/application/use-cases/account/get-all-account.use-case';
 import { GetByIdAccountUseCase } from 'src/application/use-cases/account/get-by-id-account.use-case';
-import { GetRegistrationsAccountUseCase } from 'src/application/use-cases/account/get-registrations-account.use-case';
+import { GetRegisteredAccountsUseCase } from 'src/application/use-cases/account/get-registered-accounts.use-case';
 import { GetUsersAccountUseCase } from 'src/application/use-cases/account/get-users-account.use-case';
 import { PathAccountUseCase } from 'src/application/use-cases/account/path-account.use-case';
 import { ProcessImageAccountUseCase } from 'src/application/use-cases/account/process-image-account.use-case';
@@ -34,7 +34,7 @@ export class AccountController {
     private readonly getAdvertisementsAccountUseCase: GetAdvertisementsAccountUseCase,
     private readonly getAllAccountUseCase: GetAllAccountUseCase,
     private readonly getByIdAccountUseCase: GetByIdAccountUseCase,
-    private readonly getRegistrationsAccountUseCase: GetRegistrationsAccountUseCase,
+    private readonly getRegisteredAccountsUseCase: GetRegisteredAccountsUseCase,
     private readonly getUsersAccountUseCase: GetUsersAccountUseCase,
     private readonly pathAccountUseCase: PathAccountUseCase,
     private readonly processImageAccountUseCase: ProcessImageAccountUseCase,
@@ -70,7 +70,7 @@ export class AccountController {
   @Get('registrations')
   @Auth('MASTER')
   async getAccountRegistrations(@Query('period') period: 'week' | 'month'): Promise<any[]> {
-    return this.getRegistrationsAccountUseCase.execute(period);
+    return this.getRegisteredAccountsUseCase.execute(period);
   }
 
   @ApiBearerAuth()

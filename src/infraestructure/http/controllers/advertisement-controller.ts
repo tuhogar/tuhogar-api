@@ -20,7 +20,7 @@ import { GetActivesAdvertisementUseCase } from 'src/application/use-cases/advert
 import { GetAllByAccountIdAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-all-by-account-id-advertisement.use-case';
 import { GetAllToApproveAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-all-to-approve-advertisement.use-case';
 import { GetByAccountIdAndIdAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-by-account-id-and-id-advertisement.use-case';
-import { GetRegistrationsAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-registrations-advertisement.use-case';
+import { GetRegisteredAdvertisementsUseCase } from 'src/application/use-cases/advertisement/get-registered-advertisements.use-case';
 import { ProcesssImagesAdvertisementuseCase } from 'src/application/use-cases/advertisement/process-images-advertisement.use-case';
 import { UpdateAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-advertisement.use-case';
 import { UpdateStatusAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-status-advertisement.use-case';
@@ -43,7 +43,7 @@ export class AdvertisementController {
         private readonly getAllByAccountIdAdvertisementUseCase: GetAllByAccountIdAdvertisementUseCase,
         private readonly getAllToApproveAdvertisementUseCase: GetAllToApproveAdvertisementUseCase,
         private readonly getByAccountIdAndIdAdvertisementUseCase: GetByAccountIdAndIdAdvertisementUseCase,
-        private readonly getRegistrationsAdvertisementUseCase: GetRegistrationsAdvertisementUseCase,
+        private readonly getRegisteredAdvertisementsUseCase: GetRegisteredAdvertisementsUseCase,
         private readonly processsImagesAdvertisementuseCase: ProcesssImagesAdvertisementuseCase,
         private readonly updateAdvertisementUseCase: UpdateAdvertisementUseCase,
         private readonly updateStatusAdvertisementUseCase: UpdateStatusAdvertisementUseCase,
@@ -72,8 +72,8 @@ export class AdvertisementController {
     @ApiBearerAuth()
     @Get('registrations')
     @Auth('MASTER')
-    async getAdvertisementRegistrations(@Query('period') period: 'week' | 'month'): Promise<any[]> {
-        return this.getRegistrationsAdvertisementUseCase.execute(period);
+    async getRegisteredAdvertisements(@Query('period') period: 'week' | 'month'): Promise<any[]> {
+        return this.getRegisteredAdvertisementsUseCase.execute(period);
     }
 
     @ApiBearerAuth()

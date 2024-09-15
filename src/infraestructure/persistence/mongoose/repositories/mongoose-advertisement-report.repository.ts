@@ -10,7 +10,7 @@ export class MongooseAdvertisementReportRepository implements IAdvertisementRepo
         @InjectModel(AdvertisementReportMongoose.name) private readonly advertisementReportModel: Model<AdvertisementReportMongoose>,
     ) {}
     
-    async getByAdvertisementId(advertisementId: string): Promise<any[]> {
+    async find(advertisementId: string): Promise<any[]> {
         return this.advertisementReportModel.find({ advertisementId }).populate('advertisementReasonId').exec();
     }
     
@@ -21,7 +21,7 @@ export class MongooseAdvertisementReportRepository implements IAdvertisementRepo
         return { id: advertisementReportCreated._id.toString() };
     }
     
-    async delete(advertisementReportId: string): Promise<void> {
+    async deleteOne(advertisementReportId: string): Promise<void> {
         await this.advertisementReportModel.deleteOne({ _id: advertisementReportId }).exec();
     }
 }

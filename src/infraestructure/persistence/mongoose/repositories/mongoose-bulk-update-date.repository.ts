@@ -9,7 +9,7 @@ export class MongooseBulkUpdateDateRepository implements IBulkUpdateDateReposito
         @InjectModel(BulkUpdateDateMongoose.name) private readonly bulkUpdateDateModel: Model<BulkUpdateDateMongoose>,
     ) {}
     
-    async update(updatedAt: Date): Promise<void> {
+    async findOneAndUpdate(updatedAt: Date): Promise<void> {
         await this.bulkUpdateDateModel.findOneAndUpdate(
             {},
             { updatedAt },
@@ -17,7 +17,7 @@ export class MongooseBulkUpdateDateRepository implements IBulkUpdateDateReposito
           ).exec();
     }
     
-    async get(): Promise<any> {
+    async findOne(): Promise<any> {
         return this.bulkUpdateDateModel.findOne().exec();
     }
 }

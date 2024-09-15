@@ -9,6 +9,6 @@ export class GetByIdAccountUseCase {
   ) {}
 
   async execute(id: string): Promise<Account> {
-    return this.accountRepository.getById(id);
+    return this.accountRepository.findOne(id);
   }
 }

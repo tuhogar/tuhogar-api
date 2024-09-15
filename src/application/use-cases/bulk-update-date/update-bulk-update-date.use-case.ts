@@ -9,6 +9,6 @@ export class UpdateBulkUpdateDateUseCase {
     }
 
     async execute(updatedAt: Date): Promise<void> {
-        await this.bulkUpdateDateRepository.update(updatedAt);
+        await this.bulkUpdateDateRepository.findOneAndUpdate(updatedAt);
     }
 }

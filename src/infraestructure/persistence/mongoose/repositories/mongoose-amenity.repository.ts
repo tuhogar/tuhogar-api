@@ -9,7 +9,7 @@ export class MongooseAmenityRepository implements IAmenityRepository {
         @InjectModel(AmenityMongoose.name) private readonly amenityModel: Model<AmenityMongoose>,
     ) {}
     
-    async getAll(): Promise<any[]> {
+    async find(): Promise<any[]> {
         return this.amenityModel.find().sort({ name: 1 }).exec();
     }
 

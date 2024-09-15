@@ -22,7 +22,7 @@ export abstract class IAdvertisementRepository {
     abstract updateForDeletePhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[]): Promise<Advertisement>
     abstract find(filter: any): Promise<Advertisement[]>
     abstract deleteMany(filter: any): Promise<void>
-    abstract getAdvertisementRegistrations(period: 'week' | 'month'): Promise<any[]>
+    abstract getRegisteredAdvertisements(period: 'week' | 'month'): Promise<any[]>
     abstract findSimilarDocuments(embedding: number[]): Promise<any[]>
     abstract findAllWithReports(): Promise<Advertisement[]>
 }

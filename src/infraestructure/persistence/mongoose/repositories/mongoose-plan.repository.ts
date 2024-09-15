@@ -10,11 +10,11 @@ export class MongoosePlanRepository implements IPlanRepository {
         @InjectModel(PlanMongoose.name) private readonly planModel: Model<PlanMongoose>,
     ) {}
     
-    async getAll(): Promise<any[]> {
+    async find(): Promise<any[]> {
         return this.planModel.find();
     }
     
-    async getById(planId: string): Promise<any> {
+    async findById(planId: string): Promise<any> {
         return this.planModel.findById(planId).exec();
     }
     

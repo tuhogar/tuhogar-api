@@ -12,6 +12,6 @@ export class GetAllAdvertisementReasonUseCase {
     ) {}
 
     async execute(): Promise<AdvertisementReason[]> {
-        return this.advertisementReasonRepository.getAll();
+        return this.advertisementReasonRepository.find();
     }   
 }

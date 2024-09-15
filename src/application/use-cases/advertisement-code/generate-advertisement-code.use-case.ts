@@ -9,6 +9,6 @@ export class GenerateAdvertisementCodeUseCase {
     }
 
     async execute(): Promise<number> {
-        return this.advertisementCodeRepository.generate();
+        return this.advertisementCodeRepository.findOneAndUpdate();
     }
 }
