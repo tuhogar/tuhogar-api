@@ -3,12 +3,12 @@ import { IAmenityRepository } from 'src/application/interfaces/repositories/amen
 import { Amenity } from 'src/domain/entities/amenity.interface';
 
 @Injectable()
-export class AmenityService {
+export class GetAllAmenityUseCase {
     constructor(
         private readonly amenityRepository: IAmenityRepository,
     ) {}
 
-    async getAll(): Promise<Amenity[]> {
+    async execute(): Promise<Amenity[]> {
         return this.amenityRepository.getAll();
     }
 }

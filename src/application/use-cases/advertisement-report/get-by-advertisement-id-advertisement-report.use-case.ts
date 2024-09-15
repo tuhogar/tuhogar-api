@@ -6,22 +6,12 @@ import { AdvertisementReport } from 'src/domain/entities/advertisement-report.in
 import { CreateAdvertisementReportDto } from 'src/infraestructure/http/dtos/advertisement-report/create-advertisement-report.dto';
 
 @Injectable()
-export class AdvertisementReportService {
+export class GetByAdvertisementIdAdvertisementReportUseCase {
     constructor(
         private readonly advertisementReportRepository: IAdvertisementReportRepository,
     ) {}
 
-    async create(
-        createAdvertisementReportDto: CreateAdvertisementReportDto,
-    ): Promise<{ id: string }> {
-        return this.advertisementReportRepository.create(createAdvertisementReportDto);
-    }
-
-    async getByAdvertisementId(advertisementId: string): Promise<AdvertisementReport[]> {
+    async execute(advertisementId: string): Promise<AdvertisementReport[]> {
         return this.advertisementReportRepository.getByAdvertisementId(advertisementId);
-    }
-
-    async delete(advertisementReportId: string): Promise<void> {
-        await this.advertisementReportRepository.delete(advertisementReportId);
     }
 }

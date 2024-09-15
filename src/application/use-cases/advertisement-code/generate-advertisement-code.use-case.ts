@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { IAdvertisementCodeRepository } from 'src/application/interfaces/repositories/advertisement-code.repository.interface';
 
 @Injectable()
-export class AdvertisementCodeService {
+export class GenerateAdvertisementCodeUseCase {
     constructor(
         private readonly advertisementCodeRepository: IAdvertisementCodeRepository,
     ) {
     }
 
-    async generate(): Promise<number> {
+    async execute(): Promise<number> {
         return this.advertisementCodeRepository.generate();
     }
 }

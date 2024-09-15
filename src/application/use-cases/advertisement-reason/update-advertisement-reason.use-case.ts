@@ -6,24 +6,12 @@ import { AdvertisementReason } from 'src/domain/entities/advertisement-reason.in
 import { CreateUpdateAdvertisementReasonDto } from 'src/infraestructure/http/dtos/advertisement-reason/create-update-advertisement-reason.dto';
 
 @Injectable()
-export class AdvertisementReasonService {
+export class UpdateAdvertisementReasonUseCase {
     constructor(
         private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
     ) {}
 
-    async getAll(): Promise<AdvertisementReason[]> {
-        return this.advertisementReasonRepository.getAll();
-    }
-
-    async create(createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<void> {
-        await this.advertisementReasonRepository.create(createUpdateAdvertisementReasonDto);
-    }
-
-    async delete(advertisementReasonId: string): Promise<void> {
-        await this.advertisementReasonRepository.delete(advertisementReasonId);
-    }
-
-    async update(
+    async execute(
         advertisementReasonId: string,
         createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto,
     ): Promise<{ id: string }> {
@@ -34,5 +22,4 @@ export class AdvertisementReasonService {
 
         return { id: updatedAdvertisementReason.id };
     }
-    
 }

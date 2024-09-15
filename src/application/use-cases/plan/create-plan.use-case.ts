@@ -7,21 +7,13 @@ import { CreatePlanDto } from 'src/infraestructure/http/dtos/plan/create-plan.dt
 import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 
 @Injectable()
-export class PlanService {
+export class CreatePlanUseCase {
 
     constructor(
         private readonly planyRepository: IPlanRepository,
     ) {}
 
-    async getAll(): Promise<Plan[]> {
-        return this.planyRepository.getAll();
-    }
-
-    async getById(id: string): Promise<Plan> {
-        return this.planyRepository.getById(id);
-    }
-
-    async create(createPlanDto: CreatePlanDto): Promise<void> {
+    async execute(createPlanDto: CreatePlanDto): Promise<void> {
         await this.planyRepository.create(createPlanDto);
     }
 }
