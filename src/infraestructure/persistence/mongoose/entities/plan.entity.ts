@@ -6,13 +6,16 @@ export class Plan {
     _id: mongoose.Schema.Types.ObjectId;
 
     @Prop()
-    name: String;
+    name: string;
 
     @Prop()
-    description: String;
+    duration: number;
+
+    @Prop({ type: [String] })
+    items: string[];
 
     @Prop()
-    price: Number;
+    price: number;
 }
 
 const PlanSchema = SchemaFactory.createForClass(Plan);

@@ -36,11 +36,11 @@ export class MongooseAccountRepository implements IAccountRepository {
     }
     
     async findOneAndUpdate(filter: any, data: any, returnNew: boolean = false): Promise<any> { // async patch(filter: any, patchAccountDto: PatchAccountDto): Promise<Account> {
-        return this.accountModel.findOneAndUpdate(
-            filter,
-            data,
-            { new: returnNew }
-        ).exec();
+      return this.accountModel.findOneAndUpdate(
+          filter,
+          data,
+          { new: returnNew }
+      ).exec();
     }
     
     async findInactiveAccounts(): Promise<Account[]> {

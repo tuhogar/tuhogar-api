@@ -27,7 +27,7 @@ export class ProcessImageAccountUseCase {
     const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
    
     const updatedAccount = await this.accountRepository.findOneAndUpdate(
-        { accountId: authenticatedUser.accountId },
+        { _id: authenticatedUser.accountId },
         { photo: imageUrlStr },
         true);
 

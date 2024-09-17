@@ -1,8 +1,7 @@
-import { Plan } from "src/domain/entities/plan.interface";
-import { CreatePlanDto } from "src/infraestructure/http/dtos/plan/create-plan.dto";
+import { Plan } from "src/domain/entities/plan";
 
 export abstract class IPlanRepository {
     abstract find(): Promise<Plan[]>
     abstract findById(id: string): Promise<Plan>
-    abstract create(createPlanDto: CreatePlanDto): Promise<void>
+    abstract create(data: Plan): Promise<Plan>
 }

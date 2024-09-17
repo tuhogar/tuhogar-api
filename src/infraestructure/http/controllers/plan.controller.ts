@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Plan } from 'src/domain/entities/plan.interface';
+import { Plan } from 'src/domain/entities/plan';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { CreatePlanDto } from 'src/infraestructure/http/dtos/plan/create-plan.dto';
@@ -22,7 +22,10 @@ export class PlanController {
 
     @Post()
     @Auth('MASTER')
-    async create(@Body() createPlanDto: CreatePlanDto): Promise<void> {
-        await this.createPlanUseCase.execute(createPlanDto);
+    async create(@Body() createPlanDto: CreatePlanDto): Promise<{ _id: string }> {
+        const response = await this.createPlanUseCase.execute(createPlanDto);
+        if (!response) return null;
+
+        return { _id: response._id };
     }
 }

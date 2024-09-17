@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Plan } from 'src/domain/entities/plan.interface';
+import { Plan } from 'src/domain/entities/plan';
 import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 
 @Injectable()
