@@ -77,8 +77,6 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
     
-    
-    
     async findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<any[]> {
         return this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').populate('communityAmenities').sort(orderBy).exec()
     }
@@ -189,7 +187,6 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
             ]).exec();
     }
 
-
     async deleteMany(filter: any): Promise<void> {
         await this.advertisementModel.deleteMany(filter).exec();
     }
@@ -203,7 +200,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
 
     async findOne(advertisementId: string, accountId: string): Promise<any> {
-        this.advertisementModel.findOne({ _id: advertisementId, accountId })
+        return this.advertisementModel.findOne({ _id: advertisementId, accountId })
     }
 
     async create(data: any): Promise<{ id: string; }> {
