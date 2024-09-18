@@ -1,6 +1,6 @@
-import { Amenity } from "src/domain/entities/amenity.interface";
+import { Amenity } from "src/domain/entities/amenity";
 
 export abstract class IAmenityRepository {
     abstract find(): Promise<Amenity[]>
-    abstract findById(amenityId: string): Promise<Amenity>
+    abstract findById(id: string): Promise<Amenity>
 }

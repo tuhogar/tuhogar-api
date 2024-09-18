@@ -6,10 +6,10 @@ export class Amenity {
     _id: mongoose.Schema.Types.ObjectId;
 
     @Prop()
-    key: String;
+    key: string;
 
     @Prop()
-    name: String;
+    name: string;
 }
 
 const AmenitySchema = SchemaFactory.createForClass(Amenity);

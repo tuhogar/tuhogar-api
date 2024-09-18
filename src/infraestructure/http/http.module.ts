@@ -67,6 +67,7 @@ import { UpdateStatusAdvertisementUseCase } from "src/application/use-cases/adve
 import { UpdateStatusAllAdvertisementUseCase } from "src/application/use-cases/advertisement/update-status-all-advertisement.use-case";
 import { DeleteImagesAdvertisementUseCase } from "src/application/use-cases/advertisement/delete-images-advertisement.use-case";
 import { GetRegisteredAdvertisementsUseCase } from "src/application/use-cases/advertisement/get-registered-advertisements.use-case";
+import { GetByIdAmenityUseCase } from "src/application/use-cases/amenity/get-by-id-amenity.use-case";
 
 @Module({
     imports: [
@@ -115,6 +116,7 @@ import { GetRegisteredAdvertisementsUseCase } from "src/application/use-cases/ad
         UpdateStatusAdvertisementUseCase,
         UpdateStatusAllAdvertisementUseCase,
         GetAllAmenityUseCase,
+        GetByIdAmenityUseCase,
         UpdateBulkUpdateDateUseCase,
         GetBulkUpdateDateUseCase,
         CreateFavoriteUserUseCase,

@@ -1,6 +1,6 @@
 import { Date, Document } from 'mongoose';
 import { Address } from './address.interface';
-import { Amenity } from './amenity.interface';
+import { Amenity } from './amenity';
 
 export enum AdvertisementActivesOrderBy {
     HIGHEST_PRICE = 'highest_price',

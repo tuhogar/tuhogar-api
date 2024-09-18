@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Amenity } from 'src/domain/entities/amenity.interface';
+import { Amenity } from 'src/domain/entities/amenity';
 import { GetAllAmenityUseCase } from 'src/application/use-cases/amenity/get-all-amenity.use-case';
 
 @ApiTags('v1/amenities')
