@@ -19,6 +19,12 @@ export class BulkAdvertisementUseCase {
         let lastUpdatedAt = (await this.getBulkUpdateDateUseCase.execute())?.updatedAt || new Date(0);
         
         const advertisements = await this.advertisementRepository.findForBulk(lastUpdatedAt);
+        advertisements.forEach(advertisement => {
+            const { address } = advertisement;
+            if (!address?.latitude || !address?.longitude) {
+                delete advertisement._geoloc;
+            }
+        });
 
         if (advertisements.length > 0) {
             await this.algoliaService.bulk(advertisements);

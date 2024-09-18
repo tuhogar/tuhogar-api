@@ -3,6 +3,7 @@ import { Transform } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import slugify from "slugify";
 import { Property } from "src/infraestructure/decorators/property.decorator";
+import { AddressIsLatitudeLongitudeMandatory } from "../../validators/address/address-is-latitude-longitude-mandatory.validator";
 
 export class AddressDto {
     @ApiPropertyOptional()
@@ -50,12 +51,14 @@ export class AddressDto {
     neighbourhoodSlug: string;
 
     @ApiPropertyOptional()
+    @AddressIsLatitudeLongitudeMandatory()
     @IsOptional()
     @IsNumber({}, { message: 'invalid.latitude.must.be.a.number.conforming.to.the.specified.constraints' })
     @Property()
     latitude: number;
 
     @ApiPropertyOptional()
+    @AddressIsLatitudeLongitudeMandatory()
     @IsOptional()
     @IsNumber({}, { message: 'invalid.longitude.must.be.a.number.conforming.to.the.specified.constraints' })
     @Property()
