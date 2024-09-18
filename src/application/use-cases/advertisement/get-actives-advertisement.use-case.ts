@@ -35,7 +35,7 @@ export class GetActivesAdvertisementUseCase {
 
         const advertisements = await this.advertisementRepository.findForActives(advertisementIds, orderBy);
 
-        advertisements.sort(() => Math.random() - 0.5);
+        if (!orderBy) advertisements.sort(() => Math.random() - 0.5);
 
         return { data: advertisements, count };
     }
