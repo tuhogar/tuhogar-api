@@ -19,13 +19,15 @@ export class CreateAdvertisementUseCase {
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
     ): Promise<{ id: string }> {
         createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
+
+        const advertisementCode = await this.generateAdvertisementCodeuseCase.execute();
         
         const advertisementCreated = await this.advertisementRepository.create({
             accountId: authenticatedUser.accountId, 
             createdUserId: authenticatedUser.userId, 
             updatedUserId: authenticatedUser.userId, 
             status: AdvertisementStatus.WAITING_FOR_APPROVAL,
-            code: await this.generateAdvertisementCodeuseCase.execute(),
+            code: advertisementCode.code,
             ...createUpdateAdvertisementDto,
         });
 

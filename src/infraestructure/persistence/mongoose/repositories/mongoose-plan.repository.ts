@@ -11,18 +11,17 @@ export class MongoosePlanRepository implements IPlanRepository {
     ) {}
     
     async find(): Promise<Plan[]> {
-        const findQuery = await this.planModel.find();
-        return findQuery.map((item) => MongoosePlanMapper.toDomain(item));
+        const query = await this.planModel.find();
+        return query.map((item) => MongoosePlanMapper.toDomain(item));
     }
     
     async findById(planId: string): Promise<Plan> {
-        const findQuery = await this.planModel.findById(planId).exec();
+        const query = await this.planModel.findById(planId).exec();
 
-        return MongoosePlanMapper.toDomain(findQuery);
+        return MongoosePlanMapper.toDomain(query);
     }
     
     async create(plan: Plan): Promise<Plan> {
-
         const data = MongoosePlanMapper.toMongoose(plan);
         const entity = new this.planModel({ ...data });
         await entity.save();

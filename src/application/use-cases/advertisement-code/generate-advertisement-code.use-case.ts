@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IAdvertisementCodeRepository } from 'src/application/interfaces/repositories/advertisement-code.repository.interface';
+import { AdvertisementCode } from 'src/domain/entities/advertisement-code';
 
 @Injectable()
 export class GenerateAdvertisementCodeUseCase {
@@ -8,7 +9,8 @@ export class GenerateAdvertisementCodeUseCase {
     ) {
     }
 
-    async execute(): Promise<number> {
-        return this.advertisementCodeRepository.findOneAndUpdate();
+    async execute(): Promise<AdvertisementCode> {
+        const response = await this.advertisementCodeRepository.findOneAndUpdate();
+        return response;
     }
 }

@@ -1,6 +1,6 @@
-import { BulkUpdateDate } from "src/domain/entities/bulk-update-date.interface";
+import { BulkUpdateDate } from "src/domain/entities/bulk-update-date";
 
 export abstract class IBulkUpdateDateRepository {
-    abstract findOneAndUpdate(updatedAt: Date): Promise<void>
+    abstract findOneAndUpdate(bulkUpdateDate: BulkUpdateDate): Promise<BulkUpdateDate>
     abstract findOne(): Promise<BulkUpdateDate>
 }

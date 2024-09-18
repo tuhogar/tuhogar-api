@@ -5,6 +5,8 @@ import * as mongoose from 'mongoose';
 export class MongoosePlanMapper {
     
     static toDomain(entity: PlanDocument): Plan {
+        if (!entity) return null;
+        
         const model = new Plan({
             _id: (entity._id as unknown as mongoose.Types.ObjectId).toString(),
             name: entity.name,

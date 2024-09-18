@@ -29,10 +29,9 @@ export class BulkAdvertisementUseCase {
         if (advertisements.length > 0) {
             await this.algoliaService.bulk(advertisements);
             
-            const latestUpdatedAt = new Date(Math.max(...advertisements.map(a => new Date((a.updatedAt as unknown as string)).getTime())));
-            lastUpdatedAt = latestUpdatedAt;
+            const updatedAt = new Date(Math.max(...advertisements.map(a => new Date((a.updatedAt as unknown as string)).getTime())));
 
-            await this.updateBulkUpdateDateUseCase.execute(latestUpdatedAt);
+            await this.updateBulkUpdateDateUseCase.execute({ updatedAt });
         }
     }
 }
