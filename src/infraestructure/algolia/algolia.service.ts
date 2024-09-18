@@ -108,12 +108,17 @@ export class AlgoliaService {
 
         const query = searchText.join(' ');
 
-        const options = {
+        const options: any = {
           filters: filter,
           restrictSearchableAttributes: restrictSearchableAttributes.length > 0 ? restrictSearchableAttributes : undefined,
           attributesToRetrieve: [],
           attributesToHighlight: [],
         };
+
+        if (getActivesAdvertisementDto.latitude && getActivesAdvertisementDto.longitude && getActivesAdvertisementDto.radius) {
+          options.aroundLatLng = `${getActivesAdvertisementDto.latitude},${getActivesAdvertisementDto.longitude}`;
+          options.aroundRadius = getActivesAdvertisementDto.radius * 1000;
+        }
 
         if (getActivesAdvertisementDto.page) options['page'] = getActivesAdvertisementDto.page - 1;
         if (getActivesAdvertisementDto.limit) options['hitsPerPage'] = getActivesAdvertisementDto.limit;

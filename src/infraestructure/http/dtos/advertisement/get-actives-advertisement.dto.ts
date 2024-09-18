@@ -5,6 +5,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsGreaterThan } from "../../validators/advertisement/advertisement-is-greater-than.validator";
 import { TransformToBoolean } from "../../../decorators/transform-to-boolean.decorator";
 import { AmenityIsExistingId } from "src/infraestructure/http/validators/amenity/amenitiy-is-existing-id.validator";
+import { AddressIsLatitudeLongitudeRadiusMandatory } from "../../validators/address/address-is-latitude-longitude-radius-mandatory.validator";
 
 export class GetActivesAdvertisementDto {
     @ApiPropertyOptional()
@@ -366,6 +367,25 @@ export class GetActivesAdvertisementDto {
     @Type(() => Number)
     @IsGreaterThan('propertyTaxMin', { message: 'invalid.propertyTaxMax.must.be.greater.than.or.equal.to.propertyTaxMin' })
     propertyTaxMax: number = 0;
+
+    @ApiPropertyOptional()
+    @AddressIsLatitudeLongitudeRadiusMandatory()
+    @IsOptional()
+    @Type(() => Number)
+    latitude: number;
+
+    @ApiPropertyOptional()
+    @AddressIsLatitudeLongitudeRadiusMandatory()
+    @IsOptional()
+    @Type(() => Number)
+    longitude: number;
+
+    @ApiPropertyOptional()
+    @AddressIsLatitudeLongitudeRadiusMandatory()
+    @IsOptional()
+    @Type(() => Number)
+    @Min(1, { message: 'radius.must.not.be.less.than.1' })
+    radius: number;
 
     @ApiPropertyOptional()
     @IsOptional()

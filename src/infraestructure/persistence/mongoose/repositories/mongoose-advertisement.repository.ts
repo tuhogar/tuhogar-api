@@ -27,14 +27,56 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
     
     async findForBulk(lastUpdatedAt: Date): Promise<any[]> {
-        return this.advertisementModel.find({
-            status: AdvertisementStatus.ACTIVE,
-            updatedAt: { $gt: lastUpdatedAt },
-         })
-        .select('code accountId transactionType type constructionType allContentsIncluded isResidentialComplex isPenthouse bedsCount bathsCount parkingCount floorsCount constructionYear socioEconomicLevel isHoaIncluded amenities communityAmenities hoaFee lotArea floorArea price pricePerFloorArea pricePerLotArea propertyTax address updatedAt')
-        .lean()
+        return this.advertisementModel.aggregate([
+            {
+                $match: {
+                    status: AdvertisementStatus.ACTIVE,
+                    updatedAt: { $gt: lastUpdatedAt }
+                }
+            },
+            {
+                $addFields: {
+                    _geoloc: {
+                        lat: "$address.latitude",
+                        lng: "$address.longitude"
+                    }
+                }
+            },
+            {
+                $project: {
+                    code: 1,
+                    accountId: 1,
+                    transactionType: 1,
+                    type: 1,
+                    constructionType: 1,
+                    allContentsIncluded: 1,
+                    isResidentialComplex: 1,
+                    isPenthouse: 1,
+                    bedsCount: 1,
+                    bathsCount: 1,
+                    parkingCount: 1,
+                    floorsCount: 1,
+                    constructionYear: 1,
+                    socioEconomicLevel: 1,
+                    isHoaIncluded: 1,
+                    amenities: 1,
+                    communityAmenities: 1,
+                    hoaFee: 1,
+                    lotArea: 1,
+                    floorArea: 1,
+                    price: 1,
+                    pricePerFloorArea: 1,
+                    pricePerLotArea: 1,
+                    propertyTax: 1,
+                    address: 1,
+                    updatedAt: 1,
+                    _geoloc: 1  // Incluímos o novo campo no retorno
+                }
+            }
+        ])
         .exec();
     }
+    
     
     
     async findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<any[]> {
