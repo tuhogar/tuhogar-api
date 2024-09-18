@@ -8,7 +8,7 @@ export abstract class IAdvertisementRepository {
     abstract create(data: any): Promise<{ id: string }>
     abstract findOne(advertisementId: string, accountId: string): Promise<Advertisement>
     abstract findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
-    abstract findForBulk(lastUpdatedAt: Date): Promise<Advertisement[]>
+    abstract findForBulk(lastUpdatedAt: Date): Promise<any[]>
     abstract findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<Advertisement[]>
     abstract getAllByAccountId(accountId: string): Promise<Advertisement[]>
     abstract getByAccountIdAndId(filter: any): Promise<Advertisement>
