@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserRole } from 'src/domain/entities/user.interface';
+import { UserRole } from 'src/domain/entities/user';
 import { FirebaseAdmin } from 'src/infraestructure/config/firebase.config';
 import { ConfigService } from '@nestjs/config';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class DeleteUserUseCase {
         const user = await this.userRepository.findOne(filter);
         if (!user) throw new Error('notfound.user.do.not.exists');
 
-        await this.userRepository.deleteOne(filter);
+        await this.userRepository.deleteOne(userId);
 
         try {
             const app = this.admin.setup();

@@ -4,7 +4,7 @@ import { CreateAdvertisementReasonUseCase } from 'src/application/use-cases/adve
 import { DeleteAdvertisementReasonUseCase } from 'src/application/use-cases/advertisement-reason/delete-advertisement-reason.use-case';
 import { GetAllAdvertisementReasonUseCase } from 'src/application/use-cases/advertisement-reason/get-all-advertisement-reason.use-case';
 import { UpdateAdvertisementReasonUseCase } from 'src/application/use-cases/advertisement-reason/update-advertisement-reason.use-case';
-import { AdvertisementReason } from 'src/domain/entities/advertisement-reason.interface';
+import { AdvertisementReason } from 'src/domain/entities/advertisement-reason';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { CreateUpdateAdvertisementReasonDto } from 'src/infraestructure/http/dtos/advertisement-reason/create-update-advertisement-reason.dto';
 
@@ -20,29 +20,36 @@ export class AdvertisementReasonController {
 
     @Get()
     async getAll(): Promise<AdvertisementReason[]> {
-        return this.getAllAdvertisementReasonUseCase.execute();
+        const response = await this.getAllAdvertisementReasonUseCase.execute();
+        if (!response) return null;
+
+        return response;
     }
 
     @Post()
     @Auth('MASTER')
-    async create(@Body() createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<void> {
-        await this.createAdvertisementReasonUseCase.execute(createUpdateAdvertisementReasonDto);
+    async create(@Body() createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<AdvertisementReason> {
+        const response = await this.createAdvertisementReasonUseCase.execute(createUpdateAdvertisementReasonDto);
+        if (!response) return null;
+
+        return response;
     }
 
     @ApiBearerAuth()
     @Delete(':advertisementreasonid')
     @Auth('MASTER')
-    async delete(@Param('advertisementreasonid') advertisementReasonId: string): Promise<void> {
-        await this.deleteAdvertisementReasonUseCase.execute(advertisementReasonId);
+    async delete(@Param('advertisementreasonid') id: string): Promise<void> {
+        await this.deleteAdvertisementReasonUseCase.execute({ id });
     }
 
     @ApiBearerAuth()
     @Put(':advertisementreasonid')
     @Auth('MASTER')
-    async update(@Param('advertisementreasonid') advertisementReasonId: string, @Body() createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<{ id: string }> {
-        return await this.updateAdvertisementReasonUseCase.execute(
-            advertisementReasonId,
+    async update(@Param('advertisementreasonid') id: string, @Body() createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<AdvertisementReason> {
+        const response = await this.updateAdvertisementReasonUseCase.execute(
+            id,
             createUpdateAdvertisementReasonDto,
         );
+        return response;
     }
 }

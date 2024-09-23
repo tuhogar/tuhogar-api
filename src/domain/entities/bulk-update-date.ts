@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export class BulkUpdateDate {
-    _id?: string;
+    id?: string;
     updatedAt: Date;
 
     constructor(props: BulkUpdateDate) {

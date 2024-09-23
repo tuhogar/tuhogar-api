@@ -1,7 +1,7 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
 import { REQUEST_CONTEXT } from 'src/infraestructure/guards/auth.guard';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
-import { User, UserRole } from 'src/domain/entities/user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { User, UserRole } from 'src/domain/entities/user';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';

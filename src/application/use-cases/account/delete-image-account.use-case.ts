@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Account } from 'src/domain/entities/account.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { Account } from 'src/domain/entities/account';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 

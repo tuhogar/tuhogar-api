@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserRole } from 'src/domain/entities/user.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { UserRole } from 'src/domain/entities/user';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { CreateAccountDto } from 'src/infraestructure/http/dtos/account/create-account.dto';
 import { CreateUserDto } from 'src/infraestructure/http/dtos/user/create-user.dto';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';

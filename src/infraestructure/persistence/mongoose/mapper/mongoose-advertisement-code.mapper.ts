@@ -8,7 +8,7 @@ export class MongooseAdvertisementCodeMapper {
         if (!entity) return null;
         
         const model = new AdvertisementCode({
-            _id: (entity._id as unknown as mongoose.Types.ObjectId).toString(),
+            id: entity._id.toString(),
             code: entity.code,
         });
         return model;

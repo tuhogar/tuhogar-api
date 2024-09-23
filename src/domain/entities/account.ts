@@ -1,5 +1,5 @@
-import { Address } from 'cluster';
-import { SocialMedia } from './social-media.interface';
+import { Address } from './address';
+import { SocialMedia } from './social-media';
 
 export enum AccountStatus {
     ACTIVE = 'ACTIVE',
@@ -13,7 +13,7 @@ export enum AccountDocumentType {
 }
 
 export class Account {
-    id: string;
+    id?: string;
     planId: string;
     photo: string;
     name: string;

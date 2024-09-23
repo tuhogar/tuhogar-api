@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { UpdateStatusAccountDto } from 'src/infraestructure/http/dtos/account/update-status-account.dto';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 import { UpdateAllStatusUserUseCase } from '../user/update-all-status-user.use-case';

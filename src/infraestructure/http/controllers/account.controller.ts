@@ -1,13 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateAccountDto } from '../dtos/account/create-account.dto';
-import { Account } from 'src/domain/entities/account.interface';
+import { Account } from 'src/domain/entities/account';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { Authenticated } from '../../decorators/authenticated.decorator';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { UpdateStatusAccountDto } from '../dtos/account/update-status-account.dto';
-import { User } from 'src/domain/entities/user.interface';
-import { Advertisement } from 'src/domain/entities/advertisement.interface';
+import { User } from 'src/domain/entities/user';
+import { Advertisement } from 'src/domain/entities/advertisement';
 import { UploadImageAccountDto } from '../dtos/account/upload-image-account.dto';
 import { PatchAccountDto } from '../dtos/account/patch-account.dto';
 import { CreateAccountUseCase } from 'src/application/use-cases/account/create-account.use-case';

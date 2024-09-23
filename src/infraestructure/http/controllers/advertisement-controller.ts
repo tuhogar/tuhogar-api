@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Authenticated } from '../../decorators/authenticated.decorator';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { CreateUpdateAdvertisementDto } from '../dtos/advertisement/create-update-advertisement.dto';
-import { Advertisement } from '../../../domain/entities/advertisement.interface';
+import { Advertisement } from '../../../domain/entities/advertisement';
 import { UpdateStatusAdvertisementDto } from '../dtos/advertisement/update-status-advertisement.dto';
 import { GetActivesAdvertisementDto } from '../dtos/advertisement/get-actives-advertisement.dto';
 import { UploadImagesAdvertisementDto } from '../dtos/advertisement/upload-images-advertisement.dto';

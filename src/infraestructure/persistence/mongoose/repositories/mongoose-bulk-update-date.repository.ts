@@ -11,7 +11,7 @@ export class MongooseBulkUpdateDateRepository implements IBulkUpdateDateReposito
     ) {}
     
     async findOneAndUpdate(bulkUpdateDate: BulkUpdateDate): Promise<BulkUpdateDate> {
-        const data = MongooseBulkUpdateDateMapper.toMongoose(bulkUpdateDate)
+        const data = MongooseBulkUpdateDateMapper.toMongoose(bulkUpdateDate);
 
         const updated = await this.bulkUpdateDateModel.findOneAndUpdate(
             {},

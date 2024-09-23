@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AdvertisementStatus } from 'src/domain/entities/advertisement.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AdvertisementStatus } from 'src/domain/entities/advertisement';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { CreateUpdateAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto';
 import { plainToClass } from 'class-transformer';
 import { AddressDto } from 'src/infraestructure/http/dtos/address/address.dto';

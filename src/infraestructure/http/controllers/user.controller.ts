@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { Authenticated } from 'src/infraestructure/decorators/authenticated.decorator';
-import { User, UserRole } from 'src/domain/entities/user.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { User, UserRole } from 'src/domain/entities/user';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from 'src/infraestructure/http/dtos/user/login-dto';
 import { PatchUserDto } from 'src/infraestructure/http/dtos/user/patch-user.dto';
@@ -69,8 +69,9 @@ export class UserController {
     @ApiBearerAuth()
     @Post('favorites')
     @Auth('ADMIN', 'USER')
-    async createFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createFavoriteAdvertisementDto: CreateFavoriteAdvertisementDto): Promise<void> {
-        await this.createFavoriteUserUseCase.execute(authenticatedUser.userId, createFavoriteAdvertisementDto.id);
+    async createFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createFavoriteAdvertisementDto: CreateFavoriteAdvertisementDto): Promise<User> {
+        const response = await this.createFavoriteUserUseCase.execute(authenticatedUser.userId, createFavoriteAdvertisementDto.id);
+        return response;
     }
 
     @ApiBearerAuth()

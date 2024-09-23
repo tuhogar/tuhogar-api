@@ -2,26 +2,28 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { AdvertisementReport as AdvertisementReportMongoose } from "../entities/advertisement-report.entity"
 import { IAdvertisementReportRepository } from "src/application/interfaces/repositories/advertisement-report.repository.interface";
-import { AdvertisementReport } from "src/domain/entities/advertisement-report.interface";
-import { CreateAdvertisementReportDto } from "src/infraestructure/http/dtos/advertisement-report/create-advertisement-report.dto";
+import { AdvertisementReport } from "src/domain/entities/advertisement-report";
+import { MongooseAdvertisementReportMapper } from "../mapper/mongoose-advertisement-report.mapper";
 
 export class MongooseAdvertisementReportRepository implements IAdvertisementReportRepository {
     constructor(
         @InjectModel(AdvertisementReportMongoose.name) private readonly advertisementReportModel: Model<AdvertisementReportMongoose>,
     ) {}
     
-    async find(advertisementId: string): Promise<any[]> {
-        return this.advertisementReportModel.find({ advertisementId }).populate('advertisementReasonId').exec();
+    async findByAdvertisementId(advertisementId: string): Promise<AdvertisementReport[]> {
+        const query = await this.advertisementReportModel.find({ advertisementId }).exec();
+        return query.map((item) => MongooseAdvertisementReportMapper.toDomain(item));
     }
     
-    async create(createAdvertisementReportDto: CreateAdvertisementReportDto): Promise<{ id: string; }> {
-        const advertisementReportCreated = new this.advertisementReportModel(createAdvertisementReportDto);
-        await advertisementReportCreated.save();
+    async create(advertisementReport: AdvertisementReport): Promise<AdvertisementReport> {
+        const data = MongooseAdvertisementReportMapper.toMongoose(advertisementReport);
+        const entity = new this.advertisementReportModel({ ...data });
+        await entity.save();
 
-        return { id: advertisementReportCreated._id.toString() };
+        return MongooseAdvertisementReportMapper.toDomain(entity);
     }
     
-    async deleteOne(advertisementReportId: string): Promise<void> {
-        await this.advertisementReportModel.deleteOne({ _id: advertisementReportId }).exec();
+    async deleteOne(id: string): Promise<void> {
+        await this.advertisementReportModel.deleteOne({ _id: id }).exec();
     }
 }

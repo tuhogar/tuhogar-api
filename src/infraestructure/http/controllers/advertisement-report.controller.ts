@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateAdvertisementReportDto } from 'src/infraestructure/http/dtos/advertisement-report/create-advertisement-report.dto';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
-import { AdvertisementReport } from 'src/domain/entities/advertisement-report.interface';
+import { AdvertisementReport } from 'src/domain/entities/advertisement-report';
 import { CreateAdvertisementReportUseCase } from 'src/application/use-cases/advertisement-report/create-advertisement-report.use-case';
 import { DeleteAdvertisementReportUseCase } from 'src/application/use-cases/advertisement-report/delete-advertisement-report.use-case';
 import { GetByAdvertisementIdAdvertisementReportUseCase } from 'src/application/use-cases/advertisement-report/get-by-advertisement-id-advertisement-report.use-case';
@@ -19,22 +19,26 @@ export class AdvertisementReportController {
     ) {}
 
     @Post()
-    async create(@Body() createAdvertisementReportDto: CreateAdvertisementReportDto): Promise<{ id: string }> {
-        return this.createAdvertisementReportUseCase.execute(createAdvertisementReportDto);
+    async create(@Body() createAdvertisementReportDto: CreateAdvertisementReportDto): Promise<AdvertisementReport> {
+        const response = await this.createAdvertisementReportUseCase.execute(createAdvertisementReportDto);
+        if (!response) return null;
+
+        return response;
     }
 
     @ApiBearerAuth()
     @Get('advertisements/:advertisementid')
     @Auth('MASTER')
     async getByAdvertisementId(@Param('advertisementid') advertisementId: string): Promise<AdvertisementReport[]> {
-        return this.getByAdvertisementIdAdvertisementReportUseCase.execute(advertisementId);
+        const response = await this.getByAdvertisementIdAdvertisementReportUseCase.execute({ advertisementId });
+        return response;
     }
 
     @ApiBearerAuth()
     @Delete(':advertisementreportid')
     @Auth('MASTER')
     async delete(@Param('advertisementreportid') advertisementReportId: string): Promise<void> {
-        await this.deleteAdvertisementReportUseCase.execute(advertisementReportId);
+        await this.deleteAdvertisementReportUseCase.execute({ id: advertisementReportId });
     }
 
     @ApiBearerAuth()

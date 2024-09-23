@@ -22,10 +22,10 @@ export class PlanController {
 
     @Post()
     @Auth('MASTER')
-    async create(@Body() createPlanDto: CreatePlanDto): Promise<{ _id: string }> {
+    async create(@Body() createPlanDto: CreatePlanDto): Promise<Plan> {
         const response = await this.createPlanUseCase.execute(createPlanDto);
         if (!response) return null;
 
-        return { _id: response._id };
+        return response;
     }
 }

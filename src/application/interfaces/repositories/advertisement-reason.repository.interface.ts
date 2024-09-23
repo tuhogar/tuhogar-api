@@ -1,10 +1,9 @@
-import { AdvertisementReason } from "src/domain/entities/advertisement-reason.interface";
-import { CreateUpdateAdvertisementReasonDto } from "src/infraestructure/http/dtos/advertisement-reason/create-update-advertisement-reason.dto";
+import { AdvertisementReason } from "src/domain/entities/advertisement-reason";
 
 export abstract class IAdvertisementReasonRepository {
     abstract find(): Promise<AdvertisementReason[]>
-    abstract create(createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<void>
-    abstract deleteOne(advertisementReasonId: string): Promise<void>
-    abstract findOneAndUpdate(advertisementReasonId: string, createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto ): Promise<{ id: string }>
-    abstract findById(advertisementReasonId: string): Promise<AdvertisementReason>
+    abstract create(advertisementReason: AdvertisementReason): Promise<AdvertisementReason>
+    abstract deleteOne(id: string): Promise<void>
+    abstract findOneAndUpdate(id: string, advertisementReason: AdvertisementReason): Promise<AdvertisementReason>
+    abstract findById(id: string): Promise<AdvertisementReason>
 }

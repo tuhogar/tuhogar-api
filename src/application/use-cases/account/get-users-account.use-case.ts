@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/domain/entities/user.interface';
+import { User } from 'src/domain/entities/user';
 import { GetAllByAccountIdUserUseCase } from '../user/get-all-by-account-id-user.use-case';
 
 @Injectable()

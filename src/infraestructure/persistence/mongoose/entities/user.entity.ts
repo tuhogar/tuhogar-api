@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Advertisement } from './advertisement.entity';
+import { Account } from './account.entity';
 
 @Schema({ timestamps: true, collection: 'users' })
 export class User {
@@ -15,22 +17,22 @@ export class User {
     uid: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: mongoose.Schema.Types.ObjectId;
+    accountId: Account;
 
     @Prop()
     userRole: string;
 
     @Prop()
-    status: String;
+    status: string;
 
     @Prop()
-    phone: String;
+    phone: string;
 
     @Prop()
-    whatsApp: String;
+    whatsApp: string;
 
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' }])
-    advertisementFavorites: [mongoose.Schema.Types.ObjectId];
+    advertisementFavorites: Advertisement[];
 };
 
 const UserSchema = SchemaFactory.createForClass(User);

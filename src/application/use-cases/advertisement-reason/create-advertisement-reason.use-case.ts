@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { IAdvertisementReasonRepository } from 'src/application/interfaces/repositories/advertisement-reason.repository.interface';
-import { AdvertisementReason } from 'src/domain/entities/advertisement-reason.interface';
-import { CreateUpdateAdvertisementReasonDto } from 'src/infraestructure/http/dtos/advertisement-reason/create-update-advertisement-reason.dto';
+import { AdvertisementReason } from 'src/domain/entities/advertisement-reason';
+
+interface CreateAdvertisementReasonUseCaseCommand {
+    name: string,
+}
 
 @Injectable()
 export class CreateAdvertisementReasonUseCase {
@@ -11,7 +12,12 @@ export class CreateAdvertisementReasonUseCase {
         private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
     ) {}
 
-    async execute(createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<void> {
-        await this.advertisementReasonRepository.create(createUpdateAdvertisementReasonDto);
+    async execute({ name }: CreateAdvertisementReasonUseCaseCommand): Promise<AdvertisementReason> {
+        const advertisementReason = new AdvertisementReason({
+            name,
+        });
+
+        const response = await this.advertisementReasonRepository.create(advertisementReason);
+        return response;
     }   
 }

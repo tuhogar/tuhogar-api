@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { IAdvertisementReportRepository } from 'src/application/interfaces/repositories/advertisement-report.repository.interface';
-import { AdvertisementReport } from 'src/domain/entities/advertisement-report.interface';
+import { AdvertisementReport } from 'src/domain/entities/advertisement-report';
 import { CreateAdvertisementReportDto } from 'src/infraestructure/http/dtos/advertisement-report/create-advertisement-report.dto';
+
+interface CreateAdvertisementReportUseCaseCommand {
+    advertisementId: string,
+    advertisementReasonId: string,
+}
 
 @Injectable()
 export class CreateAdvertisementReportUseCase {
@@ -12,8 +15,14 @@ export class CreateAdvertisementReportUseCase {
     ) {}
 
     async execute(
-        createAdvertisementReportDto: CreateAdvertisementReportDto,
-    ): Promise<{ id: string }> {
-        return this.advertisementReportRepository.create(createAdvertisementReportDto);
+        { advertisementId, advertisementReasonId }: CreateAdvertisementReportUseCaseCommand,
+    ): Promise<AdvertisementReport> {
+        const advertisementReport = new AdvertisementReport({
+            advertisementId,
+            advertisementReasonId,
+        })
+
+        const response = await this.advertisementReportRepository.create(advertisementReport);
+        return response;
     }
 }

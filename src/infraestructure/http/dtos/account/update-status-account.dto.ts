@@ -1,6 +1,6 @@
 import { IsEnum } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { AccountStatus } from "src/domain/entities/account.interface";
+import { AccountStatus } from "src/domain/entities/account";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 
 export class UpdateStatusAccountDto {

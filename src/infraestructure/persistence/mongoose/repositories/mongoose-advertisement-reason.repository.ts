@@ -2,36 +2,46 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { AdvertisementReason as AdvertisementReasonMongoose } from "../entities/advertisement-reason.entity"
 import { IAdvertisementReasonRepository } from "src/application/interfaces/repositories/advertisement-reason.repository.interface";
-import { AdvertisementReason } from "src/domain/entities/advertisement-reason.interface";
-import { CreateUpdateAdvertisementReasonDto } from "src/infraestructure/http/dtos/advertisement-reason/create-update-advertisement-reason.dto";
+import { AdvertisementReason } from "src/domain/entities/advertisement-reason";
+import { MongooseAdvertisementReasonMapper } from "../mapper/mongoose-advertisement-reason.mapper";
 
 export class MongooseAdvertisementReasonRepository implements IAdvertisementReasonRepository {
     constructor(
         @InjectModel(AdvertisementReasonMongoose.name) private readonly advertisementReasonModel: Model<AdvertisementReasonMongoose>,
     ) {}
     
-    async findById(advertisementReasonId: string): Promise<any> {
-        return this.advertisementReasonModel.findById(advertisementReasonId).exec();
+    async findById(id: string): Promise<AdvertisementReason> {
+        const query = await this.advertisementReasonModel.findById(id).exec();
+        return MongooseAdvertisementReasonMapper.toDomain(query);
     }
     
-    async find(): Promise<any[]> {
-        return this.advertisementReasonModel.find().sort({ name: 1 }).exec();
+    async find(): Promise<AdvertisementReason[]> {
+        const query = await this.advertisementReasonModel.find().sort({ name: 1 }).exec();
+        return query.map((item) => MongooseAdvertisementReasonMapper.toDomain(item));
     }
     
-    async create(createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<void> {
-        await this.advertisementReasonModel.create(createUpdateAdvertisementReasonDto);
+    async create(advertisementReason: AdvertisementReason): Promise<AdvertisementReason> {
+        const data = MongooseAdvertisementReasonMapper.toMongoose(advertisementReason);
+        const entity = new this.advertisementReasonModel({ ...data });
+        await entity.save();
+
+        return MongooseAdvertisementReasonMapper.toDomain(entity);
     }
     
-    async deleteOne(advertisementReasonId: string): Promise<void> {
-        await this.advertisementReasonModel.deleteOne({ _id: advertisementReasonId }).exec();
+    async deleteOne(id: string): Promise<void> {
+        await this.advertisementReasonModel.deleteOne({ _id: id }).exec();
     }
     
-    async findOneAndUpdate(advertisementReasonId: string, createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<any> {
-        return await this.advertisementReasonModel.findOneAndUpdate({ 
-            _id: advertisementReasonId
+    async findOneAndUpdate(id: string, advertisementReason: AdvertisementReason): Promise<AdvertisementReason> {
+        const data = MongooseAdvertisementReasonMapper.toMongoose(advertisementReason);
+
+        const updated = await this.advertisementReasonModel.findOneAndUpdate({ 
+            _id: id
         },
-        createUpdateAdvertisementReasonDto,
+        advertisementReason,
         { new: true }
         ).exec();
+
+        return MongooseAdvertisementReasonMapper.toDomain(updated);
     }
 }

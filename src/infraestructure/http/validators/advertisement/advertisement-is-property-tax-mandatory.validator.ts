@@ -1,5 +1,5 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
-import { AdvertisementTransactionType, AdvertisementType } from '../../../../domain/entities/advertisement.interface';
+import { AdvertisementTransactionType, AdvertisementType } from '../../../../domain/entities/advertisement';
 
 
 

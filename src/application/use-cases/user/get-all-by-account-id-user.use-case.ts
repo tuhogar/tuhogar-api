@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User, UserRole, UserStatus } from 'src/domain/entities/user.interface';
+import { User, UserRole, UserStatus } from 'src/domain/entities/user';
 import { ConfigService } from '@nestjs/config';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 

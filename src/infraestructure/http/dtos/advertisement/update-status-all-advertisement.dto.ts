@@ -1,5 +1,5 @@
 import { IsArray, IsEnum, IsNotEmpty, IsString, ValidateNested } from "class-validator";
-import { AdvertisementStatus } from '../../../../domain/entities/advertisement.interface';
+import { AdvertisementStatus } from '../../../../domain/entities/advertisement';
 import { ApiProperty } from "@nestjs/swagger";
 import { AdvertisementIsStatusValid } from "../../validators/advertisement/advertisement-is-status-valid.validator";
 import { Type } from "class-transformer";

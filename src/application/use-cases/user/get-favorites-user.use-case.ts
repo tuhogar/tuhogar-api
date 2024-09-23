@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Advertisement } from 'src/domain/entities/advertisement.interface';
+import { Advertisement } from 'src/domain/entities/advertisement';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsMongoId, IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { UserRole } from "src/domain/entities/user.interface";
+import { UserRole } from "src/domain/entities/user";
 import { UserAlreadyExists } from "src/infraestructure/http/validators/user/user-already-exists.validator";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 

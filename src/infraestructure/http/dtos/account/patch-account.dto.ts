@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
-import { AccountDocumentType } from "src/domain/entities/account.interface";
+import { AccountDocumentType } from "src/domain/entities/account";
 import { Type } from "class-transformer";
 import { AddressDto } from "../address/address.dto";
 import { Property } from "src/infraestructure/decorators/property.decorator";

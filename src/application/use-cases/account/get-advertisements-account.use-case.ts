@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Advertisement } from 'src/domain/entities/advertisement.interface';
+import { Advertisement } from 'src/domain/entities/advertisement';
 import { GetAllByAccountIdAdvertisementUseCase } from '../advertisement/get-all-by-account-id-advertisement.use-case';
 
 @Injectable()

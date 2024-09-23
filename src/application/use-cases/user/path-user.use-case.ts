@@ -1,15 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
-import { User, UserRole, UserStatus } from 'src/domain/entities/user.interface';
+import { User, UserRole, UserStatus } from 'src/domain/entities/user';
 import { FirebaseAdmin } from 'src/infraestructure/config/firebase.config';
 import { ConfigService } from '@nestjs/config';
-import { Account, AccountStatus } from 'src/domain/entities/account.interface';
+import { Account, AccountStatus } from 'src/domain/entities/account';
 import { PatchUserDto } from 'src/infraestructure/http/dtos/user/patch-user.dto';
 import { CreateUserDto } from 'src/infraestructure/http/dtos/user/create-user.dto';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { UpdateStatusUserDto } from 'src/infraestructure/http/dtos/user/update-status-user.dto';
 import { CreateUserMasterDto } from 'src/infraestructure/http/dtos/user/create-user-master.dto';
-import { Advertisement } from 'src/domain/entities/advertisement.interface';
+import { Advertisement } from 'src/domain/entities/advertisement';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()

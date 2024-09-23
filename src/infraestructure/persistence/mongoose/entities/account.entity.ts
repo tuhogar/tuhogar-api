@@ -1,12 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Plan } from './plan.entity';
 
 @Schema({ timestamps: true, collection: 'accounts' })
 export class Account {
     _id: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Plan' })
-    planId: mongoose.Schema.Types.ObjectId;
+    planId: Plan;
 
     @Prop()
     photo: string;
@@ -43,6 +44,12 @@ export class Account {
 
     @Prop()
     status: string;
+
+    @Prop()
+    createdAt: Date
+
+    @Prop()
+    updatedAt: Date
 }
 
 

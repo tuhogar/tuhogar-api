@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
+import { User } from 'src/domain/entities/user';
 
 @Injectable()
 export class CreateFavoriteUserUseCase {
@@ -11,9 +12,10 @@ export class CreateFavoriteUserUseCase {
         private readonly userRepository: IUserRepository,
     ) {}
 
-    async execute(userId: string, advertisementId: string): Promise<void> {
-        const user = await this.userRepository.findOneAndUpdate({ _id: userId }, { $addToSet: { advertisementFavorites: advertisementId } }, true);
-      
-          if (!user) throw new Error('notfound.user.do.not.exists');
+    async execute(userId: string, advertisementId: string): Promise<User> {
+        const response = await this.userRepository.findOneAndUpdate({ _id: userId }, { $addToSet: { advertisementFavorites: advertisementId } }, true);
+        if (!response) throw new Error('notfound.user.do.not.exists');
+
+        return response;
     }
 }

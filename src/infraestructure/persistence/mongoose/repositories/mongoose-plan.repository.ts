@@ -15,8 +15,8 @@ export class MongoosePlanRepository implements IPlanRepository {
         return query.map((item) => MongoosePlanMapper.toDomain(item));
     }
     
-    async findById(planId: string): Promise<Plan> {
-        const query = await this.planModel.findById(planId).exec();
+    async findById(id: string): Promise<Plan> {
+        const query = await this.planModel.findById(id).exec();
 
         return MongoosePlanMapper.toDomain(query);
     }

@@ -1,5 +1,5 @@
 import { IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
-import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType, AdvertisementActivesOrderBy } from '../../../../domain/entities/advertisement.interface';
+import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType, AdvertisementActivesOrderBy } from '../../../../domain/entities/advertisement';
 import { Transform, Type } from "class-transformer";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsGreaterThan } from "../../validators/advertisement/advertisement-is-greater-than.validator";

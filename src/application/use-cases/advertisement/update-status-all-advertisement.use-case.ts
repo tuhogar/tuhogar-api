@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AdvertisementStatus } from 'src/domain/entities/advertisement.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
-import { UserRole } from 'src/domain/entities/user.interface';
+import { AdvertisementStatus } from 'src/domain/entities/advertisement';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { UserRole } from 'src/domain/entities/user';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { UpdateStatusAllAdvertisementsDto } from 'src/infraestructure/http/dtos/advertisement/update-status-all-advertisement.dto';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';

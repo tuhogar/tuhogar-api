@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AdvertisementStatus } from 'src/domain/entities/advertisement.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AdvertisementStatus } from 'src/domain/entities/advertisement';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { CreateUpdateAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
@@ -35,8 +35,8 @@ export class UpdateAdvertisementUseCase {
 
         const updatedAdvertisement = await this.advertisementRepository.findOneAndUpdate(advertisementId, authenticatedUser.accountId, update);
 
-        if (removeOnAlgolia) await this.algoliaService.delete(updatedAdvertisement._id.toString());
+        if (removeOnAlgolia) await this.algoliaService.delete(updatedAdvertisement.id);
 
-        return { id: updatedAdvertisement._id.toString() };
+        return { id: updatedAdvertisement.id };
     }
 }

@@ -1,5 +1,5 @@
 export class AdvertisementCode {
-    _id?: string;
+    id?: string;
     code: number;
 
     constructor(props: AdvertisementCode) {

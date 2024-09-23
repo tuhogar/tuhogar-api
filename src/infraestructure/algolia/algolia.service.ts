@@ -2,7 +2,7 @@ const algoliasearch = require('algoliasearch')
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
-import { Advertisement } from 'src/domain/entities/advertisement.interface';
+import { Advertisement } from 'src/domain/entities/advertisement';
 
 @Injectable()
 export class AlgoliaService {

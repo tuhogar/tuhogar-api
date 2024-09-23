@@ -1,15 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { AdvertisementReason } from './advertisement-reason.entity';
+import { Advertisement } from './advertisement.entity';
 
 @Schema({ timestamps: true, collection: 'advertisement-reports' })
 export class AdvertisementReport {
     _id: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' })
-    advertisementId: mongoose.Schema.Types.ObjectId;
+    advertisementId: Advertisement;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'AdvertisementReason' })
-    advertisementReasonId: mongoose.Schema.Types.ObjectId;
+    advertisementReasonId: AdvertisementReason;
 }
 
 const AdvertisementReportSchema = SchemaFactory.createForClass(AdvertisementReport);

@@ -22,7 +22,6 @@ export class CreatePlanUseCase {
         items,
         price,
     }: CreatePlanUseCaseCommand): Promise<Plan> {
-
         const plan = new Plan({
             name,
             duration,
@@ -31,7 +30,6 @@ export class CreatePlanUseCase {
         })
 
         const response = await this.planyRepository.create(plan);
-
         return response;
     }
 }

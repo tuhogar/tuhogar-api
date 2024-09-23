@@ -1,21 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Account } from './account.entity';
+import { User } from './user.entity';
+import { Amenity } from './amenity.entity';
 
 @Schema({ timestamps: true, collection: 'advertisements' })
 export class Advertisement {
     _id: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: mongoose.Schema.Types.ObjectId;
+    accountId: Account;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    createdUserId: mongoose.Schema.Types.ObjectId;
+    createdUserId: User;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    updatedUserId: mongoose.Schema.Types.ObjectId;
+    updatedUserId: User;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    approvingUserId: mongoose.Schema.Types.ObjectId;
+    approvingUserId: User;
 
     @Prop()
     code: number;
@@ -66,10 +69,10 @@ export class Advertisement {
     isHoaIncluded: boolean;
 
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
-    amenities: [mongoose.Schema.Types.ObjectId];
+    amenities: Amenity[];
 
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
-    communityAmenities: [mongoose.Schema.Types.ObjectId];
+    communityAmenities: Amenity[];
 
     @Prop()
     hoaFee: number;
@@ -96,7 +99,7 @@ export class Advertisement {
     address: Object;
 
     @Prop([{ type: Object }])
-    photos: [Object];
+    photos: Object[];
 
     @Prop()
     tourUrl: string;
@@ -114,10 +117,13 @@ export class Advertisement {
     publishedAt: Date;
 
     @Prop()
-    isVacant: Boolean;
+    isVacant: boolean;
 
     @Prop()
     vacancyDate: Date;
+
+    @Prop()
+    updatedAt: Date;
 }
 
 const AdvertisementSchema = SchemaFactory.createForClass(Advertisement);
