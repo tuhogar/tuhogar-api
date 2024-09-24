@@ -13,7 +13,6 @@ export class MongooseAccountMapper {
         if (!entity) return null;
         
         const model = new Account({
-            _id: entity._id.toString(),
             id: entity._id.toString(),
             planId: entity.planId?.toString(),
             photo: entity.photo,

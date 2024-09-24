@@ -14,7 +14,6 @@ export enum AccountDocumentType {
 }
 
 export class Account {
-    _id?: string;
     id?: string;
     planId: string;
     photo: string;

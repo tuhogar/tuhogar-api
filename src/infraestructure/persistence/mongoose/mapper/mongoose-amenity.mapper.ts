@@ -8,7 +8,6 @@ export class MongooseAmenityMapper {
         if (!entity) return null;
         
         const model = new Amenity({
-            _id: entity._id.toString(),
             id: entity._id.toString(),
             key: entity.key,
             name: entity.name,

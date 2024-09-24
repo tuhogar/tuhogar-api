@@ -8,7 +8,6 @@ export class MongooseAdvertisementPhotoMapper {
         if (!entity) return null;
         
         const model = new AdvertisementPhoto({
-            _id: entity.id.toString(),
             id: entity.id.toString(),
             name: entity.name,
             url: entity.url,

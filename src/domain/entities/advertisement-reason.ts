@@ -1,5 +1,4 @@
 export class AdvertisementReason {
-    _id?: string;
     id?: string;
     name: string;
 

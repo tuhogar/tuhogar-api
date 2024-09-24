@@ -12,7 +12,6 @@ export class MongooseAdvertisementMapper {
         if (!entity) return null;
 
         const model = new Advertisement({
-            _id: entity._id.toString(),
             id: entity._id.toString(),
             accountId: entity.accountId?.toString(),
             createdUserId: entity.createdUserId?.toString(),

@@ -11,7 +11,6 @@ export class MongooseUserMapper {
         if (!entity) return null;
 
         const model = new User({
-            _id: entity._id.toString(),
             id: entity._id.toString(),
             name: entity.name,
             email: entity.email,

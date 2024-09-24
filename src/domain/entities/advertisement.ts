@@ -37,7 +37,6 @@ export enum AdvertisementConstructionType {
 }
 
 export class AdvertisementPhoto {
-    _id?: string;
     id?: string;
     name: string;
     url: string;
@@ -50,7 +49,6 @@ export class AdvertisementPhoto {
 }
 
 export class Advertisement {
-    _id?: string;
     id?: string;
     accountId: string;
     createdUserId: string;

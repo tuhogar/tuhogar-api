@@ -1,5 +1,4 @@
 export class Amenity {
-    _id?: string;
     id?: string;
     key: string;
     name: string;
