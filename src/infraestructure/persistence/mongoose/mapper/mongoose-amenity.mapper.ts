@@ -11,6 +11,8 @@ export class MongooseAmenityMapper {
             id: entity._id.toString(),
             key: entity.key,
             name: entity.name,
+            phosphorIcon: entity.phosphorIcon,
+            type: entity.type,
         });
         return model;
     }
