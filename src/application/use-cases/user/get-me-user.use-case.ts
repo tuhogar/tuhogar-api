@@ -3,7 +3,7 @@ import { User } from 'src/domain/entities/user';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()
-export class GetByUidUserUseCase {
+export class GetMeUserUseCase {
     constructor(
         private readonly userRepository: IUserRepository,
     ) {}

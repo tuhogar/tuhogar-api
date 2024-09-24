@@ -31,7 +31,7 @@ import { CreateUserUseCase } from "src/application/use-cases/user/create-user.us
 import { DeleteFavoriteUserUseCase } from "src/application/use-cases/user/delete-favorite-user.use-case";
 import { DeleteUserUseCase } from "src/application/use-cases/user/delete-user.use-case";
 import { GetAllByAccountIdUserUseCase } from "src/application/use-cases/user/get-all-by-account-id-user.use-case";
-import { GetByUidUserUseCase } from "src/application/use-cases/user/get-by-uid-user.use-case";
+import { GetMeUserUseCase } from "src/application/use-cases/user/get-me-user.use-case";
 import { GetFavoritesUserUseCase } from "src/application/use-cases/user/get-favorites-user.use-case";
 import { LoginUserUseCase } from "src/application/use-cases/user/login-user.use-case";
 import { PathUserUseCase } from "src/application/use-cases/user/path-user.use-case";
@@ -123,7 +123,7 @@ import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/c
         DeleteFavoriteUserUseCase,
         DeleteUserUseCase,
         GetAllByAccountIdUserUseCase,
-        GetByUidUserUseCase,
+        GetMeUserUseCase,
         GetFavoritesUserUseCase,
         LoginUserUseCase,
         PathUserUseCase,
