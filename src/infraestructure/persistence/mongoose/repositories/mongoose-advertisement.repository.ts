@@ -1,5 +1,5 @@
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { Advertisement as AdvertisementMongoose } from "../entities/advertisement.entity"
 import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus } from "src/domain/entities/advertisement";
 import { IPlanRepository } from "src/application/interfaces/repositories/plan.repository.interface";
@@ -29,20 +29,45 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         return MongooseAdvertisementMapper.toDomain(updated);
     }
     
-    async findForBulk(lastUpdatedAt: Date): Promise<any[]> {
+    async findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]> {
+        const filter: any = {
+            $match: {
+                status: AdvertisementStatus.ACTIVE,
+            }
+        };
+
+        if (accountId) {
+            filter.$match.accountId = new Types.ObjectId(accountId);
+        } else {
+            filter.$match.updatedAt = { $gt: lastUpdatedAt };
+        }
+
         return this.advertisementModel.aggregate([
-            {
-                $match: {
-                    status: AdvertisementStatus.ACTIVE,
-                    updatedAt: { $gt: lastUpdatedAt }
-                }
-            },
+            filter,
             {
                 $addFields: {
                     _geoloc: {
                         lat: "$address.latitude",
                         lng: "$address.longitude"
                     }
+                }
+            },
+            {
+                $lookup: {
+                  from: 'accounts',  // Nome da collection de onde os dados serão buscados
+                  localField: 'accountId',  // Campo em "advertisements" que referencia "accounts"
+                  foreignField: '_id',  // Campo em "accounts" que é relacionado (neste caso, o _id)
+                  as: 'accountData'  // Nome do campo onde os dados relacionados serão armazenados
+                }
+            },
+              // Usamos o $unwind para desestruturar o array "accountData" em um objeto simples
+            {
+                $unwind: "$accountData"
+            },
+                // Utilizamos $addFields para mover contractTypes para o nível do advertisement
+                {
+                $addFields: {
+                    contractTypes: "$accountData.contractTypes"
                 }
             },
             {
@@ -73,7 +98,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
                     propertyTax: 1,
                     address: 1,
                     updatedAt: 1,
-                    _geoloc: 1  // Incluímos o novo campo no retorno
+                    _geoloc: 1,
+                    contractTypes: 1,
                 }
             }
         ])
@@ -96,7 +122,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
     
     async get(advertisementId: string): Promise<Advertisement> {
-        const query = await this.advertisementModel.findById(advertisementId).populate('amenities').populate('communityAmenities').exec()
+        const query = await this.advertisementModel.findById(advertisementId).populate('amenities').populate('communityAmenities').exec();
         return MongooseAdvertisementMapper.toDomain(query);
     }
     
@@ -161,25 +187,25 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
 
     async find(filter: any): Promise<Advertisement[]> {
-        const query = await this.advertisementModel.find(filter).exec()
+        const query = await this.advertisementModel.find(filter).populate('amenities').populate('communityAmenities').exec();
         return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
 
     async findById(advertisementId: string): Promise<Advertisement> {
-        const query = await this.advertisementModel.findById(advertisementId);
+        const query = await this.advertisementModel.findById(advertisementId).populate('amenities').populate('communityAmenities').exec();
         return MongooseAdvertisementMapper.toDomain(query);
     }
 
     async findOne(advertisementId: string, accountId: string): Promise<Advertisement> {
-        const query = await this.advertisementModel.findOne({ _id: advertisementId, accountId })
+        const query = await this.advertisementModel.findOne({ _id: advertisementId, accountId }).populate('amenities').populate('communityAmenities').exec();
         return MongooseAdvertisementMapper.toDomain(query);
     }
 
-    async create(data: any): Promise<{ id: string; }> {
+    async create(data: any): Promise<Advertisement> {
         const advertisementCreated = new this.advertisementModel(data);
         await advertisementCreated.save();
 
-        return { id: advertisementCreated._id.toString() };
+        return this.findById(advertisementCreated._id.toString());
     }
 
     async findAllWithReports(): Promise<Advertisement[]> {

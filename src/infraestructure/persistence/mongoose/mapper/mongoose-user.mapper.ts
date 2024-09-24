@@ -11,6 +11,7 @@ export class MongooseUserMapper {
         if (!entity) return null;
 
         const model = new User({
+            _id: entity._id.toString(),
             id: entity._id.toString(),
             name: entity.name,
             email: entity.email,
@@ -20,7 +21,7 @@ export class MongooseUserMapper {
             uid: entity.uid,
             phone: entity.phone,
             whatsApp: entity.whatsApp,
-            advertisementFavorites: !!entity.advertisementFavorites ? entity.advertisementFavorites.map((a) => MongooseAdvertisementMapper.toDomain(a)) : [],
+            advertisementFavorites: !!entity.advertisementFavorites ? entity.advertisementFavorites.map((a) => MongooseAdvertisementMapper.toDomain(a)) : undefined,
             account: entity.accountId.createdAt ? MongooseAccountMapper.toDomain(entity.accountId) : undefined,
         });
         return model;

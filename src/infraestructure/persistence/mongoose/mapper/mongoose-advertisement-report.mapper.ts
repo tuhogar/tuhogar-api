@@ -8,6 +8,7 @@ export class MongooseAdvertisementReportMapper {
         if (!entity) return null;
         
         const model = new AdvertisementReport({
+            _id: entity._id.toString(),
             id: entity._id.toString(),
             advertisementId: entity.advertisementId?.toString(),
             advertisementReasonId: entity.advertisementReasonId?.toString(),

@@ -8,6 +8,7 @@ export class MongooseAdvertisementReasonMapper {
         if (!entity) return null;
         
         const model = new AdvertisementReason({
+            _id: entity._id.toString(),
             id: entity._id.toString(),
             name: entity.name,
         });

@@ -1,4 +1,5 @@
 export class Plan {
+    _id?: string;
     id?: string;
     name: string;
     duration: number;

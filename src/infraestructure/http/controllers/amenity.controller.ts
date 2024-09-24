@@ -13,6 +13,7 @@ export class AmenityController {
     @ApiBearerAuth()
     @Get()
     async getAll(): Promise<Amenity[]> {
-        return this.getAllAmenityUseCase.execute();
+        const response = await this.getAllAmenityUseCase.execute();
+        return response;
     }
 }

@@ -1,5 +1,4 @@
 export class SocialMedia {
-    id?: string;
     youtube: string;
     tiktok: string;
     instagram: string;

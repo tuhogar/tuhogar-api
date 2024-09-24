@@ -1,10 +1,9 @@
-export class Amenity {
-    _id?: string;
+export class ContractType {
     id?: string;
     key: string;
     name: string;
 
-    constructor(props: Amenity) {
+    constructor(props: ContractType) {
         Object.assign(this, props);
     }
 }

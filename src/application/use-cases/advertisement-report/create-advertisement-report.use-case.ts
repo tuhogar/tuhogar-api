@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IAdvertisementReportRepository } from 'src/application/interfaces/repositories/advertisement-report.repository.interface';
 import { AdvertisementReport } from 'src/domain/entities/advertisement-report';
-import { CreateAdvertisementReportDto } from 'src/infraestructure/http/dtos/advertisement-report/create-advertisement-report.dto';
 
 interface CreateAdvertisementReportUseCaseCommand {
     advertisementId: string,

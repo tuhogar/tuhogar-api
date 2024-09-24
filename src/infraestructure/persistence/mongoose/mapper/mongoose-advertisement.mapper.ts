@@ -12,6 +12,7 @@ export class MongooseAdvertisementMapper {
         if (!entity) return null;
 
         const model = new Advertisement({
+            _id: entity._id.toString(),
             id: entity._id.toString(),
             accountId: entity.accountId?.toString(),
             createdUserId: entity.createdUserId?.toString(),
@@ -32,8 +33,8 @@ export class MongooseAdvertisementMapper {
             constructionYear: entity.constructionYear,
             socioEconomicLevel: entity.socioEconomicLevel,
             isHoaIncluded: entity.isHoaIncluded,
-            amenities: !!entity.amenities ? entity.amenities.map((a) => MongooseAmenityMapper.toDomain(a)) : [],
-            communityAmenities: !!entity.communityAmenities ? entity.communityAmenities.map((a) => MongooseAmenityMapper.toDomain(a)) : [],
+            amenities: !!entity.amenities ? entity.amenities.map((a) => MongooseAmenityMapper.toDomain(a)) : undefined,
+            communityAmenities: !!entity.communityAmenities ? entity.communityAmenities.map((a) => MongooseAmenityMapper.toDomain(a)) : undefined,
             description: entity.description,
             hoaFee: entity.hoaFee,
             lotArea: entity.lotArea,
@@ -43,7 +44,7 @@ export class MongooseAdvertisementMapper {
             pricePerLotArea: entity.pricePerLotArea,
             propertyTax: entity.propertyTax,
             address: !!entity.address ? MongooseAddressMapper.toDomain(entity.address) : undefined,
-            photos: !!entity.photos ? entity.photos.map((a) => MongooseAdvertisementPhotoMapper.toDomain(a)) : [],
+            photos: !!entity.photos ? entity.photos.map((a) => MongooseAdvertisementPhotoMapper.toDomain(a)) : undefined,
             tourUrl: entity.tourUrl,
             videoUrl: entity.videoUrl,
             publishedAt: entity.publishedAt,

@@ -19,7 +19,6 @@ import { GetAllPlanUseCase } from "src/application/use-cases/plan/get-all-plan.u
 import { GetBulkUpdateDateUseCase } from "src/application/use-cases/bulk-update-date/get-bulk-update-date.use-case";
 import { UpdateBulkUpdateDateUseCase } from "src/application/use-cases/bulk-update-date/update-bulk-update-date.use-case";
 import { GetAllAmenityUseCase } from "src/application/use-cases/amenity/get-all-amenity.use-case";
-import { GenerateAdvertisementCodeUseCase } from "src/application/use-cases/advertisement-code/generate-advertisement-code.use-case";
 import { CreateAdvertisementReasonUseCase } from "src/application/use-cases/advertisement-reason/create-advertisement-reason.use-case";
 import { DeleteAdvertisementReasonUseCase } from "src/application/use-cases/advertisement-reason/delete-advertisement-reason.use-case";
 import { GetAllAdvertisementReasonUseCase } from "src/application/use-cases/advertisement-reason/get-all-advertisement-reason.use-case";
@@ -67,7 +66,9 @@ import { UpdateStatusAdvertisementUseCase } from "src/application/use-cases/adve
 import { UpdateStatusAllAdvertisementUseCase } from "src/application/use-cases/advertisement/update-status-all-advertisement.use-case";
 import { DeleteImagesAdvertisementUseCase } from "src/application/use-cases/advertisement/delete-images-advertisement.use-case";
 import { GetRegisteredAdvertisementsUseCase } from "src/application/use-cases/advertisement/get-registered-advertisements.use-case";
-import { GetByIdAmenityUseCase } from "src/application/use-cases/amenity/get-by-id-amenity.use-case";
+import { ContractTypeController } from "./controllers/contract-type.controller";
+import { GetAllContractTypeUseCase } from "src/application/use-cases/contract-type/get-all-contract-type.use-case";
+import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/contract-type-is-existing-id.validator";
 
 @Module({
     imports: [
@@ -90,7 +91,6 @@ import { GetByIdAmenityUseCase } from "src/application/use-cases/amenity/get-by-
         PathAccountUseCase,
         ProcessImageAccountUseCase,
         UpdateStatusAccountUseCase,
-        GenerateAdvertisementCodeUseCase,
         CreateAdvertisementReasonUseCase,
         DeleteAdvertisementReasonUseCase,
         GetAllAdvertisementReasonUseCase,
@@ -116,7 +116,6 @@ import { GetByIdAmenityUseCase } from "src/application/use-cases/amenity/get-by-
         UpdateStatusAdvertisementUseCase,
         UpdateStatusAllAdvertisementUseCase,
         GetAllAmenityUseCase,
-        GetByIdAmenityUseCase,
         UpdateBulkUpdateDateUseCase,
         GetBulkUpdateDateUseCase,
         CreateFavoriteUserUseCase,
@@ -130,8 +129,10 @@ import { GetByIdAmenityUseCase } from "src/application/use-cases/amenity/get-by-
         PathUserUseCase,
         UpdateAllStatusUserUseCase,
         UpdateStatusUserUseCase,
+        GetAllContractTypeUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
+        ContractTypeIsExistingIdConstraint,
         IsExistingPlanConstraint,
         UserAlreadyExistsConstraint,
         FirebaseAdmin,
@@ -144,6 +145,7 @@ import { GetByIdAmenityUseCase } from "src/application/use-cases/amenity/get-by-
         AmenityController,
         PlanController,
         UserController,
+        ContractTypeController,
         ],
 })
 export class HttpModule {}

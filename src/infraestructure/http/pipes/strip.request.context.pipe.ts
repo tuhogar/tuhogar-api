@@ -11,6 +11,7 @@ import { PatchUserDto } from 'src/infraestructure/http/dtos/user/patch-user.dto'
 import { AddressDto } from 'src/infraestructure/http/dtos/address/address.dto';
 import { SocialMediaDto } from 'src/infraestructure/http/dtos/social-media/create-social-media.dto';
 import { CreateFavoriteAdvertisementDto } from 'src/infraestructure/http/dtos/user/create-favorite-advertisement.dto';
+import { PatchAccountDto } from '../dtos/account/patch-account.dto';
 
 const DtoMap = new Map<string, any>([
   ['CreateUpdateAdvertisementDto', CreateUpdateAdvertisementDto],
@@ -21,6 +22,7 @@ const DtoMap = new Map<string, any>([
   ['UpdateStatusAdvertisementDto', UpdateStatusAdvertisementDto],
   ['CreatePlanDto', CreatePlanDto],
   ['PatchUserDto', PatchUserDto],
+  ['PatchAccountDto', PatchAccountDto],
   ['address', AddressDto],
   ['socialMedia', SocialMediaDto],
   ['CreateFavoriteAdvertisementDto', CreateFavoriteAdvertisementDto],

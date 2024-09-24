@@ -55,11 +55,12 @@ export class AdvertisementController {
     @Auth('ADMIN', 'USER')
     @UsePipes(SlugifyPipe)
     @UsePipes(new ValidationPipe({transform: true}))
-    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<{ id: string }> {
-        return this.createAdvertisementUseCase.execute(
+    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<Advertisement> {
+        const response = await this.createAdvertisementUseCase.execute(
             authenticatedUser,
             createUpdateAdvertisementDto,
         );
+        return response;
     }
 
     @ApiBearerAuth()
@@ -86,7 +87,7 @@ export class AdvertisementController {
     @Post('bulk')
     @Auth('MASTER')
     async bulk(): Promise<void> {
-        await this.bulkAdvertisementUseCase.execute();
+        await this.bulkAdvertisementUseCase.execute({});
     }
 
     @Get('actives')

@@ -1,10 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
+import { IsArray, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
 import { AccountDocumentType } from "src/domain/entities/account";
 import { Type } from "class-transformer";
 import { AddressDto } from "../address/address.dto";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 import { SocialMediaDto } from "../social-media/create-social-media.dto";
+import { ContractTypeIsExistingId } from "../../validators/contract-type/contract-type-is-existing-id.validator";
 
 export class PatchAccountDto {
 
@@ -65,4 +66,12 @@ export class PatchAccountDto {
     @IsNotEmpty({ message: 'invalid.documentNumber.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.documentNumber.must.be.shorter.than.or.equal.to.30.characters' })
     documentNumber: string;
+
+    @ApiPropertyOptional({ type: [String] })
+    @IsOptional()
+    @IsArray({ message: 'contractTypes.must.be.an.array' })
+    @IsMongoId({ each: true, message: 'invalid.contractTypeId' })
+    @ContractTypeIsExistingId({ each: true, message: 'each.contractType.id.must.exist' })
+    @Property()
+    contractTypes: string[];
 }

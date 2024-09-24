@@ -1,4 +1,5 @@
 import { Address } from './address';
+import { ContractType } from './contract-type';
 import { SocialMedia } from './social-media';
 
 export enum AccountStatus {
@@ -13,6 +14,7 @@ export enum AccountDocumentType {
 }
 
 export class Account {
+    _id?: string;
     id?: string;
     planId: string;
     photo: string;
@@ -26,6 +28,7 @@ export class Account {
     description: string;
     documentType: AccountDocumentType;
     documentNumber: string;
+    contractTypes?: ContractType[];
     status: AccountStatus;
 
     constructor(props: Account) {

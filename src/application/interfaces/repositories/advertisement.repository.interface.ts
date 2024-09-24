@@ -5,10 +5,10 @@ import { UpdateStatusAdvertisementDto } from "src/infraestructure/http/dtos/adve
 import { UpdateStatusAllAdvertisementsDto } from "src/infraestructure/http/dtos/advertisement/update-status-all-advertisement.dto";
 
 export abstract class IAdvertisementRepository {
-    abstract create(data: any): Promise<{ id: string }>
+    abstract create(data: any): Promise<Advertisement>
     abstract findOne(advertisementId: string, accountId: string): Promise<Advertisement>
     abstract findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
-    abstract findForBulk(lastUpdatedAt: Date): Promise<any[]>
+    abstract findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]>
     abstract findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<Advertisement[]>
     abstract getAllByAccountId(accountId: string): Promise<Advertisement[]>
     abstract getByAccountIdAndId(filter: any): Promise<Advertisement>

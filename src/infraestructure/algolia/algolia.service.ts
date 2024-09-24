@@ -67,6 +67,7 @@ export class AlgoliaService {
 
           addMultiValueFilter('amenities', getActivesAdvertisementDto.amenity, 'AND');
           addMultiValueFilter('communityAmenities', getActivesAdvertisementDto.communityAmenity, 'AND');
+          addMultiValueFilter('contractTypes', getActivesAdvertisementDto.contractType, 'AND');
 
           addRangeFilter('bedsCount', getActivesAdvertisementDto.bedsCountMin, getActivesAdvertisementDto.bedsCountMax);
           addRangeFilter('bathsCount', getActivesAdvertisementDto.bathsCountMin, getActivesAdvertisementDto.bathsCountMax);

@@ -6,6 +6,7 @@ import { IsGreaterThan } from "../../validators/advertisement/advertisement-is-g
 import { TransformToBoolean } from "../../../decorators/transform-to-boolean.decorator";
 import { AmenityIsExistingId } from "src/infraestructure/http/validators/amenity/amenitiy-is-existing-id.validator";
 import { AddressIsLatitudeLongitudeRadiusMandatory } from "../../validators/address/address-is-latitude-longitude-radius-mandatory.validator";
+import { ContractTypeIsExistingId } from "../../validators/contract-type/contract-type-is-existing-id.validator";
 
 export class GetActivesAdvertisementDto {
     @ApiPropertyOptional()
@@ -83,6 +84,14 @@ export class GetActivesAdvertisementDto {
     @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
     @AmenityIsExistingId({ each: true })
     communityAmenity: string[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsArray({ message: 'contractType.must.be.an.array' })
+    @Type(() => String)
+    @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+    @ContractTypeIsExistingId({ each: true })
+    contractType: string[];
 
     @ApiPropertyOptional()
     @IsOptional()
