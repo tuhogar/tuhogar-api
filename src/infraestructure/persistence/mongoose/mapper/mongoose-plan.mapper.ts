@@ -13,6 +13,7 @@ export class MongoosePlanMapper {
             duration: entity.duration,
             items: entity.items,
             price: entity.price,
+            photo: entity.photo,
         });
         return model;
     }

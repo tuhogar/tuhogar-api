@@ -16,6 +16,9 @@ export class Plan {
 
     @Prop()
     price: number;
+
+    @Prop()
+    photo: string;
 }
 
 const PlanSchema = SchemaFactory.createForClass(Plan);

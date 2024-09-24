@@ -4,6 +4,7 @@ export class Plan {
     duration: number;
     items: string[];
     price: number;
+    photo?: string;
 
     constructor(props: Plan) {
         Object.assign(this, props);
