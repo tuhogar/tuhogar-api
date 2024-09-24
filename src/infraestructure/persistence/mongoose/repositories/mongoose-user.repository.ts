@@ -37,7 +37,7 @@ export class MongooseUserRepository implements IUserRepository {
     }
     
     async findOne(filter: any): Promise<User> {
-        const query = await this.userModel.findOne(filter).exec();
+        const query = await this.userModel.findOne(filter).populate('accountId').exec();
         return MongooseUserMapper.toDomain(query);
     }
     
