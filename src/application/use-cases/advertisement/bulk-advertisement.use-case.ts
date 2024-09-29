@@ -5,6 +5,10 @@ import { IAdvertisementRepository } from 'src/application/interfaces/repositorie
 import { UpdateBulkUpdateDateUseCase } from '../bulk-update-date/update-bulk-update-date.use-case';
 import { GetBulkUpdateDateUseCase } from '../bulk-update-date/get-bulk-update-date.use-case';
 
+interface BulkAdvertisementUseCaseCommand {
+    accountId?: string
+}
+
 @Injectable()
 export class BulkAdvertisementUseCase {
     constructor(
@@ -15,10 +19,11 @@ export class BulkAdvertisementUseCase {
     ) {}
 
     @Cron('*/1 * * * *')
-    async execute(): Promise<void> {
-        let lastUpdatedAt = (await this.getBulkUpdateDateUseCase.execute())?.updatedAt || new Date(0);
-        
-        const advertisements = await this.advertisementRepository.findForBulk(lastUpdatedAt);
+    async execute(bulkAdvertisementUseCaseCommand: BulkAdvertisementUseCaseCommand): Promise<void> {
+        let lastUpdatedAt = undefined;
+        if (!bulkAdvertisementUseCaseCommand?.accountId) lastUpdatedAt = (await this.getBulkUpdateDateUseCase.execute())?.updatedAt || new Date(0);
+
+        const advertisements = await this.advertisementRepository.findForBulk(bulkAdvertisementUseCaseCommand?.accountId, lastUpdatedAt);
         advertisements.forEach(advertisement => {
             const { address } = advertisement;
             if (!address?.latitude || !address?.longitude) {
@@ -28,10 +33,11 @@ export class BulkAdvertisementUseCase {
 
         if (advertisements.length > 0) {
             await this.algoliaService.bulk(advertisements);
-            
-            const updatedAt = new Date(Math.max(...advertisements.map(a => new Date((a.updatedAt as unknown as string)).getTime())));
 
-            await this.updateBulkUpdateDateUseCase.execute({ updatedAt });
+            if (!bulkAdvertisementUseCaseCommand?.accountId) {
+                const updatedAt = new Date(Math.max(...advertisements.map(a => new Date((a.updatedAt as unknown as string)).getTime())));
+                await this.updateBulkUpdateDateUseCase.execute({ updatedAt });
+            }
         }
     }
 }

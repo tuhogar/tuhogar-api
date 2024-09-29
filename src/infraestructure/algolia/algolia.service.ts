@@ -2,7 +2,7 @@ const algoliasearch = require('algoliasearch')
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
-import { Advertisement } from 'src/domain/entities/advertisement.interface';
+import { Advertisement } from 'src/domain/entities/advertisement';
 
 @Injectable()
 export class AlgoliaService {
@@ -67,6 +67,7 @@ export class AlgoliaService {
 
           addMultiValueFilter('amenities', getActivesAdvertisementDto.amenity, 'AND');
           addMultiValueFilter('communityAmenities', getActivesAdvertisementDto.communityAmenity, 'AND');
+          addMultiValueFilter('contractTypes', getActivesAdvertisementDto.contractType, 'AND');
 
           addRangeFilter('bedsCount', getActivesAdvertisementDto.bedsCountMin, getActivesAdvertisementDto.bedsCountMax);
           addRangeFilter('bathsCount', getActivesAdvertisementDto.bathsCountMin, getActivesAdvertisementDto.bathsCountMax);

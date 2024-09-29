@@ -8,7 +8,7 @@ export class MongooseBulkUpdateDateMapper {
         if (!entity) return null;
         
         const model = new BulkUpdateDate({
-            _id: (entity._id as unknown as mongoose.Types.ObjectId).toString(),
+            id: entity._id.toString(),
             updatedAt: entity.updatedAt,
         });
         return model;

@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { Authenticated } from 'src/infraestructure/decorators/authenticated.decorator';
-import { User, UserRole } from 'src/domain/entities/user.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { User, UserRole } from 'src/domain/entities/user';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from 'src/infraestructure/http/dtos/user/login-dto';
 import { PatchUserDto } from 'src/infraestructure/http/dtos/user/patch-user.dto';
@@ -12,7 +12,7 @@ import { CreateFavoriteUserUseCase } from 'src/application/use-cases/user/create
 import { DeleteFavoriteUserUseCase } from 'src/application/use-cases/user/delete-favorite-user.use-case';
 import { DeleteUserUseCase } from 'src/application/use-cases/user/delete-user.use-case';
 import { GetAllByAccountIdUserUseCase } from 'src/application/use-cases/user/get-all-by-account-id-user.use-case';
-import { GetByUidUserUseCase } from 'src/application/use-cases/user/get-by-uid-user.use-case';
+import { GetMeUserUseCase } from 'src/application/use-cases/user/get-me-user.use-case';
 import { GetFavoritesUserUseCase } from 'src/application/use-cases/user/get-favorites-user.use-case';
 import { LoginUserUseCase } from 'src/application/use-cases/user/login-user.use-case';
 import { PathUserUseCase } from 'src/application/use-cases/user/path-user.use-case';
@@ -27,7 +27,7 @@ export class UserController {
         private readonly deleteFavoriteUserUseCase: DeleteFavoriteUserUseCase,
         private readonly deleteUserUseCase: DeleteUserUseCase,
         private readonly getAllByAccountIdUserUseCase: GetAllByAccountIdUserUseCase,
-        private readonly getByUidUserUseCase: GetByUidUserUseCase,
+        private readonly getMeUserUseCase: GetMeUserUseCase,
         private readonly getFavoritesUserUseCase: GetFavoritesUserUseCase,
         private readonly loginUserUseCase: LoginUserUseCase,
         private readonly pathUserUseCase: PathUserUseCase,
@@ -57,7 +57,7 @@ export class UserController {
     @Get('me')
     @Auth()
     async get(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User> {
-        return this.getByUidUserUseCase.execute(authenticatedUser.uid);
+        return this.getMeUserUseCase.execute(authenticatedUser.uid);
     }
 
     @Post('login')
@@ -69,8 +69,9 @@ export class UserController {
     @ApiBearerAuth()
     @Post('favorites')
     @Auth('ADMIN', 'USER')
-    async createFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createFavoriteAdvertisementDto: CreateFavoriteAdvertisementDto): Promise<void> {
-        await this.createFavoriteUserUseCase.execute(authenticatedUser.userId, createFavoriteAdvertisementDto.id);
+    async createFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createFavoriteAdvertisementDto: CreateFavoriteAdvertisementDto): Promise<User> {
+        const response = await this.createFavoriteUserUseCase.execute(authenticatedUser.userId, createFavoriteAdvertisementDto.id);
+        return response;
     }
 
     @ApiBearerAuth()

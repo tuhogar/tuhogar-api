@@ -1,5 +1,5 @@
 import { IsArray, IsBoolean, IsEnum, IsISO8601, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
-import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../../../../domain/entities/advertisement.interface';
+import { AdvertisementType, AdvertisementConstructionType, AdvertisementTransactionType } from '../../../../domain/entities/advertisement';
 import { Transform, Type } from "class-transformer";
 import { AdvertisementIsBedsCountMandatory } from "../../validators/advertisement/advertisement-is-beds-count-mandatory.validator";
 import { AdvertisementIsBathsCountMandatory } from "../../validators/advertisement/advertisement-is-baths-count-mandatory.validator";

@@ -8,11 +8,12 @@ export class MongoosePlanMapper {
         if (!entity) return null;
         
         const model = new Plan({
-            _id: (entity._id as unknown as mongoose.Types.ObjectId).toString(),
+            id: entity._id.toString(),
             name: entity.name,
             duration: entity.duration,
             items: entity.items,
             price: entity.price,
+            photo: entity.photo,
         });
         return model;
     }

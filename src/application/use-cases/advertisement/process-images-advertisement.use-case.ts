@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AdvertisementPhoto } from 'src/domain/entities/advertisement.interface';
+import { AdvertisementPhoto } from 'src/domain/entities/advertisement';
 import { v4 as uuidv4 } from 'uuid';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { UploadImagesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/upload-images-advertisement.dto';
@@ -73,7 +73,7 @@ export class ProcesssImagesAdvertisementuseCase {
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        await this.algoliaService.delete(updatedAdvertisement._id.toString());
+        await this.algoliaService.delete(updatedAdvertisement.id);
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {

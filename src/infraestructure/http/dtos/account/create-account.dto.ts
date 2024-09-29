@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { IsExistingPlan } from "src/infraestructure/http/validators/plan/is-existing-plan.validator";
 import { UserAlreadyExists } from "src/infraestructure/http/validators/user/user-already-exists.validator";
-import { AccountDocumentType } from "src/domain/entities/account.interface";
+import { AccountDocumentType } from "src/domain/entities/account";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 
 export class CreateAccountDto {

@@ -9,9 +9,6 @@ export class DeleteFavoriteUserUseCase {
 
     async execute(userId: string, advertisementId: string): Promise<void> {
         const user = await this.userRepository.findOneAndUpdate({ _id: userId }, { $pull: { advertisementFavorites: advertisementId } }, true);
-    
-        if (!user) {
-            if (!user) throw new Error('notfound.user.do.not.exists');
-        }
+        if (!user) throw new Error('notfound.user.do.not.exists');
     }
 }

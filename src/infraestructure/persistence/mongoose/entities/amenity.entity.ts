@@ -10,6 +10,12 @@ export class Amenity {
 
     @Prop()
     name: string;
+
+    @Prop()
+    phosphorIcon: string;
+
+    @Prop()
+    type: string[];
 }
 
 const AmenitySchema = SchemaFactory.createForClass(Amenity);

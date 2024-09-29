@@ -1,8 +1,8 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
-import { AdvertisementStatus } from '../../../../domain/entities/advertisement.interface';
+import { AdvertisementStatus } from '../../../../domain/entities/advertisement';
 import { REQUEST_CONTEXT } from '../../../guards/auth.guard';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
-import { UserRole } from 'src/domain/entities/user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { UserRole } from 'src/domain/entities/user';
 
 @ValidatorConstraint({ async: false })
 export class AdvertisementIsStatusValidConstraint implements ValidatorConstraintInterface {

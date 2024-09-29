@@ -1,46 +1,62 @@
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { IAccountRepository } from "src/application/interfaces/repositories/account.repository.interface";
-import { Account, AccountStatus } from "src/domain/entities/account.interface";
-import { AuthenticatedUser } from "src/domain/entities/authenticated-user.interface";
-import { CreateAccountDto } from "src/infraestructure/http/dtos/account/create-account.dto";
+import { Account, AccountStatus } from "src/domain/entities/account";
+import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
 import { Account as AccountMongoose } from "../entities/account.entity"
+import { MongooseAccountMapper } from "../mapper/mongoose-account.mapper";
 
 export class MongooseAccountRepository implements IAccountRepository {
     constructor(
         @InjectModel(AccountMongoose.name) private readonly accountModel: Model<AccountMongoose>,
     ) {}
     
-    async find(): Promise<any> { // async getAll(): Promise<Account[]> {
-        return this.accountModel.find().populate('planId').exec();
+    async find(): Promise<Account[]> {
+        const query = await this.accountModel.find().exec();
+        return query.map((item) => MongooseAccountMapper.toDomain(item));
     }
     
-    async findOne(id: string): Promise<any> { // async getById(id: string): Promise<Account> {
-        return this.accountModel.findOne({ _id: id }).select('_id name description phone socialMedia webSite whatsApp address photo').exec();
+    async findById(id: string): Promise<Account> {
+      const query = await this.accountModel.findById(id).populate('contractTypes').exec();
+      return MongooseAccountMapper.toDomain(query);
     }
     
-    async create(authenticatedUser: AuthenticatedUser, createAccountDto: CreateAccountDto): Promise<any> { // async create(authenticatedUser: AuthenticatedUser, createAccountDto: CreateAccountDto): Promise<Account> {
-        const accountCreated = new this.accountModel({
-            planId: createAccountDto.planId,
-            name: createAccountDto.name,
-            email: authenticatedUser.email,
-            phone: createAccountDto.phone,
-            documentType: createAccountDto.documentType,
-            documentNumber: createAccountDto.documentNumber,
-            status: AccountStatus.ACTIVE,
-        });
-        
-        await accountCreated.save();
+    async create(authenticatedUser: AuthenticatedUser, account: Account): Promise<Account> {
+      const data = MongooseAccountMapper.toMongoose({
+        planId: account.planId,
+        name: account.name,
+        email: authenticatedUser.email,
+        phone: account.phone,
+        documentType: account.documentType,
+        documentNumber: account.documentNumber,
+        status: AccountStatus.ACTIVE,
+        photo: account.phone,
+        address: account.address,
+        whatsApp: account.whatsApp,
+        webSite: account.webSite,
+        socialMedia: account.socialMedia,
+        description: account.description
+      });
 
-        return accountCreated;
+
+        const entity = new this.accountModel(data);
+        await entity.save();
+
+        return MongooseAccountMapper.toDomain(entity);
     }
     
-    async findOneAndUpdate(filter: any, data: any, returnNew: boolean = false): Promise<any> { // async patch(filter: any, patchAccountDto: PatchAccountDto): Promise<Account> {
-      return this.accountModel.findOneAndUpdate(
+    async findOneAndUpdate(filter: any, data: any, returnNew: boolean = false): Promise<Account> {
+      const updated = await this.accountModel.findOneAndUpdate(
           filter,
           data,
           { new: returnNew }
       ).exec();
+
+      if (updated) {
+        return MongooseAccountMapper.toDomain(updated);
+      }
+
+      return null;
     }
     
     async findInactiveAccounts(): Promise<Account[]> {
@@ -82,39 +98,39 @@ export class MongooseAccountRepository implements IAccountRepository {
     }
     
     async getRegisteredAccounts(period: "week" | "month"): Promise<any> {
-        let groupId: any;
-    if (period === 'week') {
-      groupId = {
-        year: { $year: '$createdAt' },
-        week: { $week: '$createdAt' },
-      };
-    } else {
-      groupId = {
-        year: { $year: '$createdAt' },
-        month: { $month: '$createdAt' },
-      };
-    }
-
-    const accounts = await this.accountModel.aggregate([
-      {
-        $group: {
-          _id: groupId,
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.year': 1,
-          '_id.week': 1,
-          '_id.month': 1
-        }
+      let groupId: any;
+      if (period === 'week') {
+        groupId = {
+          year: { $year: '$createdAt' },
+          week: { $week: '$createdAt' },
+        };
+      } else {
+        groupId = {
+          year: { $year: '$createdAt' },
+          month: { $month: '$createdAt' },
+        };
       }
-    ]);
 
-    return accounts;
+      const accounts = await this.accountModel.aggregate([
+        {
+          $group: {
+            _id: groupId,
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: {
+            '_id.year': 1,
+            '_id.week': 1,
+            '_id.month': 1
+          }
+        }
+      ]);
+
+      return accounts;
     }
 
-    async deleteOne(accountId: string): Promise<void> {
-        await this.accountModel.deleteOne({ _id: accountId }).exec();
+    async deleteOne(id: string): Promise<void> {
+        await this.accountModel.deleteOne({ _id: id }).exec();
     }
 }

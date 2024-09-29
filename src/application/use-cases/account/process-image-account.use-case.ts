@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { UploadImageAccountDto } from 'src/infraestructure/http/dtos/account/upload-image-account.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
@@ -12,7 +12,7 @@ export class ProcessImageAccountUseCase {
   ) {}
 
   async execute(authenticatedUser: AuthenticatedUser, uploadImageAccountDto: UploadImageAccountDto): Promise<void> {
-    const account = await this.accountRepository.findOne(authenticatedUser.accountId);
+    const account = await this.accountRepository.findById(authenticatedUser.accountId);
     if (!account) throw new Error('notfound.account.do.not.exists');
 
     const imageName = authenticatedUser.accountId;

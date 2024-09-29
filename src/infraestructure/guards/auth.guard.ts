@@ -1,9 +1,9 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { FirebaseAdmin } from "../config/firebase.config";
-import { AuthenticatedUser } from "src/domain/entities/authenticated-user.interface";
-import { AccountStatus } from "src/domain/entities/account.interface";
-import { UserRole, UserStatus } from "src/domain/entities/user.interface";
+import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
+import { AccountStatus } from "src/domain/entities/account";
+import { UserRole, UserStatus } from "src/domain/entities/user";
 
 export const REQUEST_CONTEXT = '_requestContext';
 @Injectable()

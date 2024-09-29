@@ -6,7 +6,7 @@ export class AdvertisementReason {
     _id: mongoose.Schema.Types.ObjectId;
 
     @Prop()
-    name: String;
+    name: string;
 }
 
 const AdvertisementReasonSchema = SchemaFactory.createForClass(AdvertisementReason);

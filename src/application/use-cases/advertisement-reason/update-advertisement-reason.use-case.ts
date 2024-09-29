@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { IAdvertisementReasonRepository } from 'src/application/interfaces/repositories/advertisement-reason.repository.interface';
-import { AdvertisementReason } from 'src/domain/entities/advertisement-reason.interface';
-import { CreateUpdateAdvertisementReasonDto } from 'src/infraestructure/http/dtos/advertisement-reason/create-update-advertisement-reason.dto';
+import { AdvertisementReason } from 'src/domain/entities/advertisement-reason';
+
+interface UpdateAdvertisementReasonUseCaseCommand {
+    name: string,
+}
 
 @Injectable()
 export class UpdateAdvertisementReasonUseCase {
@@ -12,14 +13,16 @@ export class UpdateAdvertisementReasonUseCase {
     ) {}
 
     async execute(
-        advertisementReasonId: string,
-        createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto,
-    ): Promise<{ id: string }> {
+        id: string,
+        { name }: UpdateAdvertisementReasonUseCaseCommand,
+    ): Promise<AdvertisementReason> {
+        const advertisementReason = new AdvertisementReason({
+            name,
+        });
 
-        const updatedAdvertisementReason = await this.advertisementReasonRepository.findOneAndUpdate(advertisementReasonId, createUpdateAdvertisementReasonDto);
+        const updated = await this.advertisementReasonRepository.findOneAndUpdate(id, advertisementReason);
+        if (!updated) throw new Error('notfound.advertisement.do.not.exists');
 
-        if (!updatedAdvertisementReason) throw new Error('notfound.advertisement.do.not.exists');
-
-        return { id: updatedAdvertisementReason.id };
+        return updated;
     }
 }

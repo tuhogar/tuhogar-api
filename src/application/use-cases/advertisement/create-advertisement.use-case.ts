@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { AdvertisementStatus } from 'src/domain/entities/advertisement.interface';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { Advertisement, AdvertisementStatus } from 'src/domain/entities/advertisement';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { CreateUpdateAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto';
 import { plainToClass } from 'class-transformer';
 import { AddressDto } from 'src/infraestructure/http/dtos/address/address.dto';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
-import { GenerateAdvertisementCodeUseCase } from '../advertisement-code/generate-advertisement-code.use-case';
+import { IAdvertisementCodeRepository } from 'src/application/interfaces/repositories/advertisement-code.repository.interface';
 
 @Injectable()
 export class CreateAdvertisementUseCase {
     constructor(
-        private readonly generateAdvertisementCodeuseCase: GenerateAdvertisementCodeUseCase,
         private readonly advertisementRepository: IAdvertisementRepository,
+        private readonly advertisementCodeRepository: IAdvertisementCodeRepository,
     ) {}
 
     async execute(
         authenticatedUser: AuthenticatedUser,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
-    ): Promise<{ id: string }> {
+    ): Promise<Advertisement> {
         createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
 
-        const advertisementCode = await this.generateAdvertisementCodeuseCase.execute();
+        const advertisementCode = await this.advertisementCodeRepository.findOneAndUpdate();
         
         const advertisementCreated = await this.advertisementRepository.create({
             accountId: authenticatedUser.accountId, 
@@ -31,6 +31,6 @@ export class CreateAdvertisementUseCase {
             ...createUpdateAdvertisementDto,
         });
 
-        return { id: advertisementCreated.id };
+        return advertisementCreated;
     }
 }

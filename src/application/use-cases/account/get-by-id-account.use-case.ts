@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Account } from 'src/domain/entities/account.interface';
+import { Account } from 'src/domain/entities/account';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 
 @Injectable()
@@ -9,6 +9,6 @@ export class GetByIdAccountUseCase {
   ) {}
 
   async execute(id: string): Promise<Account> {
-    return this.accountRepository.findOne(id);
+    return this.accountRepository.findById(id);
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
-import { UserRole } from 'src/domain/entities/user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { UserRole } from 'src/domain/entities/user';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { DeleteAdvertisementsDto } from 'src/infraestructure/http/dtos/advertisement/delete-advertisements.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
@@ -26,7 +26,7 @@ export class DeleteAllAdvertisementUseCase {
 
         await this.advertisementRepository.deleteMany(filter);
 
-        advertisements.forEach(async (a) => await this.algoliaService.delete(a._id.toString()));
+        advertisements.forEach(async (a) => await this.algoliaService.delete(a.id));
 
         const photoUrls: string[] = [];
         advertisements.forEach((a) => {

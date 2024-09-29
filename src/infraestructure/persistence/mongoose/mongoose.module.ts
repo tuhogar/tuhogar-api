@@ -28,6 +28,9 @@ import { IAdvertisementRepository } from "src/application/interfaces/repositorie
 import { MongooseAdvertisementRepository } from "./repositories/mongoose-advertisement.repository";
 import { IUserRepository } from "src/application/interfaces/repositories/user.repository.interface";
 import { MongooseUserRepository } from "./repositories/mongoose-user.repository";
+import { MongooseContractTypeRepository } from "./repositories/mongoose-contract-type.repository";
+import { IContractTypeRepository } from "src/application/interfaces/repositories/contract-type.repository.interface";
+import { ContractType, ContractTypeSchema } from "./entities/contract-type.entity";
 
 @Module({
     imports: [
@@ -50,6 +53,7 @@ import { MongooseUserRepository } from "./repositories/mongoose-user.repository"
           { name: BulkUpdateDate.name, schema: BulkUpdateDateSchema },
           { name: Plan.name, schema: PlanSchema },
           { name: User.name, schema: UserSchema },
+          { name: ContractType.name, schema: ContractTypeSchema }
       ]),
     ],
     providers: [
@@ -89,6 +93,10 @@ import { MongooseUserRepository } from "./repositories/mongoose-user.repository"
         provide: IUserRepository,
         useClass: MongooseUserRepository,
       },
+      {
+        provide: IContractTypeRepository,
+        useClass: MongooseContractTypeRepository,
+      }
     ],
     exports: [
       IAccountRepository,
@@ -100,6 +108,7 @@ import { MongooseUserRepository } from "./repositories/mongoose-user.repository"
       IBulkUpdateDateRepository,
       IPlanRepository,
       IUserRepository,
+      IContractTypeRepository,
     ],
 })
 export class MongooseModule {}

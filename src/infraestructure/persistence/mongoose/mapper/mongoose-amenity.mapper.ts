@@ -8,9 +8,11 @@ export class MongooseAmenityMapper {
         if (!entity) return null;
         
         const model = new Amenity({
-            _id: (entity._id as unknown as mongoose.Types.ObjectId).toString(),
+            id: entity._id.toString(),
             key: entity.key,
             name: entity.name,
+            phosphorIcon: entity.phosphorIcon,
+            type: entity.type,
         });
         return model;
     }

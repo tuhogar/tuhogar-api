@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { FirebaseAdmin } from 'src/infraestructure/config/firebase.config';
-import { Account } from 'src/domain/entities/account.interface';
+import { Account } from 'src/domain/entities/account';
 import { CreateUserDto } from 'src/infraestructure/http/dtos/user/create-user.dto';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user.interface';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()
@@ -27,10 +27,10 @@ export class CreateUserUseCase {
                 accountId: accountCreated.id,
                 accountStatus: accountCreated.status,
                 userStatus: userCreated.status,
-                userId: userCreated._id.toString(),
+                userId: userCreated.id,
             });
         } catch(error) {
-            await this.userRepository.deleteOne({ _id: userCreated._id.toString() });
+            await this.userRepository.deleteOne(userCreated.id);
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }
 
