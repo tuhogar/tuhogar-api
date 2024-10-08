@@ -69,6 +69,9 @@ import { GetRegisteredAdvertisementsUseCase } from "src/application/use-cases/ad
 import { ContractTypeController } from "./controllers/contract-type.controller";
 import { GetAllContractTypeUseCase } from "src/application/use-cases/contract-type/get-all-contract-type.use-case";
 import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/contract-type-is-existing-id.validator";
+import { CancelSubscriptionUseCase } from "src/application/use-cases/subscription/cancel-subscription.use-case";
+import { CreateSubscriptionUseCase } from "src/application/use-cases/subscription/create-subscription.use-case";
+import { SubscriptionController } from "./controllers/subscription.controller";
 
 @Module({
     imports: [
@@ -130,6 +133,8 @@ import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/c
         UpdateAllStatusUserUseCase,
         UpdateStatusUserUseCase,
         GetAllContractTypeUseCase,
+        CancelSubscriptionUseCase,
+        CreateSubscriptionUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,
@@ -146,6 +151,7 @@ import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/c
         PlanController,
         UserController,
         ContractTypeController,
+        SubscriptionController,
         ],
 })
 export class HttpModule {}

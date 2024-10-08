@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { Plan } from 'src/domain/entities/plan';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { CreatePlanDto } from 'src/infraestructure/http/dtos/plan/create-plan.dto';
 import { CreatePlanUseCase } from 'src/application/use-cases/plan/create-plan.use-case';
@@ -15,6 +15,7 @@ export class PlanController {
         private readonly getAllPlanUseCase: GetAllPlanUseCase,
     ) {}
 
+    @ApiBearerAuth()
     @Get()
     async getAll(): Promise<Plan[]> {
         return this.getAllPlanUseCase.execute();
