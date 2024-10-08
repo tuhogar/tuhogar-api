@@ -15,7 +15,6 @@ export class PlanController {
         private readonly getAllPlanUseCase: GetAllPlanUseCase,
     ) {}
 
-    @ApiBearerAuth()
     @Get()
     async getAll(): Promise<Plan[]> {
         return this.getAllPlanUseCase.execute();
