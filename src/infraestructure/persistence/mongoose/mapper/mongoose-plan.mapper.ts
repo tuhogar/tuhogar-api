@@ -1,6 +1,5 @@
 import { Plan } from 'src/domain/entities/plan';
 import { Plan as PlanDocument } from '../entities/plan.entity';
-import * as mongoose from 'mongoose';
 
 export class MongoosePlanMapper {
     

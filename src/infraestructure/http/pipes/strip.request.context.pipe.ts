@@ -51,7 +51,7 @@ export class StripRequestContextPipe implements PipeTransform {
     allowedProperties.forEach((a) => {
       if (DtoMap.has(a)) {
         const allowedProperties = getProperties(DtoMap.get(a));
-        cleanObject(value[a], allowedProperties);
+        if (value[a]) cleanObject(value[a], allowedProperties);
       }
     });
     cleanObject(value, allowedProperties);
