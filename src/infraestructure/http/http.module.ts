@@ -72,6 +72,9 @@ import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/c
 import { CancelSubscriptionUseCase } from "src/application/use-cases/subscription/cancel-subscription.use-case";
 import { CreateSubscriptionUseCase } from "src/application/use-cases/subscription/create-subscription.use-case";
 import { SubscriptionController } from "./controllers/subscription.controller";
+import { MercadoPagoService } from "../payment-gateway/mercado-pago/mercado-pago.service";
+import { IPaymentGateway } from "src/application/interfaces/payment-gateway/payment-gateway.interface";
+import { CreatePaymentUseCase } from "src/application/use-cases/subscription/create-payment.use-case copy";
 
 @Module({
     imports: [
@@ -135,12 +138,17 @@ import { SubscriptionController } from "./controllers/subscription.controller";
         GetAllContractTypeUseCase,
         CancelSubscriptionUseCase,
         CreateSubscriptionUseCase,
+        CreatePaymentUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,
         IsExistingPlanConstraint,
         UserAlreadyExistsConstraint,
         FirebaseAdmin,
+        {
+            provide: IPaymentGateway,
+            useClass: MercadoPagoService,
+          }
     ],
     controllers: [
         AccountController,

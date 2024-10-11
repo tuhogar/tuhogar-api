@@ -1,0 +1,146 @@
+<body>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</body>
+
+<script>
+  const mp = new MercadoPago("TEST-e31016df-b31f-467e-ac66-0233779260fd");
+</script>
+
+
+<style>
+  #form-checkout {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+  }
+
+  .container {
+    height: 18px;
+    display: inline-block;
+    border: 1px solid rgb(118, 118, 118);
+    border-radius: 2px;
+    padding: 1px 2px;
+  }
+</style>
+<form id="form-checkout">
+  <div id="form-checkout__cardNumber" class="container"></div>
+  <div id="form-checkout__expirationDate" class="container"></div>
+  <div id="form-checkout__securityCode" class="container"></div>
+  <input type="text" id="form-checkout__cardholderName" />
+  <select id="form-checkout__issuer"></select>
+  <select id="form-checkout__installments"></select>
+  <select id="form-checkout__identificationType"></select>
+  <input type="text" id="form-checkout__identificationNumber" />
+  <input type="email" id="form-checkout__cardholderEmail" />
+
+  <button type="submit" id="form-checkout__submit">Pagar</button>
+  <progress value="0" class="progress-bar">Carregando...</progress>
+</form>
+
+<script>
+
+const cardForm = mp.cardForm({
+      amount: "10",
+      iframe: true,
+      form: {
+        id: "form-checkout",
+        cardNumber: {
+          id: "form-checkout__cardNumber",
+          placeholder: "Número do cartão",
+        },
+        expirationDate: {
+          id: "form-checkout__expirationDate",
+          placeholder: "MM/YY",
+        },
+        securityCode: {
+          id: "form-checkout__securityCode",
+          placeholder: "Código de segurança",
+        },
+        cardholderName: {
+          id: "form-checkout__cardholderName",
+          placeholder: "Titular do cartão",
+        },
+        issuer: {
+          id: "form-checkout__issuer",
+          placeholder: "Banco emissor",
+        },
+        installments: {
+          id: "form-checkout__installments",
+          placeholder: "Parcelas",
+        },        
+        identificationType: {
+          id: "form-checkout__identificationType",
+          placeholder: "Tipo de documento",
+        },
+        identificationNumber: {
+          id: "form-checkout__identificationNumber",
+          placeholder: "Número do documento",
+        },
+        cardholderEmail: {
+          id: "form-checkout__cardholderEmail",
+          placeholder: "E-mail",
+        },
+      },
+      callbacks: {
+        onFormMounted: error => {
+          if (error) return console.warn("Form Mounted handling error: ", error);
+          console.log("Form mounted");
+        },
+        onSubmit: event => {
+          event.preventDefault();
+
+          const {
+            paymentMethodId: payment_method_id,
+            issuerId: issuer_id,
+            cardholderEmail: email,
+            amount,
+            token,
+            installments,
+            identificationNumber,
+            identificationType,
+          } = cardForm.getCardFormData();
+          
+          console.log('-----cardForm.getCardFormData()');
+          console.log(cardForm.getCardFormData());
+          console.log('-----cardForm.getCardFormData()');
+
+          fetch("http://localhost:3000/v1/subscriptions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjhkNzU2OWQyODJkNWM1Mzk5MmNiYWZjZWI2NjBlYmQ0Y2E1OTMxM2EiLCJ0eXAiOiJKV1QifQ.eyJ1c2VyUm9sZSI6IkFETUlOIiwicGxhbklkIjoiNjY4ODQ4NGVmYjc3N2RkNDNhZDhhNTM4IiwiYWNjb3VudElkIjoiNjZlOGQxNGQ3OGQyNGNiMWM2ODQ1MThhIiwiYWNjb3VudFN0YXR1cyI6IkFDVElWRSIsInVzZXJTdGF0dXMiOiJBQ1RJVkUiLCJ1c2VySWQiOiI2NmU4ZDE0ZDc4ZDI0Y2IxYzY4NDUxOGMiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdHVob2dhci1kZXYiLCJhdWQiOiJ0dWhvZ2FyLWRldiIsImF1dGhfdGltZSI6MTcyODYxMjEzOCwidXNlcl9pZCI6IlpRVXBUTlZ6U0xmMXVhSTZYQ0FFN1NEYkZ6TzIiLCJzdWIiOiJaUVVwVE5WelNMZjF1YUk2WENBRTdTRGJGek8yIiwiaWF0IjoxNzI4NjEyMTM4LCJleHAiOjE3Mjg2MTU3MzgsImVtYWlsIjoiZ2l1c3RpLmx1Y2FzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJnaXVzdGkubHVjYXNAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.Im_EErYq1UZ37SqwTdb7591yHDsV9CeLqIPWvBSfy4ydYn8sk3ZOj4ri3A238H7ELRw-JJ7midn7xCeEaXO5FNb-5PgEVO-r4VRkU3qfzZLRHzPFiAxfyqHsN4YkFiWikyMpGgvUBZ0_0NzjeIlKoEyamPovJVk2ZNzHx1sVYKk_wG7Up--0Jh4Oo5RtkmSLb5UzwhwQRPgiI6xp2QaF2y2Z9tknpv4bZX0nFiQl10JTTLWtKrylsazcR-ECsbCfhLEhfdZXKFRU0es_EupUR05gnaLcBuNohO6juFoLd6rQqYR14dIODzizbKWUKYNWTpn_4bsfSB6qWNmqXpNt2A"
+            },
+            body: JSON.stringify({
+                planId: "66884879fb777dd43ad8a539",
+                paymentData: {
+                    token,
+                    issuer_id,
+                    payment_method_id,
+                    transaction_amount: Number(amount),
+                    installments: Number(installments),
+                    payer: {
+                        email,
+                        identification: {
+                        type: identificationType,
+                        number: identificationNumber,
+                        },
+                    },
+                },
+            }),
+          });
+        },
+        onFetching: (resource) => {
+          console.log("Fetching resource: ", resource);
+
+          // Animate progress bar
+          const progressBar = document.querySelector(".progress-bar");
+          progressBar.removeAttribute("value");
+
+          return () => {
+            progressBar.setAttribute("value", "0");
+          };
+        }
+      },
+    });
+
+</script>

@@ -6,12 +6,14 @@ import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { Authenticated } from 'src/infraestructure/decorators/authenticated.decorator';
 import { CreateSubscriptionDto } from '../dtos/subscription/create-subscription.dto';
 import { CancelSubscriptionUseCase } from 'src/application/use-cases/subscription/cancel-subscription.use-case';
+import { CreatePaymentUseCase } from 'src/application/use-cases/subscription/create-payment.use-case copy';
 
-@Controller('subscriptions')
+@Controller('v1/subscriptions')
 export class SubscriptionController {
   constructor(
     private readonly createSubscriptionUseCase: CreateSubscriptionUseCase,
-    private readonly cancelSubscriptionUseCase: CancelSubscriptionUseCase) {}
+    private readonly cancelSubscriptionUseCase: CancelSubscriptionUseCase,
+    private readonly createPaymentUseCase: CreatePaymentUseCase) {}
 
   @ApiBearerAuth()
   @Post()
@@ -19,7 +21,10 @@ export class SubscriptionController {
   async createSubscription(
     @Authenticated() authenticatedUser: AuthenticatedUser,
     @Body() createSubscriptionDto: CreateSubscriptionDto) {
-    return await this.createSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId, planId: createSubscriptionDto.planId });
+      console.log('-------createSubscriptionDto');
+      console.log(createSubscriptionDto);
+      console.log('-------createSubscriptionDto');
+    return await this.createSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId, email: authenticatedUser.email, planId: createSubscriptionDto.planId, paymentData: createSubscriptionDto.paymentData });
   }
 
   @ApiBearerAuth()
@@ -27,5 +32,13 @@ export class SubscriptionController {
   @Auth('ADMIN')
   async cancelSubscription(@Authenticated() authenticatedUser: AuthenticatedUser) {
     return await this.cancelSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId });
+  }
+
+  @Post('notifications')
+  //@Auth()
+  async notification(@Body() body: any) {
+    console.log('-------notification.body');
+    console.log(body);
+    console.log('-------notification.body');
   }
 }

@@ -7,13 +7,14 @@ interface CreatePlanUseCaseCommand {
     duration: number,
     items: string[],
     price: number,
+    externalId: string,
 }
 
 @Injectable()
 export class CreatePlanUseCase {
 
     constructor(
-        private readonly planyRepository: IPlanRepository,
+        private readonly planRepository: IPlanRepository,
     ) {}
 
     async execute({
@@ -21,15 +22,17 @@ export class CreatePlanUseCase {
         duration,
         items,
         price,
+        externalId,
     }: CreatePlanUseCaseCommand): Promise<Plan> {
         const plan = new Plan({
             name,
             duration,
             items,
             price,
+            externalId,
         })
 
-        const response = await this.planyRepository.create(plan);
+        const response = await this.planRepository.create(plan);
         return response;
     }
 }

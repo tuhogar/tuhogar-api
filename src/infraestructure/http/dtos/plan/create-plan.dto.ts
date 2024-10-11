@@ -27,4 +27,10 @@ export class CreatePlanDto {
     @IsNumber()
     @Property()
     price: number
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    @Property()
+    externalId: string
 }

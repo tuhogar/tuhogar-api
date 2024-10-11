@@ -31,9 +31,9 @@ import { MongooseUserRepository } from "./repositories/mongoose-user.repository"
 import { MongooseContractTypeRepository } from "./repositories/mongoose-contract-type.repository";
 import { IContractTypeRepository } from "src/application/interfaces/repositories/contract-type.repository.interface";
 import { ContractType, ContractTypeSchema } from "./entities/contract-type.entity";
-//import { Subscription, SubscriptionSchema } from "./entities/subscription.entity";
-//import { ISubscriptionRepository } from "src/application/interfaces/repositories/subscription.repository.interface";
-//import { MongooseSubscriptionRepository } from "./repositories/mongoose-subscription.repository";
+import { Subscription, SubscriptionSchema } from "./entities/subscription.entity";
+import { ISubscriptionRepository } from "src/application/interfaces/repositories/subscription.repository.interface";
+import { MongooseSubscriptionRepository } from "./repositories/mongoose-subscription.repository";
 
 @Module({
     imports: [
@@ -57,7 +57,7 @@ import { ContractType, ContractTypeSchema } from "./entities/contract-type.entit
           { name: Plan.name, schema: PlanSchema },
           { name: User.name, schema: UserSchema },
           { name: ContractType.name, schema: ContractTypeSchema },
-          //{ name: Subscription.name, schema: SubscriptionSchema },
+          { name: Subscription.name, schema: SubscriptionSchema },
       ]),
     ],
     providers: [
@@ -101,10 +101,10 @@ import { ContractType, ContractTypeSchema } from "./entities/contract-type.entit
         provide: IContractTypeRepository,
         useClass: MongooseContractTypeRepository,
       },
-      //{
-      //  provide: ISubscriptionRepository,
-      //  useClass: MongooseSubscriptionRepository,
-      //},
+      {
+        provide: ISubscriptionRepository,
+        useClass: MongooseSubscriptionRepository,
+      },
     ],
     exports: [
       IAccountRepository,
@@ -117,7 +117,7 @@ import { ContractType, ContractTypeSchema } from "./entities/contract-type.entit
       IPlanRepository,
       IUserRepository,
       IContractTypeRepository,
-      //ISubscriptionRepository,
+      ISubscriptionRepository,
     ],
 })
 export class MongooseModule {}

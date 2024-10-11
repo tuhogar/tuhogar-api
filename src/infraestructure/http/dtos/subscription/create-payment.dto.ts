@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsJSON, IsMongoId, IsNotEmpty, IsObject, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsString } from "class-validator";
 import { IsExistingPlan } from "src/infraestructure/http/validators/plan/is-existing-plan.validator";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 
-export class CreateSubscriptionDto {
+export class CreatePaymentDto {
 
     @ApiProperty()
     @IsMongoId({ message: 'invalid.planId' })
@@ -12,8 +12,8 @@ export class CreateSubscriptionDto {
     planId: string;
 
     @ApiProperty()
-    @IsObject()
+    @IsString()
     @IsNotEmpty()
     @Property()
-    paymentData: Record<string, any>;
+    token: string;
 }

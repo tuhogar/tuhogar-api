@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Subscription } from 'src/domain/entities/subscription';
+import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
 import { ISubscriptionRepository } from 'src/application/interfaces/repositories/subscription.repository.interface';
 import { Subscription as SubscriptionMongoose } from '../entities/subscription.entity';
 import { MongooseSubscriptionMapper } from '../mapper/mongoose-subscription.mapper';
@@ -38,8 +38,7 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     }).exec();
     
     if (updated) {
-        const user = updated;
-        return this.findById(user._id.toString());
+        return MongooseSubscriptionMapper.toDomain(updated);
     }
 
     return null;
@@ -48,13 +47,12 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   async cancel(id: string): Promise<Subscription> {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
-      { status: 'canceled' },
+      { status: SubscriptionStatus.CANCELED },
       { new: true },
     ).exec();
     
     if (updated) {
-        const user = updated;
-        return this.findById(user._id.toString());
+      return MongooseSubscriptionMapper.toDomain(updated);
     }
 
     return null;

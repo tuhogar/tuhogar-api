@@ -13,6 +13,7 @@ export class MongoosePlanMapper {
             items: entity.items,
             price: entity.price,
             photo: entity.photo,
+            externalId: entity.externalId,
         });
         return model;
     }
@@ -23,6 +24,7 @@ export class MongoosePlanMapper {
             duration: plan.duration,
             items: plan.items,
             price: plan.price,
+            externalId: plan.externalId,
         }
     }
 }

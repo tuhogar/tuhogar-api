@@ -5,6 +5,7 @@ export class Plan {
     items: string[];
     price: number;
     photo?: string;
+    externalId: string;
 
     constructor(props: Plan) {
         Object.assign(this, props);
