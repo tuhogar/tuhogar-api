@@ -18,19 +18,19 @@ export class ReceiveSubscriptionNotificationUseCase {
   ) {}
 
   async execute(payload: any): Promise<void> {
-    const notification = this.paymentGateway.getSubscriptionNotification(payload);
+    const subscriptionNotification = this.paymentGateway.getSubscriptionNotification(payload);
 
-    const subscriptionNotification = await this.subscriptionNotificationRepository.create(notification);
+    const subscriptionNotificationCreated = await this.subscriptionNotificationRepository.create(subscriptionNotification);
 
-    switch(subscriptionNotification.type) {
+    switch(subscriptionNotificationCreated.type) {
       case SubscriptionNotificationType.INVOICE:
-        await this.receiveSubscriptionInvoiceNotificationUseCase.execute(subscriptionNotification);
+        await this.receiveSubscriptionInvoiceNotificationUseCase.execute(subscriptionNotificationCreated);
         break;
       case SubscriptionNotificationType.PAYMENT:
-        await this.receiveSubscriptionPaymentNotificationUseCase.execute(subscriptionNotification);
+        await this.receiveSubscriptionPaymentNotificationUseCase.execute(subscriptionNotificationCreated);
         break;
       case SubscriptionNotificationType.SUBSCRIPTION:
-        await this.receiveSubscriptionNotification(subscriptionNotification);
+        await this.receiveSubscriptionNotification(subscriptionNotificationCreated);
         break;
       default:
         break;
@@ -38,6 +38,11 @@ export class ReceiveSubscriptionNotificationUseCase {
   }
 
   async receiveSubscriptionNotification(subscriptionNotification: SubscriptionNotification): Promise<void> {
+
+
+    // TODO: Modificar abaixo para depois do getSubscription do paymentGateway,
+    // pois este retornará a subscription e assim podemos pegar a subscription na base via externalId da subscription e não da notificação
+    // remover externalId da SubscriptionNotification e manter apenas nos objetos correspondentes (subscription, payment ou invoice)
     console.log('--------receive-subscription-notification-INICIO');
     if (!subscriptionNotification.externalId) throw new Error('invalid.notification.externalId');
 
