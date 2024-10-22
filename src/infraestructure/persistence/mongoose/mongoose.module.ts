@@ -34,6 +34,15 @@ import { ContractType, ContractTypeSchema } from "./entities/contract-type.entit
 import { Subscription, SubscriptionSchema } from "./entities/subscription.entity";
 import { ISubscriptionRepository } from "src/application/interfaces/repositories/subscription.repository.interface";
 import { MongooseSubscriptionRepository } from "./repositories/mongoose-subscription.repository";
+import { ISubscriptionPaymentRepository } from "src/application/interfaces/repositories/subscription-payment.repository.interface";
+import { MongooseSubscriptionPaymentRepository } from "./repositories/mongoose-subscription-payment.repository";
+import { SubscriptionPayment, SubscriptionPaymentSchema } from "./entities/subscription-payment.entity";
+import { ISubscriptionNotificationRepository } from "src/application/interfaces/repositories/subscription-notification.repository.interface";
+import { MongooseSubscriptionNotificationRepository } from "./repositories/mongoose-subscription-notification.repository";
+import { SubscriptionNotification, SubscriptionNotificationSchema } from "./entities/subscription-notification.entity";
+import { ISubscriptionInvoiceRepository } from "src/application/interfaces/repositories/subscription-invoice.repository.interface";
+import { MongooseSubscriptionInvoiceRepository } from "./repositories/mongoose-subscription-invoice.repository";
+import { SubscriptionInvoice, SubscriptionInvoiceSchema } from "./entities/subscription-invoice.entity";
 
 @Module({
     imports: [
@@ -58,6 +67,9 @@ import { MongooseSubscriptionRepository } from "./repositories/mongoose-subscrip
           { name: User.name, schema: UserSchema },
           { name: ContractType.name, schema: ContractTypeSchema },
           { name: Subscription.name, schema: SubscriptionSchema },
+          { name: SubscriptionPayment.name, schema: SubscriptionPaymentSchema },
+          { name: SubscriptionInvoice.name, schema: SubscriptionInvoiceSchema },
+          { name: SubscriptionNotification.name, schema: SubscriptionNotificationSchema },
       ]),
     ],
     providers: [
@@ -105,6 +117,18 @@ import { MongooseSubscriptionRepository } from "./repositories/mongoose-subscrip
         provide: ISubscriptionRepository,
         useClass: MongooseSubscriptionRepository,
       },
+      {
+        provide: ISubscriptionPaymentRepository,
+        useClass: MongooseSubscriptionPaymentRepository,
+      },
+      {
+        provide: ISubscriptionInvoiceRepository,
+        useClass: MongooseSubscriptionInvoiceRepository,
+      },
+      {
+        provide: ISubscriptionNotificationRepository,
+        useClass: MongooseSubscriptionNotificationRepository,
+      }
     ],
     exports: [
       IAccountRepository,
@@ -118,6 +142,9 @@ import { MongooseSubscriptionRepository } from "./repositories/mongoose-subscrip
       IUserRepository,
       IContractTypeRepository,
       ISubscriptionRepository,
+      ISubscriptionPaymentRepository,
+      ISubscriptionInvoiceRepository,
+      ISubscriptionNotificationRepository,
     ],
 })
 export class MongooseModule {}

@@ -69,12 +69,13 @@ import { GetRegisteredAdvertisementsUseCase } from "src/application/use-cases/ad
 import { ContractTypeController } from "./controllers/contract-type.controller";
 import { GetAllContractTypeUseCase } from "src/application/use-cases/contract-type/get-all-contract-type.use-case";
 import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/contract-type-is-existing-id.validator";
-import { CancelSubscriptionUseCase } from "src/application/use-cases/subscription/cancel-subscription.use-case";
 import { CreateSubscriptionUseCase } from "src/application/use-cases/subscription/create-subscription.use-case";
 import { SubscriptionController } from "./controllers/subscription.controller";
 import { MercadoPagoService } from "../payment-gateway/mercado-pago/mercado-pago.service";
 import { IPaymentGateway } from "src/application/interfaces/payment-gateway/payment-gateway.interface";
-import { CreatePaymentUseCase } from "src/application/use-cases/subscription/create-payment.use-case copy";
+import { ReceiveSubscriptionNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-notification.use-case";
+import { ReceiveSubscriptionInvoiceNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-invoice-notification.use-case";
+import { ReceiveSubscriptionPaymentNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-payment-notification.use-case";
 
 @Module({
     imports: [
@@ -136,9 +137,10 @@ import { CreatePaymentUseCase } from "src/application/use-cases/subscription/cre
         UpdateAllStatusUserUseCase,
         UpdateStatusUserUseCase,
         GetAllContractTypeUseCase,
-        CancelSubscriptionUseCase,
         CreateSubscriptionUseCase,
-        CreatePaymentUseCase,
+        ReceiveSubscriptionNotificationUseCase,
+        ReceiveSubscriptionPaymentNotificationUseCase,
+        ReceiveSubscriptionInvoiceNotificationUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,

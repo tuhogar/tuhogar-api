@@ -1,0 +1,7 @@
+import { SubscriptionInvoice } from "src/domain/entities/subscription-invoice";
+
+export abstract class ISubscriptionInvoiceRepository {
+    abstract find(): Promise<SubscriptionInvoice[]>
+    abstract findByExternalId(externalId: string): Promise<SubscriptionInvoice>
+    abstract create(subscriptionInvoice: SubscriptionInvoice): Promise<SubscriptionInvoice>
+}

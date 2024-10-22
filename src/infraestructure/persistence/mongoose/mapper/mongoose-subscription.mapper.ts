@@ -11,7 +11,8 @@ export class MongooseSubscriptionMapper {
             accountId: !entity.accountId.createdAt ? entity.accountId?.toString() : entity.accountId._id.toString(),
             planId: entity.planId?.toString(),
             externalId: entity.externalId,
-            status: entity.status
+            status: entity.status,
+            externalPayerReference: entity.externalPayerReference,
         });
         return model;
     }
@@ -22,6 +23,7 @@ export class MongooseSubscriptionMapper {
             planId: subscription.planId,
             externalId: subscription.externalId,
             status: subscription.status,
+            externalPayerReference: subscription.externalPayerReference,
         }
     }
 }

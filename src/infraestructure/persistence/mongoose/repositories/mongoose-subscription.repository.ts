@@ -32,22 +32,64 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
-  async findByIdAndUpdate(id: string, subscription: Subscription): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(id, subscription, {
-      new: true,
-    }).exec();
+  async findByExternalId(externalId: string): Promise<Subscription> {
+    const query = await this.subscriptionModel.findOne({ externalId }).exec();
     
-    if (updated) {
-        return MongooseSubscriptionMapper.toDomain(updated);
-    }
+    return MongooseSubscriptionMapper.toDomain(query);
+  }
 
-    return null;
+  async findByExternalPayerReference(externalPayerReference: string): Promise<Subscription> {
+    const query = await this.subscriptionModel.findOne({ externalPayerReference }).exec();
+    
+    return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async cancel(id: string): Promise<Subscription> {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
-      { status: SubscriptionStatus.CANCELED },
+      { status: SubscriptionStatus.CANCELLED },
+      { new: true },
+    ).exec();
+    
+    if (updated) {
+      return MongooseSubscriptionMapper.toDomain(updated);
+    }
+
+    return null;
+  }
+
+  async active(id: string): Promise<Subscription> {
+    const updated = await this.subscriptionModel.findByIdAndUpdate(
+      id,
+      { status: SubscriptionStatus.ACTIVE },
+      { new: true },
+    ).exec();
+    
+    if (updated) {
+      return MongooseSubscriptionMapper.toDomain(updated);
+    }
+
+    return null;
+  }
+
+  async pause(id: string): Promise<Subscription> {
+    const updated = await this.subscriptionModel.findByIdAndUpdate(
+      id,
+      { status: SubscriptionStatus.PAUSED },
+      { new: true },
+    ).exec();
+    
+    if (updated) {
+      return MongooseSubscriptionMapper.toDomain(updated);
+    }
+
+    return null;
+  }
+
+  async pending(id: string): Promise<Subscription> {
+    const updated = await this.subscriptionModel.findByIdAndUpdate(
+      id,
+      { status: SubscriptionStatus.PENDING },
       { new: true },
     ).exec();
     
