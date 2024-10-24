@@ -106,8 +106,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
     
-    async findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<Advertisement[]> {
-        const query = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').populate('communityAmenities').sort(orderBy).exec()
+    async findForActives(advertisementIds: string[]): Promise<Advertisement[]> {
+        const query = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').populate('communityAmenities').exec()
         return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
     

@@ -9,7 +9,7 @@ export abstract class IAdvertisementRepository {
     abstract findOne(advertisementId: string, accountId: string): Promise<Advertisement>
     abstract findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
     abstract findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]>
-    abstract findForActives(advertisementIds: string[], orderBy: AdvertisementActivesOrderBy): Promise<Advertisement[]>
+    abstract findForActives(advertisementIds: string[]): Promise<Advertisement[]>
     abstract getAllByAccountId(accountId: string): Promise<Advertisement[]>
     abstract getByAccountIdAndId(filter: any): Promise<Advertisement>
     abstract get(advertisementId: string): Promise<Advertisement>
