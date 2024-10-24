@@ -2,7 +2,7 @@ const algoliasearch = require('algoliasearch')
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
-import { Advertisement } from 'src/domain/entities/advertisement';
+import { Advertisement, AdvertisementActivesOrderBy } from 'src/domain/entities/advertisement';
 
 @Injectable()
 export class AlgoliaService {
@@ -124,7 +124,27 @@ export class AlgoliaService {
         if (getActivesAdvertisementDto.page) options['page'] = getActivesAdvertisementDto.page - 1;
         if (getActivesAdvertisementDto.limit) options['hitsPerPage'] = getActivesAdvertisementDto.limit;
 
-        const { hits, nbHits: count } = await this.index.search(query, options);
+        let selectedIndex = this.index; // Índice padrão
+
+        // Verifica o campo de ordenação e altera o índice conforme necessário
+        if (getActivesAdvertisementDto.orderBy) {
+          switch (getActivesAdvertisementDto.orderBy) {
+            case AdvertisementActivesOrderBy.LOWEST_PRICE:
+              selectedIndex = this.client.initIndex('advertisements_price_asc');
+              break;
+            case AdvertisementActivesOrderBy.HIGHEST_PRICE:
+              selectedIndex = this.client.initIndex('advertisements_price_desc');
+              break;
+            case AdvertisementActivesOrderBy.LOWEST_PRICE_M2:
+              selectedIndex = this.client.initIndex('advertisements_pricePerFloorArea_asc');
+              break;
+            case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
+              selectedIndex = this.client.initIndex('advertisements_pricePerFloorArea_desc');
+              break;
+          }
+        }
+
+        const { hits, nbHits: count } = await selectedIndex.search(query, options);
 
         const objectIDs = hits.map((hit: any) => hit.objectID);
 

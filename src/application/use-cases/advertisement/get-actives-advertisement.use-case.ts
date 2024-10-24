@@ -15,28 +15,19 @@ export class GetActivesAdvertisementUseCase {
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        let orderBy = undefined;
-        switch (getActivesAdvertisementDto.orderBy) {
-            case AdvertisementActivesOrderBy.HIGHEST_PRICE:
-                orderBy = { price: -1 };
-                break;
-            case AdvertisementActivesOrderBy.LOWEST_PRICE:
-                orderBy = { price: 1 };
-                break;
-            case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
-                orderBy = { pricePerFloorArea: -1 };
-                break;
-            case AdvertisementActivesOrderBy.LOWEST_PRICE_M2:
-                orderBy = { pricePerFloorArea: 1 };
-                break;
-            default:
-                break;
+        const advertisements = await this.advertisementRepository.findForActives(advertisementIds);
+
+        const advertisementMap = advertisements.reduce((acc, ad) => {
+            acc[ad.id] = ad;
+            return acc;
+        }, {} as { [key: string]: Advertisement });
+        
+        const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]);
+
+        if (!getActivesAdvertisementDto.orderBy) {
+            orderedAdvertisements.sort(() => Math.random() - 0.5);
         }
 
-        const advertisements = await this.advertisementRepository.findForActives(advertisementIds, orderBy);
-
-        if (!orderBy) advertisements.sort(() => Math.random() - 0.5);
-
-        return { data: advertisements, count };
+        return { data: orderedAdvertisements, count };
     }
 }
