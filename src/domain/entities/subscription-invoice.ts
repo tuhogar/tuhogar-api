@@ -1,7 +1,7 @@
 export enum SubscriptionInvoiceStatus {
+  UNKNOWN = 'UNKNOWN',
   SCHEDULED = 'SCHEDULED',
   PROCESSED = 'PROCESSED',
-  RECYCLING = 'RECYCLING',
   CANCELLED = 'CANCELLED',
 }
 export class SubscriptionInvoice {

@@ -29,5 +29,19 @@ export class MongooseSubscriptionPaymentRepository implements ISubscriptionPayme
   async find(): Promise<SubscriptionPayment[]> {
     const query = await this.subscriptionPaymentModel.find();
     return query.map((item) => MongooseSubscriptionPaymentMapper.toDomain(item));
-}
+  }
+
+  async update(id: string, subscriptionPayment: SubscriptionPayment): Promise<SubscriptionPayment> {
+    const updated = await this.subscriptionPaymentModel.findByIdAndUpdate(
+      id,
+      subscriptionPayment,
+      { new: true },
+    ).exec();
+    
+    if (updated) {
+      return MongooseSubscriptionPaymentMapper.toDomain(updated);
+    }
+
+    return null;
+  }
 }

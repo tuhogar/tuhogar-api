@@ -9,9 +9,6 @@ export class SubscriptionNotification {
     type: string;
 
     @Prop()
-    externalId: string;
-
-    @Prop()
     action: string;
 
     @Prop({ type: mongoose.Schema.Types.Mixed })

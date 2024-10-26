@@ -19,11 +19,8 @@ export class SubscriptionPayment {
     @Prop({ index: true })
     externalSubscriptionReference: string;
 
-    @Prop()
-    paymentAt: Date;
-
-    @Prop()
-    approvedAt: Date;
+    @Prop({ index: true })
+    externalPayerReference: string;
 
     @Prop()
     public type: string;

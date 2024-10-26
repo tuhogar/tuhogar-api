@@ -14,7 +14,6 @@ export enum SubscriptionNotificationAction {
 export class SubscriptionNotification {
   id?: string;
   public type: SubscriptionNotificationType;
-  public externalId: string;
   public action: SubscriptionNotificationAction;
   public payload: Record<string, any>;
   public subscription?: Record<string, any>;

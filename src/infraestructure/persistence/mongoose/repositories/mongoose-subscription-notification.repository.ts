@@ -19,46 +19,4 @@ export class MongooseSubscriptionNotificationRepository implements ISubscription
 
     return MongooseSubscriptionNotificationMapper.toDomain(entity);
   }
-
-  async addSubscription(id: string, subscription: Record<string, any>): Promise<SubscriptionNotification> {
-    const updated = await this.subscriptionNotificationModel.findByIdAndUpdate(
-      id,
-      { subscription },
-      { new: true },
-    ).exec();
-    
-    if (updated) {
-      return MongooseSubscriptionNotificationMapper.toDomain(updated);
-    }
-
-    return null;
-  }
-
-  async addPayment(id: string, payment: Record<string, any>): Promise<SubscriptionNotification> {
-    const updated = await this.subscriptionNotificationModel.findByIdAndUpdate(
-      id,
-      { payment },
-      { new: true },
-    ).exec();
-    
-    if (updated) {
-      return MongooseSubscriptionNotificationMapper.toDomain(updated);
-    }
-
-    return null;
-  }
-
-  async addInvoice(id: string, invoice: Record<string, any>): Promise<SubscriptionNotification> {
-    const updated = await this.subscriptionNotificationModel.findByIdAndUpdate(
-      id,
-      { invoice },
-      { new: true },
-    ).exec();
-    
-    if (updated) {
-      return MongooseSubscriptionNotificationMapper.toDomain(updated);
-    }
-
-    return null;
-  }
 }

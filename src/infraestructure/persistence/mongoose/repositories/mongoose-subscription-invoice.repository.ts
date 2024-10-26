@@ -29,5 +29,19 @@ export class MongooseSubscriptionInvoiceRepository implements ISubscriptionInvoi
   async find(): Promise<SubscriptionInvoice[]> {
     const query = await this.subscriptionInvoiceModel.find();
     return query.map((item) => MongooseSubscriptionInvoiceMapper.toDomain(item));
-}
+  }
+
+  async update(id: string, subscriptionInvoice: SubscriptionInvoice): Promise<SubscriptionInvoice> {
+    const updated = await this.subscriptionInvoiceModel.findByIdAndUpdate(
+      id,
+      subscriptionInvoice,
+      { new: true },
+    ).exec();
+    
+    if (updated) {
+      return MongooseSubscriptionInvoiceMapper.toDomain(updated);
+    }
+
+    return null;
+  }
 }

@@ -1,13 +1,9 @@
 export enum SubscriptionPaymentStatus {
+  UNKNOWN = 'UNKNOWN',
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
-  AUTHORIZED = 'AUTHORIZED',
-  IN_PROCESS = 'IN_PROCESS',
-  IN_MEDIATION = 'IN_MEDIATION',
   REJECTED = 'REJECTED',
   CANCELLED = 'CANCELLED',
-  REFUNDED = 'REFUNDED',
-  CHARGED_BACK = 'CHARGED_BACK',
 }
 export class SubscriptionPayment {
   id?: string;
@@ -15,8 +11,7 @@ export class SubscriptionPayment {
   public accountId: string;
   public externalId: string;
   public externalSubscriptionReference?: string;
-  public paymentAt: Date;
-  public approvedAt: Date;
+  public externalPayerReference?: string;
   public type: string;
   public method: string;
   public description: string;

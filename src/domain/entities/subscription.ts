@@ -1,4 +1,5 @@
 export enum SubscriptionStatus {
+  UNKNOWN = 'UNKNOWN',
   ACTIVE = 'ACTIVE',
   PENDING = 'PENDING',
   CANCELLED = 'CANCELLED',
@@ -9,7 +10,7 @@ export class Subscription {
   public accountId: string;
   public planId: string;
   public externalId: string;
-  public status: string;
+  public status: SubscriptionStatus;
   public externalPayerReference?: string;
   
   constructor(props: Subscription) {

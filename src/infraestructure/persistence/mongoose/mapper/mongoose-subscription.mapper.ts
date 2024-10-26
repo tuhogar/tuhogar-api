@@ -1,4 +1,4 @@
-import { Subscription } from 'src/domain/entities/subscription';
+import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
 import { Subscription as SubscriptionDocument } from '../entities/subscription.entity';
 
 export class MongooseSubscriptionMapper {
@@ -11,7 +11,7 @@ export class MongooseSubscriptionMapper {
             accountId: !entity.accountId.createdAt ? entity.accountId?.toString() : entity.accountId._id.toString(),
             planId: entity.planId?.toString(),
             externalId: entity.externalId,
-            status: entity.status,
+            status: entity.status as SubscriptionStatus,
             externalPayerReference: entity.externalPayerReference,
         });
         return model;

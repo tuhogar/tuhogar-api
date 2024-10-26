@@ -9,11 +9,10 @@ export class MongooseSubscriptionNotificationMapper {
         const model = new SubscriptionNotification({
             id: entity._id.toString(),
             type: entity.type as SubscriptionNotificationType,
-            externalId: entity.externalId,
             action: entity.action as SubscriptionNotificationAction,
             payload: entity.payload,
             subscription: entity.subscription,
-            payment: entity.payload,
+            payment: entity.payment,
             invoice: entity.invoice,
         });
         return model;
@@ -22,7 +21,6 @@ export class MongooseSubscriptionNotificationMapper {
     static toMongoose(notification: SubscriptionNotification) {
         return {
             type: notification.type,
-            externalId: notification.externalId,
             action: notification.action,
             payload: notification.payload,
             subscription: notification.subscription,

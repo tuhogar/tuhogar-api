@@ -19,86 +19,43 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
   ) {}
 
   async execute(subscriptionNotification: SubscriptionNotification): Promise<void> {
-    console.log('--------receive-subscription-payment-notification-INICIO');
-    if (!subscriptionNotification.externalId) throw new Error('invalid.notification.externalId');
-    
-    // TODO: Abaixo, deverá ser retornado um objeto payment
-    // para atualizar as propriedades modificadas no payment já existente na base de dados ou criar um novo
-    // trocar paymentGateway.getExternalPayment() para paymentGateway.getPayment()
-    const externalPayment = await this.paymentGateway.getExternalPayment(subscriptionNotification.externalId);
-    if (!externalPayment) {
+    const paymentNotificated = await this.paymentGateway.getPayment(subscriptionNotification);
+    if (!paymentNotificated) {
       console.log('NAO ENCONTROU O PAGAMENTO NO SERVICO EXTERNO');
-      throw new Error('notfound.external.payment.do.not.exists')
+      throw new Error('notfound.payment.notificated.do.not.exists');
     }
 
-    console.log('-----externalPayment');
-    console.log(externalPayment);
-    console.log('-----externalPayment');
+    let subscription: Subscription;
+    if (paymentNotificated.externalSubscriptionReference) {
+      subscription = await this.subscriptionRepository.findByExternalId(paymentNotificated.externalSubscriptionReference);
+    } else if (paymentNotificated.externalPayerReference) {
+      subscription = await this.subscriptionRepository.findByExternalPayerReference(paymentNotificated.externalPayerReference);
+    }
 
-    await this.subscriptionNotificationRepository.addPayment(subscriptionNotification.id, externalPayment.payload);
-
-    // TODO: Buscar por externalSubscriptionReference (externalId da subscription) se existir, se não existir, buscar por externalPayerReference da subscription (externalId do payment)
-    const subscription = await this.subscriptionRepository.findByExternalPayerReference(externalPayment.payload.payer.id);
     if (!subscription) {
       console.log('NAO ENCONTROU A ASSINATURA DO PAGAMENTO NA BASE DE DADOS');
       throw new Error('notfound.subscription.do.not.exists');
     }
 
-    let status = SubscriptionPaymentStatus.PENDING;
+    paymentNotificated.subscriptionId = subscription.id;
+    paymentNotificated.accountId = subscription.accountId;
 
-    switch (externalPayment.status) {
-      case ExternalSubscriptionPaymentStatus.PENDING:
-        status = SubscriptionPaymentStatus.PENDING;
-        break;
-      case ExternalSubscriptionPaymentStatus.APPROVED:
-        status = SubscriptionPaymentStatus.APPROVED;
-        break;
-      case ExternalSubscriptionPaymentStatus.AUTHORIZED:
-        status = SubscriptionPaymentStatus.AUTHORIZED;
-        break;
-      case ExternalSubscriptionPaymentStatus.IN_PROCESS:
-        status = SubscriptionPaymentStatus.IN_PROCESS;
-        break;
-      case ExternalSubscriptionPaymentStatus.IN_MEDIATION:
-        status = SubscriptionPaymentStatus.IN_MEDIATION;
-        break;
-      case ExternalSubscriptionPaymentStatus.REJECTED:
-        status = SubscriptionPaymentStatus.REJECTED;
-        break;
-      case ExternalSubscriptionPaymentStatus.CANCELLED:
-        status = SubscriptionPaymentStatus.CANCELLED;
-        break;
-      case ExternalSubscriptionPaymentStatus.REFUNDED:
-        status = SubscriptionPaymentStatus.REFUNDED;
-        break;
-      case ExternalSubscriptionPaymentStatus.CHARGED_BACK:
-        status = SubscriptionPaymentStatus.CHARGED_BACK;
-        break;
+    console.log('-----paymentNotificated');
+    console.log(paymentNotificated);
+    console.log('-----paymentNotificated');
+
+    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE) {
+      console.log('CRIA PAGAMENTO');
+      await this.subscriptionPaymentRepository.create(paymentNotificated);
+    } else {
+      const payment = await this.subscriptionPaymentRepository.findByExternalId(paymentNotificated.externalId);
+      if (!payment) {
+        console.log('NAO ENCONTROU O PAGAMENTO NA BASE DE DADOS');
+        throw new Error('notfound.payment.do.not.exists');
+      }
+
+      console.log('ATUALIZA PAGAMENTO');
+      await this.subscriptionPaymentRepository.update(payment.id, paymentNotificated);
     }
-
-    //if (externalSubscriptionNotification.action === ExternalSubscriptionNotificationAction.CREATE) {
-      const subscriptionPayment = new SubscriptionPayment({
-        subscriptionId: subscription.id,
-        accountId: subscription.accountId,
-        externalId: externalPayment.id,
-        paymentAt: null,
-        approvedAt: externalPayment.payload.date_approved,
-        type: externalPayment.payload.payment_type_id,
-        method: externalPayment.payload.payment_method_id,
-        description: externalPayment.payload.description,
-        amount: externalPayment.payload.transaction_amount,
-        currency: externalPayment.payload.currency_id,
-        status,
-      });
-
-      console.log('-----subscriptionPayment');
-      console.log(subscriptionPayment);
-      console.log('-----subscriptionPayment');
-
-      await this.subscriptionPaymentRepository.create(subscriptionPayment);
-    //}
-
-    // TODO: Faça alguma coisa com a notificação recebida sobre o pagamento
-    console.log('--------receive-external-subscription-payment-notification-FIM');
   }
 }

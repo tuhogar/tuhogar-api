@@ -21,67 +21,38 @@ export class ReceiveSubscriptionInvoiceNotificationUseCase {
   ) {}
 
   async execute(subscriptionNotification: SubscriptionNotification): Promise<void> {
-    console.log('--------receive-subscription-invoice-notification-INICIO');
-    if (!subscriptionNotification.externalId) throw new Error('invalid.notification.externalId');
-    
-    // TODO: Abaixo, deverá ser retornado um objeto invoice
-    // para atualizar as propriedades modificadas na invoice já existente na base de dados ou criar uma nova
-    // trocar paymentGateway.getExternalInvoice() para paymentGateway.getInvoice()
-    const externalInvoice = await this.paymentGateway.getExternalInvoice(subscriptionNotification.externalId);
-    if (!externalInvoice) {
+    const invoiceNotificated = await this.paymentGateway.getInvoice(subscriptionNotification);
+    if (!invoiceNotificated) {
       console.log('NAO ENCONTROU A INVOICE NO SERVICO EXTERNO');
-      throw new Error('notfound.external.invoice.do.not.exists')
+      throw new Error('notfound.invoice.notificated.do.not.exists');
     }
 
-    console.log('-----externalInvoice');
-    console.log(externalInvoice);
-    console.log('-----externalInvoice');
-
-    await this.subscriptionNotificationRepository.addInvoice(subscriptionNotification.id, externalInvoice.payload);
-
-    // TODO: Buscar por externalSubscriptionReference (externalId da subscription)
-    const subscription = await this.subscriptionRepository.findByExternalId(externalInvoice.payload.preapproval_id);
+    
+    const subscription = await this.subscriptionRepository.findByExternalId(invoiceNotificated.externalSubscriptionReference);
     if (!subscription) {
       console.log('NAO ENCONTROU A ASSINATURA DA FATURA NA BASE DE DADOS');
       throw new Error('notfound.subscription.do.not.exists');
     }
 
-    let status = SubscriptionInvoiceStatus.SCHEDULED;
+    invoiceNotificated.subscriptionId = subscription.id;
+    invoiceNotificated.accountId = subscription.accountId;
 
-    switch (externalInvoice.status) {
-      case ExternalSubscriptionInvoiceStatus.SCHEDULED:
-        status = SubscriptionInvoiceStatus.SCHEDULED;
-        break;
-      case ExternalSubscriptionInvoiceStatus.PROCESSED:
-        status = SubscriptionInvoiceStatus.PROCESSED;
-        break;
-      case ExternalSubscriptionInvoiceStatus.RECYCLING:
-        status = SubscriptionInvoiceStatus.RECYCLING;
-        break;
-      case ExternalSubscriptionInvoiceStatus.CANCELLED:
-        status = SubscriptionInvoiceStatus.CANCELLED;
-        break;
+    console.log('-----invoiceNotificated');
+    console.log(invoiceNotificated);
+    console.log('-----invoiceNotificated');
+
+    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE) {
+      console.log('CRIA FATURA');
+      await this.subscriptionInvoiceRepository.create(invoiceNotificated);
+    } else {
+      const invoice = await this.subscriptionInvoiceRepository.findByExternalId(invoiceNotificated.externalId);
+      if (!invoice) {
+        console.log('NAO ENCONTROU A INVOICE NA BASE DE DADOS');
+        throw new Error('notfound.invocie.do.not.exists');
+      }
+
+      console.log('ATUALIZA FATURA');
+      await this.subscriptionInvoiceRepository.update(invoice.id, invoiceNotificated);
     }
-
-    //if (externalSubscriptionNotification.action === ExternalSubscriptionNotificationAction.CREATE) {
-      const subscriptionInvoice = new SubscriptionInvoice({
-        subscriptionId: subscription.id,
-        accountId: subscription.accountId,
-        externalId: externalInvoice.id,
-        description: externalInvoice.payload.type,
-        amount: externalInvoice.payload.transaction_amount,
-        currency: externalInvoice.payload.currency_id,
-        status,
-      });
-
-      console.log('-----subscriptionInvoice');
-      console.log(subscriptionInvoice);
-      console.log('-----subscriptionInvoice');
-
-      await this.subscriptionInvoiceRepository.create(subscriptionInvoice);
-    //}
-
-    // TODO: Faça alguma coisa com a notificação recebida sobre o pagamento
-    console.log('--------receive-external-subscription-invoice-notification-FIM');
   }
 }
