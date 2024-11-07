@@ -4,6 +4,8 @@ import { Account } from 'src/domain/entities/account';
 import { CreateUserDto } from 'src/infraestructure/http/dtos/user/create-user.dto';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
+import { Subscription } from 'src/domain/entities/subscription';
+import { User } from 'src/domain/entities/user';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -16,23 +18,8 @@ export class CreateUserUseCase {
         authenticatedUser: AuthenticatedUser,
         createUserDto: CreateUserDto,
         accountCreated: Account,
-    ): Promise<void> {
+    ): Promise<User> {
         const userCreated = await this.userRepository.create(authenticatedUser, createUserDto, accountCreated);
-        
-        try {
-            const app = this.admin.setup();
-            await app.auth().setCustomUserClaims(authenticatedUser.uid, { 
-                userRole: createUserDto.userRole,
-                planId: accountCreated.planId,
-                accountId: accountCreated.id,
-                accountStatus: accountCreated.status,
-                userStatus: userCreated.status,
-                userId: userCreated.id,
-            });
-        } catch(error) {
-            await this.userRepository.deleteOne(userCreated.id);
-            throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
-        }
-
+        return userCreated;
     }
 }

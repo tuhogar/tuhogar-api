@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Plan } from './plan.entity';
 import { ContractType } from './contract-type.entity';
+import { Subscription } from './subscription.entity';
 
 @Schema({ timestamps: true, collection: 'accounts' })
 export class Account {
@@ -46,6 +47,9 @@ export class Account {
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'ContractType' }])
     contractTypes: ContractType[];
 
+    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' }])
+    subscriptions: Subscription[];
+    
     @Prop()
     status: string;
 

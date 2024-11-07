@@ -1,6 +1,7 @@
 import { Address } from './address';
 import { ContractType } from './contract-type';
 import { SocialMedia } from './social-media';
+import { Subscription } from './subscription';
 
 export enum AccountStatus {
     ACTIVE = 'ACTIVE',
@@ -28,6 +29,8 @@ export class Account {
     documentType: AccountDocumentType;
     documentNumber: string;
     contractTypes?: ContractType[];
+    subscription?: Subscription;
+    subscriptions?: Subscription[];
     status: AccountStatus;
 
     constructor(props: Account) {

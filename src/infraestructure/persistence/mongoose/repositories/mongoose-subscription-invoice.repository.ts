@@ -21,7 +21,7 @@ export class MongooseSubscriptionInvoiceRepository implements ISubscriptionInvoi
   }
 
   async findByExternalId(externalId: string): Promise<SubscriptionInvoice> {
-    const query = await this.subscriptionInvoiceModel.findById({ externalId }).exec();
+    const query = await this.subscriptionInvoiceModel.findOne({ externalId }).exec();
     
     return MongooseSubscriptionInvoiceMapper.toDomain(query);
   }

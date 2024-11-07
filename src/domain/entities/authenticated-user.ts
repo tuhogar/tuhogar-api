@@ -1,4 +1,5 @@
 import { AccountStatus } from "./account";
+import { SubscriptionStatus } from "./subscription";
 import { UserRole, UserStatus } from "./user";
 
 export class AuthenticatedUser {
@@ -10,6 +11,8 @@ export class AuthenticatedUser {
     planId: string;
     accountId: string;
     accountStatus: AccountStatus;
+    subscriptionId: string;
+    subscriptionStatus: SubscriptionStatus;
 
     constructor(props: AuthenticatedUser) {
       Object.assign(this, props);

@@ -18,11 +18,11 @@ export class MercadoPagoService implements IPaymentGateway {
     this.accessToken = this.configService.get<string>('MERCADOPAGO_ACCESS_TOKEN');
   }
   
-  async createSubscription(accountId: string, email: string, plan: Plan, paymentData: any): Promise<Subscription> {
+  async createSubscription(accountId: string, subscriptionId: string, email: string, plan: Plan, paymentData: any): Promise<Subscription> {
     const subscriptionToCreate: any = {
       preapproval_plan_id: plan.externalId,
       reason: plan.name,
-      external_reference: accountId,
+      external_reference: subscriptionId,
       payer_email: 'test_user_809658749@testuser.com',
       card_token_id: paymentData.token,
       auto_recurring: {
@@ -60,7 +60,7 @@ export class MercadoPagoService implements IPaymentGateway {
       accountId,
       planId: plan.id, 
       externalId: responseObject.id,
-      status: SubscriptionStatus.PENDING,
+      status: SubscriptionStatus.CREATED,
       externalPayerReference: responseObject.payer_id,
     });
 
@@ -89,13 +89,13 @@ export class MercadoPagoService implements IPaymentGateway {
     let status = SubscriptionStatus.UNKNOWN;
     switch(subscriptionNotificated.status) {
       case 'pending':
-        status = SubscriptionStatus.PENDING;
+        status = SubscriptionStatus.ACTIVE;
         break;
       case 'authorized':
         status = SubscriptionStatus.ACTIVE;
         break;
       case 'paused':
-        status = SubscriptionStatus.PAUSED;
+        status = SubscriptionStatus.CANCELLED;
         break;
       case 'cancelled':
         status = SubscriptionStatus.CANCELLED;
@@ -103,8 +103,9 @@ export class MercadoPagoService implements IPaymentGateway {
     }
 
     const subscription = new Subscription({
-      externalId: subscriptionNotificated.id,
-      accountId: subscriptionNotificated.external_reference,
+      id: subscriptionNotificated.external_reference,
+      externalId: subscriptionNotificated.id.toString(),
+      accountId: null,
       planId: null,
       status,
       externalPayerReference: subscriptionNotificated.payer_id,
@@ -190,7 +191,7 @@ export class MercadoPagoService implements IPaymentGateway {
     return new SubscriptionInvoice({
       subscriptionId: null,
       accountId: null,
-      externalId: invoiceNotificated.id,
+      externalId: invoiceNotificated.id.toString(),
       externalSubscriptionReference: invoiceNotificated.preapproval_id,
       description: invoiceNotificated.type,
       amount: invoiceNotificated.transaction_amount,

@@ -27,19 +27,13 @@ export class ReceiveSubscriptionInvoiceNotificationUseCase {
       throw new Error('notfound.invoice.notificated.do.not.exists');
     }
 
-    
     const subscription = await this.subscriptionRepository.findByExternalId(invoiceNotificated.externalSubscriptionReference);
     if (!subscription) {
       console.log('NAO ENCONTROU A ASSINATURA DA FATURA NA BASE DE DADOS');
-      throw new Error('notfound.subscription.do.not.exists');
+    } else {
+      invoiceNotificated.subscriptionId = subscription.id;
+      invoiceNotificated.accountId = subscription.accountId;
     }
-
-    invoiceNotificated.subscriptionId = subscription.id;
-    invoiceNotificated.accountId = subscription.accountId;
-
-    console.log('-----invoiceNotificated');
-    console.log(invoiceNotificated);
-    console.log('-----invoiceNotificated');
 
     if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE) {
       console.log('CRIA FATURA');

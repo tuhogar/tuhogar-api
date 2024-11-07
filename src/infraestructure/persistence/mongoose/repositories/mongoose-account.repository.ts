@@ -35,7 +35,7 @@ export class MongooseAccountRepository implements IAccountRepository {
         whatsApp: account.whatsApp,
         webSite: account.webSite,
         socialMedia: account.socialMedia,
-        description: account.description
+        description: account.description,
       });
 
 
@@ -132,5 +132,19 @@ export class MongooseAccountRepository implements IAccountRepository {
 
     async deleteOne(id: string): Promise<void> {
         await this.accountModel.deleteOne({ _id: id }).exec();
+    }
+
+    async updatePlan(id: string, planId: string): Promise<Account> {
+      const updated = await this.accountModel.findOneAndUpdate(
+          { _id: id },
+          { planId },
+          { new: true }
+      ).exec();
+
+      if (updated) {
+        return MongooseAccountMapper.toDomain(updated);
+      }
+
+      return null;
     }
 }

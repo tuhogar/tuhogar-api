@@ -17,7 +17,7 @@ export class UserAlreadyExistsConstraint implements ValidatorConstraintInterface
 
         const user = object[REQUEST_CONTEXT].user as AuthenticatedUser;
 
-        const userExists = await this.userRepository.findOne({ uid: user.uid });
+        const userExists = await this.userRepository.findOneByUid(user.uid);
 
         return !userExists;
     }

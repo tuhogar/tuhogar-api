@@ -94,6 +94,9 @@ export class AuthGuard implements CanActivate {
                 planId: claims.planId,
                 accountId: claims.accountId,
                 accountStatus: claims.accountStatus,
+                subscriptionId: claims.subscriptionId,
+                subscriptionStatus: claims.subscriptionStatus,
+                
             };
 
             request['user'] = user;

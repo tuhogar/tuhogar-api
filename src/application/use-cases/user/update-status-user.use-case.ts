@@ -1,16 +1,16 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRole } from 'src/domain/entities/user';
-import { FirebaseAdmin } from 'src/infraestructure/config/firebase.config';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { UpdateStatusUserDto } from 'src/infraestructure/http/dtos/user/update-status-user.dto';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
+import { UpdateFirebaseUsersDataUseCase } from './update-firebase-users-data.use-case';
 
 @Injectable()
 export class UpdateStatusUserUseCase {
 
     constructor(
-        private readonly admin: FirebaseAdmin,
         private readonly userRepository: IUserRepository,
+        private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     ) {}
     
     async execute(
@@ -29,16 +29,7 @@ export class UpdateStatusUserUseCase {
         if (!updatingUser) throw new Error('notfound.user.do.not.exists');
 
         try {
-            const app = this.admin.setup();
-            await app.auth().setCustomUserClaims(updatingUser.uid, { 
-                userRole: updatingUser.userRole,
-                planId: updatingUser.account.planId.toString(),
-                accountId: updatingUser.accountId.toString(),
-                accountStatus: updatingUser.account.status,
-                userStatus: updateStatusUserDto.status,
-                userId: updatingUser.id,
-                
-            });
+            await this.updateFirebaseUsersDataUseCase.execute( { accountId: updatingUser.accountId });
         } catch(error) {
             await this.userRepository.findOneAndUpdate(filter, { status: updatingUser.status });
 

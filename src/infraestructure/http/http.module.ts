@@ -76,6 +76,8 @@ import { IPaymentGateway } from "src/application/interfaces/payment-gateway/paym
 import { ReceiveSubscriptionNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-notification.use-case";
 import { ReceiveSubscriptionInvoiceNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-invoice-notification.use-case";
 import { ReceiveSubscriptionPaymentNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-payment-notification.use-case";
+import { UpdateFirebaseUsersDataUseCase } from "src/application/use-cases/user/update-firebase-users-data.use-case";
+import { CreateInternalSubscriptionUseCase } from "src/application/use-cases/subscription/create-internal-subscription.use-case";
 
 @Module({
     imports: [
@@ -141,6 +143,8 @@ import { ReceiveSubscriptionPaymentNotificationUseCase } from "src/application/u
         ReceiveSubscriptionNotificationUseCase,
         ReceiveSubscriptionPaymentNotificationUseCase,
         ReceiveSubscriptionInvoiceNotificationUseCase,
+        UpdateFirebaseUsersDataUseCase,
+        CreateInternalSubscriptionUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,

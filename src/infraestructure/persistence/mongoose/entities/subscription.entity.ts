@@ -21,6 +21,12 @@ export class Subscription {
 
     @Prop({ index: true })
     externalPayerReference: string;
+
+    @Prop()
+    createdAt: Date
+
+    @Prop()
+    updatedAt: Date
 }
 
 const SubscriptionSchema = SchemaFactory.createForClass(Subscription);

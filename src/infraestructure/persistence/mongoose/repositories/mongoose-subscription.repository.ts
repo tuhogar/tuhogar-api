@@ -26,8 +26,8 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
-  async findByAccountId(accountId: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ accountId }).exec();
+  async findActiveOrCreatedByAccountId(accountId: string): Promise<Subscription> {
+    const query = await this.subscriptionModel.findOne({ accountId, status: { $in: [ SubscriptionStatus.ACTIVE, SubscriptionStatus.CREATED ] } }).sort({ createdAt: -1 }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
@@ -72,10 +72,10 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return null;
   }
 
-  async pause(id: string): Promise<Subscription> {
+  async updateExternalReferences(id: string, externalId: string, externalPayerReference: string): Promise<Subscription> {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
-      { status: SubscriptionStatus.PAUSED },
+      { externalId, externalPayerReference },
       { new: true },
     ).exec();
     
@@ -86,17 +86,7 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return null;
   }
 
-  async pending(id: string): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { status: SubscriptionStatus.PENDING },
-      { new: true },
-    ).exec();
-    
-    if (updated) {
-      return MongooseSubscriptionMapper.toDomain(updated);
-    }
-
-    return null;
-  }
+  async deleteOne(id: string): Promise<void> {
+    await this.subscriptionModel.deleteOne({ _id: id }).exec();
+}
 }

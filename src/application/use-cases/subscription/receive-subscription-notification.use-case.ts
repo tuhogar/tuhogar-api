@@ -5,7 +5,10 @@ import { ISubscriptionNotificationRepository } from 'src/application/interfaces/
 import { SubscriptionNotification, SubscriptionNotificationAction, SubscriptionNotificationType } from 'src/domain/entities/subscription-notification';
 import { ReceiveSubscriptionInvoiceNotificationUseCase } from './receive-subscription-invoice-notification.use-case';
 import { ReceiveSubscriptionPaymentNotificationUseCase } from './receive-subscription-payment-notification.use-case';
-import { SubscriptionStatus } from 'src/domain/entities/subscription';
+import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
+import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
+import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
+import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()
 export class ReceiveSubscriptionNotificationUseCase {
@@ -13,7 +16,9 @@ export class ReceiveSubscriptionNotificationUseCase {
     private readonly receiveSubscriptionInvoiceNotificationUseCase: ReceiveSubscriptionInvoiceNotificationUseCase,
     private readonly receiveSubscriptionPaymentNotificationUseCase: ReceiveSubscriptionPaymentNotificationUseCase,
     private readonly subscriptionRepository: ISubscriptionRepository,
+    private readonly userRepository: IUserRepository,
     private readonly subscriptionNotificationRepository: ISubscriptionNotificationRepository,
+    private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly paymentGateway: IPaymentGateway,
   ) {}
 
@@ -37,42 +42,44 @@ export class ReceiveSubscriptionNotificationUseCase {
 
   async receiveSubscriptionNotification(subscriptionNotification: SubscriptionNotification): Promise<void> {
     const subscriptionNotificated = await this.paymentGateway.getSubscription(subscriptionNotification);
+    console.log('-----subscriptionNotificated');
+    console.log(subscriptionNotificated);
+    console.log('-----subscriptionNotificated');
 
     if (!subscriptionNotificated) {
       console.log('NAO ENCONTROU A ASSINATURA NO SERVICO EXTERNO');
       throw new Error('notfound.subscription.notificated.do.not.exists');
     }
 
-    const subscription = await this.subscriptionRepository.findByExternalId(subscriptionNotificated.externalId);
+    let subscription: Subscription;
+    if (subscriptionNotificated.id) {
+      subscription = await this.subscriptionRepository.findById(subscriptionNotificated.id);
+    } else if (subscriptionNotificated.externalId) {
+      subscription = await this.subscriptionRepository.findByExternalId(subscriptionNotificated.externalId);
+    }
+
     if (!subscription) {
       console.log('NAO ENCONTROU A ASSINATURA NA BASE DE DADOS');
       throw new Error('notfound.subscription.do.not.exists');
     }
-    
-    if (subscriptionNotification.action == SubscriptionNotificationAction.UPDATE) {
+
+    if (subscriptionNotification.action == SubscriptionNotificationAction.CREATE && subscriptionNotificated.status === SubscriptionStatus.ACTIVE) {
+      console.log('ATIVA A ASSINATURA');
+      await this.subscriptionRepository.active(subscription.id);
+      await this.updateFirebaseUsersDataUseCase.execute({ accountId: subscription.accountId });
+
+      // TODO: AGUARDAR PAGAMENTO REJEITADO PARA VER COMO A ASSINATURA SE COMPORTA
+    } else if (subscriptionNotification.action == SubscriptionNotificationAction.UPDATE) {
       switch (subscriptionNotificated.status) {
         case SubscriptionStatus.CANCELLED:
             console.log('CANCELA A ASSINATURA');
             await this.subscriptionRepository.cancel(subscription.id);
-            // TODO: Volta account para o plano gratuíto
+            await this.updateFirebaseUsersDataUseCase.execute({ accountId: subscription.accountId });
             break;
         case SubscriptionStatus.ACTIVE:
             console.log('ATIVA A ASSINATURA');
             await this.subscriptionRepository.active(subscription.id);
-            break;
-        case SubscriptionStatus.PAUSED:
-            console.log('PAUSA A ASSINATURA');
-            await this.subscriptionRepository.pause(subscription.id);
-            // TODO: Verificar o que fazer
-            // Por exemplo, precisaremos ter uma verificação para depois de x dias cancelar?
-            // O mesmo devemos verificar como fazer para pagamentos recusados.
-            break;
-        case SubscriptionStatus.PENDING:
-            console.log('MUDA A ASSINATURA PARA PENDENTE');
-            await this.subscriptionRepository.pending(subscription.id);
-            // TODO: Verificar o que fazer
-            // Por exemplo, precisaremos ter uma verificação para depois de x dias cancelar?
-            // O mesmo devemos verificar como fazer para pagamentos recusados.
+            await this.updateFirebaseUsersDataUseCase.execute({ accountId: subscription.accountId });
             break;
         default:
             break;

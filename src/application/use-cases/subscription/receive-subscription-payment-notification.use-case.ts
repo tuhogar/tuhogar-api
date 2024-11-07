@@ -34,15 +34,10 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
 
     if (!subscription) {
       console.log('NAO ENCONTROU A ASSINATURA DO PAGAMENTO NA BASE DE DADOS');
-      throw new Error('notfound.subscription.do.not.exists');
+    } else {
+      paymentNotificated.subscriptionId = subscription.id;
+      paymentNotificated.accountId = subscription.accountId;
     }
-
-    paymentNotificated.subscriptionId = subscription.id;
-    paymentNotificated.accountId = subscription.accountId;
-
-    console.log('-----paymentNotificated');
-    console.log(paymentNotificated);
-    console.log('-----paymentNotificated');
 
     if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE) {
       console.log('CRIA PAGAMENTO');

@@ -8,8 +8,10 @@ export abstract class IUserRepository {
     abstract deleteOne(id: string): Promise<void>
     abstract find(filter: any): Promise<User[]>
     abstract findOne(filter: any): Promise<User>
+    abstract findOneByUid(uid: string): Promise<User>
     abstract findOneAndUpdate(filter: any, data: any, returnNew?: boolean): Promise<User>
     abstract findById(userId: string): Promise<User>
+    abstract findByAccountId(accountId: string): Promise<User[]>
     
 
 }

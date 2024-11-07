@@ -10,5 +10,5 @@ export abstract class IAccountRepository {
     abstract findInactiveAccounts(): Promise<Account[]>
     abstract getRegisteredAccounts(period: 'week' | 'month'): Promise<any[]>
     abstract deleteOne(id: string): Promise<void>
-
+    abstract updatePlan(id: string, planId: string): Promise<Account>
 }

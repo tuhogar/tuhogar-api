@@ -6,6 +6,7 @@ import { Account } from "src/domain/entities/account";
 import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
 import { User, UserStatus } from "src/domain/entities/user";
 import { MongooseUserMapper } from "../mapper/mongoose-user.mapper";
+import { MongooseAccountMapper } from "../mapper/mongoose-account.mapper";
 
 export class MongooseUserRepository implements IUserRepository {
     constructor(
@@ -34,6 +35,11 @@ export class MongooseUserRepository implements IUserRepository {
     async find(filter: any): Promise<User[]> {
         const query = await this.userModel.find(filter).exec();
         return query.map((item) => MongooseUserMapper.toDomain(item));
+    }
+
+    async findOneByUid(uid: string): Promise<User> {
+        const query = await this.userModel.findOne({ uid }).exec();
+        return MongooseUserMapper.toDomain(query);
     }
     
     async findOne(filter: any): Promise<User> {
@@ -67,4 +73,61 @@ export class MongooseUserRepository implements IUserRepository {
 
         return MongooseUserMapper.toDomain(query);
     }
+
+    async findByAccountId(accountId: string): Promise<User[]> {
+        const users = await this.userModel.find({ accountId })
+            .populate('accountId')
+            .exec();
+    
+        const usersWithSubscriptions = await Promise.all(
+            users.map(async (user) => {
+                // Usamos `aggregate` para buscar as subscriptions associadas ao accountId
+                const subscriptions = await this.userModel.aggregate([
+                    { $match: { _id: user._id } },
+                    {
+                        $lookup: {
+                            from: 'subscriptions', // Nome da collection de subscriptions
+                            localField: 'accountId',
+                            foreignField: 'accountId',
+                            as: 'subscriptions'
+                        }
+                    },
+                    { $unwind: '$subscriptions' },
+                    { $replaceRoot: { newRoot: { $mergeObjects: ['$subscriptions', '$$ROOT'] } } }, // Inclui todos os campos de subscriptions
+                    { $sort: { 'subscriptions.createdAt': -1 } }, // Ordena as subscriptions
+                    {
+                        $group: {
+                            _id: '$_id',
+                            user: { $first: '$$ROOT' },
+                            subscriptions: { $push: '$subscriptions' }
+                        }
+                    }
+                ]);
+    
+                // Converte `subscriptions` para objetos JSON completos
+                const subscriptionsJSON = subscriptions[0]?.subscriptions.map(sub =>
+                    JSON.parse(JSON.stringify(sub))
+                ) || [];
+
+                
+    
+                // Converte `accountId` para um objeto plano JSON e adiciona `subscriptions`
+                const accountWithSubscriptions = {
+                    ...JSON.parse(JSON.stringify(user.accountId)),
+                    subscriptions: subscriptionsJSON
+                };
+
+                user = {
+                    ...JSON.parse(JSON.stringify(user)),
+                    accountId: accountWithSubscriptions
+                };
+    
+                // Retorna o user com `account` contendo `subscriptions` ordenadas
+                return MongooseUserMapper.toDomain(user);
+            })
+        );
+    
+        return usersWithSubscriptions;
+    }
+    
 }
