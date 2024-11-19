@@ -26,11 +26,11 @@ export class MercadoPagoService implements IPaymentGateway {
       payer_email: 'test_user_809658749@testuser.com',
       card_token_id: paymentData.token,
       auto_recurring: {
-        frequency: 1,
+        frequency: 5,
         frequency_type: 'days',
         start_date: new Date(),
         end_date: null,
-        transaction_amount: 1, // plan.price,
+        transaction_amount: 5, // plan.price,
         currency_id: 'BRL'
       },
       status: 'authorized'

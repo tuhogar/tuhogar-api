@@ -73,8 +73,10 @@ export class ReceiveSubscriptionNotificationUseCase {
       switch (subscriptionNotificated.status) {
         case SubscriptionStatus.CANCELLED:
             console.log('CANCELA A ASSINATURA');
+            // OBSERVAÇÃO: Cancelar a assinatura não modifica o status da account
             await this.subscriptionRepository.cancel(subscription.id);
             await this.updateFirebaseUsersDataUseCase.execute({ accountId: subscription.accountId });
+            
             break;
         case SubscriptionStatus.ACTIVE:
             console.log('ATIVA A ASSINATURA');

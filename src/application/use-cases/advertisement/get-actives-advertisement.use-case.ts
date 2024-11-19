@@ -22,7 +22,7 @@ export class GetActivesAdvertisementUseCase {
             return acc;
         }, {} as { [key: string]: Advertisement });
         
-        const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]);
+        const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]).filter(ad => ad !== undefined && ad !== null);
 
         if (!getActivesAdvertisementDto.orderBy) {
             orderedAdvertisements.sort(() => Math.random() - 0.5);

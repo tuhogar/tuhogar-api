@@ -19,7 +19,15 @@ export class SubscriptionController {
   async createSubscription(
     @Authenticated() authenticatedUser: AuthenticatedUser,
     @Body() createSubscriptionDto: CreateSubscriptionDto) {
-    return await this.createSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId, email: authenticatedUser.email, planId: createSubscriptionDto.planId, paymentData: createSubscriptionDto.paymentData });
+    return await this.createSubscriptionUseCase.execute({ 
+      actualSubscriptionId: authenticatedUser.subscriptionId,
+      actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
+      actualPlanId: authenticatedUser.planId,
+      accountId: authenticatedUser.accountId, 
+      email: authenticatedUser.email, 
+      planId: createSubscriptionDto.planId, 
+      paymentData: createSubscriptionDto.paymentData
+    });
   }
 
   @Post('notifications')

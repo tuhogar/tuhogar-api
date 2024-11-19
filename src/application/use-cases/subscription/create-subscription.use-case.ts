@@ -3,12 +3,14 @@ import { ISubscriptionRepository } from 'src/application/interfaces/repositories
 import { IPaymentGateway } from 'src/application/interfaces/payment-gateway/payment-gateway.interface';
 import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
 import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
-import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 import { CreateInternalSubscriptionUseCase } from './create-internal-subscription.use-case';
-import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
+import { ConfigService } from '@nestjs/config';
 
 interface CreateSubscriptionUseCaseCommand {
+  actualSubscriptionId: string;
+  actualSubscriptionStatus: SubscriptionStatus;
+  actualPlanId: string;
   accountId: string;
   email: string;
   planId: string;
@@ -17,24 +19,23 @@ interface CreateSubscriptionUseCaseCommand {
 
 @Injectable()
 export class CreateSubscriptionUseCase {
+  private readonly firstSubscriptionPlanId: string;
   constructor(
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly planRepository: IPlanRepository,
     private readonly paymentGateway: IPaymentGateway,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
+  }
 
-  async execute({ accountId, email, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
-    const subscriptionActual = await this.subscriptionRepository.findActiveOrCreatedByAccountId(accountId);
-    let subscriptionActualIsPlanZero = false;
-    if (subscriptionActual) {
-      const planActual = await this.planRepository.findById(subscriptionActual.planId);
-
-      // Precisa cancelar uma assinatura antes de criar uma outra
-      if (planActual && planActual.price > 0) throw new Error('invalid.subscription.exists');
-      subscriptionActualIsPlanZero = true;
-    }
+  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
+    if (
+      (actualSubscriptionStatus === SubscriptionStatus.ACTIVE || actualSubscriptionStatus === SubscriptionStatus.CREATED) 
+      && 
+      actualPlanId !== this.firstSubscriptionPlanId) throw new Error('invalid.subscription.exists');
 
     const plan = await this.planRepository.findById(planId);
 
@@ -48,7 +49,7 @@ export class CreateSubscriptionUseCase {
     await this.updateFirebaseUsersDataUseCase.execute({ accountId });
 
     // Se a assinatura atual for a free, deixa criar uma nova como acima e cancela a atual
-    if (subscriptionActualIsPlanZero) await this.subscriptionRepository.cancel(subscriptionActual.id);
+    if (actualPlanId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscriptionId);
 
     return subscriptionUpdated;
   }
