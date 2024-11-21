@@ -123,6 +123,9 @@ export class Advertisement {
     vacancyDate: Date;
 
     @Prop()
+    createdAt: Date;
+
+    @Prop()
     updatedAt: Date;
 }
 

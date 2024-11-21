@@ -52,7 +52,7 @@ export class PatchAccountDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsString({ message: 'invalid.description.must.be.a.string' })
-    @MaxLength(300, { message: 'invalid.description.must.be.shorter.than.or.equal.to.300.characters' })
+    @MaxLength(1000, { message: 'invalid.description.must.be.shorter.than.or.equal.to.1000.characters' })
     @Property()
     description: string;
 

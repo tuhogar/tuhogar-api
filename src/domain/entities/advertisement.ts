@@ -84,6 +84,7 @@ export class Advertisement {
     tourUrl: string;
     videoUrl: string;
     publishedAt: Date;
+    createdAt: Date;
     updatedAt: Date;
     isVacant: boolean;
     vacancyDate: Date;
