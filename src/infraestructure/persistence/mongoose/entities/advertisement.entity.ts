@@ -123,6 +123,9 @@ export class Advertisement {
     vacancyDate: Date;
 
     @Prop()
+    externalId: string;
+
+    @Prop()
     createdAt: Date;
 
     @Prop()

@@ -88,6 +88,7 @@ export class Advertisement {
     updatedAt: Date;
     isVacant: boolean;
     vacancyDate: Date;
+    externalId: string;
 
     constructor(props: Advertisement) {
         Object.assign(this, props);

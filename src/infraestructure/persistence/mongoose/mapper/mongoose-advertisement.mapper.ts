@@ -51,6 +51,7 @@ export class MongooseAdvertisementMapper {
             updatedAt: entity.updatedAt,
             isVacant: entity.isVacant,
             vacancyDate: entity.vacancyDate,
+            externalId: entity.externalId,
         });
         return model;
     }
@@ -95,6 +96,7 @@ export class MongooseAdvertisementMapper {
             updatedAt: null, //advertisement.updatedAt,
             isVacant: null, //advertisement.isVacant,
             vacancyDate: null, //advertisement.vacancyDate,
+            externalId: advertisement.externalId,
         }
     }
 }

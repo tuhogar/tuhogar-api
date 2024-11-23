@@ -180,4 +180,10 @@ export class CreateUpdateAdvertisementDto {
      @IsOptional()
      @Property()
      vacancyDate: string;
+
+    @ApiProperty()
+    @IsString({ message: 'invalid.externalId.must.be.a.string' })
+    @IsOptional()
+    @Property()
+    externalId: string = null;
 }
