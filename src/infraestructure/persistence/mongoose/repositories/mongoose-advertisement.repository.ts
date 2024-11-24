@@ -1,6 +1,7 @@
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Advertisement as AdvertisementMongoose } from "../entities/advertisement.entity"
+import { AdvertisementEvent as AdvertisementEventMongoose } from "../entities/advertisement-event.entity"
 import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus } from "src/domain/entities/advertisement";
 import { IPlanRepository } from "src/application/interfaces/repositories/plan.repository.interface";
 import { CreatePlanDto } from "src/infraestructure/http/dtos/plan/create-plan.dto";
@@ -15,6 +16,7 @@ import { MongooseAdvertisementMapper } from "../mapper/mongoose-advertisement.ma
 export class MongooseAdvertisementRepository implements IAdvertisementRepository {
     constructor(
         @InjectModel(AdvertisementMongoose.name) private readonly advertisementModel: Model<AdvertisementMongoose>,
+        @InjectModel(AdvertisementEventMongoose.name) private readonly advertisementEventModel: Model<AdvertisementEventMongoose>,
     ) {}
 
     async findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<Advertisement> {
@@ -118,6 +120,12 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     
     async getByAccountIdAndId(filter: any): Promise<Advertisement> {
         const query = await this.advertisementModel.findOne(filter).populate('amenities').populate('communityAmenities').exec();
+        if (query) {
+            const advertisementEvents = await this.advertisementEventModel.find({ advertisementId: query.id }).exec();
+            if (advertisementEvents) {
+                query.advertisementEvents = advertisementEvents;
+            }
+        }
         return MongooseAdvertisementMapper.toDomain(query);
     }
     

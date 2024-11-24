@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { Plan } from './plan.entity';
 import { ContractType } from './contract-type.entity';
 import { Subscription } from './subscription.entity';
+import { AdvertisementEvent } from './advertisement-event.entity';
 
 @Schema({ timestamps: true, collection: 'accounts' })
 export class Account {
@@ -49,7 +50,7 @@ export class Account {
 
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' }])
     subscriptions: Subscription[];
-    
+
     @Prop()
     status: string;
 

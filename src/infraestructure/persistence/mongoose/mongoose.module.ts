@@ -43,6 +43,9 @@ import { SubscriptionNotification, SubscriptionNotificationSchema } from "./enti
 import { ISubscriptionInvoiceRepository } from "src/application/interfaces/repositories/subscription-invoice.repository.interface";
 import { MongooseSubscriptionInvoiceRepository } from "./repositories/mongoose-subscription-invoice.repository";
 import { SubscriptionInvoice, SubscriptionInvoiceSchema } from "./entities/subscription-invoice.entity";
+import { IAdvertisementEventRepository } from "src/application/interfaces/repositories/advertisement-event.repository.interface";
+import { MongooseAdvertisementEventRepository } from "./repositories/mongoose-advertisement-event.repository";
+import { AdvertisementEvent, AdvertisementEventSchema } from "./entities/advertisement-event.entity";
 
 @Module({
     imports: [
@@ -58,6 +61,7 @@ import { SubscriptionInvoice, SubscriptionInvoiceSchema } from "./entities/subsc
         MongooseModuleLib.forFeature([
           { name: Account.name, schema: AccountSchema },
           { name: AdvertisementCode.name, schema: AdvertisementCodeSchema },
+          { name: AdvertisementEvent.name, schema: AdvertisementEventSchema },
           { name: AdvertisementReason.name, schema: AdvertisementReasonSchema },
           { name: AdvertisementReport.name, schema: AdvertisementReportSchema },
           { name: Advertisement.name, schema: AdvertisementSchema },
@@ -80,6 +84,10 @@ import { SubscriptionInvoice, SubscriptionInvoiceSchema } from "./entities/subsc
       {
         provide: IAdvertisementCodeRepository,
         useClass: MongooseAdvertisementCodeRepository,
+      },
+      {
+        provide: IAdvertisementEventRepository,
+        useClass: MongooseAdvertisementEventRepository,
       },
       {
         provide: IAdvertisementReasonRepository,
@@ -133,6 +141,7 @@ import { SubscriptionInvoice, SubscriptionInvoiceSchema } from "./entities/subsc
     exports: [
       IAccountRepository,
       IAdvertisementCodeRepository,
+      IAdvertisementEventRepository,
       IAdvertisementReasonRepository,
       IAdvertisementReportRepository,
       IAdvertisementRepository,

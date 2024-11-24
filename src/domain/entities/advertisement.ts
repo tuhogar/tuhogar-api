@@ -1,4 +1,5 @@
 import { Address } from './address';
+import { AdvertisementEvent } from './advertisement-event';
 import { Amenity } from './amenity';
 
 export enum AdvertisementActivesOrderBy {
@@ -89,6 +90,7 @@ export class Advertisement {
     isVacant: boolean;
     vacancyDate: Date;
     externalId: string;
+    advertisementEvents: AdvertisementEvent[]
 
     constructor(props: Advertisement) {
         Object.assign(this, props);

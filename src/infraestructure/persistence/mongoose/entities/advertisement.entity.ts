@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Amenity } from './amenity.entity';
+import { AdvertisementEvent } from './advertisement-event.entity';
 
 @Schema({ timestamps: true, collection: 'advertisements' })
 export class Advertisement {
@@ -73,6 +74,9 @@ export class Advertisement {
 
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
     communityAmenities: Amenity[];
+
+    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'AdvertisementEvent' }])
+    advertisementEvents: AdvertisementEvent[];
 
     @Prop()
     hoaFee: number;

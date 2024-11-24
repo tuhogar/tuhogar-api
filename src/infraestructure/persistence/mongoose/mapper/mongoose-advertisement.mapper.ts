@@ -5,11 +5,18 @@ import { MongooseAmenityMapper } from './mongoose-amenity.mapper';
 import { Address } from 'src/domain/entities/address';
 import { MongooseAddressMapper } from './mongoose-address.mapper';
 import { MongooseAdvertisementPhotoMapper } from './mongoose-advertisement-photo.mapper';
+import { MongooseAdvertisementEventMapper } from './mongoose-advertisement-event.mapper';
+import { AdvertisementEvent } from 'src/domain/entities/advertisement-event';
 
 export class MongooseAdvertisementMapper {
     
     static toDomain(entity: AdvertisementDocument): Advertisement {
         if (!entity) return null;
+
+        let advertisementEvents: AdvertisementEvent[] = undefined;
+        if (!!entity.advertisementEvents) {
+            advertisementEvents = entity.advertisementEvents.map((a) => MongooseAdvertisementEventMapper.toDomain(a))
+        }
 
         const model = new Advertisement({
             id: entity._id.toString(),
@@ -52,6 +59,7 @@ export class MongooseAdvertisementMapper {
             isVacant: entity.isVacant,
             vacancyDate: entity.vacancyDate,
             externalId: entity.externalId,
+            advertisementEvents,
         });
         return model;
     }

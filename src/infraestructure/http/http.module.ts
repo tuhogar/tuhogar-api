@@ -78,6 +78,8 @@ import { ReceiveSubscriptionInvoiceNotificationUseCase } from "src/application/u
 import { ReceiveSubscriptionPaymentNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-payment-notification.use-case";
 import { UpdateFirebaseUsersDataUseCase } from "src/application/use-cases/user/update-firebase-users-data.use-case";
 import { CreateInternalSubscriptionUseCase } from "src/application/use-cases/subscription/create-internal-subscription.use-case";
+import { CreateAdvertisementEventUseCase } from "src/application/use-cases/advertisement-event/create-advertisement-event.use-case";
+import { AdvertisementEventController } from "./controllers/advertisement-event.controller";
 
 @Module({
     imports: [
@@ -107,6 +109,7 @@ import { CreateInternalSubscriptionUseCase } from "src/application/use-cases/sub
         CreateAdvertisementReportUseCase,
         DeleteAdvertisementReportUseCase,
         GetByAdvertisementIdAdvertisementReportUseCase,
+        CreateAdvertisementEventUseCase,
         BulkAdvertisementUseCase,
         CreateAdvertisementUseCase,
         DeleteAllAdvertisementUseCase,
@@ -158,6 +161,7 @@ import { CreateInternalSubscriptionUseCase } from "src/application/use-cases/sub
     ],
     controllers: [
         AccountController,
+        AdvertisementEventController,
         AdvertisementReasonController,
         AdvertisementReportController,
         AdvertisementController,
