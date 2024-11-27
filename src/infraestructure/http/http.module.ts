@@ -80,6 +80,7 @@ import { UpdateFirebaseUsersDataUseCase } from "src/application/use-cases/user/u
 import { CreateInternalSubscriptionUseCase } from "src/application/use-cases/subscription/create-internal-subscription.use-case";
 import { CreateAdvertisementEventUseCase } from "src/application/use-cases/advertisement-event/create-advertisement-event.use-case";
 import { AdvertisementEventController } from "./controllers/advertisement-event.controller";
+import { AccountAlreadyExistsConstraint } from "./validators/account/account-already-exists.validator";
 
 @Module({
     imports: [
@@ -153,6 +154,7 @@ import { AdvertisementEventController } from "./controllers/advertisement-event.
         ContractTypeIsExistingIdConstraint,
         IsExistingPlanConstraint,
         UserAlreadyExistsConstraint,
+        AccountAlreadyExistsConstraint,
         FirebaseAdmin,
         {
             provide: IPaymentGateway,

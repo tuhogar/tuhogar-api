@@ -5,6 +5,7 @@ import { CreateAccountDto } from "src/infraestructure/http/dtos/account/create-a
 export abstract class IAccountRepository {
     abstract find(): Promise<Account[]>
     abstract findById(id: string): Promise<Account>
+    abstract findOneByEmail(email: string): Promise<Account>
     abstract create(authenticatedUser: AuthenticatedUser, createAccountDto: CreateAccountDto): Promise<Account>
     abstract findOneAndUpdate(filter: any, data: any, returnNew?: boolean): Promise<Account>
     abstract findInactiveAccounts(): Promise<Account[]>

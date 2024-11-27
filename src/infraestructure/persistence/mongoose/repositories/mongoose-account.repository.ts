@@ -20,6 +20,11 @@ export class MongooseAccountRepository implements IAccountRepository {
       const query = await this.accountModel.findById(id).populate('contractTypes').exec();
       return MongooseAccountMapper.toDomain(query);
     }
+
+    async findOneByEmail(email: string): Promise<Account> {
+      const query = await this.accountModel.findOne({ email }).exec();
+      return MongooseAccountMapper.toDomain(query);
+    }
     
     async create(authenticatedUser: AuthenticatedUser, account: Account): Promise<Account> {
       const data = MongooseAccountMapper.toMongoose({

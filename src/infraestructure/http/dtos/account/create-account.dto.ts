@@ -4,6 +4,7 @@ import { IsExistingPlan } from "src/infraestructure/http/validators/plan/is-exis
 import { UserAlreadyExists } from "src/infraestructure/http/validators/user/user-already-exists.validator";
 import { AccountDocumentType } from "src/domain/entities/account";
 import { Property } from "src/infraestructure/decorators/property.decorator";
+import { AccountAlreadyExists } from "../../validators/account/account-already-exists.validator";
 
 export class CreateAccountDto {
 
@@ -18,6 +19,7 @@ export class CreateAccountDto {
     @IsNotEmpty({ message: 'invalid.name.should.not.be.empty' })
     @MaxLength(150, { message: 'invalid.name.must.be.shorter.than.or.equal.to.150.characters' })
     @UserAlreadyExists()
+    @AccountAlreadyExists()
     @Property()
     name: string;
 
