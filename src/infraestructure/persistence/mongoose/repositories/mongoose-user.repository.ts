@@ -123,11 +123,11 @@ export class MongooseUserRepository implements IUserRepository {
                 };
     
                 // Retorna o user com `account` contendo `subscriptions` ordenadas
-                return MongooseUserMapper.toDomain(user);
+                return user;
             })
         );
-    
-        return usersWithSubscriptions;
+
+        return usersWithSubscriptions.map((item) => MongooseUserMapper.toDomain(item));
     }
     
 }

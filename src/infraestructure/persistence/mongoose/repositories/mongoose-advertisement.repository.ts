@@ -114,8 +114,49 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
     
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
-        const query = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
-        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
+
+        const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
+        
+
+        const advertisementsWithAdvertisementEvents = await Promise.all(
+            advertisements.map(async (advertisement) => {
+                const advertisementEvents = await this.advertisementModel
+                    .aggregate([
+                    { $match: { _id: advertisement._id } },
+                    {
+                        $lookup: {
+                            from: 'advertisement-events',
+                            localField: '_id',
+                            foreignField: 'advertisementId',
+                            as: 'advertisementEvents'
+                        }
+                    },
+                    { $unwind: '$advertisementEvents' },
+                    { $replaceRoot: { newRoot: { $mergeObjects: ['$advertisementEvents', '$$ROOT'] } } },
+                    { $sort: { 'advertisementEvents.createdAt': -1 } },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            user: { $first: '$$ROOT' },
+                            advertisementEvents: { $push: '$advertisementEvents' }
+                        }
+                    }
+                ]);
+
+                const advertisementEventsJSON = advertisementEvents[0]?.advertisementEvents.map(sub =>
+                    JSON.parse(JSON.stringify(sub))
+                ) || [];
+
+                advertisement = {
+                    ...JSON.parse(JSON.stringify(advertisement)),
+                    advertisementEvents: advertisementEventsJSON
+                };
+
+               return advertisement;
+            })
+        )
+
+        return advertisementsWithAdvertisementEvents.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
     
     async getByAccountIdAndId(filter: any): Promise<Advertisement> {
