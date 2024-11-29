@@ -13,6 +13,7 @@ export class PatchAccountDto {
      @IsOptional()
     @IsString({ message: 'invalid.name.must.be.a.string' })
     @MaxLength(150, { message: 'invalid.name.must.be.shorter.than.or.equal.to.150.characters' })
+    @Property()
     name: string;
 
     @ApiPropertyOptional()
@@ -26,6 +27,7 @@ export class PatchAccountDto {
     @IsOptional()
     @IsString({ message: 'invalid.phone.must.be.a.string' })
     @MaxLength(30, { message: 'invalid.phone.must.be.shorter.than.or.equal.to.30.characters' })
+    @Property()
     phone: string;
 
     @ApiPropertyOptional()
@@ -59,12 +61,14 @@ export class PatchAccountDto {
     @ApiProperty()
     @IsNotEmpty({ message: 'invalid.documentType.should.not.be.empty' })
     @IsEnum(AccountDocumentType, { message: 'invalid.documentType.must.be.one.of.the.following.values.CC.CE.NIT' })
+    @Property()
     documentType: AccountDocumentType;
 
     @ApiProperty()
     @IsString({ message: 'invalid.documentNumber.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.documentNumber.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.documentNumber.must.be.shorter.than.or.equal.to.30.characters' })
+    @Property()
     documentNumber: string;
 
     @ApiPropertyOptional({ type: [String] })
