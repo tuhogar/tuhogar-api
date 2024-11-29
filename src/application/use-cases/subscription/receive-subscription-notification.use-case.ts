@@ -53,9 +53,9 @@ export class ReceiveSubscriptionNotificationUseCase {
 
     let subscription: Subscription;
     if (subscriptionNotificated.id) {
-      subscription = await this.subscriptionRepository.findById(subscriptionNotificated.id);
+      subscription = await this.subscriptionRepository.findOneById(subscriptionNotificated.id);
     } else if (subscriptionNotificated.externalId) {
-      subscription = await this.subscriptionRepository.findByExternalId(subscriptionNotificated.externalId);
+      subscription = await this.subscriptionRepository.findOneByExternalId(subscriptionNotificated.externalId);
     }
 
     if (!subscription) {

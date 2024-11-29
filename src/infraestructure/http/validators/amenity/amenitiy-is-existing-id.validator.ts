@@ -9,7 +9,7 @@ export class AmenityIsExistingIdConstraint implements ValidatorConstraintInterfa
 
   async validate(id: string): Promise<boolean> {
     if (!id) return false;
-    const amenity = await this.amenityRepository.findById(id);
+    const amenity = await this.amenityRepository.findOneById(id);
     return !!amenity;
   }
 

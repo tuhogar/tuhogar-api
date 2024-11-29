@@ -10,13 +10,17 @@ export class MongooseAdvertisementCodeRepository implements IAdvertisementCodeRe
         @InjectModel(AdvertisementCodeMongoose.name) private readonly advertisementCodeModel: Model<AdvertisementCodeMongoose>,
     ) {}
 
-    async findOneAndUpdate(): Promise<AdvertisementCode> {
+    async generateNewCode(): Promise<AdvertisementCode> {
         const updated = await this.advertisementCodeModel.findOneAndUpdate(
             {},
             { $inc: { code: 1 } },
             { new: true, upsert: true }
           ).exec();
       
-        return MongooseAdvertisementCodeMapper.toDomain(updated);
+        if (updated) {
+            return MongooseAdvertisementCodeMapper.toDomain(updated);
+        }
+
+        return null;
     }
 }

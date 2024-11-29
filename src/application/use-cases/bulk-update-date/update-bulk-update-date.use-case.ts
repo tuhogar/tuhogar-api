@@ -17,7 +17,7 @@ export class UpdateBulkUpdateDateUseCase {
 
         const bulkUpdateDate = new BulkUpdateDate({ updatedAt });
 
-        const response = await this.bulkUpdateDateRepository.findOneAndUpdate(bulkUpdateDate);
+        const response = await this.bulkUpdateDateRepository.update(bulkUpdateDate);
         return response;
     }
 }

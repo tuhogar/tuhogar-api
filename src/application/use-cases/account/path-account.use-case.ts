@@ -13,12 +13,19 @@ export class PathAccountUseCase {
   ) {}
 
   async execute(authenticatedUser: AuthenticatedUser, accountId: string, patchAccountDto: PatchAccountDto): Promise<void> {
-    const filter = {
-        _id: accountId,
-        ...(authenticatedUser.userRole !== UserRole.MASTER && { _id: authenticatedUser.accountId })
-    };
-
-    const updatedAccount = await this.accountRepository.findOneAndUpdate(filter, patchAccountDto, true);
+    const updatedAccount = await this.accountRepository.update(
+      authenticatedUser.userRole === UserRole.MASTER ? accountId : authenticatedUser.accountId,
+      patchAccountDto.documentType,
+      patchAccountDto.documentNumber,
+      patchAccountDto.name,
+      patchAccountDto.address,
+      patchAccountDto.phone,
+      patchAccountDto.whatsApp,
+      patchAccountDto.webSite,
+      patchAccountDto.socialMedia,
+      patchAccountDto.description,
+      patchAccountDto.contractTypes
+    );
 
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
 

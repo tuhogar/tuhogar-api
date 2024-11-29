@@ -18,7 +18,7 @@ export class CreateInternalSubscriptionUseCase {
   ) {}
 
   async execute({ accountId, planId }: CreateInternalSubscriptionUseCaseCommand): Promise<Subscription> {
-    const plan = await this.planRepository.findById(planId);
+    const plan = await this.planRepository.findOneById(planId);
 
     const subscription = new Subscription({
       accountId,

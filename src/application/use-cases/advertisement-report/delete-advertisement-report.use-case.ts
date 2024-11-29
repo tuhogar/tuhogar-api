@@ -12,6 +12,6 @@ export class DeleteAdvertisementReportUseCase {
     ) {}
 
     async execute({ id }: DeleteAdvertisementReportUseCaseCommand): Promise<void> {
-        await this.advertisementReportRepository.deleteOne(id);
+        await this.advertisementReportRepository.delete(id);
     }
 }

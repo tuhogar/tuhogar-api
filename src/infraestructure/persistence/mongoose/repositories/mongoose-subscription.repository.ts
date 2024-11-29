@@ -20,25 +20,25 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return MongooseSubscriptionMapper.toDomain(entity);
   }
 
-  async findById(id: string): Promise<Subscription> {
+  async findOneById(id: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findById(id).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
-  async findActiveOrCreatedByAccountId(accountId: string): Promise<Subscription> {
+  async findOneActiveOrCreatedByAccountId(accountId: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findOne({ accountId, status: { $in: [ SubscriptionStatus.ACTIVE, SubscriptionStatus.CREATED ] } }).sort({ createdAt: -1 }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
-  async findByExternalId(externalId: string): Promise<Subscription> {
+  async findOneByExternalId(externalId: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findOne({ externalId }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
-  async findByExternalPayerReference(externalPayerReference: string): Promise<Subscription> {
+  async findOneByExternalPayerReference(externalPayerReference: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findOne({ externalPayerReference }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
@@ -86,7 +86,7 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return null;
   }
 
-  async deleteOne(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await this.subscriptionModel.deleteOne({ _id: id }).exec();
 }
 }

@@ -23,14 +23,21 @@ export class CreateAccountUseCase {
     authenticatedUser: AuthenticatedUser,
     createAccountDto: CreateAccountDto,
   ): Promise<{ id: string }> {
-    const accountCreated = await this.accountRepository.create(authenticatedUser, createAccountDto);
+    const accountCreated = await this.accountRepository.create(
+      authenticatedUser.email,
+      createAccountDto.planId,
+      createAccountDto.name,
+      createAccountDto.phone,
+      createAccountDto.documentType,
+      createAccountDto.documentNumber,
+    );
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId: accountCreated.id, planId: createAccountDto.planId });
     await this.createUserUseCase.execute(authenticatedUser, { name: createAccountDto.name, userRole: UserRole.ADMIN }, accountCreated );
     try {
       await this.updateFirebaseUsersDataUseCase.execute({ accountId: accountCreated.id });
     } catch (error) {
-      if (subscriptionCreated) await this.subscriptionRepository.deleteOne(subscriptionCreated.id);
-      await this.accountRepository.deleteOne(accountCreated.id);
+      if (subscriptionCreated) await this.subscriptionRepository.delete(subscriptionCreated.id);
+      await this.accountRepository.delete(accountCreated.id);
       throw error;
     }
 

@@ -15,7 +15,7 @@ export class MongooseContractTypeRepository implements IContractTypeRepository {
         return query.map((item) => MongooseContractTypeMapper.toDomain(item));
     }
 
-    async findById(id: string): Promise<ContractType> {
+    async findOneById(id: string): Promise<ContractType> {
         const query = await this.contractTypeModel.findById(id).exec();
         return MongooseContractTypeMapper.toDomain(query);
     }

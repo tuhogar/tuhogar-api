@@ -9,7 +9,7 @@ export class ContractTypeIsExistingIdConstraint implements ValidatorConstraintIn
 
   async validate(id: string): Promise<boolean> {
     if (!id) return false;
-    const contractType = await this.contractTypeRepository.findById(id);
+    const contractType = await this.contractTypeRepository.findOneById(id);
     return !!contractType;
   }
 

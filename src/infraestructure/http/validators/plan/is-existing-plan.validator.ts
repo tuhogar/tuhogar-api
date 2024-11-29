@@ -8,7 +8,7 @@ export class IsExistingPlanConstraint implements ValidatorConstraintInterface {
   constructor(private readonly planyRepository: IPlanRepository) {}
 
   async validate(planId: string): Promise<boolean> {
-    const plan = await this.planyRepository.findById(planId);
+    const plan = await this.planyRepository.findOneById(planId);
     return !!plan;
   }
 

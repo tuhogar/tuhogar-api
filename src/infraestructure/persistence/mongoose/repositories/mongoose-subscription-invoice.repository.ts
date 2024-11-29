@@ -20,7 +20,7 @@ export class MongooseSubscriptionInvoiceRepository implements ISubscriptionInvoi
     return MongooseSubscriptionInvoiceMapper.toDomain(entity);
   }
 
-  async findByExternalId(externalId: string): Promise<SubscriptionInvoice> {
+  async findOneByExternalId(externalId: string): Promise<SubscriptionInvoice> {
     const query = await this.subscriptionInvoiceModel.findOne({ externalId }).exec();
     
     return MongooseSubscriptionInvoiceMapper.toDomain(query);

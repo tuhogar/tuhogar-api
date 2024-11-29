@@ -20,7 +20,7 @@ export class MongooseSubscriptionPaymentRepository implements ISubscriptionPayme
     return MongooseSubscriptionPaymentMapper.toDomain(entity);
   }
 
-  async findByExternalId(externalId: string): Promise<SubscriptionPayment> {
+  async findOneByExternalId(externalId: string): Promise<SubscriptionPayment> {
     const query = await this.subscriptionPaymentModel.findOne({ externalId }).exec();
     
     return MongooseSubscriptionPaymentMapper.toDomain(query);

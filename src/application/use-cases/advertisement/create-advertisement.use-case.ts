@@ -30,7 +30,7 @@ export class CreateAdvertisementUseCase {
     ): Promise<Advertisement> {
         createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
 
-        const advertisementCode = await this.advertisementCodeRepository.findOneAndUpdate();
+        const advertisementCode = await this.advertisementCodeRepository.generateNewCode();
         
         const advertisementCreated = await this.advertisementRepository.create({
             accountId: authenticatedUser.accountId, 

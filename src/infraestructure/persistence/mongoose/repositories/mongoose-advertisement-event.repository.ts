@@ -9,6 +9,7 @@ export class MongooseAdvertisementEventRepository implements IAdvertisementEvent
     constructor(
         @InjectModel(AdvertisementEventMongoose.name) private readonly advertisementEventModel: Model<AdvertisementEventMongoose>,
     ) {}
+    
     async findOneByAdvertisementIdAndType(advertisementId: string, type: string): Promise<AdvertisementEvent> {
         const query = await this.advertisementEventModel.findOne({ advertisementId, type }).exec();
         return MongooseAdvertisementEventMapper.toDomain(query);

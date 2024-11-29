@@ -15,7 +15,7 @@ export class MongooseAmenityRepository implements IAmenityRepository {
         return query.map((item) => MongooseAmenityMapper.toDomain(item));
     }
 
-    async findById(id: string): Promise<Amenity> {
+    async findOneById(id: string): Promise<Amenity> {
         const query = await this.amenityModel.findById(id).exec();
         return MongooseAmenityMapper.toDomain(query);
     }

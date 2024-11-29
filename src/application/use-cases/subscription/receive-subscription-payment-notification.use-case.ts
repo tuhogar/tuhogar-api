@@ -27,9 +27,9 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
 
     let subscription: Subscription;
     if (paymentNotificated.externalSubscriptionReference) {
-      subscription = await this.subscriptionRepository.findByExternalId(paymentNotificated.externalSubscriptionReference);
+      subscription = await this.subscriptionRepository.findOneByExternalId(paymentNotificated.externalSubscriptionReference);
     } else if (paymentNotificated.externalPayerReference) {
-      subscription = await this.subscriptionRepository.findByExternalPayerReference(paymentNotificated.externalPayerReference);
+      subscription = await this.subscriptionRepository.findOneByExternalPayerReference(paymentNotificated.externalPayerReference);
     }
 
     if (!subscription) {
@@ -43,7 +43,7 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
       console.log('CRIA PAGAMENTO');
       await this.subscriptionPaymentRepository.create(paymentNotificated);
     } else {
-      const payment = await this.subscriptionPaymentRepository.findByExternalId(paymentNotificated.externalId);
+      const payment = await this.subscriptionPaymentRepository.findOneByExternalId(paymentNotificated.externalId);
       if (!payment) {
         console.log('NAO ENCONTROU O PAGAMENTO NA BASE DE DADOS');
         throw new Error('notfound.payment.do.not.exists');

@@ -17,15 +17,15 @@ export enum AccountDocumentType {
 export class Account {
     id?: string;
     planId: string;
-    photo: string;
+    photo?: string;
     name: string;
     email: string;
-    address: Address;
+    address?: Address;
     phone: string;
-    whatsApp: string;
-    webSite: string;
-    socialMedia: SocialMedia;
-    description: string;
+    whatsApp?: string;
+    webSite?: string;
+    socialMedia?: SocialMedia;
+    description?: string;
     documentType: AccountDocumentType;
     documentNumber: string;
     contractTypes?: ContractType[];

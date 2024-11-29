@@ -12,7 +12,7 @@ export class ProcessImageAccountUseCase {
   ) {}
 
   async execute(authenticatedUser: AuthenticatedUser, uploadImageAccountDto: UploadImageAccountDto): Promise<void> {
-    const account = await this.accountRepository.findById(authenticatedUser.accountId);
+    const account = await this.accountRepository.findOneById(authenticatedUser.accountId);
     if (!account) throw new Error('notfound.account.do.not.exists');
 
     const imageName = authenticatedUser.accountId;
@@ -26,10 +26,7 @@ export class ProcessImageAccountUseCase {
     const imageUrl = await this.cloudinaryService.uploadBase64Image(imageContent, 'image/webp', imageName, 'accounts');
     const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
    
-    const updatedAccount = await this.accountRepository.findOneAndUpdate(
-        { _id: authenticatedUser.accountId },
-        { photo: imageUrlStr },
-        true);
+    const updatedAccount = await this.accountRepository.updateImage(authenticatedUser.accountId, imageUrlStr);
 
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
   }

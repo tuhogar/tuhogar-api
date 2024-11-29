@@ -1,10 +1,12 @@
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { IAccountRepository } from "src/application/interfaces/repositories/account.repository.interface";
-import { Account, AccountStatus } from "src/domain/entities/account";
+import { Account, AccountDocumentType, AccountStatus } from "src/domain/entities/account";
 import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
 import { Account as AccountMongoose } from "../entities/account.entity"
 import { MongooseAccountMapper } from "../mapper/mongoose-account.mapper";
+import { AddressDto } from "src/infraestructure/http/dtos/address/address.dto";
+import { SocialMediaDto } from "src/infraestructure/http/dtos/social-media/create-social-media.dto";
 
 export class MongooseAccountRepository implements IAccountRepository {
     constructor(
@@ -16,7 +18,7 @@ export class MongooseAccountRepository implements IAccountRepository {
         return query.map((item) => MongooseAccountMapper.toDomain(item));
     }
     
-    async findById(id: string): Promise<Account> {
+    async findOneById(id: string): Promise<Account> {
       const query = await this.accountModel.findById(id).populate('contractTypes').exec();
       return MongooseAccountMapper.toDomain(query);
     }
@@ -26,21 +28,22 @@ export class MongooseAccountRepository implements IAccountRepository {
       return MongooseAccountMapper.toDomain(query);
     }
     
-    async create(authenticatedUser: AuthenticatedUser, account: Account): Promise<Account> {
+    async create(
+      email: string,
+      planId: string,
+      name: string,
+      phone: string,
+      documentType: AccountDocumentType,
+      documentNumber: string,
+    ): Promise<Account> {
       const data = MongooseAccountMapper.toMongoose({
-        planId: account.planId,
-        name: account.name,
-        email: authenticatedUser.email,
-        phone: account.phone,
-        documentType: account.documentType,
-        documentNumber: account.documentNumber,
+        planId,
+        name,
+        email,
+        phone: phone,
+        documentType,
+        documentNumber,
         status: AccountStatus.ACTIVE,
-        photo: account.phone,
-        address: account.address,
-        whatsApp: account.whatsApp,
-        webSite: account.webSite,
-        socialMedia: account.socialMedia,
-        description: account.description,
       });
 
 
@@ -49,12 +52,78 @@ export class MongooseAccountRepository implements IAccountRepository {
 
         return MongooseAccountMapper.toDomain(entity);
     }
-    
-    async findOneAndUpdate(filter: any, data: any, returnNew: boolean = false): Promise<Account> {
+
+    async deleteImage(accountId: string): Promise<Account> {
       const updated = await this.accountModel.findOneAndUpdate(
-          filter,
-          data,
-          { new: returnNew }
+        { _id: accountId },
+        { $unset: { photo: '' } },
+        { new: true }
+      ).exec();
+
+      if (updated) {
+        return MongooseAccountMapper.toDomain(updated);
+      }
+
+      return null;
+    }
+
+    async update(
+      accountId: string, 
+      documentType: AccountDocumentType,
+      documentNumber: string,
+      name: string,
+      address: AddressDto,
+      phone: string,
+      whatsApp: string,
+      webSite: string,
+      socialMedia: SocialMediaDto,
+      description: string,
+      contractTypes: string[],
+    ): Promise<Account> {
+
+      const update: any = { documentType, documentNumber }
+
+      if (name) update.name = name;
+      if (address) update.address = address;
+      if (phone) update.phone = phone;
+      if (whatsApp) update.whatsApp = whatsApp;
+      if (webSite) update.webSite = webSite;
+      if (socialMedia) update.socialMedia = socialMedia;
+      if (description) update.description = description;
+      if (contractTypes) update.contractTypes = contractTypes;
+
+      const updated = await this.accountModel.findOneAndUpdate(
+        { _id: accountId },
+        update,
+        { new: true },
+      ).exec();
+
+      if (updated) {
+        return MongooseAccountMapper.toDomain(updated);
+      }
+
+      return null;
+    }
+    
+    async updateImage(accountId: string, imageUrl: string): Promise<Account> {
+      const updated = await this.accountModel.findOneAndUpdate(
+        { _id: accountId },
+          { photo: imageUrl },
+          { new: true }
+      ).exec();
+
+      if (updated) {
+        return MongooseAccountMapper.toDomain(updated);
+      }
+
+      return null;
+    }
+
+    async updateStatus(accountId: string, status: AccountStatus): Promise<Account> {
+      const updated = await this.accountModel.findOneAndUpdate(
+        { _id: accountId },
+        { status },
+        { new: false }
       ).exec();
 
       if (updated) {
@@ -99,7 +168,7 @@ export class MongooseAccountRepository implements IAccountRepository {
         }
         ]);
 
-        return accounts;
+        return accounts.map((item) => MongooseAccountMapper.toDomain(item));
     }
     
     async getRegisteredAccounts(period: "week" | "month"): Promise<any> {
@@ -135,7 +204,7 @@ export class MongooseAccountRepository implements IAccountRepository {
       return accounts;
     }
 
-    async deleteOne(id: string): Promise<void> {
+    async delete(id: string): Promise<void> {
         await this.accountModel.deleteOne({ _id: id }).exec();
     }
 

@@ -16,23 +16,14 @@ export class UpdateStatusAccountUseCase {
     accountId: string,
     updateStatusAccountDto: UpdateStatusAccountDto,
   ): Promise<{ id: string }> {
-    const filter = { _id: accountId };
-
-    const updatingAccount = await this.accountRepository.findOneAndUpdate(filter, { 
-      ...updateStatusAccountDto,
-    });
+    const updatingAccount = await this.accountRepository.updateStatus(accountId, updateStatusAccountDto.status);
     
     if (!updatingAccount) throw new Error('notfound.account.do.not.exists');
 
     try {
         await this.updateAllStatusUserUseCase.execute(authenticatedUser, accountId,  updateStatusAccountDto.status);
     } catch(error) {
-        await this.accountRepository.findOneAndUpdate(
-            filter,
-            { 
-                status: updatingAccount.status,
-            },
-        );
+        await this.accountRepository.updateStatus(accountId, updatingAccount.status);
 
         throw error;
     }

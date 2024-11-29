@@ -23,7 +23,7 @@ export class MongooseAdvertisementReportRepository implements IAdvertisementRepo
         return MongooseAdvertisementReportMapper.toDomain(entity);
     }
     
-    async deleteOne(id: string): Promise<void> {
+    async delete(id: string): Promise<void> {
         await this.advertisementReportModel.deleteOne({ _id: id }).exec();
     }
 }

@@ -11,7 +11,7 @@ export class IsExistingAdvertisementReasonConstraint implements ValidatorConstra
   constructor(private readonly advertisementReasonRepository: IAdvertisementReasonRepository,) {}
 
   async validate(advertisementReasonId: string): Promise<boolean> {
-    const advertisementReason = await this.advertisementReasonRepository.findById(advertisementReasonId);
+    const advertisementReason = await this.advertisementReasonRepository.findOneById(advertisementReasonId);
     return !!advertisementReason;
   }
 

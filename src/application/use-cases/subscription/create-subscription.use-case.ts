@@ -37,7 +37,7 @@ export class CreateSubscriptionUseCase {
       && 
       actualPlanId !== this.firstSubscriptionPlanId) throw new Error('invalid.subscription.exists');
 
-    const plan = await this.planRepository.findById(planId);
+    const plan = await this.planRepository.findOneById(planId);
 
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 

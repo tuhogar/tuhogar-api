@@ -20,7 +20,7 @@ export class UpdateAdvertisementReasonUseCase {
             name,
         });
 
-        const updated = await this.advertisementReasonRepository.findOneAndUpdate(id, advertisementReason);
+        const updated = await this.advertisementReasonRepository.update(id, advertisementReason);
         if (!updated) throw new Error('notfound.advertisement.do.not.exists');
 
         return updated;

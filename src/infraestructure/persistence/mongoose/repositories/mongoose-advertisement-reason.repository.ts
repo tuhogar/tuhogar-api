@@ -10,7 +10,7 @@ export class MongooseAdvertisementReasonRepository implements IAdvertisementReas
         @InjectModel(AdvertisementReasonMongoose.name) private readonly advertisementReasonModel: Model<AdvertisementReasonMongoose>,
     ) {}
     
-    async findById(id: string): Promise<AdvertisementReason> {
+    async findOneById(id: string): Promise<AdvertisementReason> {
         const query = await this.advertisementReasonModel.findById(id).exec();
         return MongooseAdvertisementReasonMapper.toDomain(query);
     }
@@ -28,11 +28,11 @@ export class MongooseAdvertisementReasonRepository implements IAdvertisementReas
         return MongooseAdvertisementReasonMapper.toDomain(entity);
     }
     
-    async deleteOne(id: string): Promise<void> {
+    async delete(id: string): Promise<void> {
         await this.advertisementReasonModel.deleteOne({ _id: id }).exec();
     }
     
-    async findOneAndUpdate(id: string, advertisementReason: AdvertisementReason): Promise<AdvertisementReason> {
+    async update(id: string, advertisementReason: AdvertisementReason): Promise<AdvertisementReason> {
         const data = MongooseAdvertisementReasonMapper.toMongoose(advertisementReason);
 
         const updated = await this.advertisementReasonModel.findOneAndUpdate({ 
@@ -42,6 +42,10 @@ export class MongooseAdvertisementReasonRepository implements IAdvertisementReas
         { new: true }
         ).exec();
 
-        return MongooseAdvertisementReasonMapper.toDomain(updated);
+        if (updated) {
+            return MongooseAdvertisementReasonMapper.toDomain(updated);
+        }
+
+        return null;
     }
 }
