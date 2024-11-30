@@ -81,7 +81,7 @@ export class MongooseAccountRepository implements IAccountRepository {
       contractTypes: string[],
     ): Promise<Account> {
 
-      const update: any = { documentType, documentNumber }
+      const update: any = { documentType, documentNumber };
 
       if (name) update.name = name;
       if (address) update.address = address;

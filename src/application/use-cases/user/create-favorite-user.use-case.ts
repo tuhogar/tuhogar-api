@@ -13,7 +13,7 @@ export class CreateFavoriteUserUseCase {
     ) {}
 
     async execute(userId: string, advertisementId: string): Promise<User> {
-        const response = await this.userRepository.findOneAndUpdate({ _id: userId }, { $addToSet: { advertisementFavorites: advertisementId } }, true);
+        const response = await this.userRepository.addFavoriteAdvertisement(userId, advertisementId);
         if (!response) throw new Error('notfound.user.do.not.exists');
 
         return response;

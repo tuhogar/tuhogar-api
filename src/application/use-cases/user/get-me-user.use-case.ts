@@ -9,7 +9,7 @@ export class GetMeUserUseCase {
     ) {}
 
     async execute(uid: string): Promise<User> {
-        const user = await this.userRepository.findOne({ uid });
+        const user = await this.userRepository.findOneByUid(uid);
         if (!user) throw new Error('notfound.user.do.not.exists');
 
         return user;

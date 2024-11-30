@@ -11,7 +11,7 @@ import { CreateFavoriteAdvertisementDto } from 'src/infraestructure/http/dtos/us
 import { CreateFavoriteUserUseCase } from 'src/application/use-cases/user/create-favorite-user.use-case';
 import { DeleteFavoriteUserUseCase } from 'src/application/use-cases/user/delete-favorite-user.use-case';
 import { DeleteUserUseCase } from 'src/application/use-cases/user/delete-user.use-case';
-import { GetAllByAccountIdUserUseCase } from 'src/application/use-cases/user/get-all-by-account-id-user.use-case';
+import { GetAllUserByAccountIdUseCase } from 'src/application/use-cases/user/get-all-user-by-account-id.use-case';
 import { GetMeUserUseCase } from 'src/application/use-cases/user/get-me-user.use-case';
 import { GetFavoritesUserUseCase } from 'src/application/use-cases/user/get-favorites-user.use-case';
 import { LoginUserUseCase } from 'src/application/use-cases/user/login-user.use-case';
@@ -26,7 +26,7 @@ export class UserController {
         private readonly createFavoriteUserUseCase: CreateFavoriteUserUseCase,
         private readonly deleteFavoriteUserUseCase: DeleteFavoriteUserUseCase,
         private readonly deleteUserUseCase: DeleteUserUseCase,
-        private readonly getAllByAccountIdUserUseCase: GetAllByAccountIdUserUseCase,
+        private readonly getAllUserByAccountIdUseCase: GetAllUserByAccountIdUseCase,
         private readonly getMeUserUseCase: GetMeUserUseCase,
         private readonly getFavoritesUserUseCase: GetFavoritesUserUseCase,
         private readonly loginUserUseCase: LoginUserUseCase,
@@ -50,7 +50,7 @@ export class UserController {
     @Get()
     @Auth('ADMIN')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User[]> {
-        return this.getAllByAccountIdUserUseCase.execute(authenticatedUser.accountId);
+        return this.getAllUserByAccountIdUseCase.execute(authenticatedUser.accountId);
     }
 
     @ApiBearerAuth()

@@ -20,10 +20,10 @@ export class User {
     userRole: UserRole;
     status: UserStatus;
     uid: string;
-    phone: string;
-    whatsApp: string;
-    advertisementFavorites: Advertisement[];
-    account: Account;
+    phone?: string;
+    whatsApp?: string;
+    advertisementFavorites?: Advertisement[];
+    account?: Account;
 
     constructor(props: User) {
         Object.assign(this, props);

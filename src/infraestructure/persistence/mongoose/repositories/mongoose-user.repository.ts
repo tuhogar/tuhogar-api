@@ -4,7 +4,7 @@ import { User as UserMongoose } from "../entities/user.entity"
 import { IUserRepository } from "src/application/interfaces/repositories/user.repository.interface";
 import { Account } from "src/domain/entities/account";
 import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
-import { User, UserStatus } from "src/domain/entities/user";
+import { User, UserRole, UserStatus } from "src/domain/entities/user";
 import { MongooseUserMapper } from "../mapper/mongoose-user.mapper";
 import { MongooseAccountMapper } from "../mapper/mongoose-account.mapper";
 
@@ -13,13 +13,14 @@ export class MongooseUserRepository implements IUserRepository {
         @InjectModel(UserMongoose.name) private readonly userModel: Model<UserMongoose>,
     ) {}
     
-    async create(authenticatedUser: AuthenticatedUser, user: User, accountCreated: Account): Promise<User> {
+    async create(name: string, email: string, uid: string, userRole: UserRole, accountId: string): Promise<User> {
         const data = MongooseUserMapper.toMongoose({
-            ...user,
-            email: authenticatedUser.email,
-            uid: authenticatedUser.uid,
+            name,
+            email,
+            uid,
+            userRole,
             status: UserStatus.ACTIVE,
-            accountId: accountCreated.id,
+            accountId,
          });
 
         const entity = new this.userModel(data);
@@ -32,38 +33,88 @@ export class MongooseUserRepository implements IUserRepository {
         await this.userModel.deleteOne({ _id: id }).exec();
     }
     
-    async find(filter: any): Promise<User[]> {
+    async findByAccountIdAndUserRole(accountId: string, userRole?: UserRole): Promise<User[]> {
+        const filter: any = { accountId };
+        
+        if (userRole) filter.userRole == userRole;
+        
         const query = await this.userModel.find(filter).exec();
         return query.map((item) => MongooseUserMapper.toDomain(item));
     }
 
     async findOneByUid(uid: string): Promise<User> {
-        const query = await this.userModel.findOne({ uid }).exec();
+        const query = await this.userModel.findOne({ uid }).populate('accountId').exec();
         return MongooseUserMapper.toDomain(query);
     }
     
-    async findOne(filter: any): Promise<User> {
-        const query = await this.userModel.findOne(filter).populate('accountId').exec();
-        return MongooseUserMapper.toDomain(query);
-    }
-    
-    async findOneAndUpdate(filter: any, data: any, returnNew: boolean = false): Promise<User> {
+    async update(id: string, name: string, phone: string, whatsApp: string): Promise<User> {
+        const update: any = {};
+
+        if (name) update.name = name;
+        if (phone) update.phone = phone;
+        if (whatsApp) update.whatsApp = whatsApp;
+
         const updated = await this.userModel.findOneAndUpdate(
-            filter,
-            data,
-            { new: returnNew }
+            { _id: id },
+            update,
+            { new: true }
         ).exec();
 
         if (updated) {
             const user = updated;
-            return this.findById(user._id.toString());
+            return this.findOneById(user._id.toString());
+        }
+
+        return null;
+    }
+
+    async updateStatus(id: string, status: UserStatus): Promise<User> {
+        const updated = await this.userModel.findOneAndUpdate(
+            { _id: id },
+            { status },
+            { new: false }
+        ).exec();
+
+        if (updated) {
+            const user = updated;
+            return this.findOneById(user._id.toString());
+        }
+
+        return null;
+    }
+
+    async deleteFavoriteAdvertisement(id: string, advertisementId: string): Promise<User> {
+        const updated = await this.userModel.findOneAndUpdate(
+            { _id: id },
+            { $pull: { advertisementFavorites: advertisementId } },
+            { new: true }
+        ).exec();
+
+        if (updated) {
+            const user = updated;
+            return this.findOneById(user._id.toString());
+        }
+
+        return null;
+    }
+
+    async addFavoriteAdvertisement(id: string, advertisementId: string): Promise<User> {
+        const updated = await this.userModel.findOneAndUpdate(
+            { _id: id },
+            { $addToSet: { advertisementFavorites: advertisementId } },
+            { new: true }
+        ).exec();
+
+        if (updated) {
+            const user = updated;
+            return this.findOneById(user._id.toString());
         }
 
         return null;
     }
     
-    async findById(userId: string): Promise<User> {
-        const query = await this.userModel.findById(userId).populate({
+    async findOneById(id: string): Promise<User> {
+        const query = await this.userModel.findById(id).populate({
             path: 'advertisementFavorites',
             populate: [
                 { path: 'amenities' },

@@ -9,7 +9,7 @@ export class GetFavoritesUserUseCase {
     ) {}
 
     async execute(userId: string): Promise<Advertisement[]> {
-        const user = await this.userRepository.findById(userId);
+        const user = await this.userRepository.findOneById(userId);
         if (!user) throw new Error('notfound.user.do.not.exists');
 
         return user.advertisementFavorites as Advertisement[];

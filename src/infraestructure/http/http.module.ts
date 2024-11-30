@@ -30,12 +30,11 @@ import { CreateFavoriteUserUseCase } from "src/application/use-cases/user/create
 import { CreateUserUseCase } from "src/application/use-cases/user/create-user.use-case";
 import { DeleteFavoriteUserUseCase } from "src/application/use-cases/user/delete-favorite-user.use-case";
 import { DeleteUserUseCase } from "src/application/use-cases/user/delete-user.use-case";
-import { GetAllByAccountIdUserUseCase } from "src/application/use-cases/user/get-all-by-account-id-user.use-case";
 import { GetMeUserUseCase } from "src/application/use-cases/user/get-me-user.use-case";
 import { GetFavoritesUserUseCase } from "src/application/use-cases/user/get-favorites-user.use-case";
 import { LoginUserUseCase } from "src/application/use-cases/user/login-user.use-case";
 import { PathUserUseCase } from "src/application/use-cases/user/path-user.use-case";
-import { UpdateAllStatusUserUseCase } from "src/application/use-cases/user/update-all-status-user.use-case";
+import { UpdateAllUserStatusUseCase } from "src/application/use-cases/user/update-all-user-status.use-case";
 import { UpdateStatusUserUseCase } from "src/application/use-cases/user/update-status-user.use-case";
 import { CreateAccountUseCase } from "src/application/use-cases/account/create-account.use-case";
 import { DeleteImageAccountUseCase } from "src/application/use-cases/account/delete-image-account.use-case";
@@ -45,7 +44,6 @@ import { GetAdvertisementsAccountUseCase } from "src/application/use-cases/accou
 import { GetAllAccountUseCase } from "src/application/use-cases/account/get-all-account.use-case";
 import { GetByIdAccountUseCase } from "src/application/use-cases/account/get-by-id-account.use-case";
 import { GetRegisteredAccountsUseCase } from "src/application/use-cases/account/get-registered-accounts.use-case";
-import { GetUsersAccountUseCase } from "src/application/use-cases/account/get-users-account.use-case";
 import { PathAccountUseCase } from "src/application/use-cases/account/path-account.use-case";
 import { ProcessImageAccountUseCase } from "src/application/use-cases/account/process-image-account.use-case";
 import { UpdateStatusAccountUseCase } from "src/application/use-cases/account/update-status-account.use-case";
@@ -81,6 +79,7 @@ import { CreateInternalSubscriptionUseCase } from "src/application/use-cases/sub
 import { CreateAdvertisementEventUseCase } from "src/application/use-cases/advertisement-event/create-advertisement-event.use-case";
 import { AdvertisementEventController } from "./controllers/advertisement-event.controller";
 import { AccountAlreadyExistsConstraint } from "./validators/account/account-already-exists.validator";
+import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get-all-user-by-account-id.use-case";
 
 @Module({
     imports: [
@@ -99,7 +98,6 @@ import { AccountAlreadyExistsConstraint } from "./validators/account/account-alr
         GetAllAccountUseCase,
         GetByIdAccountUseCase,
         GetRegisteredAccountsUseCase,
-        GetUsersAccountUseCase,
         PathAccountUseCase,
         ProcessImageAccountUseCase,
         UpdateStatusAccountUseCase,
@@ -135,12 +133,12 @@ import { AccountAlreadyExistsConstraint } from "./validators/account/account-alr
         CreateUserUseCase,
         DeleteFavoriteUserUseCase,
         DeleteUserUseCase,
-        GetAllByAccountIdUserUseCase,
+        GetAllUserByAccountIdUseCase,
         GetMeUserUseCase,
         GetFavoritesUserUseCase,
         LoginUserUseCase,
         PathUserUseCase,
-        UpdateAllStatusUserUseCase,
+        UpdateAllUserStatusUseCase,
         UpdateStatusUserUseCase,
         GetAllContractTypeUseCase,
         CreateSubscriptionUseCase,

@@ -19,19 +19,21 @@ export class UpdateStatusUserUseCase {
         updateStatusUserDto: UpdateStatusUserDto,
     ): Promise<void> {
 
-        const filter = {
-            _id: userId,
-            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
-        };
+        const user = await this.userRepository.findOneById(userId);
+        if (!user) throw new Error('notfound.user.do.not.exists');
 
-        const updatingUser = await this.userRepository.findOneAndUpdate(filter, { ...updateStatusUserDto });
+        if (authenticatedUser.userRole !== UserRole.MASTER && authenticatedUser.accountId !== user.accountId) {
+            throw new Error('notfound.user.do.not.exists');
+        }
+
+        const updatingUser = await this.userRepository.updateStatus(userId, updateStatusUserDto.status);
 
         if (!updatingUser) throw new Error('notfound.user.do.not.exists');
 
         try {
             await this.updateFirebaseUsersDataUseCase.execute( { accountId: updatingUser.accountId });
         } catch(error) {
-            await this.userRepository.findOneAndUpdate(filter, { status: updatingUser.status });
+            await this.userRepository.updateStatus(userId, updatingUser.status);
 
             throw new UnauthorizedException('authorization.error.updating.user.data.on.the.authentication.server');
         }

@@ -19,7 +19,7 @@ export class CreateUserUseCase {
         createUserDto: CreateUserDto,
         accountCreated: Account,
     ): Promise<User> {
-        const userCreated = await this.userRepository.create(authenticatedUser, createUserDto, accountCreated);
+        const userCreated = await this.userRepository.create(createUserDto.name, authenticatedUser.email, authenticatedUser.uid, createUserDto.userRole, accountCreated.id);
         return userCreated;
     }
 }

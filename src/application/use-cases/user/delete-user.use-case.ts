@@ -19,13 +19,12 @@ export class DeleteUserUseCase {
 
     async execute(authenticatedUser: AuthenticatedUser, userId: string): Promise<void> {
 
-        const filter = {
-            _id: userId,
-            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
-        };
-
-        const user = await this.userRepository.findOne(filter);
+        const user = await this.userRepository.findOneById(userId);
         if (!user) throw new Error('notfound.user.do.not.exists');
+
+        if (authenticatedUser.userRole !== UserRole.MASTER && authenticatedUser.accountId !== user.accountId) {
+            throw new Error('notfound.user.do.not.exists');
+        }
 
         await this.userRepository.deleteOne(userId);
 

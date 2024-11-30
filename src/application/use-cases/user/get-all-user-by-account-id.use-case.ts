@@ -4,15 +4,13 @@ import { ConfigService } from '@nestjs/config';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()
-export class GetAllByAccountIdUserUseCase {
+export class GetAllUserByAccountIdUseCase {
     constructor(
-        private configService: ConfigService,
         private readonly userRepository: IUserRepository,
     ) {}
 
-    async execute(accountId: string, userRole?: UserRole): Promise<User[]> {
-        const filter = { accountId, ...(userRole && { userRole }) };
+    async execute(accountId: string): Promise<User[]> {
         
-        return this.userRepository.find(filter);
+        return this.userRepository.findByAccountId(accountId);
     }
 }

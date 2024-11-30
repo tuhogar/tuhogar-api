@@ -7,7 +7,7 @@ import { UpdateStatusUserUseCase } from './update-status-user.use-case';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 @Injectable()
-export class UpdateAllStatusUserUseCase {
+export class UpdateAllUserStatusUseCase {
     constructor(
         private readonly userRepository: IUserRepository,
         private readonly updateStatusUserUseCase: UpdateStatusUserUseCase,
@@ -15,9 +15,7 @@ export class UpdateAllStatusUserUseCase {
 
     async execute(authenticatedUser: AuthenticatedUser, accountId: string, status: AccountStatus): Promise<void> {
 
-        const filter = { accountId, userRole: status === AccountStatus.ACTIVE ? UserRole.ADMIN : undefined };
-
-        const users = await this.userRepository.find(filter);
+        const users = await this.userRepository.findByAccountIdAndUserRole(accountId, status === AccountStatus.ACTIVE ? UserRole.ADMIN : undefined);
 
         users.forEach(async (a) => {
           const updateStatusUserDto: UpdateStatusUserDto = { status: status === AccountStatus.ACTIVE ? UserStatus.ACTIVE : UserStatus.INACTIVE }

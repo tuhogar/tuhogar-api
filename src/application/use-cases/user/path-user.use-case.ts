@@ -25,12 +25,14 @@ export class PathUserUseCase {
     }
 
     async execute(authenticatedUser: AuthenticatedUser, userId: string, patchUserDto: PatchUserDto): Promise<void> {
-        const filter = {
-            _id: userId,
-            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
-        };
+        const user = await this.userRepository.findOneById(userId);
+        if (!user) throw new Error('notfound.user.do.not.exists');
 
-        const updatedUser = await this.userRepository.findOneAndUpdate(filter, patchUserDto, true);
+        if (authenticatedUser.userRole !== UserRole.MASTER && authenticatedUser.accountId !== user.accountId) {
+            throw new Error('notfound.user.do.not.exists');
+        }
+
+        const updatedUser = await this.userRepository.update(userId, patchUserDto.name, patchUserDto.phone, patchUserDto.whatsApp);
 
         if (!updatedUser) throw new Error('notfound.user.do.not.exists');
     }

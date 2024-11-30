@@ -18,10 +18,10 @@ import { GetAdvertisementsAccountUseCase } from 'src/application/use-cases/accou
 import { GetAllAccountUseCase } from 'src/application/use-cases/account/get-all-account.use-case';
 import { GetByIdAccountUseCase } from 'src/application/use-cases/account/get-by-id-account.use-case';
 import { GetRegisteredAccountsUseCase } from 'src/application/use-cases/account/get-registered-accounts.use-case';
-import { GetUsersAccountUseCase } from 'src/application/use-cases/account/get-users-account.use-case';
 import { PathAccountUseCase } from 'src/application/use-cases/account/path-account.use-case';
 import { ProcessImageAccountUseCase } from 'src/application/use-cases/account/process-image-account.use-case';
 import { UpdateStatusAccountUseCase } from 'src/application/use-cases/account/update-status-account.use-case';
+import { GetAllUserByAccountIdUseCase } from 'src/application/use-cases/user/get-all-user-by-account-id.use-case';
 
 @ApiTags('v1/accounts')
 @Controller('v1/accounts')
@@ -35,7 +35,7 @@ export class AccountController {
     private readonly getAllAccountUseCase: GetAllAccountUseCase,
     private readonly getByIdAccountUseCase: GetByIdAccountUseCase,
     private readonly getRegisteredAccountsUseCase: GetRegisteredAccountsUseCase,
-    private readonly getUsersAccountUseCase: GetUsersAccountUseCase,
+    private readonly getAllUserByAccountIdUseCase: GetAllUserByAccountIdUseCase,
     private readonly pathAccountUseCase: PathAccountUseCase,
     private readonly processImageAccountUseCase: ProcessImageAccountUseCase,
     private readonly updateStatusAccountUseCase: UpdateStatusAccountUseCase,
@@ -97,7 +97,7 @@ export class AccountController {
   @Get(':accountid/users')
   @Auth('MASTER')
   async getUsers(@Param('accountid') accountId: string): Promise<User[]> {
-      return this.getUsersAccountUseCase.execute(accountId);
+      return this.getAllUserByAccountIdUseCase.execute(accountId);
   }
 
   @ApiBearerAuth()
