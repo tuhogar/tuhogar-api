@@ -21,8 +21,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
 
     async findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<Advertisement> {
         const updated = await this.advertisementModel.findOneAndUpdate({ 
+            _id: advertisementId,
             accountId,
-            _id: advertisementId
         },
         update,
         { new: true }
@@ -32,17 +32,15 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
     
     async findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]> {
-        const filter: any = {
-            $match: {
-                status: AdvertisementStatus.ACTIVE,
-            }
-        };
+        const filter: any = {};
 
         if (accountId) {
             filter.$match.accountId = new Types.ObjectId(accountId);
         } else {
             filter.$match.updatedAt = { $gt: lastUpdatedAt };
         }
+
+        filter.$match.status = AdvertisementStatus.ACTIVE;
 
         return this.advertisementModel.aggregate([
             filter,
@@ -115,7 +113,9 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     
     async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
 
+        console.log(new Date())
         const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
+        console.log(new Date())
         
 
         const advertisementsWithAdvertisementEvents = await Promise.all(
@@ -155,6 +155,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
                return advertisement;
             })
         )
+        console.log(new Date())
 
         return advertisementsWithAdvertisementEvents.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }

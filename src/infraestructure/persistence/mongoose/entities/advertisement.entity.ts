@@ -138,4 +138,7 @@ export class Advertisement {
 
 const AdvertisementSchema = SchemaFactory.createForClass(Advertisement);
 
+AdvertisementSchema.index({ accountId: -1 });
+AdvertisementSchema.index({ updatedAt: -1 });
+
 export { AdvertisementSchema };

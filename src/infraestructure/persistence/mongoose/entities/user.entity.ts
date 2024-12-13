@@ -37,4 +37,6 @@ export class User {
 
 const UserSchema = SchemaFactory.createForClass(User);
 
+UserSchema.index({ accountId: -1 });
+
 export { UserSchema };

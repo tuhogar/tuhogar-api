@@ -64,4 +64,6 @@ export class Account {
 
 const AccountSchema = SchemaFactory.createForClass(Account);
 
+AccountSchema.index({ email: -1 });
+
 export { AccountSchema };

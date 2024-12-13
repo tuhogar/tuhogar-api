@@ -16,4 +16,6 @@ export class AdvertisementReport {
 
 const AdvertisementReportSchema = SchemaFactory.createForClass(AdvertisementReport);
 
+AdvertisementReportSchema.index({ advertisementId: -1 });
+
 export { AdvertisementReportSchema };

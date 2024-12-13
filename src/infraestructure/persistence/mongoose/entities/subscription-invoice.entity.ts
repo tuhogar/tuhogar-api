@@ -13,10 +13,10 @@ export class SubscriptionInvoice {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' })
     subscriptionId: Subscription;
     
-    @Prop({ index: true })
+    @Prop()
     externalId: string;
 
-    @Prop({ index: true })
+    @Prop()
     externalSubscriptionReference: string;
 
     @Prop()
@@ -36,5 +36,7 @@ export class SubscriptionInvoice {
 }
 
 const SubscriptionInvoiceSchema = SchemaFactory.createForClass(SubscriptionInvoice);
+
+SubscriptionInvoiceSchema.index({ externalId: -1 });
 
 export { SubscriptionInvoiceSchema };

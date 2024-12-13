@@ -53,9 +53,9 @@ export class MongooseAccountRepository implements IAccountRepository {
         return MongooseAccountMapper.toDomain(entity);
     }
 
-    async deleteImage(accountId: string): Promise<Account> {
+    async deleteImage(id: string): Promise<Account> {
       const updated = await this.accountModel.findOneAndUpdate(
-        { _id: accountId },
+        { _id: id },
         { $unset: { photo: '' } },
         { new: true }
       ).exec();
@@ -68,7 +68,7 @@ export class MongooseAccountRepository implements IAccountRepository {
     }
 
     async update(
-      accountId: string, 
+      id: string, 
       documentType: AccountDocumentType,
       documentNumber: string,
       name: string,
@@ -93,7 +93,7 @@ export class MongooseAccountRepository implements IAccountRepository {
       if (contractTypes) update.contractTypes = contractTypes;
 
       const updated = await this.accountModel.findOneAndUpdate(
-        { _id: accountId },
+        { _id: id },
         update,
         { new: true },
       ).exec();
@@ -105,9 +105,9 @@ export class MongooseAccountRepository implements IAccountRepository {
       return null;
     }
     
-    async updateImage(accountId: string, imageUrl: string): Promise<Account> {
+    async updateImage(id: string, imageUrl: string): Promise<Account> {
       const updated = await this.accountModel.findOneAndUpdate(
-        { _id: accountId },
+        { _id: id },
           { photo: imageUrl },
           { new: true }
       ).exec();
@@ -119,9 +119,9 @@ export class MongooseAccountRepository implements IAccountRepository {
       return null;
     }
 
-    async updateStatus(accountId: string, status: AccountStatus): Promise<Account> {
+    async updateStatus(id: string, status: AccountStatus): Promise<Account> {
       const updated = await this.accountModel.findOneAndUpdate(
-        { _id: accountId },
+        { _id: id },
         { status },
         { new: false }
       ).exec();

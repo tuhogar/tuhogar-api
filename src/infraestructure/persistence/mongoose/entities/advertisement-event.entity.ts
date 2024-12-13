@@ -18,4 +18,6 @@ export class AdvertisementEvent {
 
 const AdvertisementEventSchema = SchemaFactory.createForClass(AdvertisementEvent);
 
+AdvertisementEventSchema.index({ advertisementId: -1 });
+
 export { AdvertisementEventSchema };
