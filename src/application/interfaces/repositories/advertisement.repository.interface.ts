@@ -1,4 +1,4 @@
-import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto } from "src/domain/entities/advertisement";
+import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus } from "src/domain/entities/advertisement";
 import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
 import { CreateUpdateAdvertisementDto } from "src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto";
 import { UpdateStatusAdvertisementDto } from "src/infraestructure/http/dtos/advertisement/update-status-advertisement.dto";
@@ -6,23 +6,17 @@ import { UpdateStatusAllAdvertisementsDto } from "src/infraestructure/http/dtos/
 
 export abstract class IAdvertisementRepository {
     abstract create(data: any): Promise<Advertisement>
-    abstract findOne(advertisementId: string, accountId: string): Promise<Advertisement>
-    abstract findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
+    abstract update(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
+    abstract findOneById(id: string): Promise<Advertisement>
     abstract findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]>
-    abstract findForActives(advertisementIds: string[]): Promise<Advertisement[]>
-    abstract getAllByAccountId(accountId: string): Promise<Advertisement[]>
-    abstract getByAccountIdAndId(filter: any): Promise<Advertisement>
-    abstract get(advertisementId: string): Promise<Advertisement>
-    abstract getActive(advertisementId: string): Promise<Advertisement>
-    abstract getAllToApprove(): Promise<Advertisement[]>
-    abstract findForUpdateStatus(userId: string, filter: any, updateStatusAdvertisementDto: UpdateStatusAdvertisementDto, publishedAt: any, approvingUserId: any): Promise<Advertisement>
-    abstract updateStatusAll(filter: any, update: any): Promise<any>
-    abstract findById(advertisementId: string): Promise<Advertisement>
-    abstract updateProcessPhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[]): Promise<Advertisement>
-    abstract updateForDeletePhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[]): Promise<Advertisement>
-    abstract find(filter: any): Promise<Advertisement[]>
-    abstract deleteMany(filter: any): Promise<void>
+    abstract findByAccountIdWithEvents(accountId: string): Promise<Advertisement[]>
+    abstract findOneActive(advertisementId: string): Promise<Advertisement>
+    abstract findToApprove(): Promise<Advertisement[]>
+    abstract updateStatus(ids: string[], accountId: string, status: AdvertisementStatus, publishedAt: Date, approvingUserId: string): Promise<any>
+    abstract updatePhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement>
+    abstract findByIdsAndAccountId(ids: string[], accountId: string): Promise<Advertisement[]>
+    abstract deleteMany(ids: string[], accountId: string): Promise<void>
     abstract getRegisteredAdvertisements(period: 'week' | 'month'): Promise<any[]>
     abstract findSimilarDocuments(embedding: number[]): Promise<any[]>
-    abstract findAllWithReports(): Promise<Advertisement[]>
+    abstract findWithReports(): Promise<Advertisement[]>
 }

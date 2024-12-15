@@ -54,13 +54,11 @@ import { FindAllWithReportsAdvertisementUseCase } from "src/application/use-case
 import { FindSimilarDocumentsAdvertisementUseCase } from "src/application/use-cases/advertisement/find-similar-documents-advertisement.use-case";
 import { GetActiveAdvertisementUseCase } from "src/application/use-cases/advertisement/get-active-advertisement.use-case";
 import { GetActivesAdvertisementUseCase } from "src/application/use-cases/advertisement/get-actives-advertisement.use-case";
-import { GetAdvertisementUseCase } from "src/application/use-cases/advertisement/get-advertisement.use-case";
 import { GetAllByAccountIdAdvertisementUseCase } from "src/application/use-cases/advertisement/get-all-by-account-id-advertisement.use-case";
 import { GetAllToApproveAdvertisementUseCase } from "src/application/use-cases/advertisement/get-all-to-approve-advertisement.use-case";
 import { GetByAccountIdAndIdAdvertisementUseCase } from "src/application/use-cases/advertisement/get-by-account-id-and-id-advertisement.use-case";
 import { ProcesssImagesAdvertisementuseCase } from "src/application/use-cases/advertisement/process-images-advertisement.use-case";
 import { UpdateAdvertisementUseCase } from "src/application/use-cases/advertisement/update-advertisement.use-case";
-import { UpdateStatusAdvertisementUseCase } from "src/application/use-cases/advertisement/update-status-advertisement.use-case";
 import { UpdateStatusAllAdvertisementUseCase } from "src/application/use-cases/advertisement/update-status-all-advertisement.use-case";
 import { DeleteImagesAdvertisementUseCase } from "src/application/use-cases/advertisement/delete-images-advertisement.use-case";
 import { GetRegisteredAdvertisementsUseCase } from "src/application/use-cases/advertisement/get-registered-advertisements.use-case";
@@ -117,14 +115,12 @@ import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get
         FindSimilarDocumentsAdvertisementUseCase,
         GetActiveAdvertisementUseCase,
         GetActivesAdvertisementUseCase,
-        GetAdvertisementUseCase,
         GetAllByAccountIdAdvertisementUseCase,
         GetAllToApproveAdvertisementUseCase,
         GetByAccountIdAndIdAdvertisementUseCase,
         GetRegisteredAdvertisementsUseCase,
         ProcesssImagesAdvertisementuseCase,
         UpdateAdvertisementUseCase,
-        UpdateStatusAdvertisementUseCase,
         UpdateStatusAllAdvertisementUseCase,
         GetAllAmenityUseCase,
         UpdateBulkUpdateDateUseCase,

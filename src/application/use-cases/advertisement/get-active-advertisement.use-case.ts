@@ -9,7 +9,7 @@ export class GetActiveAdvertisementUseCase {
     ) {}
 
     async execute(advertisementId: string): Promise<Advertisement> {
-        const advertisement = await this.advertisementRepository.getActive(advertisementId);
+        const advertisement = await this.advertisementRepository.findOneActive(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         return advertisement;

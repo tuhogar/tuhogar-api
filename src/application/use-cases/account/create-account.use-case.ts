@@ -8,6 +8,7 @@ import { CreateUserUseCase } from '../user/create-user.use-case';
 import { ISubscriptionRepository } from 'src/application/interfaces/repositories/subscription.repository.interface';
 import { CreateInternalSubscriptionUseCase } from '../subscription/create-internal-subscription.use-case';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
+import { Account, AccountStatus } from 'src/domain/entities/account';
 
 @Injectable()
 export class CreateAccountUseCase {
@@ -23,14 +24,16 @@ export class CreateAccountUseCase {
     authenticatedUser: AuthenticatedUser,
     createAccountDto: CreateAccountDto,
   ): Promise<{ id: string }> {
-    const accountCreated = await this.accountRepository.create(
-      authenticatedUser.email,
-      createAccountDto.planId,
-      createAccountDto.name,
-      createAccountDto.phone,
-      createAccountDto.documentType,
-      createAccountDto.documentNumber,
-    );
+    const account = new Account({
+      planId: createAccountDto.planId,
+      name: createAccountDto.name,
+      email: authenticatedUser.email,
+      phone: createAccountDto.phone,
+      documentType: createAccountDto.documentType,
+      documentNumber: createAccountDto.documentNumber,
+      status: AccountStatus.ACTIVE,
+    });
+    const accountCreated = await this.accountRepository.create(account);
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId: accountCreated.id, planId: createAccountDto.planId });
     await this.createUserUseCase.execute(authenticatedUser, { name: createAccountDto.name, userRole: UserRole.ADMIN }, accountCreated );
     try {

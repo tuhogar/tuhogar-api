@@ -19,7 +19,16 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         @InjectModel(AdvertisementEventMongoose.name) private readonly advertisementEventModel: Model<AdvertisementEventMongoose>,
     ) {}
 
-    async findOneAndUpdate(advertisementId: string, accountId: string, update: any): Promise<Advertisement> {
+    // TODO: Refatorar
+    async create(data: any): Promise<Advertisement> {
+        const entity = new this.advertisementModel({ ...data });
+        await entity.save();
+
+        return MongooseAdvertisementMapper.toDomain(entity);
+    }
+
+    // TODO: Refatorar
+    async update(advertisementId: string, accountId: string, update: any): Promise<Advertisement> {
         const updated = await this.advertisementModel.findOneAndUpdate({ 
             _id: advertisementId,
             accountId,
@@ -106,12 +115,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
     
-    async findForActives(advertisementIds: string[]): Promise<Advertisement[]> {
-        const query = await this.advertisementModel.find({ _id: { $in: advertisementIds } }).populate('amenities').populate('communityAmenities').exec()
-        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
-    }
-    
-    async getAllByAccountId(accountId: string): Promise<Advertisement[]> {
+    async findByAccountIdWithEvents(accountId: string): Promise<Advertisement[]> {
 
         console.log(new Date())
         const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
@@ -160,8 +164,62 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         return advertisementsWithAdvertisementEvents.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
     
-    async getByAccountIdAndId(filter: any): Promise<Advertisement> {
-        const query = await this.advertisementModel.findOne(filter).populate('amenities').populate('communityAmenities').exec();
+    async findOneActive(advertisementId: string): Promise<Advertisement> {
+        const query = await this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').populate('communityAmenities').exec();
+        return MongooseAdvertisementMapper.toDomain(query);
+    }
+    
+    async findToApprove(): Promise<Advertisement[]> {
+        const query = await this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').populate('communityAmenities').sort({ updatedAt: -1 }).exec();
+        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
+    }
+    
+    async updateStatus(ids: string[], accountId: string, status: AdvertisementStatus, publishedAt: Date, approvingUserId: string): Promise<any> {
+        const filter: any = { _id: { $in: ids } };
+        if (accountId) filter.accountId = accountId;
+
+        const update: any = { status };
+        if (publishedAt) update.publishedAt = publishedAt;
+        if (approvingUserId) update.approvingUserId = approvingUserId;
+
+        return this.advertisementModel.updateMany(
+            filter,
+            update,
+            { new: true }
+        ).exec();
+    }
+    
+    async updatePhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement> {
+        const update: any = { photos: newPhotos };
+        if (status) update.status = status;
+        const updated = await this.advertisementModel.findOneAndUpdate(
+            { accountId, _id: advertisementId },
+            update,
+            { new: true }
+        ).exec();
+
+        return MongooseAdvertisementMapper.toDomain(updated);
+    }
+    
+    async deleteMany(ids: string[], accountId: string): Promise<void> {
+        const filter: any = { _id: { $in: ids } };
+
+        if (accountId) filter.accountId = accountId;
+
+        await this.advertisementModel.deleteMany(filter).exec();
+    }
+
+    async findByIdsAndAccountId(ids: string[], accountId: string): Promise<Advertisement[]> {
+        const filter: any = { _id: { $in: ids } };
+
+        if (accountId) filter.accountId = accountId;
+
+        const query = await this.advertisementModel.find(filter).populate('amenities').populate('communityAmenities').exec();
+        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
+    }
+
+    async findOneById(id: string): Promise<Advertisement> {
+        const query = await this.advertisementModel.findOne({ _id: id }).populate('amenities').populate('communityAmenities').exec();
         if (query) {
             const advertisementEvents = await this.advertisementEventModel.find({ advertisementId: query.id }).exec();
             if (advertisementEvents) {
@@ -170,96 +228,9 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         }
         return MongooseAdvertisementMapper.toDomain(query);
     }
-    
-    async get(advertisementId: string): Promise<Advertisement> {
-        const query = await this.advertisementModel.findById(advertisementId).populate('amenities').populate('communityAmenities').exec();
-        return MongooseAdvertisementMapper.toDomain(query);
-    }
-    
-    async getActive(advertisementId: string): Promise<Advertisement> {
-        const query = await this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').populate('communityAmenities').exec();
-        return MongooseAdvertisementMapper.toDomain(query);
-    }
-    
-    async getAllToApprove(): Promise<Advertisement[]> {
-        const query = await this.advertisementModel.find({ status: AdvertisementStatus.WAITING_FOR_APPROVAL }).populate('amenities').populate('communityAmenities').sort({ updatedAt: -1 }).exec();
-        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
-    }
-    
-    async findForUpdateStatus(userId: string, filter: any, updateStatusAdvertisementDto: UpdateStatusAdvertisementDto, publishedAt: any = undefined, approvingUserId: any = undefined): Promise<Advertisement> {
-        const updated = await this.advertisementModel.findOneAndUpdate(
-            filter,
-            { 
-                updatedUserId: userId,
-                ...updateStatusAdvertisementDto,
-                publishedAt,
-                approvingUserId,
-            },
-            { new: true }
-        ).exec();
 
-        return MongooseAdvertisementMapper.toDomain(updated);
-    }
-    
-    async updateStatusAll(filter: any, update: any): Promise<any> {
-        return this.advertisementModel.updateMany(
-            filter,
-            update,
-            { new: true }
-        ).exec();
-    }
-    
-    async updateProcessPhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[]): Promise<Advertisement> {
-        const updated = await this.advertisementModel.findOneAndUpdate(
-            { accountId, _id: advertisementId },
-            { 
-                photos: newPhotos,
-                status: AdvertisementStatus.WAITING_FOR_APPROVAL,
-             },
-            { new: true }
-        ).exec();
-
-        return MongooseAdvertisementMapper.toDomain(updated);
-    }
-    
-    async updateForDeletePhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[]): Promise<Advertisement> {
-        const updated = await this.advertisementModel.findOneAndUpdate(
-            { accountId, _id: advertisementId },
-            { photos: newPhotos },
-            { new: true }
-        ).exec();
-
-        return MongooseAdvertisementMapper.toDomain(updated);
-    }
-    
-    async deleteMany(filter: any): Promise<void> {
-        await this.advertisementModel.deleteMany(filter).exec();
-    }
-
-    async find(filter: any): Promise<Advertisement[]> {
-        const query = await this.advertisementModel.find(filter).populate('amenities').populate('communityAmenities').exec();
-        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
-    }
-
-    async findById(advertisementId: string): Promise<Advertisement> {
-        const query = await this.advertisementModel.findById(advertisementId).populate('amenities').populate('communityAmenities').exec();
-        return MongooseAdvertisementMapper.toDomain(query);
-    }
-
-    async findOne(advertisementId: string, accountId: string): Promise<Advertisement> {
-        const query = await this.advertisementModel.findOne({ _id: advertisementId, accountId }).populate('amenities').populate('communityAmenities').exec();
-        return MongooseAdvertisementMapper.toDomain(query);
-    }
-
-    async create(data: any): Promise<Advertisement> {
-        const advertisementCreated = new this.advertisementModel(data);
-        await advertisementCreated.save();
-
-        return this.findById(advertisementCreated._id.toString());
-    }
-
-    async findAllWithReports(): Promise<Advertisement[]> {
-        return this.advertisementModel.aggregate([
+    async findWithReports(): Promise<Advertisement[]> {
+        const query = await this.advertisementModel.aggregate([
             {
               $lookup: {
                 from: 'advertisement-reports',
@@ -275,6 +246,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
               $sort: { 'advertisementReports._id': -1 },
             },
           ]).exec();
+
+        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
 
     async findSimilarDocuments(embedding: number[]): Promise<any[]> {

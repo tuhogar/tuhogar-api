@@ -32,9 +32,10 @@ export class MongooseSubscriptionInvoiceRepository implements ISubscriptionInvoi
   }
 
   async update(id: string, subscriptionInvoice: SubscriptionInvoice): Promise<SubscriptionInvoice> {
+    const data = MongooseSubscriptionInvoiceMapper.toMongoose(subscriptionInvoice);
     const updated = await this.subscriptionInvoiceModel.findByIdAndUpdate(
       id,
-      subscriptionInvoice,
+      { ...data },
       { new: true },
     ).exec();
     

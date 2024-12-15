@@ -28,26 +28,11 @@ export class MongooseAccountRepository implements IAccountRepository {
       return MongooseAccountMapper.toDomain(query);
     }
     
-    async create(
-      email: string,
-      planId: string,
-      name: string,
-      phone: string,
-      documentType: AccountDocumentType,
-      documentNumber: string,
-    ): Promise<Account> {
-      const data = MongooseAccountMapper.toMongoose({
-        planId,
-        name,
-        email,
-        phone: phone,
-        documentType,
-        documentNumber,
-        status: AccountStatus.ACTIVE,
-      });
+    async create(account: Account): Promise<Account> {
+      const data = MongooseAccountMapper.toMongoose({ ...account });
 
 
-        const entity = new this.accountModel(data);
+        const entity = new this.accountModel({ ...data });
         await entity.save();
 
         return MongooseAccountMapper.toDomain(entity);

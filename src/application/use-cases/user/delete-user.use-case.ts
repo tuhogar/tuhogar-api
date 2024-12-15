@@ -26,7 +26,7 @@ export class DeleteUserUseCase {
             throw new Error('notfound.user.do.not.exists');
         }
 
-        await this.userRepository.deleteOne(userId);
+        await this.userRepository.delete(userId);
 
         try {
             const app = this.admin.setup();

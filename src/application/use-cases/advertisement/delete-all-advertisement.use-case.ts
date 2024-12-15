@@ -17,14 +17,9 @@ export class DeleteAllAdvertisementUseCase {
     async execute(authenticatedUser: AuthenticatedUser, deleteAdvertisementsDto: DeleteAdvertisementsDto): Promise<void> {
         const advertisementIds = deleteAdvertisementsDto.advertisements.map((a) => a.id);
 
-        const filter = {
-            _id: { $in: advertisementIds },
-            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
-        };
+        const advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : undefined);
 
-        const advertisements = await this.advertisementRepository.find(filter);
-
-        await this.advertisementRepository.deleteMany(filter);
+        await this.advertisementRepository.deleteMany(advertisementIds, authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : undefined);
 
         advertisements.forEach(async (a) => await this.algoliaService.delete(a.id));
 

@@ -9,6 +9,6 @@ export class FindAllWithReportsAdvertisementUseCase {
     ) {}
 
     async execute(): Promise<Advertisement[]> {
-        return this.advertisementRepository.findAllWithReports();
+        return this.advertisementRepository.findWithReports();
     }
 }

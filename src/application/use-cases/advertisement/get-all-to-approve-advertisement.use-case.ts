@@ -9,6 +9,6 @@ export class GetAllToApproveAdvertisementUseCase {
     ) {}
 
     async execute(): Promise<Advertisement[]> {
-        return this.advertisementRepository.getAllToApprove();
+        return this.advertisementRepository.findToApprove();
     }
 }

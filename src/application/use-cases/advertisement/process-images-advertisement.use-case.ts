@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AdvertisementPhoto } from 'src/domain/entities/advertisement';
+import { AdvertisementPhoto, AdvertisementStatus } from 'src/domain/entities/advertisement';
 import { v4 as uuidv4 } from 'uuid';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { UploadImagesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/upload-images-advertisement.dto';
@@ -15,8 +15,13 @@ export class ProcesssImagesAdvertisementuseCase {
     ) {}
 
     async execute(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
-        const advertisement = await this.advertisementRepository.findById(advertisementId);
+        const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        if (accountId !== advertisement.accountId) {
+            throw new Error('notfound.advertisement.do.not.exists');
+        }
+
         const photos = advertisement.photos;
         const newPhotos: AdvertisementPhoto[] = [];
     
@@ -69,7 +74,7 @@ export class ProcesssImagesAdvertisementuseCase {
 
         });
 
-        const updatedAdvertisement = await this.advertisementRepository.updateProcessPhotos(accountId, advertisementId, newPhotos);
+        const updatedAdvertisement = await this.advertisementRepository.updatePhotos(accountId, advertisementId, newPhotos, AdvertisementStatus.WAITING_FOR_APPROVAL);
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 

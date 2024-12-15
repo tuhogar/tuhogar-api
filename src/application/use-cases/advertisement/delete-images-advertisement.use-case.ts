@@ -3,18 +3,21 @@ import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { DeleteImagesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/delete-images-advertisement.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
-import { GetAdvertisementUseCase } from './get-advertisement.use-case';
 
 @Injectable()
 export class DeleteImagesAdvertisementUseCase {
     constructor(
         private readonly cloudinaryService: CloudinaryService,
-        private readonly getAdvertisementUseCase: GetAdvertisementUseCase,
         private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
     async execute(authenticatedUser: AuthenticatedUser, advertisementId: string, deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
-        const advertisement = await this.getAdvertisementUseCase.execute(advertisementId);
+        const advertisement = await this.advertisementRepository.findOneById(advertisementId);
+        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        if (authenticatedUser.accountId !== advertisement.accountId) {
+            throw new Error('notfound.advertisement.do.not.exists');
+        }
 
         const photos = advertisement.photos;
         if(!photos) return;
@@ -26,7 +29,7 @@ export class DeleteImagesAdvertisementUseCase {
 
         const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
 
-        await this.advertisementRepository.updateForDeletePhotos(authenticatedUser.accountId, advertisementId, newPhotos);
+        await this.advertisementRepository.updatePhotos(authenticatedUser.accountId, advertisementId, newPhotos, undefined);
 
         photosToRemove.forEach(async (a) => {
             await this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a.url));

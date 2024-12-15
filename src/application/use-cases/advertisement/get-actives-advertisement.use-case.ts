@@ -15,7 +15,7 @@ export class GetActivesAdvertisementUseCase {
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        const advertisements = await this.advertisementRepository.findForActives(advertisementIds);
+        const advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
 
         const advertisementMap = advertisements.reduce((acc, ad) => {
             acc[ad.id] = ad;

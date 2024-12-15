@@ -23,10 +23,10 @@ import { GetByAccountIdAndIdAdvertisementUseCase } from 'src/application/use-cas
 import { GetRegisteredAdvertisementsUseCase } from 'src/application/use-cases/advertisement/get-registered-advertisements.use-case';
 import { ProcesssImagesAdvertisementuseCase } from 'src/application/use-cases/advertisement/process-images-advertisement.use-case';
 import { UpdateAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-advertisement.use-case';
-import { UpdateStatusAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-status-advertisement.use-case';
 import { UpdateStatusAllAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-status-all-advertisement.use-case';
 import { DeleteImagesAdvertisementUseCase } from 'src/application/use-cases/advertisement/delete-images-advertisement.use-case';
 import { BulkAdvertisementUseCase } from 'src/application/use-cases/advertisement/bulk-advertisement.use-case';
+import { UserRole } from 'src/domain/entities/user';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -46,7 +46,6 @@ export class AdvertisementController {
         private readonly getRegisteredAdvertisementsUseCase: GetRegisteredAdvertisementsUseCase,
         private readonly processsImagesAdvertisementuseCase: ProcesssImagesAdvertisementuseCase,
         private readonly updateAdvertisementUseCase: UpdateAdvertisementUseCase,
-        private readonly updateStatusAdvertisementUseCase: UpdateStatusAdvertisementUseCase,
         private readonly updateStatusAllAdvertisementUseCase: UpdateStatusAllAdvertisementUseCase,
     ) {}
 
@@ -107,10 +106,15 @@ export class AdvertisementController {
     @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({ transform: true }))
     async updateStatusAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() updateStatusAllAdvertisementsDto: UpdateStatusAllAdvertisementsDto): Promise<void> {
-        await this.updateStatusAllAdvertisementUseCase.execute(
-            authenticatedUser,
-            updateStatusAllAdvertisementsDto,
-        );
+        const advertisementIds = updateStatusAllAdvertisementsDto.advertisements.map((a) => a.id);
+        
+        await this.updateStatusAllAdvertisementUseCase.execute({
+            accountId: authenticatedUser.accountId,
+            userId: authenticatedUser.userId,
+            userRole: authenticatedUser.userRole,
+            advertisementIds,
+            status: updateStatusAllAdvertisementsDto.status,
+        });
     }
 
     @Get('find-similar')
@@ -164,12 +168,14 @@ export class AdvertisementController {
     @Put(':advertisementid/status')
     @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({ transform: true }))
-    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<{ id: string }> {
-        return await this.updateStatusAdvertisementUseCase.execute(
-            authenticatedUser,
-            advertisementId,
-            updateStatusAdvertisementDto,
-        );
+    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
+        await this.updateStatusAllAdvertisementUseCase.execute({
+            accountId: authenticatedUser.accountId,
+            userId: authenticatedUser.userId,
+            userRole: authenticatedUser.userRole,
+            advertisementIds: [advertisementId],
+            status: updateStatusAdvertisementDto.status,
+        });
     }
 
     @ApiBearerAuth()

@@ -170,16 +170,16 @@ export class CreateUpdateAdvertisementDto {
     pricePerLotArea: number = 0;
 
     @ApiProperty()
-     @IsBoolean({ message: 'invalid.isVacant.must.be.a.boolean.value'})
-     @Property()
-     isVacant: boolean;
+    @IsBoolean({ message: 'invalid.isVacant.must.be.a.boolean.value'})
+    @Property()
+    isVacant: boolean;
 
-     @ApiProperty()
-     @IsString({ message: 'invalid.isVacant.must.be.a.string' })
-     @IsISO8601()
-     @IsOptional()
-     @Property()
-     vacancyDate: string;
+    @ApiProperty()
+    @IsString({ message: 'invalid.isVacant.must.be.a.string' })
+    @IsISO8601()
+    @IsOptional()
+    @Property()
+    vacancyDate: string;
 
     @ApiProperty()
     @IsString({ message: 'invalid.externalId.must.be.a.string' })

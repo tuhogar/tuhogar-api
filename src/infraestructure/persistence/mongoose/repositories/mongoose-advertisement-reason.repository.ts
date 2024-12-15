@@ -38,7 +38,7 @@ export class MongooseAdvertisementReasonRepository implements IAdvertisementReas
         const updated = await this.advertisementReasonModel.findOneAndUpdate({ 
             _id: id
         },
-        advertisementReason,
+        { ...data },
         { new: true }
         ).exec();
 

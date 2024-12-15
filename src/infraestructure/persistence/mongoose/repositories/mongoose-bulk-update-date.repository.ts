@@ -15,7 +15,7 @@ export class MongooseBulkUpdateDateRepository implements IBulkUpdateDateReposito
 
         const updated = await this.bulkUpdateDateModel.findOneAndUpdate(
             {},
-            data,
+            { ...data },
             { new: true, upsert: true }
           ).exec();
         

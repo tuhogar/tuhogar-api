@@ -13,15 +13,8 @@ export class MongooseUserRepository implements IUserRepository {
         @InjectModel(UserMongoose.name) private readonly userModel: Model<UserMongoose>,
     ) {}
     
-    async create(name: string, email: string, uid: string, userRole: UserRole, accountId: string): Promise<User> {
-        const data = MongooseUserMapper.toMongoose({
-            name,
-            email,
-            uid,
-            userRole,
-            status: UserStatus.ACTIVE,
-            accountId,
-         });
+    async create(user: User): Promise<User> {
+        const data = MongooseUserMapper.toMongoose({ ...user });
 
         const entity = new this.userModel(data);
          await entity.save();
@@ -29,7 +22,7 @@ export class MongooseUserRepository implements IUserRepository {
          return MongooseUserMapper.toDomain(entity);
     }
     
-    async deleteOne(id: string): Promise<void> {
+    async delete(id: string): Promise<void> {
         await this.userModel.deleteOne({ _id: id }).exec();
     }
     
@@ -61,8 +54,7 @@ export class MongooseUserRepository implements IUserRepository {
         ).exec();
 
         if (updated) {
-            const user = updated;
-            return this.findOneById(user._id.toString());
+            return MongooseUserMapper.toDomain(updated);
         }
 
         return null;
@@ -76,8 +68,7 @@ export class MongooseUserRepository implements IUserRepository {
         ).exec();
 
         if (updated) {
-            const user = updated;
-            return this.findOneById(user._id.toString());
+            return MongooseUserMapper.toDomain(updated);
         }
 
         return null;
@@ -91,8 +82,7 @@ export class MongooseUserRepository implements IUserRepository {
         ).exec();
 
         if (updated) {
-            const user = updated;
-            return this.findOneById(user._id.toString());
+            return MongooseUserMapper.toDomain(updated);
         }
 
         return null;
@@ -106,8 +96,7 @@ export class MongooseUserRepository implements IUserRepository {
         ).exec();
 
         if (updated) {
-            const user = updated;
-            return this.findOneById(user._id.toString());
+            return MongooseUserMapper.toDomain(updated);
         }
 
         return null;

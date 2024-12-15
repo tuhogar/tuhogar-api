@@ -6,14 +6,7 @@ export abstract class IAccountRepository {
     abstract find(): Promise<Account[]>
     abstract findOneById(id: string): Promise<Account>
     abstract findOneByEmail(email: string): Promise<Account>
-    abstract create(
-        email: string,
-        planId: string,
-        name: string,
-        phone: string,
-        documentType: AccountDocumentType,
-        documentNumber: string,
-    ): Promise<Account>
+    abstract create(account: Account): Promise<Account>
     abstract deleteImage(id: string): Promise<Account>
     abstract update(
         id: string,

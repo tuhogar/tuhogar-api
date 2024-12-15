@@ -11,13 +11,12 @@ export class GetByAccountIdAndIdAdvertisementUseCase {
     ) {}
 
     async execute(authenticatedUser: AuthenticatedUser,advertisementId: string): Promise<Advertisement> {
-        const filter = {
-            _id: advertisementId,
-            ...(authenticatedUser.userRole !== UserRole.MASTER && { accountId: authenticatedUser.accountId })
-        };
-
-        const advertisement = await this.advertisementRepository.getByAccountIdAndId(filter);
+        const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        if (authenticatedUser.userRole !== UserRole.MASTER && authenticatedUser.accountId !== advertisement.accountId) {
+            throw new Error('notfound.advertisement.do.not.exists');
+        }
 
         return advertisement;
     }

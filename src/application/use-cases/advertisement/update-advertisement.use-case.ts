@@ -20,8 +20,12 @@ export class UpdateAdvertisementUseCase {
 
         let removeOnAlgolia = false;
 
-        const advertisement = await this.advertisementRepository.findOne(advertisementId, authenticatedUser.accountId);
+        const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+
+        if (authenticatedUser.accountId !== advertisement.accountId) {
+            throw new Error('notfound.advertisement.do.not.exists');
+        }
 
         const update: any = { 
             updatedUserId: authenticatedUser.userId,
@@ -33,7 +37,7 @@ export class UpdateAdvertisementUseCase {
             removeOnAlgolia = true;
         }
 
-        const updatedAdvertisement = await this.advertisementRepository.findOneAndUpdate(advertisementId, authenticatedUser.accountId, update);
+        const updatedAdvertisement = await this.advertisementRepository.update(advertisementId, authenticatedUser.accountId, update);
 
         if (removeOnAlgolia) await this.algoliaService.delete(updatedAdvertisement.id);
 

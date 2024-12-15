@@ -9,6 +9,6 @@ export class GetAllByAccountIdAdvertisementUseCase {
     ) {}
 
     async execute(accountId: string): Promise<Advertisement[]> {
-        return this.advertisementRepository.getAllByAccountId(accountId);
+        return this.advertisementRepository.findByAccountIdWithEvents(accountId);
     }
 }

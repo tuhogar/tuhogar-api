@@ -5,7 +5,7 @@ import { CreateUserDto } from 'src/infraestructure/http/dtos/user/create-user.dt
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 import { Subscription } from 'src/domain/entities/subscription';
-import { User } from 'src/domain/entities/user';
+import { User, UserStatus } from 'src/domain/entities/user';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -19,7 +19,15 @@ export class CreateUserUseCase {
         createUserDto: CreateUserDto,
         accountCreated: Account,
     ): Promise<User> {
-        const userCreated = await this.userRepository.create(createUserDto.name, authenticatedUser.email, authenticatedUser.uid, createUserDto.userRole, accountCreated.id);
+        const user = new User({
+            name: createUserDto.name,
+            email: authenticatedUser.email,
+            uid: authenticatedUser.uid,
+            userRole: createUserDto.userRole,
+            status: UserStatus.ACTIVE,
+            accountId: accountCreated.id,
+        });
+        const userCreated = await this.userRepository.create(user);
         return userCreated;
     }
 }
