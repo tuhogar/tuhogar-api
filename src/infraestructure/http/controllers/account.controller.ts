@@ -14,7 +14,6 @@ import { CreateAccountUseCase } from 'src/application/use-cases/account/create-a
 import { DeleteImageAccountUseCase } from 'src/application/use-cases/account/delete-image-account.use-case';
 import { DeleteUserAccountUseCase } from 'src/application/use-cases/account/delete-user-account.use-case';
 import { FindInactivesAccountUseCase } from 'src/application/use-cases/account/find-inactives-account.use-case';
-import { GetAdvertisementsAccountUseCase } from 'src/application/use-cases/account/get-advertisements-account.use-case';
 import { GetAllAccountUseCase } from 'src/application/use-cases/account/get-all-account.use-case';
 import { GetByIdAccountUseCase } from 'src/application/use-cases/account/get-by-id-account.use-case';
 import { GetRegisteredAccountsUseCase } from 'src/application/use-cases/account/get-registered-accounts.use-case';
@@ -22,6 +21,8 @@ import { PathAccountUseCase } from 'src/application/use-cases/account/path-accou
 import { ProcessImageAccountUseCase } from 'src/application/use-cases/account/process-image-account.use-case';
 import { UpdateStatusAccountUseCase } from 'src/application/use-cases/account/update-status-account.use-case';
 import { GetAllUserByAccountIdUseCase } from 'src/application/use-cases/user/get-all-user-by-account-id.use-case';
+import { GetAdvertisementDto } from '../dtos/advertisement/get-advertisement.dto';
+import { GetAllByAccountIdAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-all-by-account-id-advertisement.use-case';
 
 @ApiTags('v1/accounts')
 @Controller('v1/accounts')
@@ -31,7 +32,7 @@ export class AccountController {
     private readonly deleteImageAccountUseCase: DeleteImageAccountUseCase,
     private readonly deleteUserAccountUseCase: DeleteUserAccountUseCase,
     private readonly findInactivesAccountUseCase: FindInactivesAccountUseCase,
-    private readonly getAdvertisementsAccountUseCase: GetAdvertisementsAccountUseCase,
+    private readonly getAllByAccountIdAdvertisementUseCase: GetAllByAccountIdAdvertisementUseCase,
     private readonly getAllAccountUseCase: GetAllAccountUseCase,
     private readonly getByIdAccountUseCase: GetByIdAccountUseCase,
     private readonly getRegisteredAccountsUseCase: GetRegisteredAccountsUseCase,
@@ -103,8 +104,8 @@ export class AccountController {
   @ApiBearerAuth()
   @Get(':accountid/advertisements')
   @Auth('MASTER')
-  async getAdvertisements(@Param('accountid') accountId: string): Promise<Advertisement[]> {
-      return this.getAdvertisementsAccountUseCase.execute(accountId);
+  async getAdvertisements(@Param('accountid') accountId: string, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<Advertisement[]> {
+    return this.getAllByAccountIdAdvertisementUseCase.execute(accountId, getAdvertisementDto.page, getAdvertisementDto.limit);
   }
 
   @ApiBearerAuth()

@@ -8,7 +8,7 @@ export class GetAllByAccountIdAdvertisementUseCase {
         private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
-    async execute(accountId: string): Promise<Advertisement[]> {
-        return this.advertisementRepository.findByAccountIdWithEvents(accountId);
+    async execute(accountId: string, page: number, limit: number): Promise<Advertisement[]> {
+        return this.advertisementRepository.findByAccountIdWithEvents(accountId, page, limit);
     }
 }

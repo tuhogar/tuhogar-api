@@ -40,7 +40,6 @@ import { CreateAccountUseCase } from "src/application/use-cases/account/create-a
 import { DeleteImageAccountUseCase } from "src/application/use-cases/account/delete-image-account.use-case";
 import { DeleteUserAccountUseCase } from "src/application/use-cases/account/delete-user-account.use-case";
 import { FindInactivesAccountUseCase } from "src/application/use-cases/account/find-inactives-account.use-case";
-import { GetAdvertisementsAccountUseCase } from "src/application/use-cases/account/get-advertisements-account.use-case";
 import { GetAllAccountUseCase } from "src/application/use-cases/account/get-all-account.use-case";
 import { GetByIdAccountUseCase } from "src/application/use-cases/account/get-by-id-account.use-case";
 import { GetRegisteredAccountsUseCase } from "src/application/use-cases/account/get-registered-accounts.use-case";
@@ -92,7 +91,6 @@ import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get
         DeleteImageAccountUseCase,
         DeleteUserAccountUseCase,
         FindInactivesAccountUseCase,
-        GetAdvertisementsAccountUseCase,
         GetAllAccountUseCase,
         GetByIdAccountUseCase,
         GetRegisteredAccountsUseCase,

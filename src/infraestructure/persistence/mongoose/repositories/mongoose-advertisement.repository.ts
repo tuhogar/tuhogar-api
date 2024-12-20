@@ -115,10 +115,12 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
     
-    async findByAccountIdWithEvents(accountId: string): Promise<Advertisement[]> {
+    async findByAccountIdWithEvents(accountId: string, page: number, limit: number): Promise<Advertisement[]> {
+
+        const skip = (page - 1) * limit;
 
         console.log(new Date())
-        const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).populate('amenities').populate('communityAmenities').exec();
+        const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).skip(skip).limit(limit).populate('amenities').populate('communityAmenities').exec();
         console.log(new Date())
         
 

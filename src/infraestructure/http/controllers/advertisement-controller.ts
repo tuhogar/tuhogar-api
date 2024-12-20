@@ -27,6 +27,7 @@ import { UpdateStatusAllAdvertisementUseCase } from 'src/application/use-cases/a
 import { DeleteImagesAdvertisementUseCase } from 'src/application/use-cases/advertisement/delete-images-advertisement.use-case';
 import { BulkAdvertisementUseCase } from 'src/application/use-cases/advertisement/bulk-advertisement.use-case';
 import { UserRole } from 'src/domain/entities/user';
+import { GetAdvertisementDto } from '../dtos/advertisement/get-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -65,8 +66,8 @@ export class AdvertisementController {
     @ApiBearerAuth()
     @Get()
     @Auth('ADMIN', 'USER')
-    async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<Advertisement[]> {
-        return this.getAllByAccountIdAdvertisementUseCase.execute(authenticatedUser.accountId);
+    async getAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<Advertisement[]> {
+        return this.getAllByAccountIdAdvertisementUseCase.execute(authenticatedUser.accountId, getAdvertisementDto.page, getAdvertisementDto.limit);
     }
 
     @ApiBearerAuth()
