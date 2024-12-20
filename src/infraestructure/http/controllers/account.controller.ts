@@ -105,7 +105,7 @@ export class AccountController {
   @Get(':accountid/advertisements')
   @Auth('MASTER')
   async getAdvertisements(@Param('accountid') accountId: string, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<Advertisement[]> {
-    return this.getAllByAccountIdAdvertisementUseCase.execute(accountId, getAdvertisementDto.page, getAdvertisementDto.limit);
+    return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId });
   }
 
   @ApiBearerAuth()

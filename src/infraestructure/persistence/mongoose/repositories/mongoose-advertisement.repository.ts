@@ -2,7 +2,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Advertisement as AdvertisementMongoose } from "../entities/advertisement.entity"
 import { AdvertisementEvent as AdvertisementEventMongoose } from "../entities/advertisement-event.entity"
-import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus } from "src/domain/entities/advertisement";
+import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus, AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
 import { IPlanRepository } from "src/application/interfaces/repositories/plan.repository.interface";
 import { CreatePlanDto } from "src/infraestructure/http/dtos/plan/create-plan.dto";
 import { IAdvertisementRepository } from "src/application/interfaces/repositories/advertisement.repository.interface";
@@ -115,54 +115,65 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
     
-    async findByAccountIdWithEvents(accountId: string, page: number, limit: number): Promise<Advertisement[]> {
+    async findByAccountIdWithEvents(accountId: string, page: number, limit: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<Advertisement[]> {
 
         const skip = (page - 1) * limit;
 
-        console.log(new Date())
-        const advertisements = await this.advertisementModel.find({ accountId }).sort({ createdAt: -1 }).skip(skip).limit(limit).populate('amenities').populate('communityAmenities').exec();
-        console.log(new Date())
+        const filter: any = { accountId };
+        if (transactionType) filter.transactionType = transactionType;
+        if (type) filter.type = type;
+        if (externalId) filter.externalId = externalId;
+    
+        const advertisements = await this.advertisementModel
+            .find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate('amenities')
+            .populate('communityAmenities')
+            .exec();
+    
+        // Coletar todos os IDs de anúncios
+        const advertisementIds = advertisements.map((ad) => ad._id);
+    
+        // Realizar uma única consulta agregada para todos os anúncios
+        const advertisementEventsData = await this.advertisementModel.aggregate([
+            { $match: { _id: { $in: advertisementIds } } },
+            {
+                $lookup: {
+                    from: 'advertisement-events',
+                    localField: '_id',
+                    foreignField: 'advertisementId',
+                    as: 'advertisementEvents'
+                }
+            },
+            { $unwind: '$advertisementEvents' },
+            { $replaceRoot: { newRoot: { $mergeObjects: ['$advertisementEvents', '$$ROOT'] } } },
+            { $sort: { 'advertisementEvents.createdAt': -1 } },
+            {
+                $group: {
+                    _id: '$_id',
+                    advertisement: { $first: '$$ROOT' },
+                    advertisementEvents: { $push: '$advertisementEvents' }
+                }
+            }
+        ]);
         
-
-        const advertisementsWithAdvertisementEvents = await Promise.all(
-            advertisements.map(async (advertisement) => {
-                const advertisementEvents = await this.advertisementModel
-                    .aggregate([
-                    { $match: { _id: advertisement._id } },
-                    {
-                        $lookup: {
-                            from: 'advertisement-events',
-                            localField: '_id',
-                            foreignField: 'advertisementId',
-                            as: 'advertisementEvents'
-                        }
-                    },
-                    { $unwind: '$advertisementEvents' },
-                    { $replaceRoot: { newRoot: { $mergeObjects: ['$advertisementEvents', '$$ROOT'] } } },
-                    { $sort: { 'advertisementEvents.createdAt': -1 } },
-                    {
-                        $group: {
-                            _id: '$_id',
-                            user: { $first: '$$ROOT' },
-                            advertisementEvents: { $push: '$advertisementEvents' }
-                        }
-                    }
-                ]);
-
-                const advertisementEventsJSON = advertisementEvents[0]?.advertisementEvents.map(sub =>
-                    JSON.parse(JSON.stringify(sub))
-                ) || [];
-
-                advertisement = {
-                    ...JSON.parse(JSON.stringify(advertisement)),
-                    advertisementEvents: advertisementEventsJSON
-                };
-
-               return advertisement;
-            })
-        )
-        console.log(new Date())
-
+        // Criar um mapa para associar eventos aos anúncios
+        const eventsMap = new Map<string, any>();
+        advertisementEventsData.forEach((data) => {
+            eventsMap.set(data._id.toString(), data.advertisementEvents);
+        });
+    
+        // Adicionar eventos aos anúncios
+        const advertisementsWithAdvertisementEvents = advertisements.map((advertisement) => {
+            const events = eventsMap.get(advertisement._id.toString()) || [];
+            return {
+                ...JSON.parse(JSON.stringify(advertisement)),
+                advertisementEvents: events
+            };
+        });
+    
         return advertisementsWithAdvertisementEvents.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
     

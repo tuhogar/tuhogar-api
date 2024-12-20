@@ -1,4 +1,4 @@
-import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus } from "src/domain/entities/advertisement";
+import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus, AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
 import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
 import { CreateUpdateAdvertisementDto } from "src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto";
 import { UpdateStatusAdvertisementDto } from "src/infraestructure/http/dtos/advertisement/update-status-advertisement.dto";
@@ -9,7 +9,7 @@ export abstract class IAdvertisementRepository {
     abstract update(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
     abstract findOneById(id: string): Promise<Advertisement>
     abstract findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]>
-    abstract findByAccountIdWithEvents(accountId: string, page: number, limit: number): Promise<Advertisement[]>
+    abstract findByAccountIdWithEvents(accountId: string, page: number, limit: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<Advertisement[]>
     abstract findOneActive(advertisementId: string): Promise<Advertisement>
     abstract findToApprove(): Promise<Advertisement[]>
     abstract updateStatus(ids: string[], accountId: string, status: AdvertisementStatus, publishedAt: Date, approvingUserId: string): Promise<any>

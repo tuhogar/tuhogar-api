@@ -67,7 +67,7 @@ export class AdvertisementController {
     @Get()
     @Auth('ADMIN', 'USER')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<Advertisement[]> {
-        return this.getAllByAccountIdAdvertisementUseCase.execute(authenticatedUser.accountId, getAdvertisementDto.page, getAdvertisementDto.limit);
+        return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId: authenticatedUser.accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId });
     }
 
     @ApiBearerAuth()

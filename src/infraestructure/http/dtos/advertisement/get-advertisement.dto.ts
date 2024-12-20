@@ -1,6 +1,7 @@
-import { IsNotEmpty, IsNumber, IsOptional, Min } from "class-validator";
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
+import { AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
 
 export class GetAdvertisementDto {
    @ApiProperty()
@@ -16,4 +17,19 @@ export class GetAdvertisementDto {
     @Type(() => Number)
     @Min(1, { message: 'limit.must.not.be.less.than.1' })
     limit: number;
+
+    @ApiProperty()
+    @IsEnum(AdvertisementTransactionType, { message: 'invalid.transactionType.must.be.one.of.the.following.values.RENT.SALE' })
+    @IsOptional()
+    transactionType: AdvertisementTransactionType;
+
+    @ApiProperty()
+    @IsEnum(AdvertisementType, { message: 'invalid.type.must.be.one.of.the.following.values.APARTMENT.HOUSE.BUILDING.LOT.WAREHOUSE.OFFICE.COMMERCIAL' })
+    @IsOptional()
+    type: AdvertisementType;
+
+    @ApiProperty()
+    @IsString({ message: 'invalid.externalId.must.be.a.string' })
+    @IsOptional()
+    externalId: string;
 }
