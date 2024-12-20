@@ -3,7 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { UpdateBulkUpdateDateUseCase } from '../bulk-update-date/update-bulk-update-date.use-case';
-import { GetBulkUpdateDateUseCase } from '../bulk-update-date/get-bulk-update-date.use-case';
+import { IBulkUpdateDateRepository } from 'src/application/interfaces/repositories/bulk-update-date.repository.interface';
 
 interface BulkAdvertisementUseCaseCommand {
     accountId?: string
@@ -14,16 +14,20 @@ export class BulkAdvertisementUseCase {
     constructor(
         private readonly algoliaService: AlgoliaService,
         private readonly updateBulkUpdateDateUseCase: UpdateBulkUpdateDateUseCase,
-        private readonly getBulkUpdateDateUseCase: GetBulkUpdateDateUseCase,
         private readonly advertisementRepository: IAdvertisementRepository,
+        private readonly bulkUpdateDateRepository: IBulkUpdateDateRepository,
     ) {}
 
     @Cron('*/1 * * * *')
     async execute(bulkAdvertisementUseCaseCommand: BulkAdvertisementUseCaseCommand): Promise<void> {
         let lastUpdatedAt = undefined;
-        if (!bulkAdvertisementUseCaseCommand?.accountId) lastUpdatedAt = (await this.getBulkUpdateDateUseCase.execute())?.updatedAt || new Date(0);
+
+        if (!bulkAdvertisementUseCaseCommand?.accountId) {
+            lastUpdatedAt = (await this.bulkUpdateDateRepository.findOne())?.updatedAt || new Date(0);
+        }
 
         const advertisements = await this.advertisementRepository.findForBulk(bulkAdvertisementUseCaseCommand?.accountId, lastUpdatedAt);
+
         advertisements.forEach(advertisement => {
             const { address } = advertisement;
             if (!address?.latitude || !address?.longitude) {

@@ -14,7 +14,6 @@ export class UpdateBulkUpdateDateUseCase {
     }
 
     async execute({ updatedAt }: UpdateBulkUpdateDateUseCaseCommand): Promise<BulkUpdateDate> {
-
         const bulkUpdateDate = new BulkUpdateDate({ updatedAt });
 
         const response = await this.bulkUpdateDateRepository.update(bulkUpdateDate);

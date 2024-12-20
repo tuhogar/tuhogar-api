@@ -15,6 +15,9 @@ export class MongooseBulkUpdateDateMapper {
     }
 
     static toMongoose(bulkUpdateDate: BulkUpdateDate) {
+        console.log('----4');
+        console.log(bulkUpdateDate);
+        console.log('----4');
         return {
             updatedAt: bulkUpdateDate.updatedAt,
         }

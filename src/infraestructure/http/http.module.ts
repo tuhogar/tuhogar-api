@@ -16,7 +16,6 @@ import { FirebaseAdmin } from "../config/firebase.config";
 import { UserController } from "./controllers/user.controller";
 import { CreatePlanUseCase } from "src/application/use-cases/plan/create-plan.use-case";
 import { GetAllPlanUseCase } from "src/application/use-cases/plan/get-all-plan.use-case";
-import { GetBulkUpdateDateUseCase } from "src/application/use-cases/bulk-update-date/get-bulk-update-date.use-case";
 import { UpdateBulkUpdateDateUseCase } from "src/application/use-cases/bulk-update-date/update-bulk-update-date.use-case";
 import { GetAllAmenityUseCase } from "src/application/use-cases/amenity/get-all-amenity.use-case";
 import { CreateAdvertisementReasonUseCase } from "src/application/use-cases/advertisement-reason/create-advertisement-reason.use-case";
@@ -122,7 +121,6 @@ import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get
         UpdateStatusAllAdvertisementUseCase,
         GetAllAmenityUseCase,
         UpdateBulkUpdateDateUseCase,
-        GetBulkUpdateDateUseCase,
         CreateFavoriteUserUseCase,
         CreateUserUseCase,
         DeleteFavoriteUserUseCase,

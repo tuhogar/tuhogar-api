@@ -41,7 +41,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
     
     async findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]> {
-        const filter: any = {};
+        const filter: any = {$match: {} };
 
         if (accountId) {
             filter.$match.accountId = new Types.ObjectId(accountId);
