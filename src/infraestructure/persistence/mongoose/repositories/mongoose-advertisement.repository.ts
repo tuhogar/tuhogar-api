@@ -202,8 +202,20 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         ).exec();
     }
     
-    async updatePhotos(accountId: string, advertisementId: string, newPhotos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement> {
-        const update: any = { photos: newPhotos };
+    async updatePhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement> {
+        const update: any = { photos };
+        if (status) update.status = status;
+        const updated = await this.advertisementModel.findOneAndUpdate(
+            { accountId, _id: advertisementId },
+            update,
+            { new: true }
+        ).exec();
+
+        return MongooseAdvertisementMapper.toDomain(updated);
+    }
+
+    async createPhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement> {
+        const update: any = { $push: { photos: { $each: photos }} };
         if (status) update.status = status;
         const updated = await this.advertisementModel.findOneAndUpdate(
             { accountId, _id: advertisementId },

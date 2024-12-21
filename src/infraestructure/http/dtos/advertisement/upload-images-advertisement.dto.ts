@@ -1,44 +1,29 @@
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, ValidateNested } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsArray, IsNotEmpty, IsNumber, IsString, Matches, ValidateNested } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { AdvertisementIsMandatoryImageFieldIfNotId } from "../../validators/advertisement/advertisement-is-mandatory-image-field-if-not-id.validator";
-import { AdvertisementIsNotMandatoryImageFieldIfId } from "../../validators/advertisement/advertisement-is-mandatory-image-field-if-id.validator";
 
 class UploadImageAdvertisementDto {
-    @ApiPropertyOptional()
-    @IsOptional()
-    @IsNotEmpty({ message: 'invalid.id.should.not.be.empty' })
-    @IsString({ message: 'invalid.id.must.be.a.string' })
-    id: string;
-
-    @ApiPropertyOptional()
-    @IsOptional()
+    @ApiProperty()
     @IsString({ message: 'invalid.name.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.name.should.not.be.empty' })
-    @AdvertisementIsMandatoryImageFieldIfNotId()
     name: string;
 
-    @ApiPropertyOptional({type: [String]})
-    @IsOptional()
+    @ApiProperty({type: [String]})
     @IsNotEmpty({ message: 'invalid.content.should.not.be.empty' })
-    @AdvertisementIsMandatoryImageFieldIfNotId()
     @IsString({ message: 'invalid.content.must.be.a.string' })
     content: string;
 
-    @ApiPropertyOptional()
-    @IsOptional()
+    @ApiProperty()
     @IsString({ message: 'invalid.contentType.must.be.a.string' })
     @IsNotEmpty({ message: 'invalid.contentType.should.not.be.empty' })
     @Matches(/^(image\/jpeg|image\/jpg|image\/webp|image\/png)$/, {
         message: 'invalid.contentType.must.be.one.of.the.following.types.image/jpeg.image/jpg.image/webp.image/png',
     })
-    @AdvertisementIsMandatoryImageFieldIfNotId()
     contentType: string;
 
     @ApiProperty()
+    @IsNotEmpty({ message: 'invalid.order.should.not.be.empty' })
     @IsNumber({}, { message: 'invalid.order.must.be.a.number.conforming.to.the.specified.constraints' })
-    @AdvertisementIsMandatoryImageFieldIfNotId()
-    @AdvertisementIsNotMandatoryImageFieldIfId()
     order: number = 0;
 }
 

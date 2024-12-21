@@ -21,13 +21,15 @@ import { GetAllByAccountIdAdvertisementUseCase } from 'src/application/use-cases
 import { GetAllToApproveAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-all-to-approve-advertisement.use-case';
 import { GetByAccountIdAndIdAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-by-account-id-and-id-advertisement.use-case';
 import { GetRegisteredAdvertisementsUseCase } from 'src/application/use-cases/advertisement/get-registered-advertisements.use-case';
-import { ProcesssImagesAdvertisementuseCase } from 'src/application/use-cases/advertisement/process-images-advertisement.use-case';
+import { ProcessImagesAdvertisementUseCase } from 'src/application/use-cases/advertisement/process-images-advertisement.use-case';
 import { UpdateAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-advertisement.use-case';
 import { UpdateStatusAllAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-status-all-advertisement.use-case';
 import { DeleteImagesAdvertisementUseCase } from 'src/application/use-cases/advertisement/delete-images-advertisement.use-case';
 import { BulkAdvertisementUseCase } from 'src/application/use-cases/advertisement/bulk-advertisement.use-case';
 import { UserRole } from 'src/domain/entities/user';
 import { GetAdvertisementDto } from '../dtos/advertisement/get-advertisement.dto';
+import { UpdateImagesOrderAdvertisementDto } from '../dtos/advertisement/update-images-order-advertisement.dto';
+import { UpdateImagesOrderAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-images-order-advertisement.use-case';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -45,9 +47,10 @@ export class AdvertisementController {
         private readonly getAllToApproveAdvertisementUseCase: GetAllToApproveAdvertisementUseCase,
         private readonly getByAccountIdAndIdAdvertisementUseCase: GetByAccountIdAndIdAdvertisementUseCase,
         private readonly getRegisteredAdvertisementsUseCase: GetRegisteredAdvertisementsUseCase,
-        private readonly processsImagesAdvertisementuseCase: ProcesssImagesAdvertisementuseCase,
+        private readonly processImagesAdvertisementUseCase: ProcessImagesAdvertisementUseCase,
         private readonly updateAdvertisementUseCase: UpdateAdvertisementUseCase,
         private readonly updateStatusAllAdvertisementUseCase: UpdateStatusAllAdvertisementUseCase,
+        private readonly updateImagesOrderAdvertisementuseCase: UpdateImagesOrderAdvertisementUseCase,
     ) {}
 
     @ApiBearerAuth()
@@ -139,7 +142,18 @@ export class AdvertisementController {
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,
         @Body() uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
-        await this.processsImagesAdvertisementuseCase.execute(authenticatedUser.accountId, advertisementId, uploadImagesAdvertisementDto);
+        await this.processImagesAdvertisementUseCase.execute(authenticatedUser.accountId, advertisementId, uploadImagesAdvertisementDto);
+    }
+
+    @ApiBearerAuth()
+    @Put(':advertisementid/images/orders')
+    @Auth('ADMIN', 'USER')
+    @UsePipes(new ValidationPipe({transform: true}))
+    async updateOrderImages(
+        @Authenticated() authenticatedUser: AuthenticatedUser,
+        @Param('advertisementid') advertisementId: string,
+        @Body() updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto): Promise<void> {
+        await this.updateImagesOrderAdvertisementuseCase.execute(authenticatedUser.accountId, advertisementId, updateImagesOrderAdvertisementDto);
     }
 
     @ApiBearerAuth()

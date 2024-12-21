@@ -55,7 +55,7 @@ import { GetActivesAdvertisementUseCase } from "src/application/use-cases/advert
 import { GetAllByAccountIdAdvertisementUseCase } from "src/application/use-cases/advertisement/get-all-by-account-id-advertisement.use-case";
 import { GetAllToApproveAdvertisementUseCase } from "src/application/use-cases/advertisement/get-all-to-approve-advertisement.use-case";
 import { GetByAccountIdAndIdAdvertisementUseCase } from "src/application/use-cases/advertisement/get-by-account-id-and-id-advertisement.use-case";
-import { ProcesssImagesAdvertisementuseCase } from "src/application/use-cases/advertisement/process-images-advertisement.use-case";
+import { ProcessImagesAdvertisementUseCase } from "src/application/use-cases/advertisement/process-images-advertisement.use-case";
 import { UpdateAdvertisementUseCase } from "src/application/use-cases/advertisement/update-advertisement.use-case";
 import { UpdateStatusAllAdvertisementUseCase } from "src/application/use-cases/advertisement/update-status-all-advertisement.use-case";
 import { DeleteImagesAdvertisementUseCase } from "src/application/use-cases/advertisement/delete-images-advertisement.use-case";
@@ -76,6 +76,7 @@ import { CreateAdvertisementEventUseCase } from "src/application/use-cases/adver
 import { AdvertisementEventController } from "./controllers/advertisement-event.controller";
 import { AccountAlreadyExistsConstraint } from "./validators/account/account-already-exists.validator";
 import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get-all-user-by-account-id.use-case";
+import { UpdateImagesOrderAdvertisementUseCase } from "src/application/use-cases/advertisement/update-images-order-advertisement.use-case";
 
 @Module({
     imports: [
@@ -116,7 +117,8 @@ import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get
         GetAllToApproveAdvertisementUseCase,
         GetByAccountIdAndIdAdvertisementUseCase,
         GetRegisteredAdvertisementsUseCase,
-        ProcesssImagesAdvertisementuseCase,
+        ProcessImagesAdvertisementUseCase,
+        UpdateImagesOrderAdvertisementUseCase,
         UpdateAdvertisementUseCase,
         UpdateStatusAllAdvertisementUseCase,
         GetAllAmenityUseCase,
