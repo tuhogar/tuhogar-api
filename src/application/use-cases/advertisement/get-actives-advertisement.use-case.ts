@@ -11,7 +11,7 @@ export class GetActivesAdvertisementUseCase {
         private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
-    async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[], count: number }> {
+    async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 

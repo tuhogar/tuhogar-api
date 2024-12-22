@@ -16,7 +16,7 @@ export class GetAllByAccountIdAdvertisementUseCase {
         private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
-    async execute({ accountId, page, limit, transactionType, type, externalId } : GetAllByAccountIdAdvertisementUseCaseCommand): Promise<Advertisement[]> {
+    async execute({ accountId, page, limit, transactionType, type, externalId } : GetAllByAccountIdAdvertisementUseCaseCommand): Promise<{ data: Advertisement[]; count: number }> {
         return this.advertisementRepository.findByAccountIdWithEvents(accountId, page, limit, transactionType, type, externalId);
     }
 }

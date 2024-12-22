@@ -69,7 +69,7 @@ export class AdvertisementController {
     @ApiBearerAuth()
     @Get()
     @Auth('ADMIN', 'USER')
-    async getAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<Advertisement[]> {
+    async getAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
         return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId: authenticatedUser.accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId });
     }
 
@@ -94,7 +94,7 @@ export class AdvertisementController {
     }
 
     @Get('actives')
-    async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<any> {
+    async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
         return this.getActivesAdvertisementUseCase.execute(getActivesAdvertisementDto);
     }
 

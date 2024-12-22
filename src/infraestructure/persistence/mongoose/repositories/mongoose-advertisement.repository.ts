@@ -115,7 +115,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
     
-    async findByAccountIdWithEvents(accountId: string, page: number, limit: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<Advertisement[]> {
+    async findByAccountIdWithEvents(accountId: string, page: number, limit: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }> {
 
         const skip = (page - 1) * limit;
 
@@ -123,6 +123,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         if (transactionType) filter.transactionType = transactionType;
         if (type) filter.type = type;
         if (externalId) filter.externalId = externalId;
+
+        const count = await this.advertisementModel.countDocuments(filter).exec();
     
         const advertisements = await this.advertisementModel
             .find(filter)
@@ -174,7 +176,10 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
             };
         });
     
-        return advertisementsWithAdvertisementEvents.map((item) => MongooseAdvertisementMapper.toDomain(item));
+        return {
+            data: advertisementsWithAdvertisementEvents.map((item) => MongooseAdvertisementMapper.toDomain(item)),
+            count,
+        }
     }
     
     async findOneActive(advertisementId: string): Promise<Advertisement> {
