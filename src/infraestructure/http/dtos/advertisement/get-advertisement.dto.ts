@@ -4,7 +4,12 @@ import { Type } from "class-transformer";
 import { AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
 
 export class GetAdvertisementDto {
-   @ApiProperty()
+    @ApiProperty()
+    @IsString({ message: 'invalid.id.must.be.a.string' })
+    @IsOptional()
+    id: string;
+
+    @ApiProperty()
     @IsNotEmpty()
     @IsNumber({}, { message: 'invalid.page.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)

@@ -6,6 +6,7 @@ interface GetAllByAccountIdAdvertisementUseCaseCommand {
     accountId: string,
     page: number,
     limit: number,
+    id?: string,
     transactionType?: AdvertisementTransactionType,
     type?: AdvertisementType,
     externalId?: string
@@ -16,7 +17,7 @@ export class GetAllByAccountIdAdvertisementUseCase {
         private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
-    async execute({ accountId, page, limit, transactionType, type, externalId } : GetAllByAccountIdAdvertisementUseCaseCommand): Promise<{ data: Advertisement[]; count: number }> {
-        return this.advertisementRepository.findByAccountIdWithEvents(accountId, page, limit, transactionType, type, externalId);
+    async execute({ accountId, page, limit, id, transactionType, type, externalId } : GetAllByAccountIdAdvertisementUseCaseCommand): Promise<{ data: Advertisement[]; count: number }> {
+        return this.advertisementRepository.findByAccountIdWithEvents(accountId, page, limit, id, transactionType, type, externalId);
     }
 }
