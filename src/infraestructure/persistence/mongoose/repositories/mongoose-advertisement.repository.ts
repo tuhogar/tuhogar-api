@@ -120,10 +120,15 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         const skip = (page - 1) * limit;
 
         const filter: any = { accountId };
-        if (code) filter.code = code;
+
+        if (code || externalId) {
+            filter.$or = [];
+            if (code) filter.$or.push({ code });
+            if (externalId) filter.$or.push({ externalId });
+        }
+
         if (transactionType) filter.transactionType = transactionType;
         if (type) filter.type = type;
-        if (externalId) filter.externalId = externalId;
 
         const count = await this.advertisementModel.countDocuments(filter).exec();
     
