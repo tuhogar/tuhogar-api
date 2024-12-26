@@ -5,9 +5,10 @@ import { AdvertisementTransactionType, AdvertisementType } from "src/domain/enti
 
 export class GetAdvertisementDto {
     @ApiProperty()
-    @IsString({ message: 'invalid.id.must.be.a.string' })
+    @IsNumber({}, { message: 'invalid.id.must.be.a.number' })
+    @Type(() => Number)
     @IsOptional()
-    id: string;
+    code: number;
 
     @ApiProperty()
     @IsNotEmpty()

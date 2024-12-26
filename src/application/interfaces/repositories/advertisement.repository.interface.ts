@@ -9,7 +9,7 @@ export abstract class IAdvertisementRepository {
     abstract update(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
     abstract findOneById(id: string): Promise<Advertisement>
     abstract findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]>
-    abstract findByAccountIdWithEvents(accountId: string, page: number, limit: number, id: string, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }>
+    abstract findByAccountIdWithEvents(accountId: string, page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }>
     abstract findOneActive(advertisementId: string): Promise<Advertisement>
     abstract findToApprove(): Promise<Advertisement[]>
     abstract updateStatus(ids: string[], accountId: string, status: AdvertisementStatus, publishedAt: Date, approvingUserId: string): Promise<any>

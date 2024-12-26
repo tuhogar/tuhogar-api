@@ -115,12 +115,12 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
     
-    async findByAccountIdWithEvents(accountId: string, page: number, limit: number, id: string, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }> {
+    async findByAccountIdWithEvents(accountId: string, page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }> {
 
         const skip = (page - 1) * limit;
 
         const filter: any = { accountId };
-        if (id) filter._id = id;
+        if (code) filter.code = code;
         if (transactionType) filter.transactionType = transactionType;
         if (type) filter.type = type;
         if (externalId) filter.externalId = externalId;
