@@ -50,7 +50,11 @@ export class MongooseAdvertisementMapper {
             pricePerLotArea: entity.pricePerLotArea,
             propertyTax: entity.propertyTax,
             address: !!entity.address ? MongooseAddressMapper.toDomain(entity.address) : undefined,
-            photos: !!entity.photos ? entity.photos.map((a) => MongooseAdvertisementPhotoMapper.toDomain(a)) : undefined,
+            photos: !!entity.photos
+                ? entity.photos
+                    .map((a) => MongooseAdvertisementPhotoMapper.toDomain(a))
+                    .sort((a, b) => a.order - b.order)
+                : undefined,
             tourUrl: entity.tourUrl,
             videoUrl: entity.videoUrl,
             createdAt: entity.createdAt,
