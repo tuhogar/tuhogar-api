@@ -36,6 +36,7 @@
     "cloudinary": "^2.3.0",
     "firebase-admin": "^12.1.1",
     "fs": "^0.0.1-security",
+    "mercadopago": "^2.0.15",
     "module": "^1.2.5",
     "mongoose": "^8.4.0",
     "reflect-metadata": "^0.2.2",
