@@ -4,7 +4,7 @@ import { Authenticated } from '../../decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { CreateUpdateAdvertisementDto } from '../dtos/advertisement/create-update-advertisement.dto';
-import { Advertisement } from '../../../domain/entities/advertisement';
+import { Advertisement, AdvertisementPhoto } from '../../../domain/entities/advertisement';
 import { UpdateStatusAdvertisementDto } from '../dtos/advertisement/update-status-advertisement.dto';
 import { GetActivesAdvertisementDto } from '../dtos/advertisement/get-actives-advertisement.dto';
 import { UploadImagesAdvertisementDto } from '../dtos/advertisement/upload-images-advertisement.dto';
@@ -141,8 +141,8 @@ export class AdvertisementController {
     async uploadImages(
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,
-        @Body() uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
-        await this.processImagesAdvertisementUseCase.execute(authenticatedUser.accountId, advertisementId, uploadImagesAdvertisementDto);
+        @Body() uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
+        return this.processImagesAdvertisementUseCase.execute(authenticatedUser.accountId, advertisementId, uploadImagesAdvertisementDto);
     }
 
     @ApiBearerAuth()

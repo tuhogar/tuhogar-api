@@ -14,7 +14,7 @@ export class ProcessImagesAdvertisementUseCase {
         private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
-    async execute(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<void> {
+    async execute(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
         const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
@@ -64,6 +64,8 @@ export class ProcessImagesAdvertisementUseCase {
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         await this.algoliaService.delete(updatedAdvertisement.id);
+
+        return newPhotos.map((a) => ({ id: a.id, order: a.order }))
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {
