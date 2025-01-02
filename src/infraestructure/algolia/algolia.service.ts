@@ -4,19 +4,28 @@ import { ConfigService } from '@nestjs/config';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
 import { Advertisement, AdvertisementActivesOrderBy } from 'src/domain/entities/advertisement';
 
+enum AlgoliaIndexes {
+  ADVERTISEMENTS = 'advertisements',
+  ADVERTISEMENTS_PRICE_ASC = '_price_asc',
+  ADVERTISEMENTS_PRICE_DESC = '_price_desc',
+  ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_ASC = '_pricePerFloorArea_asc',
+  ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_DESC = '_pricePerFloorArea_desc',
+}
+
 @Injectable()
 export class AlgoliaService {
-    private client;
-    private index;
+    private readonly client;
+    private readonly index;
 
     constructor(
-        private configService: ConfigService,
+      private readonly configService: ConfigService,
       ) {
         this.client = algoliasearch(
             this.configService.get<string>('ALGOLIA_APP_ID'),
             this.configService.get<string>('ALGOLIA_API_KEY')
         );
-        this.index = this.client.initIndex('advertisements');
+
+        this.index = this.client.initIndex(`${AlgoliaIndexes.ADVERTISEMENTS}${this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : ''}`);
       }
 
       async bulk(advertisements: Advertisement[]): Promise<void> {
@@ -130,16 +139,16 @@ export class AlgoliaService {
         if (getActivesAdvertisementDto.orderBy) {
           switch (getActivesAdvertisementDto.orderBy) {
             case AdvertisementActivesOrderBy.LOWEST_PRICE:
-              selectedIndex = this.client.initIndex('advertisements_price_asc');
+              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_ASC}`);
               break;
             case AdvertisementActivesOrderBy.HIGHEST_PRICE:
-              selectedIndex = this.client.initIndex('advertisements_price_desc');
+              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_DESC}`);
               break;
             case AdvertisementActivesOrderBy.LOWEST_PRICE_M2:
-              selectedIndex = this.client.initIndex('advertisements_pricePerFloorArea_asc');
+              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_ASC}`);
               break;
             case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
-              selectedIndex = this.client.initIndex('advertisements_pricePerFloorArea_desc');
+              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_DESC}`);
               break;
           }
         }

@@ -17,6 +17,8 @@ import { GetFavoritesUserUseCase } from 'src/application/use-cases/user/get-favo
 import { LoginUserUseCase } from 'src/application/use-cases/user/login-user.use-case';
 import { PathUserUseCase } from 'src/application/use-cases/user/path-user.use-case';
 import { UpdateStatusUserUseCase } from 'src/application/use-cases/user/update-status-user.use-case';
+import { CreateUserMasterDto } from '../dtos/user/create-user-master.dto';
+import { CreateUserMasterUseCase } from 'src/application/use-cases/user/create-user-master.use-case';
 
 @ApiTags('v1/users')
 @Controller('v1/users')
@@ -32,6 +34,7 @@ export class UserController {
         private readonly loginUserUseCase: LoginUserUseCase,
         private readonly pathUserUseCase: PathUserUseCase,
         private readonly updateStatusUserUseCase: UpdateStatusUserUseCase,
+        private readonly createUserMasterUseCase: CreateUserMasterUseCase,
     ) {}
 
     /*
@@ -39,10 +42,7 @@ export class UserController {
     @Post('user-master-user')
     @Auth()
     async createMaster(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUserMasterDto: CreateUserMasterDto): Promise<void> {
-        await this.userService.createMaster(
-            authenticatedUser,
-            createUserMasterDto,
-        );
+        await this.createUserMasterUseCase.execute({ name: createUserMasterDto.name, email: authenticatedUser.email, uid: authenticatedUser.uid });
     }
     */
 

@@ -5,6 +5,7 @@ import { CreateUserDto } from "src/infraestructure/http/dtos/user/create-user.dt
 
 export abstract class IUserRepository {
     abstract create(user: User): Promise<User>
+    abstract createMaster(user: User): Promise<any>
     abstract delete(id: string): Promise<void>
     abstract findByAccountIdAndUserRole(accountId: string, userRole?: UserRole): Promise<User[]>
     abstract findOneByUid(uid: string): Promise<User>

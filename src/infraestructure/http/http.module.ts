@@ -77,6 +77,7 @@ import { AdvertisementEventController } from "./controllers/advertisement-event.
 import { AccountAlreadyExistsConstraint } from "./validators/account/account-already-exists.validator";
 import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get-all-user-by-account-id.use-case";
 import { UpdateImagesOrderAdvertisementUseCase } from "src/application/use-cases/advertisement/update-images-order-advertisement.use-case";
+import { CreateUserMasterUseCase } from "src/application/use-cases/user/create-user-master.use-case";
 
 @Module({
     imports: [
@@ -125,6 +126,7 @@ import { UpdateImagesOrderAdvertisementUseCase } from "src/application/use-cases
         UpdateBulkUpdateDateUseCase,
         CreateFavoriteUserUseCase,
         CreateUserUseCase,
+        CreateUserMasterUseCase,
         DeleteFavoriteUserUseCase,
         DeleteUserUseCase,
         GetAllUserByAccountIdUseCase,

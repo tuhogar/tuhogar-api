@@ -5,14 +5,19 @@ import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { UploadImagesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/upload-images-advertisement.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ProcessImagesAdvertisementUseCase {
+    private readonly cloudinaryFolders: string;
     constructor(
         private readonly algoliaService: AlgoliaService,
         private readonly cloudinaryService: CloudinaryService,
         private readonly advertisementRepository: IAdvertisementRepository,
-    ) {}
+        private readonly configService: ConfigService,
+    ) {
+        this.cloudinaryFolders = this.configService.get<string>('CLOUDINARY_FOLDERS');
+    }
 
     async execute(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
         const advertisement = await this.advertisementRepository.findOneById(advertisementId);
@@ -45,7 +50,7 @@ export class ProcessImagesAdvertisementUseCase {
                 imageContent = await this.cloudinaryService.convertToWebP(imageContent);
             }
         
-            const imageUrl = await this.cloudinaryService.uploadBase64Image(imageContent, 'image/webp', imageName, 'advertisements');
+            const imageUrl = await this.cloudinaryService.uploadBase64Image(imageContent, 'image/webp', imageName, `advertisements${this.cloudinaryFolders}`);
             const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
             //await this.cloudinaryService.uploadImageBuffer(thumbnailBuffer, image.contentType, imageThumbnailName);
             const imageThumbnailUrl = imageUrlStr.replace('upload/', 'upload/c_thumb,w_352,h_352,g_face/');

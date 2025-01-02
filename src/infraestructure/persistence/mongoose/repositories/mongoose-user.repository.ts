@@ -21,6 +21,15 @@ export class MongooseUserRepository implements IUserRepository {
 
          return MongooseUserMapper.toDomain(entity);
     }
+
+    async createMaster(user: User): Promise<any> {
+        const data = MongooseUserMapper.toMongoose({ ...user });
+
+        const entity = new this.userModel(data);
+         await entity.save();
+
+         return entity;
+    }
     
     async delete(id: string): Promise<void> {
         await this.userModel.deleteOne({ _id: id }).exec();
