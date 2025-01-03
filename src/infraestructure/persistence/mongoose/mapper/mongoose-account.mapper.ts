@@ -1,8 +1,5 @@
 import { Account, AccountDocumentType, AccountStatus } from 'src/domain/entities/account';
 import { Account as AccountDocument } from '../entities/account.entity';
-import * as mongoose from 'mongoose';
-import { SocialMedia } from 'src/domain/entities/social-media';
-import { Address } from 'src/domain/entities/address';
 import { MongooseContractTypeMapper } from './mongoose-contract-type.mapper';
 import { MongooseAddressMapper } from './mongoose-address.mapper';
 import { MongooseSocialMediaMapper } from './mongoose-social-media.mapper';

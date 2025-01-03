@@ -1,7 +1,5 @@
 import { User, UserRole, UserStatus } from 'src/domain/entities/user';
-import * as mongoose from 'mongoose';
 import { User as UserDocument } from '../entities/user.entity';
-import { Advertisement } from '../entities/advertisement.entity';
 import { MongooseAdvertisementMapper } from './mongoose-advertisement.mapper';
 import { MongooseAccountMapper } from './mongoose-account.mapper';
 

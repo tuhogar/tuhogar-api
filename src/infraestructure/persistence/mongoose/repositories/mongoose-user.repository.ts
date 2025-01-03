@@ -2,11 +2,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { User as UserMongoose } from "../entities/user.entity"
 import { IUserRepository } from "src/application/interfaces/repositories/user.repository.interface";
-import { Account } from "src/domain/entities/account";
-import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
 import { User, UserRole, UserStatus } from "src/domain/entities/user";
 import { MongooseUserMapper } from "../mapper/mongoose-user.mapper";
-import { MongooseAccountMapper } from "../mapper/mongoose-account.mapper";
 
 export class MongooseUserRepository implements IUserRepository {
     constructor(
@@ -125,7 +122,12 @@ export class MongooseUserRepository implements IUserRepository {
 
     async findByAccountId(accountId: string): Promise<User[]> {
         const users = await this.userModel.find({ accountId })
-            .populate('accountId')
+            .populate({
+                path: 'accountId',
+                populate: [
+                    { path: 'contractTypes' },
+                ]
+            })
             .exec();
     
         const usersWithSubscriptions = await Promise.all(

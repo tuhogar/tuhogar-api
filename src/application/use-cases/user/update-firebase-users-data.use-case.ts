@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseAdmin } from 'src/infraestructure/config/firebase.config';
-import { AccountStatus } from 'src/domain/entities/account';
-import { UserRole, UserStatus } from 'src/domain/entities/user';
-import { SubscriptionStatus } from 'src/domain/entities/subscription';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 interface UpdateFirebaseUsersDataUseCaseCommand {
