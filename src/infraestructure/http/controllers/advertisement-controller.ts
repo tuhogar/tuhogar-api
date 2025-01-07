@@ -30,6 +30,8 @@ import { UserRole } from 'src/domain/entities/user';
 import { GetAdvertisementDto } from '../dtos/advertisement/get-advertisement.dto';
 import { UpdateImagesOrderAdvertisementDto } from '../dtos/advertisement/update-images-order-advertisement.dto';
 import { UpdateImagesOrderAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-images-order-advertisement.use-case';
+import { TransferAdvertisementUseCase } from 'src/application/use-cases/advertisement/transfer-advertisement.use-case';
+import { TransferAdvertisementDto } from '../dtos/advertisement/transfer-advertisement.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -51,6 +53,7 @@ export class AdvertisementController {
         private readonly updateAdvertisementUseCase: UpdateAdvertisementUseCase,
         private readonly updateStatusAllAdvertisementUseCase: UpdateStatusAllAdvertisementUseCase,
         private readonly updateImagesOrderAdvertisementuseCase: UpdateImagesOrderAdvertisementUseCase,
+        private readonly transferAdvertisementUseCase: TransferAdvertisementUseCase,
     ) {}
 
     @ApiBearerAuth()
@@ -119,6 +122,12 @@ export class AdvertisementController {
             advertisementIds,
             status: updateStatusAllAdvertisementsDto.status,
         });
+    }
+
+    @Post('transfer')
+    @Auth('MASTER')
+    async transfer(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() transferAdvertisementDto: TransferAdvertisementDto): Promise<void> {
+        await this.transferAdvertisementUseCase.execute({ userId: authenticatedUser.userId, accountIdFrom: transferAdvertisementDto.accountIdFrom, accountIdTo: transferAdvertisementDto.accountIdTo });
     }
 
     @Get('find-similar')

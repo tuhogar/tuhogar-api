@@ -114,6 +114,15 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         ])
         .exec();
     }
+
+    async transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<void> {
+        await this.advertisementModel.updateMany({ 
+            accountId: accountIdFrom,
+            updatedUserId: userId,
+        },
+        { accountId: accountIdTo },
+        ).exec();
+    }
     
     async findByAccountIdWithEvents(accountId: string, page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }> {
 
