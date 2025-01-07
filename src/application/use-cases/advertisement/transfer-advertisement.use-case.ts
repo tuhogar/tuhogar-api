@@ -14,6 +14,6 @@ export class TransferAdvertisementUseCase {
     ) {}
 
     async execute({ userId, accountIdFrom, accountIdTo }: TransferAdvertisementUseCaseCommand): Promise<void> {
-        const advertisements = await this.advertisementRepository.findForBulk(userId, accountIdFrom, accountIdTo);
+        const advertisements = await this.advertisementRepository.transfer(userId, accountIdFrom, accountIdTo);
     }
 }

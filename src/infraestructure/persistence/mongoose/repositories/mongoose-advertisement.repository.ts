@@ -118,9 +118,11 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     async transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<void> {
         await this.advertisementModel.updateMany({ 
             accountId: accountIdFrom,
+        },
+        { 
+            accountId: accountIdTo, 
             updatedUserId: userId,
         },
-        { accountId: accountIdTo },
         ).exec();
     }
     
