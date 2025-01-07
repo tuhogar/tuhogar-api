@@ -1,8 +1,4 @@
-import { Advertisement, AdvertisementActivesOrderBy, AdvertisementPhoto, AdvertisementStatus, AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
-import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
-import { CreateUpdateAdvertisementDto } from "src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto";
-import { UpdateStatusAdvertisementDto } from "src/infraestructure/http/dtos/advertisement/update-status-advertisement.dto";
-import { UpdateStatusAllAdvertisementsDto } from "src/infraestructure/http/dtos/advertisement/update-status-all-advertisement.dto";
+import { Advertisement, AdvertisementPhoto, AdvertisementStatus, AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
 
 export abstract class IAdvertisementRepository {
     abstract create(data: any): Promise<Advertisement>
@@ -20,4 +16,5 @@ export abstract class IAdvertisementRepository {
     abstract getRegisteredAdvertisements(period: 'week' | 'month'): Promise<any[]>
     abstract findSimilarDocuments(embedding: number[]): Promise<any[]>
     abstract findWithReports(): Promise<Advertisement[]>
+    abstract transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<void>
 }

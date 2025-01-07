@@ -78,6 +78,7 @@ import { AccountAlreadyExistsConstraint } from "./validators/account/account-alr
 import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get-all-user-by-account-id.use-case";
 import { UpdateImagesOrderAdvertisementUseCase } from "src/application/use-cases/advertisement/update-images-order-advertisement.use-case";
 import { CreateUserMasterUseCase } from "src/application/use-cases/user/create-user-master.use-case";
+import { TransferAdvertisementUseCase } from "src/application/use-cases/advertisement/transfer-advertisement.use-case";
 
 @Module({
     imports: [
@@ -122,6 +123,7 @@ import { CreateUserMasterUseCase } from "src/application/use-cases/user/create-u
         UpdateImagesOrderAdvertisementUseCase,
         UpdateAdvertisementUseCase,
         UpdateStatusAllAdvertisementUseCase,
+        TransferAdvertisementUseCase,
         GetAllAmenityUseCase,
         UpdateBulkUpdateDateUseCase,
         CreateFavoriteUserUseCase,
