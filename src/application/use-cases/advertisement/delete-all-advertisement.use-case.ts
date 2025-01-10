@@ -16,12 +16,12 @@ export class DeleteAllAdvertisementUseCase {
 
     async execute(authenticatedUser: AuthenticatedUser, deleteAdvertisementsDto: DeleteAdvertisementsDto): Promise<void> {
         const advertisementIds = deleteAdvertisementsDto.advertisements.map((a) => a.id);
-
+        
         const advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : undefined);
 
         await this.advertisementRepository.deleteMany(advertisementIds, authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : undefined);
 
-        advertisements.forEach(async (a) => await this.algoliaService.delete(a.id));
+        await Promise.all(advertisements.map((a) => this.algoliaService.delete(a.id)));
 
         const photoUrls: string[] = [];
         advertisements.forEach((a) => {
@@ -32,9 +32,7 @@ export class DeleteAllAdvertisementUseCase {
 
         if(!photoUrls.length) return;
         
-        photoUrls.forEach(async (a) => {
-            await this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a));
-        });
+        await Promise.all(photoUrls.map((url) => this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(url))));
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {
