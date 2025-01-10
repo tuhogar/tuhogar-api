@@ -14,12 +14,13 @@ export class UpdateAllUserStatusUseCase {
     ) {}
 
     async execute(authenticatedUser: AuthenticatedUser, accountId: string, status: AccountStatus): Promise<void> {
-
         const users = await this.userRepository.findByAccountIdAndUserRole(accountId, status === AccountStatus.ACTIVE ? UserRole.ADMIN : undefined);
-
-        users.forEach(async (a) => {
-          const updateStatusUserDto: UpdateStatusUserDto = { status: status === AccountStatus.ACTIVE ? UserStatus.ACTIVE : UserStatus.INACTIVE }
-          await this.updateStatusUserUseCase.execute(authenticatedUser, a.id, updateStatusUserDto);
+    
+        const updatePromises = users.map((user) => {
+            const updateStatusUserDto: UpdateStatusUserDto = { status: status === AccountStatus.ACTIVE ? UserStatus.ACTIVE : UserStatus.INACTIVE };
+            return this.updateStatusUserUseCase.execute(authenticatedUser, user.id, updateStatusUserDto);
         });
+    
+        await Promise.all(updatePromises);
     }
 }

@@ -31,9 +31,7 @@ export class DeleteImagesAdvertisementUseCase {
 
         await this.advertisementRepository.updatePhotos(authenticatedUser.accountId, advertisementId, newPhotos, undefined);
 
-        photosToRemove.forEach(async (a) => {
-            await this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a.url));
-        });
+        await Promise.all(photosToRemove.map((a) => this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a.url))));
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {
