@@ -16,6 +16,7 @@ enum AlgoliaIndexes {
 export class AlgoliaService {
     private readonly client;
     private readonly index;
+    private readonly indexName: string;
 
     constructor(
       private readonly configService: ConfigService,
@@ -25,7 +26,8 @@ export class AlgoliaService {
             this.configService.get<string>('ALGOLIA_API_KEY')
         );
 
-        this.index = this.client.initIndex(`${AlgoliaIndexes.ADVERTISEMENTS}${this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : ''}`);
+        this.indexName = `${AlgoliaIndexes.ADVERTISEMENTS}${this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : ''}`
+        this.index = this.client.initIndex(this.indexName);
       }
 
       async bulk(advertisements: Advertisement[]): Promise<void> {
@@ -139,16 +141,16 @@ export class AlgoliaService {
         if (getActivesAdvertisementDto.orderBy) {
           switch (getActivesAdvertisementDto.orderBy) {
             case AdvertisementActivesOrderBy.LOWEST_PRICE:
-              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_ASC}`);
+              selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_ASC}`);
               break;
             case AdvertisementActivesOrderBy.HIGHEST_PRICE:
-              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_DESC}`);
+              selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_DESC}`);
               break;
             case AdvertisementActivesOrderBy.LOWEST_PRICE_M2:
-              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_ASC}`);
+              selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_ASC}`);
               break;
             case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
-              selectedIndex = this.client.initIndex(`${this.index}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_DESC}`);
+              selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_DESC}`);
               break;
           }
         }
