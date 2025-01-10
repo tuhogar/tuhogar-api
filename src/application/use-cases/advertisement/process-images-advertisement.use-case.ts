@@ -16,7 +16,7 @@ export class ProcessImagesAdvertisementUseCase {
         private readonly advertisementRepository: IAdvertisementRepository,
         private readonly configService: ConfigService,
     ) {
-        this.cloudinaryFolders = this.configService.get<string>('CLOUDINARY_FOLDERS');
+        this.cloudinaryFolders = this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : '';
     }
 
     async execute(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
