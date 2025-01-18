@@ -79,6 +79,7 @@ import { GetAllUserByAccountIdUseCase } from "src/application/use-cases/user/get
 import { UpdateImagesOrderAdvertisementUseCase } from "src/application/use-cases/advertisement/update-images-order-advertisement.use-case";
 import { CreateUserMasterUseCase } from "src/application/use-cases/user/create-user-master.use-case";
 import { TransferAdvertisementUseCase } from "src/application/use-cases/advertisement/transfer-advertisement.use-case";
+import { GetAdvertisementLocationsUseCase } from "src/application/use-cases/advertisement/get-advertisement-locations.use-case";
 
 @Module({
     imports: [
@@ -108,6 +109,7 @@ import { TransferAdvertisementUseCase } from "src/application/use-cases/advertis
         GetByAdvertisementIdAdvertisementReportUseCase,
         CreateAdvertisementEventUseCase,
         BulkAdvertisementUseCase,
+        GetAdvertisementLocationsUseCase,
         CreateAdvertisementUseCase,
         DeleteAllAdvertisementUseCase,
         DeleteImagesAdvertisementUseCase,

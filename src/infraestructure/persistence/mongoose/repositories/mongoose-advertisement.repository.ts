@@ -224,9 +224,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         ).exec();
     }
     
-    async updatePhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement> {
+    async updatePhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[]): Promise<Advertisement> {
         const update: any = { photos };
-        if (status) update.status = status;
         const updated = await this.advertisementModel.findOneAndUpdate(
             { accountId, _id: advertisementId },
             update,
@@ -236,9 +235,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         return MongooseAdvertisementMapper.toDomain(updated);
     }
 
-    async createPhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement> {
-        const update: any = { $push: { photos: { $each: photos }} };
-        if (status) update.status = status;
+    async createPhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[]): Promise<Advertisement> {
+        const update: any = { $push: { photos: { $each: photos }}, status: AdvertisementStatus.WAITING_FOR_APPROVAL };
         const updated = await this.advertisementModel.findOneAndUpdate(
             { accountId, _id: advertisementId },
             update,

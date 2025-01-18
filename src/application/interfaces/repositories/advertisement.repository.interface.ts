@@ -9,8 +9,8 @@ export abstract class IAdvertisementRepository {
     abstract findOneActive(advertisementId: string): Promise<Advertisement>
     abstract findToApprove(): Promise<Advertisement[]>
     abstract updateStatus(ids: string[], accountId: string, status: AdvertisementStatus, publishedAt: Date, approvingUserId: string): Promise<any>
-    abstract updatePhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement>
-    abstract createPhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[], status: AdvertisementStatus): Promise<Advertisement>
+    abstract updatePhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[]): Promise<Advertisement>
+    abstract createPhotos(accountId: string, advertisementId: string, photos: AdvertisementPhoto[]): Promise<Advertisement>
     abstract findByIdsAndAccountId(ids: string[], accountId: string): Promise<Advertisement[]>
     abstract deleteMany(ids: string[], accountId: string): Promise<void>
     abstract getRegisteredAdvertisements(period: 'week' | 'month'): Promise<any[]>

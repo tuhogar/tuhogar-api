@@ -161,4 +161,63 @@ export class AlgoliaService {
 
         return { data: objectIDs, count };
       }
+
+      async getLocations(query: string): Promise<any> {
+        const normalizedQuery = this.normalizeString(query);
+
+        const { hits, nbHits: count } = await this.index.search(normalizedQuery);
+
+        const states = new Map<string, any>();
+        const cities = new Map<string, any>();
+        const neighbourhoods = new Map<string, any>();
+
+        hits.forEach((hit: any) => {
+          const { state, city, neighbourhood, stateSlug, citySlug, neighbourhoodSlug } = hit.address;
+
+          // Normalizar os dados
+          const normalizedState = this.normalizeString(state);
+          const normalizedCity = this.normalizeString(city);
+          const normalizedNeighbourhood = this.normalizeString(neighbourhood);
+
+          if (normalizedState.includes(normalizedQuery)) {
+            if (!states.has(stateSlug)) {
+              states.set(stateSlug, { state, stateSlug });
+            }
+          }
+
+          if (normalizedCity.includes(normalizedQuery)) {
+            if (!cities.has(citySlug)) {
+              cities.set(citySlug, { state, stateSlug, city, citySlug });
+            }
+          }
+
+          if (normalizedNeighbourhood.includes(normalizedQuery)) {
+            if (!neighbourhoods.has(neighbourhoodSlug)) {
+              neighbourhoods.set(neighbourhoodSlug, { state, stateSlug, city, citySlug, neighbourhood, neighbourhoodSlug });
+            }
+          }
+        });
+
+        return {
+          state: {
+            count: states.size,
+            result: Array.from(states.values()), // Estados retornados por relevância
+          },
+          city: {
+            count: cities.size,
+            result: Array.from(cities.values()), // Cidades retornadas por relevância
+          },
+          neighbourhood: {
+            count: neighbourhoods.size,
+            result: Array.from(neighbourhoods.values()), // Bairros retornados por relevância
+          },
+        };
+      }
+
+      private normalizeString(str: string): string {
+        return str
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, ''); // Remove acentos
+      }
 }
