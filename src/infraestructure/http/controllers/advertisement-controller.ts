@@ -4,7 +4,7 @@ import { Authenticated } from '../../decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { CreateUpdateAdvertisementDto } from '../dtos/advertisement/create-update-advertisement.dto';
-import { Advertisement, AdvertisementPhoto } from '../../../domain/entities/advertisement';
+import { Advertisement } from '../../../domain/entities/advertisement';
 import { UpdateStatusAdvertisementDto } from '../dtos/advertisement/update-status-advertisement.dto';
 import { GetActivesAdvertisementDto } from '../dtos/advertisement/get-actives-advertisement.dto';
 import { UploadImagesAdvertisementDto } from '../dtos/advertisement/upload-images-advertisement.dto';
@@ -26,7 +26,6 @@ import { UpdateAdvertisementUseCase } from 'src/application/use-cases/advertisem
 import { UpdateStatusAllAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-status-all-advertisement.use-case';
 import { DeleteImagesAdvertisementUseCase } from 'src/application/use-cases/advertisement/delete-images-advertisement.use-case';
 import { BulkAdvertisementUseCase } from 'src/application/use-cases/advertisement/bulk-advertisement.use-case';
-import { UserRole } from 'src/domain/entities/user';
 import { GetAdvertisementDto } from '../dtos/advertisement/get-advertisement.dto';
 import { UpdateImagesOrderAdvertisementDto } from '../dtos/advertisement/update-images-order-advertisement.dto';
 import { UpdateImagesOrderAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-images-order-advertisement.use-case';
