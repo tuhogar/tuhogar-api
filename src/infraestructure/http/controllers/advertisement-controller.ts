@@ -32,6 +32,8 @@ import { UpdateImagesOrderAdvertisementDto } from '../dtos/advertisement/update-
 import { UpdateImagesOrderAdvertisementUseCase } from 'src/application/use-cases/advertisement/update-images-order-advertisement.use-case';
 import { TransferAdvertisementUseCase } from 'src/application/use-cases/advertisement/transfer-advertisement.use-case';
 import { TransferAdvertisementDto } from '../dtos/advertisement/transfer-advertisement.dto';
+import { GetAdvertisementLocationsUseCase } from 'src/application/use-cases/advertisement/get-advertisement-locations.use-case';
+import { GetActivesAdvertisementLocationDto } from '../dtos/advertisement/get-actives-advertisement-locations.dto';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -39,6 +41,7 @@ export class AdvertisementController {
 
     constructor(
         private readonly bulkAdvertisementUseCase: BulkAdvertisementUseCase,
+        private readonly getAdvertisementLocationsUseCase: GetAdvertisementLocationsUseCase,
         private readonly createAdvertisementUseCase: CreateAdvertisementUseCase,
         private readonly deleteAllAdvertisementUseCase: DeleteAllAdvertisementUseCase,
         private readonly deleteImagesAdvertisementUseCase: DeleteImagesAdvertisementUseCase,
@@ -52,7 +55,7 @@ export class AdvertisementController {
         private readonly processImagesAdvertisementUseCase: ProcessImagesAdvertisementUseCase,
         private readonly updateAdvertisementUseCase: UpdateAdvertisementUseCase,
         private readonly updateStatusAllAdvertisementUseCase: UpdateStatusAllAdvertisementUseCase,
-        private readonly updateImagesOrderAdvertisementuseCase: UpdateImagesOrderAdvertisementUseCase,
+        private readonly updateImagesOrderAdvertisementUseCase: UpdateImagesOrderAdvertisementUseCase,
         private readonly transferAdvertisementUseCase: TransferAdvertisementUseCase,
     ) {}
 
@@ -99,6 +102,11 @@ export class AdvertisementController {
     @Get('actives')
     async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
         return this.getActivesAdvertisementUseCase.execute(getActivesAdvertisementDto);
+    }
+
+    @Get('actives/locations')
+    async getActivesLocations(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementLocationDto: GetActivesAdvertisementLocationDto): Promise<any> {
+        return this.getAdvertisementLocationsUseCase.execute(getActivesAdvertisementLocationDto);
     }
 
     @ApiBearerAuth()
@@ -162,7 +170,7 @@ export class AdvertisementController {
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,
         @Body() updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto): Promise<void> {
-        await this.updateImagesOrderAdvertisementuseCase.execute(authenticatedUser.accountId, advertisementId, updateImagesOrderAdvertisementDto);
+        await this.updateImagesOrderAdvertisementUseCase.execute(authenticatedUser.accountId, advertisementId, updateImagesOrderAdvertisementDto);
     }
 
     @ApiBearerAuth()

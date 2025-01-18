@@ -29,7 +29,7 @@ export class DeleteImagesAdvertisementUseCase {
 
         const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
 
-        await this.advertisementRepository.updatePhotos(authenticatedUser.accountId, advertisementId, newPhotos, undefined);
+        await this.advertisementRepository.updatePhotos(authenticatedUser.accountId, advertisementId, newPhotos);
 
         await Promise.all(photosToRemove.map((a) => this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a.url))));
     }

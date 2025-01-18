@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AdvertisementPhoto, AdvertisementStatus } from 'src/domain/entities/advertisement';
-import { v4 as uuidv4 } from 'uuid';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
-import { UploadImagesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/upload-images-advertisement.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { UpdateImagesOrderAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/update-images-order-advertisement.dto';
@@ -31,7 +28,7 @@ export class UpdateImagesOrderAdvertisementUseCase {
             photo.order = image.order;
         }
 
-        const updatedAdvertisement = await this.advertisementRepository.updatePhotos(accountId, advertisementId, photos, AdvertisementStatus.WAITING_FOR_APPROVAL);
+        const updatedAdvertisement = await this.advertisementRepository.updatePhotos(accountId, advertisementId, photos);
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
