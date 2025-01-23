@@ -64,7 +64,7 @@ export class ProcessImagesAdvertisementUseCase {
             });
         }
 
-        const updatedAdvertisement = await this.advertisementRepository.createPhotos(accountId, advertisementId, newPhotos, AdvertisementStatus.WAITING_FOR_APPROVAL);
+        const updatedAdvertisement = await this.advertisementRepository.createPhotos(accountId, advertisementId, newPhotos);
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 

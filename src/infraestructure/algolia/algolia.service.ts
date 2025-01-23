@@ -161,4 +161,119 @@ export class AlgoliaService {
 
         return { data: objectIDs, count };
       }
+
+      async getLocations(query: string): Promise<any> {
+        const normalizedQuery = this.normalizeString(query);
+
+
+        let page = 0;
+        let hits = [];
+        let hasMoreResults = true;
+        
+        while (hasMoreResults) {
+            const result = await this.index.search(normalizedQuery, {
+                hitsPerPage: 1000,
+                page: page,
+            });
+        
+            hits = hits.concat(result.hits);
+        
+            if (result.hits.length < 1000) {
+                hasMoreResults = false;
+            }
+        
+            page++;
+        }
+
+        const states = new Map<string, { state: string; stateSlug: string }>();
+        const cities = new Map<string, { state: string; stateSlug: string; city: string; citySlug: string }>();
+        const neighbourhoods = new Map<string, any>();
+    
+        hits.forEach((hit: any) => {
+            const { state, city, neighbourhood, stateSlug, citySlug, neighbourhoodSlug } = hit.address;
+            
+            const stateObj = { state, stateSlug };
+            const cityObj = { state, stateSlug, city, citySlug };
+            const neighbourhoodObj = { state, stateSlug, city, citySlug, neighbourhood, neighbourhoodSlug };
+    
+            const normalizedState = this.normalizeString(state);
+            const normalizedCity = this.normalizeString(city);
+            const normalizedNeighbourhood = this.normalizeString(neighbourhood);
+    
+            // Se o estado corresponder à consulta, adicione-o e todas as cidades e bairros desse estado
+            if (normalizedState.includes(normalizedQuery)) {
+                if (!states.has(stateSlug)) {
+                    states.set(stateSlug, stateObj);
+                }
+    
+                // Adicionar todas as cidades relacionadas ao estado
+                if (!cities.has(citySlug)) {
+                    cities.set(citySlug, cityObj);
+                }
+    
+                // Adicionar todos os bairros das cidades do estado
+                if (!neighbourhoods.has(neighbourhoodSlug)) {
+                    neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+                }
+            }
+    
+            // Se a cidade corresponder à consulta, adicione-a e todos os bairros dessa cidade
+            if (normalizedCity.includes(normalizedQuery)) {
+                if (!cities.has(citySlug)) {
+                    cities.set(citySlug, cityObj);
+                }
+    
+                // Adicionar todos os bairros dessa cidade
+                if (!neighbourhoods.has(neighbourhoodSlug)) {
+                    neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+                }
+    
+                // Adicionar estado relacionado à cidade, se não estiver já adicionado
+                if (!states.has(stateSlug)) {
+                    states.set(stateSlug, stateObj);
+                }
+            }
+    
+            // Se o bairro corresponder à consulta, adicione-o e todas as cidades e estados dessa cidade
+            if (normalizedNeighbourhood.includes(normalizedQuery)) {
+                if (!neighbourhoods.has(neighbourhoodSlug)) {
+                    neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+                }
+    
+                // Adicionar cidade relacionada ao bairro
+                if (!cities.has(citySlug)) {
+                    cities.set(citySlug, cityObj);
+                }
+    
+                // Adicionar estado relacionado ao bairro
+                if (!states.has(stateSlug)) {
+                    states.set(stateSlug, stateObj);
+                }
+            }
+        });
+    
+        return {
+            state: {
+                count: states.size,
+                result: Array.from(states.values()),
+            },
+            city: {
+                count: cities.size,
+                result: Array.from(cities.values()),
+            },
+            neighbourhood: {
+                count: neighbourhoods.size,
+                result: Array.from(neighbourhoods.values()),
+            },
+        };
+    }
+    
+    private normalizeString(str: string): string {
+        return str
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, ''); // Remove acentos
+    }
+    
+      
 }
