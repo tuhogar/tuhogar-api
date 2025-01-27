@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Advertisement, AdvertisementActivesOrderBy } from 'src/domain/entities/advertisement';
+import { Advertisement } from 'src/domain/entities/advertisement';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
@@ -23,10 +23,6 @@ export class GetActivesAdvertisementUseCase {
         }, {} as { [key: string]: Advertisement });
         
         const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]).filter(ad => ad !== undefined && ad !== null);
-
-        if (!getActivesAdvertisementDto.orderBy) {
-            orderedAdvertisements.sort(() => Math.random() - 0.5);
-        }
 
         return { data: orderedAdvertisements, count };
     }
