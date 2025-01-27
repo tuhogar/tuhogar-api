@@ -6,6 +6,7 @@ import { Advertisement, AdvertisementActivesOrderBy } from 'src/domain/entities/
 
 enum AlgoliaIndexes {
   ADVERTISEMENTS = 'advertisements',
+  ADVERTISEMENTS_UPDATED_AT_DESC = '_updatedAt_desc',
   ADVERTISEMENTS_PRICE_ASC = '_price_asc',
   ADVERTISEMENTS_PRICE_DESC = '_price_desc',
   ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_ASC = '_pricePerFloorArea_asc',
@@ -135,6 +136,8 @@ export class AlgoliaService {
         if (getActivesAdvertisementDto.page) options['page'] = getActivesAdvertisementDto.page - 1;
         if (getActivesAdvertisementDto.limit) options['hitsPerPage'] = getActivesAdvertisementDto.limit;
 
+        // Apesar de termos o indice padrão,
+        // Foi adicionado no switch e no if abaixo o AlgoliaIndexes.ADVERTISEMENTS_UPDATED_AT_DESC como padrão
         let selectedIndex = this.index; // Índice padrão
 
         // Verifica o campo de ordenação e altera o índice conforme necessário
@@ -152,7 +155,12 @@ export class AlgoliaService {
             case AdvertisementActivesOrderBy.HIGHEST_PRICE_M2:
               selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_PRICE_PER_FLOOR_AREA_DESC}`);
               break;
+            default:
+              selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_UPDATED_AT_DESC}`);
+              break;
           }
+        } else {
+          selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_UPDATED_AT_DESC}`);
         }
 
         const { hits, nbHits: count } = await selectedIndex.search(query, options);
