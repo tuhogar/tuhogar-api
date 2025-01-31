@@ -221,7 +221,6 @@ export class GetActivesAdvertisementDto {
     @Transform(({ value }) => parseFloat(value))
     @IsNumber({}, { message: 'invalid.floorsCountMax.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
-    @IsGreaterThan('floorsCountMin', { message: 'invalid.floorsCountMax.must.be.greater.than.or.equal.to.floorsCountMin' })
     floorsCountMax: number = 0;
 
     @ApiPropertyOptional()
