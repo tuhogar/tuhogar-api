@@ -7,6 +7,9 @@ export class NetworkService {
     return new Promise((resolve, reject) => {
       exec(`ping -c 4 ${host}`, (error, stdout, stderr) => {
         if (error) {
+            console.log('----error');
+            console.log(error);
+            console.log('----error');
           reject(`Erro ao executar ping: ${stderr}`);
         } else {
           resolve(stdout);
@@ -19,6 +22,9 @@ export class NetworkService {
     return new Promise((resolve, reject) => {
       exec(`traceroute ${host}`, (error, stdout, stderr) => {
         if (error) {
+            console.log('----error');
+            console.log(error);
+            console.log('----error');
           reject(`Erro ao executar traceroute: ${stderr}`);
         } else {
           resolve(stdout);
