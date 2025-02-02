@@ -1,8 +1,6 @@
 # Etapa de construção
 FROM node:20 as builder
 
-RUN apk add --no-cache iputils
-
 WORKDIR /app
 
 COPY package*.json ./
