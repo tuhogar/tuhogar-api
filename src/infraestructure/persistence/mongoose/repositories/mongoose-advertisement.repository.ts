@@ -259,7 +259,9 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
 
         if (accountId) filter.accountId = accountId;
 
+        console.time('----mongodb');
         const query = await this.advertisementModel.find(filter).populate('amenities').populate('communityAmenities').exec();
+        console.timeEnd('----mongodb');
         return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
 
