@@ -1,6 +1,8 @@
 # Etapa de construção
 FROM node:20 as builder
 
+RUN apt-get update && apt-get install -y iputils-ping
+
 WORKDIR /app
 
 COPY package*.json ./
