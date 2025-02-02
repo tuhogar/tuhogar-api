@@ -1,22 +1,27 @@
-# Etapa de construção
-FROM node:20 as builder
+FROM node:20-alpine
 
+# Instalar dependências para compilar módulos nativos
+RUN apk update && apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    iputils \
+    && rm -rf /var/cache/apk/*
+
+# Definir diretório de trabalho
 WORKDIR /app
 
+# Copiar arquivos de dependências
 COPY package*.json ./
+
+# Instalar dependências do projeto
 RUN npm install
 
+# Copiar o código-fonte da aplicação
 COPY . .
-RUN npm run build
 
-# Etapa de produção
-FROM node:20
-
-WORKDIR /app
-
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-
+# Expõe a porta da aplicação
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+# Comando para rodar a aplicação
+CMD ["npm", "start"]
