@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { exec } from 'child_process';
+import * as traceroute from 'traceroute';
 
 @Injectable()
 export class NetworkService {
@@ -20,16 +21,16 @@ export class NetworkService {
 
   async testTraceroute(host: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      exec(`traceroute ${host}`, (error, stdout, stderr) => {
-        if (error) {
-            console.log('----error');
-            console.log(error);
-            console.log('----error');
-          reject(`Erro ao executar traceroute: ${stderr}`);
-        } else {
-          resolve(stdout);
-        }
+        traceroute.trace(host, (err, hops) => {
+          if (err) {
+            console.log('----err');
+            console.log(err);
+            console.log('----err');
+            reject(`Erro ao executar traceroute: ${err.message}`);
+          } else {
+            resolve(hops);
+          }
+        });
       });
-    });
   }
 }
