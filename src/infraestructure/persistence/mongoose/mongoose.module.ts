@@ -55,6 +55,9 @@ import { AdvertisementEvent, AdvertisementEventSchema } from "./entities/adverti
             ],
             useFactory: async (configService: ConfigService) => ({
               uri: configService.get<string>('MONGODB_URL'),
+              maxPoolSize: 10, // 🔹 Número máximo de conexões simultâneas
+              serverSelectionTimeoutMS: 5000, // 🔹 Timeout para escolher um servidor
+              socketTimeoutMS: 45000, // 🔹 Timeout para operações inativas
             }),
             inject: [ConfigService],
         }),
