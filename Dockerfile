@@ -1,7 +1,7 @@
 # Etapa de construção
 FROM node:20 as builder
 
-RUN apt-get update && apt-get install -y iputils-ping
+RUN apk add --no-cache iputils
 
 WORKDIR /app
 
