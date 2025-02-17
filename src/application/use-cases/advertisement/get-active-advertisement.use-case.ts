@@ -13,7 +13,11 @@ export class GetActiveAdvertisementUseCase {
     async execute(advertisementId: string): Promise<Advertisement> {
         let advertisement = await this.redisService.get(advertisementId) as Advertisement;
         if (!advertisement) {
+            console.log('----NAO ENCONTROU advertisement NO REDIS');
             advertisement = await this.advertisementRepository.findOneActive(advertisementId);
+            console.log('----PEGOU advertisement da base de dados: ', advertisement?.id);
+        } else {
+            console.log('----PEGOU advertisement DO REDIS');
         }
 
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
