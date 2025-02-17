@@ -19,7 +19,11 @@ export class GetActivesAdvertisementUseCase {
 
         let advertisements = await this.redisService.getAll(advertisementIds) as Advertisement[];
         if (!advertisements?.length) {
+            console.log('----NAO ENCONTROU advertisements NO REDIS');
             advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
+            console.log('----PEGOU advertisements da base de dados: ', advertisements.length);
+        } else {
+            console.log('----PEGOU advertisements DO REDIS');
         }
 
         const advertisementMap = advertisements.reduce((acc, ad) => {
