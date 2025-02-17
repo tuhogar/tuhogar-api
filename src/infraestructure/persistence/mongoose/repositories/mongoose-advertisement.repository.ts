@@ -115,7 +115,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         .exec();
     }
 
-    async transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<void> {
+    async transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<any> {
+        const advertisements = await this.advertisementModel.find({ accountId: accountIdFrom }).exec();
         await this.advertisementModel.updateMany({ 
             accountId: accountIdFrom,
         },
@@ -124,6 +125,8 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
             updatedUserId: userId,
         },
         ).exec();
+
+        return advertisements.map((a) => (a._id.toString()));
     }
     
     async findByAccountIdWithEvents(accountId: string, page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }> {
@@ -259,9 +262,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
 
         if (accountId) filter.accountId = accountId;
 
-        console.time('----mongodb');
         const query = await this.advertisementModel.find(filter).populate('amenities').populate('communityAmenities').exec();
-        console.timeEnd('----mongodb');
         return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
     }
 

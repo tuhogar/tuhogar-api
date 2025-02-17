@@ -3,12 +3,14 @@ import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { DeleteImagesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/delete-images-advertisement.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
+import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
 
 @Injectable()
 export class DeleteImagesAdvertisementUseCase {
     constructor(
         private readonly cloudinaryService: CloudinaryService,
         private readonly advertisementRepository: IAdvertisementRepository,
+        private readonly redisService: RedisService
     ) {}
 
     async execute(authenticatedUser: AuthenticatedUser, advertisementId: string, deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
@@ -30,6 +32,11 @@ export class DeleteImagesAdvertisementUseCase {
         const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
 
         await this.advertisementRepository.updatePhotos(authenticatedUser.accountId, advertisementId, newPhotos);
+
+        const updatedAdvertisementForRedis = await this.advertisementRepository.findByIdsAndAccountId([advertisementId], undefined);
+            await Promise.all(
+                updatedAdvertisementForRedis.map((a) => this.redisService.set(a.id, a))
+            );
 
         await Promise.all(photosToRemove.map((a) => this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a.url))));
     }

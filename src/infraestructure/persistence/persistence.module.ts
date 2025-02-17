@@ -1,5 +1,6 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { MongooseModule } from "./mongoose/mongoose.module";
+import { RedisModule } from "./redis/redis.module";
 
 interface DatabaseOptions {
     type: 'prisma' | 'mongoose';
@@ -12,8 +13,14 @@ export class PersistenceModule {
         return {
             global,
             module: PersistenceModule,
-            imports: [type === 'mongoose' ? MongooseModule : MongooseModule], // imports: [type === 'mongoose' ? MongooseModule : PrismaModule]
-            exports: [type === 'mongoose' ? MongooseModule : MongooseModule], // imports: [type === 'mongoose' ? MongooseModule : PrismaModule]
+            imports: [
+                type === 'mongoose' ? MongooseModule : MongooseModule,
+                RedisModule
+            ],
+            exports: [
+                type === 'mongoose' ? MongooseModule : MongooseModule,
+                RedisModule
+            ],
         };
     };
 }

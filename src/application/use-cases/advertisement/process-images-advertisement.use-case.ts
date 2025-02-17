@@ -6,6 +6,7 @@ import { UploadImagesAdvertisementDto } from 'src/infraestructure/http/dtos/adve
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { ConfigService } from '@nestjs/config';
+import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
 
 @Injectable()
 export class ProcessImagesAdvertisementUseCase {
@@ -15,6 +16,7 @@ export class ProcessImagesAdvertisementUseCase {
         private readonly cloudinaryService: CloudinaryService,
         private readonly advertisementRepository: IAdvertisementRepository,
         private readonly configService: ConfigService,
+        private readonly redisService: RedisService
     ) {
         this.cloudinaryFolders = this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : '';
     }
@@ -69,6 +71,7 @@ export class ProcessImagesAdvertisementUseCase {
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         await this.algoliaService.delete(updatedAdvertisement.id);
+        await this.redisService.delete(updatedAdvertisement.id);
 
         return newPhotos.map((a) => ({ id: a.id, order: a.order }))
     }
