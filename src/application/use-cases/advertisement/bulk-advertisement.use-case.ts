@@ -4,6 +4,8 @@ import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { UpdateBulkUpdateDateUseCase } from '../bulk-update-date/update-bulk-update-date.use-case';
 import { IBulkUpdateDateRepository } from 'src/application/interfaces/repositories/bulk-update-date.repository.interface';
+import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
+
 
 interface BulkAdvertisementUseCaseCommand {
     accountId?: string
@@ -16,6 +18,7 @@ export class BulkAdvertisementUseCase {
         private readonly updateBulkUpdateDateUseCase: UpdateBulkUpdateDateUseCase,
         private readonly advertisementRepository: IAdvertisementRepository,
         private readonly bulkUpdateDateRepository: IBulkUpdateDateRepository,
+        private readonly redisService: RedisService
     ) {}
 
     @Cron('*/1 * * * *')
@@ -37,11 +40,18 @@ export class BulkAdvertisementUseCase {
 
         if (advertisements.length > 0) {
             await this.algoliaService.bulk(advertisements);
-
+            
             if (!bulkAdvertisementUseCaseCommand?.accountId) {
                 const updatedAt = new Date(Math.max(...advertisements.map(a => new Date((a.updatedAt as unknown as string)).getTime())));
                 await this.updateBulkUpdateDateUseCase.execute({ updatedAt });
             }
+
+            const advertisementIds = advertisements.map((a) => a._id);
+
+            const advertisementsForRedis = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
+            await Promise.all(
+                advertisementsForRedis.map((a) => this.redisService.set(a.id, a))
+            );
         }
     }
 }

@@ -163,9 +163,7 @@ export class AlgoliaService {
           selectedIndex = this.client.initIndex(`${this.indexName}${AlgoliaIndexes.ADVERTISEMENTS_UPDATED_AT_DESC}`);
         }
 
-        console.time('----algolia');
         const { hits, nbHits: count } = await selectedIndex.search(query, options);
-        console.timeEnd('----algolia');
 
         const objectIDs = hits.map((hit: any) => hit.objectID);
 

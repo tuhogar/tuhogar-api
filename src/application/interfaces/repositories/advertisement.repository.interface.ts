@@ -16,5 +16,5 @@ export abstract class IAdvertisementRepository {
     abstract getRegisteredAdvertisements(period: 'week' | 'month'): Promise<any[]>
     abstract findSimilarDocuments(embedding: number[]): Promise<any[]>
     abstract findWithReports(): Promise<Advertisement[]>
-    abstract transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<void>
+    abstract transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<any>
 }
