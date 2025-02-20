@@ -14,20 +14,18 @@ export class GetActivesAdvertisementUseCase {
     ) {}
 
     async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
-        console.time('algolia');
+        //console.time('algolia');
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
-        console.timeEnd('algolia');
+        //console.timeEnd('algolia');
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        console.time('redis-all');
+        //console.time('redis-all');
         let advertisements = await this.redisService.getAll(advertisementIds) as Advertisement[];
-        console.timeEnd('redis-all');
+        //console.timeEnd('redis-all');
         if (!advertisements?.length) {
             console.log('----NAO ENCONTROU advertisements NO REDIS');
             advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
             console.log('----PEGOU advertisements da base de dados: ', advertisements.length);
-        } else {
-            console.log('----PEGOU advertisements DO REDIS');
         }
 
         const advertisementMap = advertisements.reduce((acc, ad) => {
