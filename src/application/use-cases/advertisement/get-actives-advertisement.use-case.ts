@@ -3,19 +3,32 @@ import { Advertisement } from 'src/domain/entities/advertisement';
 import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
+import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
 
 @Injectable()
 export class GetActivesAdvertisementUseCase {
     constructor(
         private readonly algoliaService: AlgoliaService,
         private readonly advertisementRepository: IAdvertisementRepository,
+        private readonly redisService: RedisService
     ) {}
 
     async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
+        console.time('algolia');
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
+        console.timeEnd('algolia');
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        const advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
+        console.time('redis-all');
+        let advertisements = await this.redisService.getAll(advertisementIds) as Advertisement[];
+        console.timeEnd('redis-all');
+        if (!advertisements?.length) {
+            console.log('----NAO ENCONTROU advertisements NO REDIS');
+            advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
+            console.log('----PEGOU advertisements da base de dados: ', advertisements.length);
+        } else {
+            console.log('----PEGOU advertisements DO REDIS');
+        }
 
         const advertisementMap = advertisements.reduce((acc, ad) => {
             acc[ad.id] = ad;

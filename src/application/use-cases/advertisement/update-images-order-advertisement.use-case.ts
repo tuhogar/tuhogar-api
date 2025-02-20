@@ -3,6 +3,7 @@ import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { UpdateImagesOrderAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/update-images-order-advertisement.dto';
+import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
 
 @Injectable()
 export class UpdateImagesOrderAdvertisementUseCase {
@@ -10,6 +11,7 @@ export class UpdateImagesOrderAdvertisementUseCase {
         private readonly algoliaService: AlgoliaService,
         private readonly cloudinaryService: CloudinaryService,
         private readonly advertisementRepository: IAdvertisementRepository,
+        private readonly redisService: RedisService
     ) {}
 
     async execute(accountId: string, advertisementId: string, updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto): Promise<void> {
@@ -33,6 +35,7 @@ export class UpdateImagesOrderAdvertisementUseCase {
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         await this.algoliaService.delete(updatedAdvertisement.id);
+        await this.redisService.delete(updatedAdvertisement.id)
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {

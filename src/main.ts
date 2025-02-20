@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser';
 import { CustomExceptionFilter } from './infraestructure/http/filters/custom-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
+import { RedisService } from './infraestructure/persistence/redis/redis.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,6 +38,9 @@ async function bootstrap() {
 
   app.use(bodyParser.json({ limit: '15mb' }));
   app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+
+  const redisService = app.get(RedisService);
+  await redisService.onModuleInit();
 
   await app.listen(3000);
 }

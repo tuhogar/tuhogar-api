@@ -80,6 +80,8 @@ import { UpdateImagesOrderAdvertisementUseCase } from "src/application/use-cases
 import { CreateUserMasterUseCase } from "src/application/use-cases/user/create-user-master.use-case";
 import { TransferAdvertisementUseCase } from "src/application/use-cases/advertisement/transfer-advertisement.use-case";
 import { GetAdvertisementLocationsUseCase } from "src/application/use-cases/advertisement/get-advertisement-locations.use-case";
+import { NetworkService } from "src/application/use-cases/network/network.service";
+import { NetworkController } from "./controllers/network.controller";
 
 @Module({
     imports: [
@@ -157,7 +159,8 @@ import { GetAdvertisementLocationsUseCase } from "src/application/use-cases/adve
         {
             provide: IPaymentGateway,
             useClass: MercadoPagoService,
-          }
+          },
+          NetworkService
     ],
     controllers: [
         AccountController,
@@ -170,6 +173,7 @@ import { GetAdvertisementLocationsUseCase } from "src/application/use-cases/adve
         UserController,
         ContractTypeController,
         SubscriptionController,
+        NetworkController,
         ],
 })
 export class HttpModule {}
