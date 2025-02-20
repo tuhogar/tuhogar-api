@@ -12,14 +12,14 @@ export class MongooseUserMapper {
             id: entity._id.toString(),
             name: entity.name,
             email: entity.email,
-            accountId: !entity.accountId.createdAt ? entity.accountId?.toString() : entity.accountId._id.toString(),
+            accountId: !entity.accountId?.createdAt ? entity.accountId?.toString() : entity.accountId?._id.toString(),
             userRole: entity.userRole as UserRole,
             status: entity.status as UserStatus,
             uid: entity.uid,
             phone: entity.phone,
             whatsApp: entity.whatsApp,
             advertisementFavorites: !!entity.advertisementFavorites ? entity.advertisementFavorites.map((a) => MongooseAdvertisementMapper.toDomain(a)) : undefined,
-            account: entity.accountId.createdAt ? MongooseAccountMapper.toDomain(entity.accountId) : undefined,
+            account: entity.accountId?.createdAt ? MongooseAccountMapper.toDomain(entity.accountId) : undefined,
         });
         return model;
     }
