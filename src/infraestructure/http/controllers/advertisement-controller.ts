@@ -187,7 +187,7 @@ export class AdvertisementController {
 
     @ApiBearerAuth()
     @Put(':advertisementid')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(SlugifyPipe)
     @UsePipes(new ValidationPipe({transform: true}))
     async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<{ id: string }> {

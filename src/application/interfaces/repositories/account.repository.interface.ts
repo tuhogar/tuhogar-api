@@ -16,6 +16,8 @@ export abstract class IAccountRepository {
         address: AddressDto,
         phone: string,
         whatsApp: string,
+        phone2: string,
+        whatsApp2: string,
         webSite: string,
         socialMedia: SocialMediaDto,
         description: string,

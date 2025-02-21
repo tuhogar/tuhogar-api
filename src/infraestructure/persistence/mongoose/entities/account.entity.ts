@@ -36,6 +36,12 @@ export class Account {
     whatsApp: string;
 
     @Prop()
+    phone2: string;
+
+    @Prop()
+    whatsApp2: string;
+
+    @Prop()
     webSite: string;
 
     @Prop({ type: Object })

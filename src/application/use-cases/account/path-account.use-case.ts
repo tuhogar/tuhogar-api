@@ -21,6 +21,8 @@ export class PathAccountUseCase {
       patchAccountDto.address,
       patchAccountDto.phone,
       patchAccountDto.whatsApp,
+      patchAccountDto.phone2,
+      patchAccountDto.whatsApp2,
       patchAccountDto.webSite,
       patchAccountDto.socialMedia,
       patchAccountDto.description,
