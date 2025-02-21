@@ -28,10 +28,9 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     }
 
     // TODO: Refatorar
-    async update(advertisementId: string, accountId: string, update: any): Promise<Advertisement> {
+    async update(advertisementId: string, update: any): Promise<Advertisement> {
         const updated = await this.advertisementModel.findOneAndUpdate({ 
             _id: advertisementId,
-            accountId,
         },
         update,
         { new: true }
@@ -133,7 +132,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
 
         const skip = (page - 1) * limit;
 
-        const filter: any = { accountId };
+        const filter: any = accountId ? { accountId } : {};
 
         if (code || externalId) {
             filter.$or = [];
