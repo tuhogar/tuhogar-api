@@ -2,7 +2,7 @@ import { Advertisement, AdvertisementPhoto, AdvertisementStatus, AdvertisementTr
 
 export abstract class IAdvertisementRepository {
     abstract create(data: any): Promise<Advertisement>
-    abstract update(advertisementId: string, accountId: string, update: any): Promise<Advertisement>
+    abstract update(advertisementId: string, update: any): Promise<Advertisement>
     abstract findOneById(id: string): Promise<Advertisement>
     abstract findForBulk(accountId: string, lastUpdatedAt: Date): Promise<any[]>
     abstract findByAccountIdWithEvents(accountId: string, page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string): Promise<{ data: Advertisement[]; count: number }>
