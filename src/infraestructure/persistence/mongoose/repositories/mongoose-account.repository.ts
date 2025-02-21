@@ -60,6 +60,8 @@ export class MongooseAccountRepository implements IAccountRepository {
       address: AddressDto,
       phone: string,
       whatsApp: string,
+      phone2: string,
+      whatsApp2: string,
       webSite: string,
       socialMedia: SocialMediaDto,
       description: string,
@@ -72,6 +74,8 @@ export class MongooseAccountRepository implements IAccountRepository {
       if (address) update.address = address;
       if (phone) update.phone = phone;
       if (whatsApp) update.whatsApp = whatsApp;
+      if (phone2) update.phone2 = phone2;
+      if (whatsApp2) update.whatsApp2 = whatsApp2;
       if (webSite) update.webSite = webSite;
       if (socialMedia) update.socialMedia = socialMedia;
       if (description) update.description = description;

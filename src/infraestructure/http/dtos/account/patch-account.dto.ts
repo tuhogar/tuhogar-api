@@ -39,6 +39,20 @@ export class PatchAccountDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsString({ message: 'invalid.phone2.must.be.a.string' })
+    @MaxLength(30, { message: 'invalid.phone2.must.be.shorter.than.or.equal.to.30.characters' })
+    @Property()
+    phone2: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString({ message: 'invalid.whatsApp2.must.be.a.string' })
+    @MaxLength(30, { message: 'invalid.whatsApp2.must.be.shorter.than.or.equal.to.30.characters' })
+    @Property()
+    whatsApp2: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsString({ message: 'invalid.webSite.must.be.a.string' })
     @MaxLength(150, { message: 'invalid.webSite.must.be.shorter.than.or.equal.to.150.characters' })
     @Property()
