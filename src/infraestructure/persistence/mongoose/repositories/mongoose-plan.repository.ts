@@ -11,7 +11,7 @@ export class MongoosePlanRepository implements IPlanRepository {
     ) {}
     
     async find(): Promise<Plan[]> {
-        const query = await this.planModel.find();
+        const query = await this.planModel.find().sort({ 'price': 1 }).exec();
         return query.map((item) => MongoosePlanMapper.toDomain(item));
     }
     

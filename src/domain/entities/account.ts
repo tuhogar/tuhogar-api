@@ -23,6 +23,8 @@ export class Account {
     address?: Address;
     phone: string;
     whatsApp?: string;
+    phone2?: string;
+    whatsApp2?: string;
     webSite?: string;
     socialMedia?: SocialMedia;
     description?: string;

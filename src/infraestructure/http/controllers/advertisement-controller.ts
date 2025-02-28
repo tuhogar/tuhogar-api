@@ -33,6 +33,7 @@ import { TransferAdvertisementUseCase } from 'src/application/use-cases/advertis
 import { TransferAdvertisementDto } from '../dtos/advertisement/transfer-advertisement.dto';
 import { GetAdvertisementLocationsUseCase } from 'src/application/use-cases/advertisement/get-advertisement-locations.use-case';
 import { GetActivesAdvertisementLocationDto } from '../dtos/advertisement/get-actives-advertisement-locations.dto';
+import { UserRole } from 'src/domain/entities/user';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -73,8 +74,10 @@ export class AdvertisementController {
 
     @ApiBearerAuth()
     @Get()
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
+        if (!authenticatedUser.accountId && authenticatedUser.userRole !== UserRole.MASTER)  throw new Error('Unauthorized');
+
         return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId: authenticatedUser.accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, code: getAdvertisementDto.code, transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId });
     }
 
@@ -184,7 +187,7 @@ export class AdvertisementController {
 
     @ApiBearerAuth()
     @Put(':advertisementid')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(SlugifyPipe)
     @UsePipes(new ValidationPipe({transform: true}))
     async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<{ id: string }> {
