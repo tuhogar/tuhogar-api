@@ -49,9 +49,9 @@ export class MongooseUserRepository implements IUserRepository {
     async update(id: string, name: string, phone: string, whatsApp: string): Promise<User> {
         const update: any = {};
 
-        if (name) update.name = name;
-        if (phone) update.phone = phone;
-        if (whatsApp) update.whatsApp = whatsApp;
+        if (name !== undefined) update.name = name;
+        if (phone !== undefined) update.phone = phone;
+        if (whatsApp !== undefined) update.whatsApp = whatsApp;
 
         const updated = await this.userModel.findOneAndUpdate(
             { _id: id },
