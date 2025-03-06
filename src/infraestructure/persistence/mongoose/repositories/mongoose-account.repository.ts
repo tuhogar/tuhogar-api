@@ -70,16 +70,16 @@ export class MongooseAccountRepository implements IAccountRepository {
 
       const update: any = { documentType, documentNumber };
 
-      if (name) update.name = name;
-      if (address) update.address = address;
-      if (phone) update.phone = phone;
-      if (whatsApp) update.whatsApp = whatsApp;
-      if (phone2) update.phone2 = phone2;
-      if (whatsApp2) update.whatsApp2 = whatsApp2;
-      if (webSite) update.webSite = webSite;
-      if (socialMedia) update.socialMedia = socialMedia;
-      if (description) update.description = description;
-      if (contractTypes) update.contractTypes = contractTypes;
+      if (name !== undefined) update.name = name;
+      if (address !== undefined) update.address = address;
+      if (phone !== undefined) update.phone = phone;
+      if (whatsApp !== undefined) update.whatsApp = whatsApp;
+      if (phone2 !== undefined) update.phone2 = phone2;
+      if (whatsApp2 !== undefined) update.whatsApp2 = whatsApp2;
+      if (webSite !== undefined) update.webSite = webSite;
+      if (socialMedia !== undefined) update.socialMedia = socialMedia;
+      if (description !== undefined) update.description = description;
+      if (contractTypes !== undefined) update.contractTypes = contractTypes;
 
       const updated = await this.accountModel.findOneAndUpdate(
         { _id: id },
