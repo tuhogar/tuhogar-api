@@ -155,29 +155,29 @@ export class AdvertisementController {
 
     @ApiBearerAuth()
     @Post(':advertisementid/images')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
     async uploadImages(
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,
         @Body() uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
-        return this.processImagesAdvertisementUseCase.execute(authenticatedUser.accountId, advertisementId, uploadImagesAdvertisementDto);
+        return this.processImagesAdvertisementUseCase.execute(authenticatedUser, advertisementId, uploadImagesAdvertisementDto);
     }
 
     @ApiBearerAuth()
     @Put(':advertisementid/images/orders')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')
     @UsePipes(new ValidationPipe({transform: true}))
     async updateOrderImages(
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,
         @Body() updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto): Promise<void> {
-        await this.updateImagesOrderAdvertisementUseCase.execute(authenticatedUser.accountId, advertisementId, updateImagesOrderAdvertisementDto);
+        await this.updateImagesOrderAdvertisementUseCase.execute(authenticatedUser, advertisementId, updateImagesOrderAdvertisementDto);
     }
 
     @ApiBearerAuth()
     @Delete(':advertisementid/images')
-    @Auth('ADMIN', 'USER')
+    @Auth('MASTER', 'ADMIN', 'USER')
     async deleteImages(
         @Authenticated() authenticatedUser: AuthenticatedUser,
         @Param('advertisementid') advertisementId: string,

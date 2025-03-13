@@ -4,6 +4,8 @@ import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.ser
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { UpdateImagesOrderAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/update-images-order-advertisement.dto';
 import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { UserRole } from 'src/domain/entities/user';
 
 @Injectable()
 export class UpdateImagesOrderAdvertisementUseCase {
@@ -14,11 +16,11 @@ export class UpdateImagesOrderAdvertisementUseCase {
         private readonly redisService: RedisService
     ) {}
 
-    async execute(accountId: string, advertisementId: string, updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto): Promise<void> {
+    async execute(authenticatedUser: AuthenticatedUser, advertisementId: string, updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto): Promise<void> {
         const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        if (accountId !== advertisement.accountId) {
+        if (authenticatedUser.accountId !== advertisement.accountId && authenticatedUser.userRole !== UserRole.MASTER) {
             throw new Error('notfound.advertisement.do.not.exists');
         }
 
@@ -30,7 +32,7 @@ export class UpdateImagesOrderAdvertisementUseCase {
             photo.order = image.order;
         }
 
-        const updatedAdvertisement = await this.advertisementRepository.updatePhotos(accountId, advertisementId, photos);
+        const updatedAdvertisement = await this.advertisementRepository.updatePhotos(authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : advertisement.accountId, advertisementId, photos);
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
