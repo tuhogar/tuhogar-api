@@ -4,6 +4,7 @@ import { DeleteImagesAdvertisementDto } from 'src/infraestructure/http/dtos/adve
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
+import { UserRole } from 'src/domain/entities/user';
 
 @Injectable()
 export class DeleteImagesAdvertisementUseCase {
@@ -17,7 +18,8 @@ export class DeleteImagesAdvertisementUseCase {
         const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        if (authenticatedUser.accountId !== advertisement.accountId) {
+
+        if (authenticatedUser.accountId !== advertisement.accountId && authenticatedUser.userRole !== UserRole.MASTER) {
             throw new Error('notfound.advertisement.do.not.exists');
         }
 
@@ -31,7 +33,7 @@ export class DeleteImagesAdvertisementUseCase {
 
         const newPhotos = photos.filter((a) => !imageIds.includes(a.id));
 
-        await this.advertisementRepository.updatePhotos(authenticatedUser.accountId, advertisementId, newPhotos);
+        await this.advertisementRepository.updatePhotos(authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : advertisement.accountId, advertisementId, newPhotos);
 
         const updatedAdvertisementForRedis = await this.advertisementRepository.findByIdsAndAccountId([advertisementId], undefined);
             await Promise.all(

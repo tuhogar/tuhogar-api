@@ -7,6 +7,8 @@ import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.ser
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { UserRole } from 'src/domain/entities/user';
 
 @Injectable()
 export class ProcessImagesAdvertisementUseCase {
@@ -21,11 +23,11 @@ export class ProcessImagesAdvertisementUseCase {
         this.cloudinaryFolders = this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : '';
     }
 
-    async execute(accountId: string, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
+    async execute(authenticatedUser: AuthenticatedUser, advertisementId: string, uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
         const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        if (accountId !== advertisement.accountId) {
+        if (authenticatedUser.accountId !== advertisement.accountId && authenticatedUser.userRole !== UserRole.MASTER) {
             throw new Error('notfound.advertisement.do.not.exists');
         }
 
@@ -66,7 +68,7 @@ export class ProcessImagesAdvertisementUseCase {
             });
         }
 
-        const updatedAdvertisement = await this.advertisementRepository.createPhotos(accountId, advertisementId, newPhotos);
+        const updatedAdvertisement = await this.advertisementRepository.createPhotos(authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : advertisement.accountId, advertisementId, newPhotos);
 
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
