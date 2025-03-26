@@ -1,5 +1,6 @@
 export enum SubscriptionStatus {
   UNKNOWN = 'UNKNOWN',
+  PENDING = 'PENDING',
   CREATED = 'CREATED',
   ACTIVE = 'ACTIVE',
   CANCELLED = 'CANCELLED',

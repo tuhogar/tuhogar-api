@@ -65,7 +65,7 @@ import { GetAllContractTypeUseCase } from "src/application/use-cases/contract-ty
 import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/contract-type-is-existing-id.validator";
 import { CreateSubscriptionUseCase } from "src/application/use-cases/subscription/create-subscription.use-case";
 import { SubscriptionController } from "./controllers/subscription.controller";
-import { MercadoPagoService } from "../payment-gateway/mercado-pago/mercado-pago.service";
+import { EPaycoService } from "../payment-gateway/epayco/epayco.service";
 import { IPaymentGateway } from "src/application/interfaces/payment-gateway/payment-gateway.interface";
 import { ReceiveSubscriptionNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-notification.use-case";
 import { ReceiveSubscriptionInvoiceNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-invoice-notification.use-case";
@@ -158,9 +158,9 @@ import { NetworkController } from "./controllers/network.controller";
         FirebaseAdmin,
         {
             provide: IPaymentGateway,
-            useClass: MercadoPagoService,
-          },
-          NetworkService
+            useClass: EPaycoService,
+        },
+        NetworkService
     ],
     controllers: [
         AccountController,

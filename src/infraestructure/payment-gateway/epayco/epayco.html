@@ -1,0 +1,63 @@
+<body>
+  <script src="jquery.js"></script>
+  <script src="https://checkout.epayco.co/epayco.min.js"></script>
+</body>
+
+<form action="/pago" method="POST" id="customer-form">
+  <!-- div donde se imprimiran los errores (opcional) -->
+  <div class="card-errors"></div>
+  <!-- datos necesarios para tokenizar -->
+  <div class="form-group">
+      <label> Nombre del usuario de tarjeta </label>
+      <input type="text" data-epayco="card[name]" value="LUCAS G PEREIRA">
+  </div>
+  <div class="form-group">
+      <label>Email</label>
+      <input type="text" data-epayco="card[email]" value="giusti.lucas@gmail.com">
+  </div>
+  <div class="form-group">
+      <label> Número de la tarjeta de crédito  </label>
+      <input type="text" data-epayco="card[number]" value="5491671477673472">
+  </div>
+  <div class="form-group">
+      <label>CVC</label>
+      <input type="text" size="4" data-epayco="card[cvc]" value="076">
+  </div>
+  <div class="form-group">
+      <label>Mes de expiración(MM)</label>
+      <input type="text" data-epayco="card[exp_month]" value="01">
+      <span>Año de expiración(AAAA)</span>
+      <input type="text" data-epayco="card[exp_year]" value="2031">
+  </div>
+  <!-- botón con la acción para enviar el formulario -->
+  <button type="submit">¡Pay!</button>
+</form>
+
+<script>
+// Autenticación con su public_key (Requerido)
+ePayco.setPublicKey('37d0670eded0fb9c322812c0aa9d0be5');
+
+$('#customer-form').submit(function(event) {
+    //detiene el evento automático del formulario
+    event.preventDefault();
+    //captura el contenido del formulario
+    var $form = $(this);
+    //deshabilita el botón para no acumular peticiones
+    $form.find("button").prop("disabled", true);
+    //hace el llamado al servicio de tokenización
+    ePayco.token.create($form, function(error, token) {
+      console.log(error, token);
+        //habilita el botón al obtener una respuesta
+        $form.find("button").prop("disabled", false);
+        if(!error) {
+            //si la petición es correcta agrega un input "hidden" con el token como valor
+            $form.append($('<input type="hidden" name="epaycoToken">').val(token));
+            //envia el formulario para que sea procesado
+            $form.get(0).submit();
+        } else {
+            //muestra errores que hayan sucedido en la transacción
+            $('.customer-errors').text(error.data.description);
+        }
+    });
+});
+</script>
