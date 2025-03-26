@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IPaymentGateway } from 'src/application/interfaces/payment-gateway/payment-gateway.interface';
