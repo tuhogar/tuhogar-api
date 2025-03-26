@@ -28,7 +28,6 @@ export class CreateUpdateAdvertisementDto {
     constructionType: AdvertisementConstructionType;
 
     @ApiProperty()
-    @Transform(({ obj }) => obj.transactionType !== AdvertisementTransactionType.SALE ? false : obj.allContentsIncluded)
     @IsBoolean({ message: 'invalid.allContentsIncluded.must.be.a.boolean.value'})
     @Property()
     allContentsIncluded: boolean;
