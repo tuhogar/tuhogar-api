@@ -57,7 +57,7 @@ export class ProcessImagesAdvertisementUseCase {
             const imageUrl = await this.cloudinaryService.uploadBase64Image(imageContent, 'image/webp', imageName, `advertisements${this.cloudinaryFolders}`);
             const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
             //await this.cloudinaryService.uploadImageBuffer(thumbnailBuffer, image.contentType, imageThumbnailName);
-            const imageThumbnailUrl = imageUrlStr.replace('upload/', 'upload/c_thumb,w_352,h_352,g_face/');
+            const imageThumbnailUrl = imageUrlStr.replace('upload/', 'upload/c_thumb,w_352,h_352,c_fill,ar_1.0/');
 
             newPhotos.push({
                 id: randomId,
