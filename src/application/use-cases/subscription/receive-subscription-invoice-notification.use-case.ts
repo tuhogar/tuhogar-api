@@ -35,11 +35,12 @@ export class ReceiveSubscriptionInvoiceNotificationUseCase {
       invoiceNotificated.accountId = subscription.accountId;
     }
 
-    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE) {
+    const invoice = await this.subscriptionInvoiceRepository.findOneByExternalId(invoiceNotificated.externalId);
+
+    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE && !invoice) {
       console.log('CRIA FATURA');
       await this.subscriptionInvoiceRepository.create(invoiceNotificated);
     } else {
-      const invoice = await this.subscriptionInvoiceRepository.findOneByExternalId(invoiceNotificated.externalId);
       if (!invoice) {
         console.log('NAO ENCONTROU A INVOICE NA BASE DE DADOS');
         throw new Error('notfound.invocie.do.not.exists');

@@ -13,6 +13,7 @@ export class MongooseSubscriptionMapper {
             externalId: entity.externalId,
             status: entity.status as SubscriptionStatus,
             externalPayerReference: entity.externalPayerReference,
+            resultIntegration: entity.resultIntegration,
         });
         return model;
     }
@@ -24,6 +25,7 @@ export class MongooseSubscriptionMapper {
             externalId: subscription.externalId,
             status: subscription.status,
             externalPayerReference: subscription.externalPayerReference,
+            resultIntegration: subscription.resultIntegration,
         }
     }
 }
