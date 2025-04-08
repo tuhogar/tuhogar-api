@@ -82,6 +82,9 @@ import { TransferAdvertisementUseCase } from "src/application/use-cases/advertis
 import { GetAdvertisementLocationsUseCase } from "src/application/use-cases/advertisement/get-advertisement-locations.use-case";
 import { NetworkService } from "src/application/use-cases/network/network.service";
 import { NetworkController } from "./controllers/network.controller";
+import { RemoveInternalSubscriptionUseCase } from "src/application/use-cases/subscription/remove-internal-subscription.use-case";
+import { CancelSubscriptionUseCase } from "src/application/use-cases/subscription/cancel-subscription.use-case";
+import { UpdateSubscriptionPlanUseCase } from "src/application/use-cases/subscription/update-subscription-plan.use-case";
 
 @Module({
     imports: [
@@ -144,6 +147,9 @@ import { NetworkController } from "./controllers/network.controller";
         UpdateStatusUserUseCase,
         GetAllContractTypeUseCase,
         CreateSubscriptionUseCase,
+        RemoveInternalSubscriptionUseCase,
+        CancelSubscriptionUseCase,
+        UpdateSubscriptionPlanUseCase,
         ReceiveSubscriptionNotificationUseCase,
         ReceiveSubscriptionPaymentNotificationUseCase,
         ReceiveSubscriptionInvoiceNotificationUseCase,

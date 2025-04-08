@@ -17,29 +17,39 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     const entity = new this.subscriptionModel({ ...data });
     await entity.save();
 
+    delete entity.resultIntegration;
+
     return MongooseSubscriptionMapper.toDomain(entity);
   }
 
   async findOneById(id: string): Promise<Subscription> {
+    const query = await this.subscriptionModel.findById(id, { resultIntegration: 0 }).exec();
+    
+    return MongooseSubscriptionMapper.toDomain(query);
+  }
+  async findOneWithResultIntegrationById(id: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findById(id).exec();
+    console.log('------query');
+    console.log(query);
+    console.log('------query');
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async findOneActiveOrCreatedByAccountId(accountId: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ accountId, status: { $in: [ SubscriptionStatus.ACTIVE, SubscriptionStatus.CREATED ] } }).sort({ createdAt: -1 }).exec();
+    const query = await this.subscriptionModel.findOne({ accountId, status: { $in: [ SubscriptionStatus.ACTIVE, SubscriptionStatus.CREATED ] } }, { resultIntegration: 0 }).sort({ createdAt: -1 }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async findOneByExternalId(externalId: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ externalId }).exec();
+    const query = await this.subscriptionModel.findOne({ externalId }, { resultIntegration: 0 }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async findOneByExternalPayerReference(externalPayerReference: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ externalPayerReference }).exec();
+    const query = await this.subscriptionModel.findOne({ externalPayerReference }, { resultIntegration: 0 }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
@@ -48,7 +58,7 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
       { status: SubscriptionStatus.CANCELLED },
-      { new: true },
+      { new: true, select: { resultIntegration: 0 } },
     ).exec();
     
     if (updated) {
@@ -62,7 +72,7 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
       { status: SubscriptionStatus.ACTIVE },
-      { new: true },
+      { new: true, select: { resultIntegration: 0 } },
     ).exec();
     
     if (updated) {
@@ -72,11 +82,25 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return null;
   }
 
-  async updateExternalReferences(id: string, externalId: string, externalPayerReference: string): Promise<Subscription> {
+  async updateExternalReferences(id: string, externalId: string, externalPayerReference: string, resultIntegration: Record<string, any>): Promise<Subscription> {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
-      { externalId, externalPayerReference },
-      { new: true },
+      { externalId, externalPayerReference, resultIntegration },
+      { new: true, select: { resultIntegration: 0 } },
+    ).exec();
+    
+    if (updated) {
+      return MongooseSubscriptionMapper.toDomain(updated);
+    }
+
+    return null;
+  }
+
+  async updatePlan(id: string, planId: string): Promise<Subscription> {
+    const updated = await this.subscriptionModel.findByIdAndUpdate(
+      id,
+      { planId },
+      { new: true, select: { resultIntegration: 0 } },
     ).exec();
     
     if (updated) {

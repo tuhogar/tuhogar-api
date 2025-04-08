@@ -39,11 +39,12 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
       paymentNotificated.accountId = subscription.accountId;
     }
 
-    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE) {
+    const payment = await this.subscriptionPaymentRepository.findOneByExternalId(paymentNotificated.externalId);
+
+    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE && !payment) {
       console.log('CRIA PAGAMENTO');
       await this.subscriptionPaymentRepository.create(paymentNotificated);
     } else {
-      const payment = await this.subscriptionPaymentRepository.findOneByExternalId(paymentNotificated.externalId);
       if (!payment) {
         console.log('NAO ENCONTROU O PAGAMENTO NA BASE DE DADOS');
         throw new Error('notfound.payment.do.not.exists');

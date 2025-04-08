@@ -41,10 +41,12 @@ export class CreateAdvertisementUseCase {
             ...createUpdateAdvertisementDto,
         });
 
+        /*
         if (authenticatedUser.planId === this.firstSubscriptionPlanId && authenticatedUser.subscriptionStatus === SubscriptionStatus.CREATED) {
             await this.subscriptionRepository.active(authenticatedUser.subscriptionId);
             await this.updateFirebaseUsersDataUseCase.execute({ accountId: authenticatedUser.accountId });
         }
+        */
 
         return advertisementCreated;
     }

@@ -35,6 +35,10 @@ export class ReceiveSubscriptionNotificationUseCase {
       case SubscriptionNotificationType.INVOICE:
         await this.receiveSubscriptionInvoiceNotificationUseCase.execute(subscriptionNotification);
         break;
+      case SubscriptionNotificationType.INVOICE_AND_PAYMENT:
+        await this.receiveSubscriptionInvoiceNotificationUseCase.execute(subscriptionNotification);
+        await this.receiveSubscriptionPaymentNotificationUseCase.execute(subscriptionNotification);
+        break;
       default:
         break;
     }

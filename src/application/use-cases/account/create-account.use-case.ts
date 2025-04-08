@@ -35,6 +35,7 @@ export class CreateAccountUseCase {
     });
     const accountCreated = await this.accountRepository.create(account);
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId: accountCreated.id, planId: createAccountDto.planId });
+    await this.subscriptionRepository.active(subscriptionCreated.id);
     await this.createUserUseCase.execute(authenticatedUser, { name: createAccountDto.name, userRole: UserRole.ADMIN }, accountCreated );
     try {
       await this.updateFirebaseUsersDataUseCase.execute({ accountId: accountCreated.id });

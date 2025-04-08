@@ -12,6 +12,7 @@ export class Subscription {
   public externalId?: string;
   public status: SubscriptionStatus;
   public externalPayerReference?: string;
+  public resultIntegration?: Record<string, any>;
   
   constructor(props: Subscription) {
     Object.assign(this, props);

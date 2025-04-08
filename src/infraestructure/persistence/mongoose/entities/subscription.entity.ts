@@ -22,6 +22,9 @@ export class Subscription {
     @Prop()
     externalPayerReference: string;
 
+    @Prop({ type: mongoose.Schema.Types.Mixed })
+    resultIntegration: Record<string, any>;
+
     @Prop()
     createdAt: Date
 

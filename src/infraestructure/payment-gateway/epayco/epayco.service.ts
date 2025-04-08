@@ -7,29 +7,53 @@ import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscripti
 import { SubscriptionNotification, SubscriptionNotificationAction, SubscriptionNotificationType } from 'src/domain/entities/subscription-notification';
 import { SubscriptionInvoice, SubscriptionInvoiceStatus } from 'src/domain/entities/subscription-invoice';
 import * as epayco from 'epayco-sdk-node';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class EPaycoService implements IPaymentGateway {
   private readonly epaycoClient: any;
+  private readonly pCustIdCliente: string;
+  private readonly pKey: string;
 
   constructor(private readonly configService: ConfigService) {
     this.epaycoClient = new epayco({
       apiKey: this.configService.get<string>('EPAYCO_PUBLIC_KEY'),
       privateKey: this.configService.get<string>('EPAYCO_PRIVATE_KEY'),
-      test: true, // Alterar para false em produção
+      test: this.configService.get<string>('EPAYCO_TEST') === 'true',
     });
+    
+    this.pCustIdCliente = this.configService.get<string>('EPAYCO_P_CUST_ID_CLIENTE');
+    this.pKey = this.configService.get<string>('EPAYCO_P_KEY');
   }
 
-  async createSubscription(accountId: string, subscriptionId: string, email: string, plan: Plan, paymentData: any): Promise<Subscription> {
+  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any): Promise<Subscription> {
     try {
-      // Criar cliente no ePayco
-      const customer = await this.epaycoClient.customers.create({
+      const result: Record<string, any> = {};
+      console.log('------customer');
+      console.log({
         token_card: paymentData.token,
-        name: paymentData.name,
+        name: name,
         email: email,
-        phone: paymentData.phone,
         default: true,
       });
+      console.log('------customer');
+
+      const customer = await this.epaycoClient.customers.create({
+        token_card: paymentData.token,
+        name: name,
+        email: email,
+        default: true,
+      });
+
+      result.customer = customer;
+
+      if (!customer.success) {
+        throw new Error(customer.message || 'Error creating customer');
+      }
+
+      console.log('------customer-result');
+      console.log(JSON.stringify(customer));
+      console.log('------customer-result');
 
       // Criar assinatura
       const subscriptionData = {
@@ -38,26 +62,49 @@ export class EPaycoService implements IPaymentGateway {
         token_card: paymentData.token,
         doc_type: paymentData.docType,
         doc_number: paymentData.docNumber,
-        url_confirmation: 'https://tuhogar.co/api/subscriptions/notifications', // URL do webhook
-        method_confirmation: 'POST',
+        ip: paymentData.ip,
       };
 
-      const subscriptionResult = await this.epaycoClient.subscriptions.create(subscriptionData);
+      console.log('-----subscriptionData');
+      console.log(subscriptionData);
+      console.log('-----subscriptionData');
 
-      if (!subscriptionResult.status) {
+      const subscriptionResult = await this.epaycoClient.subscriptions.create(subscriptionData);
+      console.log('-----subscription-result');
+      console.log(JSON.stringify(subscriptionResult));
+      console.log('-----subscription-result');
+
+      result.subscription = subscriptionResult;
+
+      if (!subscriptionResult.success) {
         throw new Error(subscriptionResult.message || 'Error creating subscription');
+      }
+
+      const charge = await this.epaycoClient.subscriptions.charge(subscriptionData);
+      console.log('-----charge-result');
+      console.log(JSON.stringify(charge));
+      console.log('-----charge-result');
+
+      result.charge = charge;
+
+      if (!charge.success) {
+        throw new Error(charge.message || 'Error charging subscription');
       }
 
       const subscription = new Subscription({
         accountId,
         planId: plan.id,
-        externalId: subscriptionResult.data.subscription.id,
-        status: SubscriptionStatus.CREATED,
-        externalPayerReference: customer.data.customerId,
+        externalId: subscriptionResult.id,
+        status: SubscriptionStatus.ACTIVE,
+        externalPayerReference: customer.data.customerId, // TODO: Verificar se o customerId é o externalPayerReference que precisamos
+        resultIntegration: result,
       });
 
       return subscription;
     } catch (error) {
+      console.log('-------error');
+      console.log(error);
+      console.log('-------error');
       throw new Error(`Failed to create subscription: ${error.message}`);
     }
   }
@@ -77,56 +124,37 @@ export class EPaycoService implements IPaymentGateway {
   }
 
   async getSubscription(subscriptionNotification: SubscriptionNotification): Promise<Subscription> {
-    const subscriptionNotificated = subscriptionNotification.subscription;
-
-    let status = SubscriptionStatus.UNKNOWN;
-    switch(subscriptionNotificated.status) {
-      case 'active':
-        status = SubscriptionStatus.ACTIVE;
-        break;
-      case 'inactive':
-      case 'canceled':
-        status = SubscriptionStatus.CANCELLED;
-        break;
-      case 'pending':
-        status = SubscriptionStatus.PENDING;
-        break;
-      default:
-        status = SubscriptionStatus.UNKNOWN;
-        break;
-    }
-
-    const subscription = new Subscription({
-      id: subscriptionNotificated.external_ref,
-      externalId: subscriptionNotificated.subscription_id,
-      accountId: subscriptionNotificated.client_id,
-      planId: null,
-      status,
-      externalPayerReference: subscriptionNotificated.customer_id,
-    });
-
-    return subscription;
+    throw new Error(`Not implemented`);
   }
 
   async getPayment(subscriptionNotification: SubscriptionNotification): Promise<SubscriptionPayment> {
     const paymentNotificated = subscriptionNotification.payment;
 
     let status = SubscriptionPaymentStatus.UNKNOWN;
-    switch(paymentNotificated.status) {
+    switch(paymentNotificated.x_transaction_state) {
       case 'Aceptada':
         status = SubscriptionPaymentStatus.APPROVED;
-        break;
-      case 'Pendiente':
-        status = SubscriptionPaymentStatus.PENDING;
         break;
       case 'Rechazada':
         status = SubscriptionPaymentStatus.REJECTED;
         break;
-      case 'Fallida':
-        status = SubscriptionPaymentStatus.REJECTED;
+      case 'Pendiente':
+        status = SubscriptionPaymentStatus.PENDING;
+        break;
+      case 'Abandonada':
+        status = SubscriptionPaymentStatus.EXPIRED;
         break;
       case 'Cancelada':
         status = SubscriptionPaymentStatus.CANCELLED;
+        break;
+      case 'Expirada':
+        status = SubscriptionPaymentStatus.EXPIRED;
+        break;
+      case 'Reversada':
+        status = SubscriptionPaymentStatus.REVERSED;
+        break;
+      case 'Fallida':
+        status = SubscriptionPaymentStatus.FAILED;
         break;
       default:
         status = SubscriptionPaymentStatus.UNKNOWN;
@@ -136,14 +164,14 @@ export class EPaycoService implements IPaymentGateway {
     return new SubscriptionPayment({
       subscriptionId: null,
       accountId: null,
-      externalId: paymentNotificated.ref_payco,
-      externalSubscriptionReference: paymentNotificated.subscription_id,
-      externalPayerReference: paymentNotificated.customer_id,
-      type: paymentNotificated.payment_method_type,
-      method: paymentNotificated.payment_method,
-      description: paymentNotificated.description,
-      amount: paymentNotificated.amount,
-      currency: paymentNotificated.currency,
+      externalId: paymentNotificated.x_transaction_id,
+      externalSubscriptionReference: paymentNotificated.x_extra1,
+      externalPayerReference: paymentNotificated.x_extra2,
+      type: paymentNotificated.x_franchise,
+      method: paymentNotificated.x_franchise,
+      description: paymentNotificated.x_response,
+      amount: paymentNotificated.x_amount,
+      currency: paymentNotificated.x_currency_code,
       status,
     });
   }
@@ -152,14 +180,29 @@ export class EPaycoService implements IPaymentGateway {
     const invoiceNotificated = subscriptionNotification.invoice;
 
     let status = SubscriptionInvoiceStatus.UNKNOWN;
-    switch(invoiceNotificated.status) {
-      case 'pending':
-        status = SubscriptionInvoiceStatus.SCHEDULED;
-        break;
-      case 'success':
+    switch(invoiceNotificated.x_transaction_state) {
+      case 'Aceptada':
         status = SubscriptionInvoiceStatus.PROCESSED;
         break;
-      case 'failed':
+      case 'Rechazada':
+        status = SubscriptionInvoiceStatus.CANCELLED;
+        break;
+      case 'Pendiente':
+        status = SubscriptionInvoiceStatus.SCHEDULED;
+        break;
+      case 'Abandonada':
+        status = SubscriptionInvoiceStatus.CANCELLED;
+        break;
+      case 'Cancelada':
+        status = SubscriptionInvoiceStatus.CANCELLED;
+        break;
+      case 'Expirada':
+        status = SubscriptionInvoiceStatus.CANCELLED;
+        break;
+      case 'Reversada':
+        status = SubscriptionInvoiceStatus.CANCELLED;
+        break;
+      case 'Fallida':
         status = SubscriptionInvoiceStatus.CANCELLED;
         break;
       default:
@@ -170,60 +213,33 @@ export class EPaycoService implements IPaymentGateway {
     return new SubscriptionInvoice({
       subscriptionId: null,
       accountId: null,
-      externalId: invoiceNotificated.invoice_id,
-      externalSubscriptionReference: invoiceNotificated.subscription_id,
-      description: invoiceNotificated.description,
-      amount: invoiceNotificated.amount,
-      currency: invoiceNotificated.currency,
+      externalId: invoiceNotificated.x_id_factura,
+      externalSubscriptionReference: invoiceNotificated.x_extra1,
+      description: invoiceNotificated.x_response,
+      amount: invoiceNotificated.x_amount,
+      currency: invoiceNotificated.x_currency_code,
       status,
     });
   }
 
   async getExternalSubscription(id: string): Promise<any> {
-    try {
-      const result = await this.epaycoClient.subscriptions.get(id);
-
-      if (!result.status) {
-        throw new Error(result.message || 'Error getting subscription');
-      }
-
-      return result.data;
-    } catch (error) {
-      throw new Error(`Failed to get subscription: ${error.message}`);
-    }
+    throw new Error(`Not implemented`);
   }
 
   async getExternalPayment(id: string): Promise<any> {
-    try {
-      const result = await this.epaycoClient.transactions.get(id);
-
-      if (!result.status) {
-        throw new Error(result.message || 'Error getting payment');
-      }
-
-      return result.data;
-    } catch (error) {
-      throw new Error(`Failed to get payment: ${error.message}`);
-    }
+    throw new Error(`Not implemented`);
   }
 
   async getExternalInvoice(id: string): Promise<any> {
-    try {
-      const result = await this.epaycoClient.subscriptions.getCharge(id);
-
-      if (!result.status) {
-        throw new Error(result.message || 'Error getting invoice');
-      }
-
-      return result.data;
-    } catch (error) {
-      throw new Error(`Failed to get invoice: ${error.message}`);
-    }
+    throw new Error(`Not implemented`);
   }
 
-  async getSubscriptionNotification(payload: any): Promise<SubscriptionNotification> {
-    const { x_ref_payco, x_transaction_id, x_subscription_id, x_invoice_id } = payload;
-    
+  async getSubscriptionNotification(payload: any): Promise<SubscriptionNotification>{
+    if (!this.validateSignature(payload)) {
+      throw new Error('invalid.signature');
+    }
+
+    const { x_id_invoice } = payload;
     let subscription: any = null;
     let payment: any = null;
     let invoice: any = null;
@@ -231,18 +247,10 @@ export class EPaycoService implements IPaymentGateway {
     let type = SubscriptionNotificationType.UNKNOWN;
     let action = SubscriptionNotificationAction.UNKNOWN;
 
-    // Determine notification type and fetch corresponding data
-    if (x_subscription_id) {
-      type = SubscriptionNotificationType.SUBSCRIPTION;
-      subscription = await this.getExternalSubscription(x_subscription_id);
-      action = payload.x_type_operation === 'create' ? SubscriptionNotificationAction.CREATE : SubscriptionNotificationAction.UPDATE;
-    } else if (x_invoice_id) {
-      type = SubscriptionNotificationType.INVOICE;
-      invoice = await this.getExternalInvoice(x_invoice_id);
-      action = SubscriptionNotificationAction.CREATE;
-    } else if (x_ref_payco || x_transaction_id) {
-      type = SubscriptionNotificationType.PAYMENT;
-      payment = await this.getExternalPayment(x_ref_payco || x_transaction_id);
+    if (x_id_invoice) {
+      type = SubscriptionNotificationType.INVOICE_AND_PAYMENT;
+      invoice = payload;
+      payment = payload;
       action = SubscriptionNotificationAction.CREATE;
     }
 
@@ -258,49 +266,73 @@ export class EPaycoService implements IPaymentGateway {
     return subscriptionNotification;
   }
 
-  async updateSubscriptionPlan(subscriptionId: string, newPlanId: string): Promise<Subscription> {
-    try {
-      const result = await this.epaycoClient.subscriptions.update({
-        id: subscriptionId,
-        plan: newPlanId,
+  private validateSignature(payload: any): boolean {
+    const {
+      x_ref_payco,
+      x_transaction_id,
+      x_amount,
+      x_currency_code,
+      x_signature
+    } = payload;
+
+    if (!x_signature) return false;
+
+    const signatureString = `${this.pCustIdCliente}^${this.pKey}^${x_ref_payco}^${x_transaction_id}^${x_amount}^${x_currency_code}`;
+    const calculatedSignature = crypto.createHash('sha256').update(signatureString).digest('hex');
+
+    if (calculatedSignature !== x_signature) {
+      console.log('Invalid signature:', {
+        payload,
+        calculatedSignature,
+        receivedSignature: x_signature
       });
-
-      if (!result.status) {
-        throw new Error(result.message || 'Error updating subscription plan');
-      }
-
-      const updatedSubscription = await this.getExternalSubscription(subscriptionId);
-      return this.mapExternalSubscriptionToSubscription(updatedSubscription);
-    } catch (error) {
-      throw new Error(`Failed to update subscription plan: ${error.message}`);
+      return false;
     }
+
+    return true;
   }
 
-  private mapExternalSubscriptionToSubscription(externalSubscription: any): Subscription {
-    let status = SubscriptionStatus.UNKNOWN;
-    switch(externalSubscription.status) {
-      case 'active':
-        status = SubscriptionStatus.ACTIVE;
-        break;
-      case 'inactive':
-      case 'canceled':
-        status = SubscriptionStatus.CANCELLED;
-        break;
-      case 'pending':
-        status = SubscriptionStatus.PENDING;
-        break;
-      default:
-        status = SubscriptionStatus.UNKNOWN;
-        break;
-    }
+  async updateSubscriptionPlan(actualSubscription: Subscription, plan: Plan): Promise<Subscription> {
+    try {
+      console.log('------actualSubscription');
+      console.log(actualSubscription);
+      console.log('------actualSubscription');
+      const subscriptionData = {
+        id_plan: plan.externalId,
+        customer: actualSubscription.externalPayerReference,
+        token_card: actualSubscription.resultIntegration.charge.subscription.tokenCard,
+        doc_type: actualSubscription.resultIntegration.subscription.customer.doc_type,
+        doc_number: actualSubscription.resultIntegration.subscription.customer.doc_number,
+      };
 
-    return new Subscription({
-      id: externalSubscription.external_ref,
-      externalId: externalSubscription.subscription_id,
-      accountId: externalSubscription.client_id,
-      planId: externalSubscription.plan_id,
-      status,
-      externalPayerReference: externalSubscription.customer_id,
-    });
+      console.log('------subscriptionData');
+      console.log(subscriptionData);
+      console.log('------subscriptionData');
+
+      const result: Record<string, any> = {};
+      const charge = await this.epaycoClient.subscriptions.charge(subscriptionData);
+
+      result.charge = charge;
+
+      if (!charge.success) {
+        throw new Error(charge.message || 'Error charging subscription');
+      }
+
+      const subscription = new Subscription({
+        accountId: actualSubscription.accountId,
+        planId: plan.id,
+        externalId: actualSubscription.externalId,
+        status: SubscriptionStatus.ACTIVE,
+        externalPayerReference: actualSubscription.externalPayerReference,
+        resultIntegration: result,
+      });
+
+      return subscription;
+    } catch (error) {
+      console.log('-------error');
+      console.log(error);
+      console.log('-------error');
+      throw new Error(`Failed to update subscription plan: ${error.message}`);
+    }
   }
 }

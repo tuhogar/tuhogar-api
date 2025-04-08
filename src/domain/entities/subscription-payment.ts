@@ -4,6 +4,9 @@ export enum SubscriptionPaymentStatus {
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
   CANCELLED = 'CANCELLED',
+  EXPIRED = 'EXPIRED',
+  REVERSED = 'REVERSED',
+  FAILED = 'FAILED',
 }
 export class SubscriptionPayment {
   id?: string;
