@@ -4,6 +4,7 @@ import { SocialMediaDto } from "src/infraestructure/http/dtos/social-media/creat
 
 export abstract class IAccountRepository {
     abstract find(): Promise<Account[]>
+    abstract findActives(): Promise<Account[]>
     abstract findOneById(id: string): Promise<Account>
     abstract findOneByEmail(email: string): Promise<Account>
     abstract create(account: Account): Promise<Account>

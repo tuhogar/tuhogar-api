@@ -85,6 +85,9 @@ import { NetworkController } from "./controllers/network.controller";
 import { RemoveInternalSubscriptionUseCase } from "src/application/use-cases/subscription/remove-internal-subscription.use-case";
 import { CancelSubscriptionUseCase } from "src/application/use-cases/subscription/cancel-subscription.use-case";
 import { UpdateSubscriptionPlanUseCase } from "src/application/use-cases/subscription/update-subscription-plan.use-case";
+import { GetAccountAdvertisementStatisticsUseCase } from "src/application/use-cases/account-advertisement-statistic/get-account-advertisement-statistics.use-case";
+import { GenerateMonthlyStatisticsUseCase } from "src/application/use-cases/account-advertisement-statistic/generate-monthly-statistics.use-case";
+import { AdvertisementStatisticsController } from "./controllers/advertisement-statistics.controller";
 
 @Module({
     imports: [
@@ -155,6 +158,8 @@ import { UpdateSubscriptionPlanUseCase } from "src/application/use-cases/subscri
         ReceiveSubscriptionInvoiceNotificationUseCase,
         UpdateFirebaseUsersDataUseCase,
         CreateInternalSubscriptionUseCase,
+        GetAccountAdvertisementStatisticsUseCase,
+        GenerateMonthlyStatisticsUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,
@@ -180,6 +185,7 @@ import { UpdateSubscriptionPlanUseCase } from "src/application/use-cases/subscri
         ContractTypeController,
         SubscriptionController,
         NetworkController,
+        AdvertisementStatisticsController,
         ],
 })
 export class HttpModule {}

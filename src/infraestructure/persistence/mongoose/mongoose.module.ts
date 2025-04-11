@@ -46,6 +46,9 @@ import { SubscriptionInvoice, SubscriptionInvoiceSchema } from "./entities/subsc
 import { IAdvertisementEventRepository } from "src/application/interfaces/repositories/advertisement-event.repository.interface";
 import { MongooseAdvertisementEventRepository } from "./repositories/mongoose-advertisement-event.repository";
 import { AdvertisementEvent, AdvertisementEventSchema } from "./entities/advertisement-event.entity";
+import { AccountAdvertisementStatistics, AccountAdvertisementStatisticsSchema } from "./entities/account-advertisement-statistics.entity";
+import { IAccountAdvertisementStatisticsRepository } from "src/application/interfaces/repositories/account-advertisement-statistics.repository.interface";
+import { MongooseAccountAdvertisementStatisticsRepository } from "./repositories/mongoose-account-advertisement-statistics.repository";
 
 @Module({
     imports: [
@@ -77,6 +80,7 @@ import { AdvertisementEvent, AdvertisementEventSchema } from "./entities/adverti
           { name: SubscriptionPayment.name, schema: SubscriptionPaymentSchema },
           { name: SubscriptionInvoice.name, schema: SubscriptionInvoiceSchema },
           { name: SubscriptionNotification.name, schema: SubscriptionNotificationSchema },
+          { name: AccountAdvertisementStatistics.name, schema: AccountAdvertisementStatisticsSchema },
       ]),
     ],
     providers: [
@@ -139,6 +143,10 @@ import { AdvertisementEvent, AdvertisementEventSchema } from "./entities/adverti
       {
         provide: ISubscriptionNotificationRepository,
         useClass: MongooseSubscriptionNotificationRepository,
+      },
+      {
+        provide: IAccountAdvertisementStatisticsRepository,
+        useClass: MongooseAccountAdvertisementStatisticsRepository,
       }
     ],
     exports: [
@@ -157,6 +165,7 @@ import { AdvertisementEvent, AdvertisementEventSchema } from "./entities/adverti
       ISubscriptionPaymentRepository,
       ISubscriptionInvoiceRepository,
       ISubscriptionNotificationRepository,
+      IAccountAdvertisementStatisticsRepository,
     ],
 })
 export class MongooseModule {}

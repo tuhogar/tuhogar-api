@@ -13,6 +13,11 @@ export class MongooseAccountRepository implements IAccountRepository {
         @InjectModel(AccountMongoose.name) private readonly accountModel: Model<AccountMongoose>,
     ) {}
     
+    async findActives(): Promise<Account[]> {
+      const query = await this.accountModel.find({ status: AccountStatus.ACTIVE }).exec();
+      return query.map((item) => MongooseAccountMapper.toDomain(item));
+    }
+    
     async find(): Promise<Account[]> {
         const query = await this.accountModel.find().exec();
         return query.map((item) => MongooseAccountMapper.toDomain(item));
