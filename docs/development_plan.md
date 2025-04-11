@@ -265,7 +265,7 @@ Este documento contém o plano detalhado para o desenvolvimento do sistema tuhog
 #### Casos de Uso
 - [x] 2.2.1. Implementar GenerateMonthlyStatisticsUseCase (3h)
 - [x] 2.2.2. Implementar GetAccountStatisticsUseCase (2h)
-- [ ] 2.2.3. Implementar testes unitários para os casos de uso (2h)
+- [x] 2.2.3. Implementar testes unitários para os casos de uso (2h)
 
 #### Interfaces de Comando
 - [x] 2.2.4. Criar interface GetAccountStatisticsUseCaseCommand para entrada do caso de uso (0.5h)
@@ -276,7 +276,7 @@ Este documento contém o plano detalhado para o desenvolvimento do sistema tuhog
 #### Persistência
 - [x] 2.3.1. Criar schema Mongoose para AccountAdvertisementStatistics (1.5h)
 - [x] 2.3.2. Implementar MongooseAccountAdvertisementStatisticsRepository (2h)
-- [ ] 2.3.3. Implementar testes de integração para o repositório (1.5h)
+- [ ] 2.3.3. Implementar testes de integração para o repositório (1.5h) - *Nota: Decidiu-se focar nos testes de use cases, controllers e mappers, removendo a necessidade de testes de integração para repositórios.*
 
 #### Scheduler
 - [x] 2.3.4. Implementar agendamento diretamente no caso de uso (1h)
@@ -285,14 +285,17 @@ Este documento contém o plano detalhado para o desenvolvimento do sistema tuhog
 
 #### Mappers
 - [x] 2.3.7. Criar AccountAdvertisementStatisticsMapper para conversão entre entidade de domínio e modelo de persistência (1.5h)
-- [ ] 2.3.8. Implementar testes para os mappers (1h)
+- [x] 2.3.8. Implementar testes para os mappers (1h)
 
 ### 2.4. Interface
 
 #### Controllers
 - [x] 2.4.1. Implementar AdvertisementStatisticsController para consulta de estatísticas (1.5h)
 - [x] 2.4.2. Implementar validação de entrada e autorização (1h)
-- [ ] 2.4.3. Implementar testes para os controllers (1h)
+- [x] 2.4.3. Implementar testes para os controllers (1h)
+- [x] 2.4.4. Refatorar endpoints para ter um GET para listar todos os relatórios e um GET /:month para buscar relatório específico (1h)
+- [x] 2.4.5. Adicionar permissão MASTER e parâmetro accountId ao endpoint de listagem de estatísticas (1h)
+- [x] 2.4.6. Implementar validação do parâmetro accountId para usuários MASTER diretamente no controller (0.5h)
 
 ### 2.5. Configuração e Integração
 
@@ -306,16 +309,12 @@ Este documento contém o plano detalhado para o desenvolvimento do sistema tuhog
 ### 2.6. Testes
 
 #### Testes de Integração
-- [ ] 2.6.1. Implementar testes de integração para o fluxo completo (2h)
+- [ ] 2.6.1. Implementar testes de integração para o fluxo completo (2h) - *Nota: Decidiu-se focar apenas nos testes unitários nesta fase do projeto. Testes de integração poderão ser implementados em uma fase posterior, se necessário.*
 
 #### Testes E2E
-- [ ] 2.6.2. Implementar testes E2E para os endpoints de estatísticas (2h)
+- [ ] 2.6.2. Implementar testes E2E para os endpoints de estatísticas (2h) - *Nota: Decidiu-se focar apenas nos testes unitários nesta fase do projeto. Testes E2E poderão ser implementados em uma fase posterior, se necessário.*
 
 ### 2.7. Documentação
 
 #### Documentação Técnica
-- [ ] 2.7.1. Atualizar documentação técnica com a nova funcionalidade (1h)
-
-#### Documentação de API
-- [ ] 2.7.2. Documentar endpoints de estatísticas no Swagger (1h)
-
+- [x] 2.7.1. Criar documentação técnica da funcionalidade (1h)

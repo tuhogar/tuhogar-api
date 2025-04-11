@@ -30,7 +30,8 @@ export class GenerateMonthlyStatisticsUseCase {
    * Executa a geração de estatísticas mensais automaticamente
    * no primeiro dia de cada mês às 00:00
    */
-  @Cron('0 0 1 * *', {
+  // 0 0 1 * * // Para produção
+  @Cron('*/1 * * * *', {
     name: 'generate-monthly-statistics',
     timeZone: 'America/Sao_Paulo',
   })

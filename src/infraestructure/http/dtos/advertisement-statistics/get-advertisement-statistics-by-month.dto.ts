@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, Matches } from 'class-validator';
 
-export class GetAdvertisementStatisticsDto {
+export class GetAdvertisementStatisticsByMonthDto {
   @ApiProperty({
     description: 'Mês para o qual as estatísticas serão consultadas (formato: YYYY-MM)',
     example: '2025-04'

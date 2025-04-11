@@ -126,8 +126,10 @@ classDiagram
         -IAdvertisementRepository advertisementRepository
         -IAdvertisementEventRepository advertisementEventRepository
         -IAccountAdvertisementStatisticsRepository accountAdvertisementStatisticsRepository
+        -Logger logger
         +constructor(dependencies: ...)
-        +execute() Promise~void~
+        +execute(command?: GenerateMonthlyStatisticsCommand) Promise~void~
+        +executeScheduled() Promise~void~
         -generateStatisticsForAccount(account: Account, month: string, startDate: Date, endDate: Date) Promise~AccountAdvertisementStatistics~
         -calculateTotalAdvertisements(accountId: string) Promise~TotalAdvertisements~
         -calculateTotalVisits(accountId: string, startDate: Date, endDate: Date) Promise~TotalVisits~
@@ -138,19 +140,22 @@ classDiagram
         -findTopInteractedAdvertisements(accountId: string, startDate: Date, endDate: Date) Promise~TopAdvertisements~
     }
     
-    class GetAccountStatisticsUseCase {
+    class GetAccountAdvertisementStatisticsUseCase {
         -IAccountAdvertisementStatisticsRepository accountAdvertisementStatisticsRepository
         +constructor(accountAdvertisementStatisticsRepository: IAccountAdvertisementStatisticsRepository)
-        +execute(authenticatedUser: AuthenticatedUser, accountId: string, month: string) Promise~AccountAdvertisementStatistics~
+        +execute(accountId: string, month?: string) Promise~AccountAdvertisementStatistics | AccountAdvertisementStatistics[]~
+        +getAllByAccount(accountId: string) Promise~AccountAdvertisementStatistics[]~
+        +getByMonth(accountId: string, month: string) Promise~AccountAdvertisementStatistics~
     }
     
     %% Implementações
     class MongooseAccountAdvertisementStatisticsRepository {
-        -AccountAdvertisementStatisticsModel statisticsModel
-        +constructor(statisticsModel: Model)
+        -Model<AccountAdvertisementStatisticsDocument> accountAdvertisementStatisticsModel
+        +constructor(accountAdvertisementStatisticsModel: Model<AccountAdvertisementStatisticsDocument>)
         +create(statistics: AccountAdvertisementStatistics) Promise~AccountAdvertisementStatistics~
         +findByAccountIdAndMonth(accountId: string, month: string) Promise~AccountAdvertisementStatistics~
         +findAllByAccountId(accountId: string) Promise~AccountAdvertisementStatistics[]~
+        +update(id: string, statistics: Partial<AccountAdvertisementStatistics>) Promise~AccountAdvertisementStatistics~
     }
     
     class MongooseAdvertisementEventRepository {
@@ -179,13 +184,16 @@ classDiagram
     class StatisticsScheduler {
         -GenerateMonthlyStatisticsUseCase generateMonthlyStatisticsUseCase
         +constructor(generateMonthlyStatisticsUseCase: GenerateMonthlyStatisticsUseCase)
-        +scheduleMonthlyStatisticsGeneration() void
+        +handleCron() Promise~void~
     }
     
-    class AccountStatisticsController {
-        -GetAccountStatisticsUseCase getAccountStatisticsUseCase
-        +constructor(getAccountStatisticsUseCase: GetAccountStatisticsUseCase)
-        +getStatistics(authenticatedUser: AuthenticatedUser, accountId: string, month: string) Promise~AccountAdvertisementStatistics~
+    class AdvertisementStatisticsController {
+        -GetAccountAdvertisementStatisticsUseCase getAccountAdvertisementStatisticsUseCase
+        -GenerateMonthlyStatisticsUseCase generateMonthlyStatisticsUseCase
+        +constructor(getAccountAdvertisementStatisticsUseCase: GetAccountAdvertisementStatisticsUseCase, generateMonthlyStatisticsUseCase: GenerateMonthlyStatisticsUseCase)
+        +getAll(authenticatedUser: AuthenticatedUser, query: GetAllAdvertisementStatisticsDto) Promise~AccountAdvertisementStatistics[]~
+        +getByMonth(authenticatedUser: AuthenticatedUser, params: GetAdvertisementStatisticsByMonthDto, query: GetAllAdvertisementStatisticsDto) Promise~AccountAdvertisementStatistics~
+        +generates(generateAdvertisementStatisticsDto: GenerateAdvertisementStatisticsDto) Promise~void~
     }
     
     %% Relações
@@ -225,11 +233,12 @@ classDiagram
     GenerateMonthlyStatisticsUseCase --> IAdvertisementEventRepository : usa >
     GenerateMonthlyStatisticsUseCase --> IAccountAdvertisementStatisticsRepository : usa >
     
-    GetAccountStatisticsUseCase --> IAccountAdvertisementStatisticsRepository : usa >
+    GetAccountAdvertisementStatisticsUseCase --> IAccountAdvertisementStatisticsRepository : usa >
     
     StatisticsScheduler --> GenerateMonthlyStatisticsUseCase : usa >
     
-    AccountStatisticsController --> GetAccountStatisticsUseCase : usa >
+    AdvertisementStatisticsController --> GetAccountAdvertisementStatisticsUseCase : usa >
+    AdvertisementStatisticsController --> GenerateMonthlyStatisticsUseCase : usa >
     
     GenerateMonthlyStatisticsUseCase ..> AccountAdvertisementStatistics : cria >
     GenerateMonthlyStatisticsUseCase ..> TotalAdvertisements : cria >
@@ -265,7 +274,7 @@ Este diagrama representa a estrutura de classes envolvidas no processo de geraç
 
 ### Casos de Uso
 - **GenerateMonthlyStatisticsUseCase**: Orquestra o processo de geração de estatísticas mensais para todas as contas
-- **GetAccountStatisticsUseCase**: Orquestra o processo de consulta de estatísticas para uma conta específica
+- **GetAccountAdvertisementStatisticsUseCase**: Orquestra o processo de consulta de estatísticas para uma conta específica
 
 ### Implementações
 - **MongooseAccountAdvertisementStatisticsRepository**: Implementação do repositório de estatísticas usando MongoDB/Mongoose
@@ -273,7 +282,7 @@ Este diagrama representa a estrutura de classes envolvidas no processo de geraç
 - **MongooseAdvertisementRepository**: Implementação do repositório de anúncios usando MongoDB/Mongoose
 - **MongooseAccountRepository**: Implementação do repositório de contas usando MongoDB/Mongoose
 - **StatisticsScheduler**: Responsável por agendar a execução da geração de estatísticas mensais
-- **AccountStatisticsController**: Controlador HTTP para endpoints relacionados a estatísticas de contas
+- **AdvertisementStatisticsController**: Controlador HTTP para endpoints relacionados a estatísticas de contas
 
 ### Relações
 - AccountAdvertisementStatistics tem TotalAdvertisements, TotalVisits, PhoneClicks, ContactInfoClicks e TopAdvertisements
@@ -283,7 +292,7 @@ Este diagrama representa a estrutura de classes envolvidas no processo de geraç
 - As implementações de repositório implementam suas respectivas interfaces
 - Os casos de uso dependem de repositórios
 - O StatisticsScheduler depende do GenerateMonthlyStatisticsUseCase
-- O AccountStatisticsController depende do GetAccountStatisticsUseCase
+- O AdvertisementStatisticsController depende do GetAccountAdvertisementStatisticsUseCase e do GenerateMonthlyStatisticsUseCase
 - O GenerateMonthlyStatisticsUseCase cria objetos de estatísticas
 
 ### Responsabilidades
@@ -292,9 +301,9 @@ Este diagrama representa a estrutura de classes envolvidas no processo de geraç
   - Obtenção de todas as contas
   - Cálculo de métricas para cada conta
   - Armazenamento dos relatórios gerados
-- **GetAccountStatisticsUseCase**: Coordena o processo de consulta de estatísticas
+- **GetAccountAdvertisementStatisticsUseCase**: Coordena o processo de consulta de estatísticas
 - **StatisticsScheduler**: Agenda a execução da geração de estatísticas no primeiro dia de cada mês
-- **AccountStatisticsController**: Expõe endpoints para consulta de estatísticas
+- **AdvertisementStatisticsController**: Expõe endpoints para consulta de estatísticas
 
 ### Estrutura do Relatório
 - **TotalAdvertisements**: Total de anúncios, segmentado por tipo de transação e propriedade
