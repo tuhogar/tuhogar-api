@@ -1,13 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
-import { IAdvertisementEventRepository } from 'src/application/interfaces/repositories/advertisement-event.repository.interface';
 import { IAccountAdvertisementStatisticsRepository } from 'src/application/interfaces/repositories/account-advertisement-statistics.repository.interface';
 import { AccountAdvertisementStatistics, AdvertisementMetric, ContactInfoClicks, MetricBase, PhoneClicks, PropertyTypeAndTransactionMetrics, TopAdvertisements, TotalAdvertisements, TotalVisits, TransactionTypeMetrics } from 'src/domain/entities/account-advertisement-statistics';
 import { Advertisement, AdvertisementTransactionType, AdvertisementType } from 'src/domain/entities/advertisement';
-import { AdvertisementEvent } from 'src/domain/entities/advertisement-event';
 import { Account } from 'src/domain/entities/account';
 
 interface GenerateMonthlyStatisticsUseCaseCommand {
@@ -22,7 +19,6 @@ export class GenerateMonthlyStatisticsUseCase {
   constructor(
     private readonly accountRepository: IAccountRepository,
     private readonly advertisementRepository: IAdvertisementRepository,
-    private readonly advertisementEventRepository: IAdvertisementEventRepository,
     private readonly accountAdvertisementStatisticsRepository: IAccountAdvertisementStatisticsRepository,
   ) {}
 
@@ -30,8 +26,7 @@ export class GenerateMonthlyStatisticsUseCase {
    * Executa a geração de estatísticas mensais automaticamente
    * no primeiro dia de cada mês às 00:00
    */
-  // 0 0 1 * * // Para produção
-  @Cron('*/1 * * * *', {
+  @Cron('0 0 1 * *', {
     name: 'generate-monthly-statistics',
     timeZone: 'America/Sao_Paulo',
   })
