@@ -115,6 +115,9 @@ export class AdvertisementController {
     @Get('actives/:advertisementid')
     @UsePipes(new ValidationPipe({transform: true}))
     async getActive(@Param('advertisementid') advertisementId: string): Promise<Advertisement> {
+        console.log('----BUSCANDO advertisement ativo');
+        console.log(advertisementId);
+        console.log('----BUSCANDO advertisement ativo');
         return this.getActiveAdvertisementUseCase.execute(advertisementId);
     }
 
