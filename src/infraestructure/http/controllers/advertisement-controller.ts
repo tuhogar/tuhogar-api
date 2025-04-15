@@ -78,7 +78,9 @@ export class AdvertisementController {
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
         if (!authenticatedUser.accountId && authenticatedUser.userRole !== UserRole.MASTER)  throw new Error('Unauthorized');
 
-        return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId: authenticatedUser.accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, code: getAdvertisementDto.code, transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId });
+        const accountId = authenticatedUser.userRole === UserRole.MASTER && getAdvertisementDto.accountId ? getAdvertisementDto.accountId : authenticatedUser.accountId;
+
+        return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, code: getAdvertisementDto.code, transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId, status: getAdvertisementDto.status });
     }
 
     @ApiBearerAuth()
