@@ -13,25 +13,25 @@ export class GetActiveAdvertisementUseCase {
 
     async execute(advertisementId: string): Promise<Advertisement> {
         const uuid = uuidv4();
-        console.log(`----------------INICIO GetActiveAdvertisementUseCase-${uuid}`);
-        console.time(`GetActiveAdvertisementUseCase-${uuid}`);
-        console.log(`BUSCANDO advertisement no redis-${uuid}: ${advertisementId}`);
-        console.time(`redis-individual-${uuid}`);
+        console.log(`----------------INICIO INDIVIDUAL-${uuid}`);
+        console.time(`INDIVIDUAL-${uuid}`);
+        console.log(`INDIVIDUAL-BUSCANDO advertisement no redis-${uuid}: ${advertisementId}`);
+        console.time(`INDIVIDUAL-redis-${uuid}`);
         let advertisement = await this.redisService.get(advertisementId) as Advertisement;
-        console.timeEnd(`redis-individual-${uuid}`);
+        console.timeEnd(`INDIVIDUAL-redis-${uuid}`);
         if (!advertisement) {
-            console.log(`----NAO ENCONTROU advertisement NO REDIS-${uuid}: ${advertisementId}`);
-            console.log(`----BUSCANDO advertisement na base de dados-${uuid}`);
-            console.time(`database-individual-${uuid}`);
+            console.log(`INDIVIDUAL-NAO ENCONTROU advertisement NO REDIS-${uuid}: ${advertisementId}`);
+            console.log(`INDIVIDUAL-BUSCANDO advertisement na base de dados-${uuid}`);
+            console.time(`INDIVIDUAL-database-${uuid}`);
             advertisement = await this.advertisementRepository.findOneActive(advertisementId);
-            console.timeEnd(`database-individual-${uuid}`);
-            console.log(`----ENCONTROU OU NAO ENCONTROU na base de dados-${uuid}: ${advertisementId}`);
+            console.timeEnd(`INDIVIDUAL-database-${uuid}`);
+            console.log(`INDIVIDUAL-ENCONTROU OU NAO ENCONTROU na base de dados-${uuid}: ${advertisementId}`);
             console.log(advertisement);
-            console.log(`----ENCONTROU OU NAO ENCONTROU na base de dados-${uuid}: ${advertisementId}`);
+            console.log(`INDIVIDUAL-ENCONTROU OU NAO ENCONTROU na base de dados-${uuid}: ${advertisementId}`);
         }
 
-        console.timeEnd(`GetActiveAdvertisementUseCase-${uuid}`);
-        console.log(`----------------FIM GetActiveAdvertisementUseCase-${uuid}`);
+        console.timeEnd(`INDIVIDUAL-${uuid}`);
+        console.log(`----------------FIM INDIVIDUAL-${uuid}`);
 
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
