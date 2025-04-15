@@ -1,7 +1,8 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
+import { AdvertisementStatus, AdvertisementTransactionType, AdvertisementType } from "src/domain/entities/advertisement";
+import { AdvertisementIsStatusValid } from "../../validators/advertisement/advertisement-is-status-valid.validator";
 
 export class GetAdvertisementDto {
     @ApiProperty()
@@ -38,4 +39,14 @@ export class GetAdvertisementDto {
     @IsString({ message: 'invalid.externalId.must.be.a.string' })
     @IsOptional()
     externalId: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsMongoId({ message: 'invalid.accountId' })
+    accountId: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsEnum(AdvertisementStatus, { message: 'invalid.status.must.be.one.of.the.following.values.ACTIVE.INACTIVE.PAUSED_BY_USER.PAUSED_BY_APPLICATION.WAITING_FOR_APPROVAL' })
+    status: AdvertisementStatus;
 }
