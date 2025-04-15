@@ -4,6 +4,7 @@ import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class GetActivesAdvertisementUseCase {
@@ -14,22 +15,23 @@ export class GetActivesAdvertisementUseCase {
     ) {}
 
     async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
-        console.time('GetActivesAdvertisementUseCase-total');
-        console.time('algolia');
+        const uuid = uuidv4();
+        console.time(`GetActivesAdvertisementUseCase-${uuid}`);
+        console.time(`algolia-${uuid}`);
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
-        console.timeEnd('algolia');
-        console.log('----ENCONTROU advertisementIds no algolia: ', advertisementIds.length);
+        console.timeEnd(`algolia-${uuid}`);
+        console.log(`ENCONTROU advertisementIds no algolia-${uuid}: ${advertisementIds.length}`);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        console.time(`redis-all: ${advertisementIds.length}`);
+        console.time(`redis-all-${uuid}: ${advertisementIds.length}`);
         let advertisements = await this.redisService.getAll(advertisementIds) as Advertisement[];
-        console.timeEnd(`redis-all: ${advertisementIds.length}`);
+        console.timeEnd(`redis-all-${uuid}: ${advertisementIds.length}`);
         if (!advertisements?.length) {
-            console.log('----NAO ENCONTROU advertisements NO REDIS');
-            console.time(`database-all: ${advertisementIds.length}`);
+            console.log(`NAO ENCONTROU advertisements NO REDIS-${uuid}`);
+            console.time(`database-all-${uuid}: ${advertisementIds.length}`);
             advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
-            console.timeEnd(`database-all: ${advertisementIds.length}`);
-            console.log('----ENCONTROU advertisements na base de dados: ', advertisements.length);
+            console.timeEnd(`database-all-${uuid}: ${advertisementIds.length}`);
+            console.log(`ENCONTROU advertisements na base de dados-${uuid}: ${advertisementIds.length}`);
         }
 
         const advertisementMap = advertisements.reduce((acc, ad) => {
@@ -39,7 +41,7 @@ export class GetActivesAdvertisementUseCase {
         
         const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]).filter(ad => ad !== undefined && ad !== null);
 
-        console.timeEnd('GetActivesAdvertisementUseCase-total');
+        console.timeEnd(`GetActivesAdvertisementUseCase-${uuid}`);
         return { data: orderedAdvertisements, count };
     }
 }
