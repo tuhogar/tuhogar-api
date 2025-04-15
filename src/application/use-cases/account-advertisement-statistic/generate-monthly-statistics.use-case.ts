@@ -94,6 +94,7 @@ export class GenerateMonthlyStatisticsUseCase {
       null, // tipo de transação
       null, // tipo de propriedade
       null, // externalId
+      null, // status
     );
     
     if (!advertisements || advertisements.length === 0) {
