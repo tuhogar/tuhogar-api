@@ -14,17 +14,20 @@ export class GetActivesAdvertisementUseCase {
     ) {}
 
     async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
-        //console.time('algolia');
+        console.time('GetActivesAdvertisementUseCase-total');
+        console.time('algolia');
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
-        //console.timeEnd('algolia');
+        console.timeEnd('algolia');
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        //console.time('redis-all');
+        console.time('redis-all');
         let advertisements = await this.redisService.getAll(advertisementIds) as Advertisement[];
-        //console.timeEnd('redis-all');
+        console.timeEnd('redis-all');
         if (!advertisements?.length) {
             console.log('----NAO ENCONTROU advertisements NO REDIS');
+            console.time('database-all');
             advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
+            console.timeEnd('database-all');
             console.log('----PEGOU advertisements da base de dados: ', advertisements.length);
         }
 
@@ -35,6 +38,7 @@ export class GetActivesAdvertisementUseCase {
         
         const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]).filter(ad => ad !== undefined && ad !== null);
 
+        console.timeEnd('GetActivesAdvertisementUseCase-total');
         return { data: orderedAdvertisements, count };
     }
 }
