@@ -16,6 +16,7 @@ export class GetActivesAdvertisementUseCase {
 
     async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
         const uuid = uuidv4();
+        console.log(`----------------INICIO GetActivesAdvertisementUseCase-${uuid}`);
         console.time(`GetActivesAdvertisementUseCase-${uuid}`);
         console.time(`algolia-${uuid}`);
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
@@ -42,6 +43,7 @@ export class GetActivesAdvertisementUseCase {
         const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]).filter(ad => ad !== undefined && ad !== null);
 
         console.timeEnd(`GetActivesAdvertisementUseCase-${uuid}`);
+        console.log(`----------------FIM GetActivesAdvertisementUseCase-${uuid}`);
         return { data: orderedAdvertisements, count };
     }
 }
