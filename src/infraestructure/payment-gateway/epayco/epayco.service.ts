@@ -87,8 +87,8 @@ export class EPaycoService implements IPaymentGateway {
 
       result.charge = charge;
 
-      if (!charge.success) {
-        throw new Error(charge.message || 'Error charging subscription');
+      if (!charge.success || (charge.success && charge?.data?.estado !== 'Aceptada')) {
+        throw new Error(charge?.data?.respuesta || 'Error charging subscription');
       }
 
       const subscription = new Subscription({
@@ -105,22 +105,18 @@ export class EPaycoService implements IPaymentGateway {
       console.log('-------error');
       console.log(error);
       console.log('-------error');
-      throw new Error(`Failed to create subscription: ${error.message}`);
+      throw error;
     }
   }
 
   async cancelSubscription(subscriptionId: string): Promise<any> {
-    try {
-      const result = await this.epaycoClient.subscriptions.cancel(subscriptionId);
+    const result = await this.epaycoClient.subscriptions.cancel(subscriptionId);
 
-      if (!result.status) {
-        throw new Error(result.message || 'Error cancelling subscription');
-      }
-
-      return result.data;
-    } catch (error) {
-      throw new Error(`Failed to cancel subscription: ${error.message}`);
+    if (!result.status) {
+      throw new Error(result.message || 'Error cancelling subscription');
     }
+
+    return result.data;
   }
 
   async getSubscription(subscriptionNotification: SubscriptionNotification): Promise<Subscription> {
