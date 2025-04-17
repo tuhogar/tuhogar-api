@@ -29,15 +29,9 @@ export class EPaycoService implements IPaymentGateway {
   async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any): Promise<Subscription> {
     try {
       const result: Record<string, any> = {};
-      console.log('------customer');
-      console.log({
-        token_card: paymentData.token,
-        name: name,
-        email: email,
-        default: true,
-      });
-      console.log('------customer');
+      let subscriptionStatus = SubscriptionStatus.CREATED;
 
+      // 1. Criar cliente na ePayco
       const customer = await this.epaycoClient.customers.create({
         token_card: paymentData.token,
         name: name,
@@ -45,17 +39,18 @@ export class EPaycoService implements IPaymentGateway {
         default: true,
       });
 
-      result.customer = customer;
-
-      if (!customer.success) {
-        throw new Error(customer.message || 'Error creating customer');
-      }
-
       console.log('------customer-result');
       console.log(JSON.stringify(customer));
       console.log('------customer-result');
 
-      // Criar assinatura
+      result.customer = customer;
+
+      if (!customer.success) {
+        console.error(`Error creating ePayco customer: ${customer.message || 'Unknown error'}`);
+        throw new Error(`invalid.payment.customer.creation.failed: ${customer.message || 'Unknown error'}`);
+      }
+
+      // 2. Criar assinatura na ePayco
       const subscriptionData = {
         id_plan: plan.externalId,
         customer: customer.data.customerId,
@@ -65,10 +60,6 @@ export class EPaycoService implements IPaymentGateway {
         ip: paymentData.ip,
       };
 
-      console.log('-----subscriptionData');
-      console.log(subscriptionData);
-      console.log('-----subscriptionData');
-
       const subscriptionResult = await this.epaycoClient.subscriptions.create(subscriptionData);
       console.log('-----subscription-result');
       console.log(JSON.stringify(subscriptionResult));
@@ -77,9 +68,11 @@ export class EPaycoService implements IPaymentGateway {
       result.subscription = subscriptionResult;
 
       if (!subscriptionResult.success) {
-        throw new Error(subscriptionResult.message || 'Error creating subscription');
+        console.error(`Error creating ePayco subscription: ${subscriptionResult.message || 'Unknown error'}`);
+        throw new Error(`invalid.payment.subscription.creation.failed: ${subscriptionResult.message || 'Unknown error'}`);
       }
 
+      // 3. Iniciar cobrança da assinatura
       const charge = await this.epaycoClient.subscriptions.charge(subscriptionData);
       console.log('-----charge-result');
       console.log(JSON.stringify(charge));
@@ -87,29 +80,107 @@ export class EPaycoService implements IPaymentGateway {
 
       result.charge = charge;
 
-      if (!charge.success || (charge.success && charge?.data?.estado !== 'Aceptada')) {
-        throw new Error(charge?.data?.respuesta || 'Error charging subscription');
+      // 4. Determinar o status da assinatura com base no resultado
+      // Verificar se o plano tem período gratuito
+      const hasFreeTrialPeriod = result.subscription && 
+                                result.subscription.data && 
+                                result.subscription.data.trialDays && 
+                                Number(result.subscription.data.trialDays) > 0;
+
+      if (hasFreeTrialPeriod) {
+        // Para planos com período gratuito, a assinatura é sempre ativa durante o período gratuito
+        subscriptionStatus = SubscriptionStatus.ACTIVE;
+        console.info(`Subscription with trial period created successfully. Trial ends on: ${charge.nextVerificationDate || 'Unknown'}`);
+      } else {
+        // Para planos sem período gratuito, o status depende do resultado da cobrança
+        if (charge.success) {
+          let paymentAccepted = false;
+          let paymentPending = false;
+          
+          // Verificar o status da transação no objeto charge.data
+          if (charge.data && charge.data.estado) {
+            switch (charge.data.estado) {
+              case 'Aceptada':
+                paymentAccepted = true;
+                break;
+              case 'Pendiente':
+                paymentPending = true;
+                break;
+              case 'Rechazada':
+              case 'Fallida':
+                console.warn(`Payment rejected or failed: ${charge.data.respuesta || 'Unknown reason'}`);
+                break;
+            }
+          }
+          
+          // Verificar também o status da assinatura no objeto charge.subscription
+          if (charge.subscription && charge.subscription.status) {
+            switch (charge.subscription.status.toLowerCase()) {
+              case 'active':
+                paymentAccepted = true;
+                break;
+              case 'pending':
+                paymentPending = true;
+                break;
+            }
+          }
+          
+          // Determinar o status final com base nas verificações
+          if (paymentAccepted) {
+            subscriptionStatus = SubscriptionStatus.ACTIVE;
+          } else if (paymentPending) {
+            subscriptionStatus = SubscriptionStatus.PENDING;
+          } else {
+            subscriptionStatus = SubscriptionStatus.CANCELLED;
+          }
+        } else {
+          // Se a cobrança falhou completamente
+          subscriptionStatus = SubscriptionStatus.CANCELLED;
+          console.error(`Error charging subscription: ${charge.message || 'Unknown error'}`);
+        }
       }
 
+      // 5. Criar objeto Subscription para retornar ao sistema
       const subscription = new Subscription({
         accountId,
         planId: plan.id,
         externalId: subscriptionResult.id,
-        status: SubscriptionStatus.ACTIVE,
-        externalPayerReference: customer.data.customerId, // TODO: Verificar se o customerId é o externalPayerReference que precisamos
+        status: subscriptionStatus,
+        externalPayerReference: customer.data.customerId,
         resultIntegration: result,
       });
 
+      // 6. Registrar informações importantes para rastreamento
+      console.info(`Subscription created: ID=${subscriptionResult.id}, Status=${subscriptionStatus}, AccountID=${accountId}`);
+      
+      if (charge.data && charge.data.ref_payco) {
+        console.info(`Payment reference: ${charge.data.ref_payco}, Invoice: ${charge.data.factura || 'N/A'}`);
+      }
+      
+      if (charge.subscription && charge.subscription.nextVerificationDate) {
+        console.info(`Next verification date: ${charge.subscription.nextVerificationDate}`);
+      }
+
       return subscription;
     } catch (error) {
-      console.log('-------error');
-      console.log(error);
-      console.log('-------error');
+      console.error('-------error');
+      console.error(error);
+      console.error('-------error');
       throw error;
     }
   }
 
   async cancelSubscription(subscriptionId: string): Promise<any> {
+    const result = await this.epaycoClient.subscriptions.cancel(subscriptionId);
+
+    if (!result.status) {
+      throw new Error(result.message || 'Error cancelling subscription');
+    }
+
+    return result.data;
+  }
+
+  async cancelSubscriptionOnInvalidCreate(subscriptionId: string): Promise<any> {
     const result = await this.epaycoClient.subscriptions.cancel(subscriptionId);
 
     if (!result.status) {
