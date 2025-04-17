@@ -82,6 +82,10 @@ export class MercadoPagoService implements IPaymentGateway {
     */
   }
 
+  cancelSubscriptionOnInvalidCreate(subscriptionId: string): Promise<any> {
+    throw Error('not implementation');
+  }
+
   async getSubscription(subscriptionNotification: SubscriptionNotification): Promise<Subscription> {
     const subscriptionNotificated = subscriptionNotification.subscription;
 

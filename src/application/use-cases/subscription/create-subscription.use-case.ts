@@ -51,14 +51,18 @@ export class CreateSubscriptionUseCase {
       const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, email, user.name, plan, paymentData);
       if (!externalSubscriptionCreated) throw new Error('error.on.create.subscription');
 
-      const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(subscriptionCreated.id, externalSubscriptionCreated.externalId, externalSubscriptionCreated.externalPayerReference, externalSubscriptionCreated.resultIntegration);
+      const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(subscriptionCreated.id, externalSubscriptionCreated.externalId, externalSubscriptionCreated.externalPayerReference, externalSubscriptionCreated.resultIntegration, externalSubscriptionCreated.status);
       
-      if (externalSubscriptionCreated.status === SubscriptionStatus.ACTIVE)await this.subscriptionRepository.active(subscriptionUpdated.id);
-
+      if (externalSubscriptionCreated.status === SubscriptionStatus.CANCELLED) {
+        await this.paymentGateway.cancelSubscriptionOnInvalidCreate(externalSubscriptionCreated.externalId);
+        throw new Error('error.on.create.subscription');
+      }
+        
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
 
       // Se a assinatura atual for a free, deixa criar uma nova como acima e cancela a atual
       if (actualPlanId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscriptionId);
+      
 
       return subscriptionUpdated;
     } catch (error) {

@@ -29,15 +29,18 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   }
   async findOneWithResultIntegrationById(id: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findById(id).exec();
-    console.log('------query');
-    console.log(query);
-    console.log('------query');
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async findOneActiveOrCreatedByAccountId(accountId: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findOne({ accountId, status: { $in: [ SubscriptionStatus.ACTIVE, SubscriptionStatus.CREATED ] } }, { resultIntegration: 0 }).sort({ createdAt: -1 }).exec();
+    
+    return MongooseSubscriptionMapper.toDomain(query);
+  }
+
+  async findOneActiveByAccountId(accountId: string): Promise<Subscription> {
+    const query = await this.subscriptionModel.findOne({ accountId, status: SubscriptionStatus.ACTIVE }, { resultIntegration: 0 }).exec();
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
@@ -82,10 +85,24 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return null;
   }
 
-  async updateExternalReferences(id: string, externalId: string, externalPayerReference: string, resultIntegration: Record<string, any>): Promise<Subscription> {
+  async pending(id: string): Promise<Subscription> {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
-      { externalId, externalPayerReference, resultIntegration },
+      { status: SubscriptionStatus.PENDING },
+      { new: true, select: { resultIntegration: 0 } },
+    ).exec();
+    
+    if (updated) {
+      return MongooseSubscriptionMapper.toDomain(updated);
+    }
+
+    return null;
+  }
+
+  async updateExternalReferences(id: string, externalId: string, externalPayerReference: string, resultIntegration: Record<string, any>, status: SubscriptionStatus): Promise<Subscription> {
+    const updated = await this.subscriptionModel.findOneAndUpdate(
+      { _id: id },
+      { externalId, externalPayerReference, resultIntegration, status },
       { new: true, select: { resultIntegration: 0 } },
     ).exec();
     

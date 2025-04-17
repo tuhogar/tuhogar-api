@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Delete, Param, Put } from '@nestjs/common';
+import { Controller, Post, Body, Delete, Param, Put, Get, HttpStatus } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateSubscriptionUseCase } from 'src/application/use-cases/subscription/create-subscription.use-case';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
@@ -41,11 +41,20 @@ export class SubscriptionController {
 
   @Post('notifications')
   async notification(@Body() body: any) {
-    console.log(`-------notification.body: ${new Date()}`);
+    console.log(`-------post-notification.body: ${new Date()}`);
     console.log(body);
-    console.log(`-------notification.body: ${new Date()}`);
+    console.log(`-------post-notification.body: ${new Date()}`);
 
     await this.receiveSubscriptionNotificationUseCase.execute(body);
+  }
+
+  @Get('notifications')
+  async getNotification(@Body() body: any) {
+    console.log(`-------get-notification.body: ${new Date()}`);
+    console.log(body);
+    console.log(`-------get-notification.body: ${new Date()}`);
+
+    return HttpStatus.CREATED;
   }
 
   @ApiBearerAuth()
