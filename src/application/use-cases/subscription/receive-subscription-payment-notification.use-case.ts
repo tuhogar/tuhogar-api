@@ -68,7 +68,7 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
 
       const actualSubscription = await this.subscriptionRepository.findOneActiveByAccountId(subscription.accountId);
 
-      // Se a assinatura atual for a free, deixa criar uma nova como acima e cancela a atual
+      // Se a assinatura atual for a free, cancela a atual
       if (actualSubscription && actualSubscription.planId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscription.id);
     }
   }
