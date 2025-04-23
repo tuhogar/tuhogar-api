@@ -186,6 +186,7 @@ export class GenerateMonthlyStatisticsUseCase {
     
     // Calcular métricas para cada anúncio
     for (const advertisement of advertisements) {
+
       // Contar anúncios por tipo de transação e propriedade
       const transactionType = this.mapTransactionType(advertisement.transactionType);
       const propertyType = this.mapPropertyType(advertisement.type);
@@ -202,22 +203,22 @@ export class GenerateMonthlyStatisticsUseCase {
       if (advertisement.advertisementEvents && advertisement.advertisementEvents.length > 0) {
         for (const event of advertisement.advertisementEvents) {
           switch (event.type) {
-            case 'VIEW':
+            case 'AD_VIEW':
               views += event.count;
               visitsByTransactionType[transactionType] += event.count;
               visitsByPropertyTypeAndTransaction[propertyType][transactionType] += event.count;
               break;
-            case 'PHONE_CLICK':
+            case 'AD_PHONE_CLICK':
               phoneClicks += event.count;
               phoneClicksByTransactionType[transactionType] += event.count;
               phoneClicksByPropertyTypeAndTransaction[propertyType][transactionType] += event.count;
               break;
-            case 'CONTACT_INFO_CLICK':
+            case 'AD_CONTACT_CLICK':
               contactInfoClicks += event.count;
               contactInfoClicksByTransactionType[transactionType] += event.count;
               contactInfoClicksByPropertyTypeAndTransaction[propertyType][transactionType] += event.count;
               break;
-            case 'DIGITAL_CATALOG_VIEW':
+            case 'AD_PROFILE_CLICK':
               digitalCatalogViews += event.count;
               break;
           }

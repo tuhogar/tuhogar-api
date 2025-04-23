@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
-import { UpdateStatusAccountDto } from 'src/infraestructure/http/dtos/account/update-status-account.dto';
+import { UserRole } from 'src/domain/entities/user';
+import { AccountStatus } from 'src/domain/entities/account';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 import { UpdateAllUserStatusUseCase } from '../user/update-all-user-status.use-case';
+
+interface UpdateStatusAccountUseCaseCommand {
+  userRole: UserRole;
+  accountId: string;
+  status: AccountStatus;
+}
 
 @Injectable()
 export class UpdateStatusAccountUseCase {
@@ -11,17 +17,21 @@ export class UpdateStatusAccountUseCase {
     private readonly updateAllUserStatusUseCase: UpdateAllUserStatusUseCase,
   ) {}
 
-  async execute(
-    authenticatedUser: AuthenticatedUser,
-    accountId: string,
-    updateStatusAccountDto: UpdateStatusAccountDto,
-  ): Promise<{ id: string }> {
-    const updatingAccount = await this.accountRepository.updateStatus(accountId, updateStatusAccountDto.status);
+  async execute({
+    userRole,
+    accountId,
+    status
+  }: UpdateStatusAccountUseCaseCommand): Promise<{ id: string }> {
+    const updatingAccount = await this.accountRepository.updateStatus(accountId, status);
     
     if (!updatingAccount) throw new Error('notfound.account.do.not.exists');
 
     try {
-        await this.updateAllUserStatusUseCase.execute(authenticatedUser, accountId,  updateStatusAccountDto.status);
+        await this.updateAllUserStatusUseCase.execute({
+            userRole,
+            accountId,
+            status
+        });
     } catch(error) {
         await this.accountRepository.updateStatus(accountId, updatingAccount.status);
 

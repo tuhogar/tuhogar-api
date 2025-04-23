@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Account } from 'src/domain/entities/account';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
+
+interface DeleteImageAccountUseCaseCommand {
+  accountId: string;
+}
 
 @Injectable()
 export class DeleteImageAccountUseCase {
@@ -11,8 +13,10 @@ export class DeleteImageAccountUseCase {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async execute(authenticatedUser: AuthenticatedUser): Promise<void> {
-    const updatedAccount = await this.accountRepository.deleteImage(authenticatedUser.accountId);
+  async execute({
+    accountId
+  }: DeleteImageAccountUseCaseCommand): Promise<void> {
+    const updatedAccount = await this.accountRepository.deleteImage(accountId);
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
 
     await this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(updatedAccount.photo));

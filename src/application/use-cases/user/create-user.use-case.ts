@@ -5,7 +5,15 @@ import { CreateUserDto } from 'src/infraestructure/http/dtos/user/create-user.dt
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 import { Subscription } from 'src/domain/entities/subscription';
-import { User, UserStatus } from 'src/domain/entities/user';
+import { User, UserRole, UserStatus } from 'src/domain/entities/user';
+
+interface CreateUserUseCaseCommand {
+    email: string;
+    uid: string;
+    name: string;
+    userRole: UserRole;
+    accountId: string;
+}
 
 @Injectable()
 export class CreateUserUseCase {
@@ -14,18 +22,20 @@ export class CreateUserUseCase {
         private readonly userRepository: IUserRepository,
     ) {}
 
-    async execute(
-        authenticatedUser: AuthenticatedUser,
-        createUserDto: CreateUserDto,
-        accountCreated: Account,
-    ): Promise<User> {
+    async execute({
+        email,
+        uid,
+        name,
+        userRole,
+        accountId
+    }: CreateUserUseCaseCommand): Promise<User> {
         const user = new User({
-            name: createUserDto.name,
-            email: authenticatedUser.email,
-            uid: authenticatedUser.uid,
-            userRole: createUserDto.userRole,
+            name,
+            email,
+            uid,
+            userRole,
             status: UserStatus.ACTIVE,
-            accountId: accountCreated.id,
+            accountId,
         });
         const userCreated = await this.userRepository.create(user);
         return userCreated;

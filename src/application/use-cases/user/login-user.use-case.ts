@@ -2,6 +2,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 
+interface LoginUserUseCaseCommand {
+    email: string;
+    password: string;
+}
+
 @Injectable()
 export class LoginUserUseCase {
     private firebaseApiKey: string;
@@ -12,7 +17,10 @@ export class LoginUserUseCase {
         this.firebaseApiKey = this.configService.get<string>('FIREBASE_API_KEY');
     }
 
-    async execute(email: string, password: string) {
+    async execute({
+        email,
+        password
+    }: LoginUserUseCaseCommand) {
         try {
           const response = await axios.post(
             `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.firebaseApiKey}`,

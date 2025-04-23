@@ -10,7 +10,7 @@ export class GetByAccountIdAndIdAdvertisementUseCase {
         private readonly advertisementRepository: IAdvertisementRepository,
     ) {}
 
-    async execute(authenticatedUser: AuthenticatedUser,advertisementId: string): Promise<Advertisement> {
+    async execute(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {
         const advertisement = await this.advertisementRepository.findOneById(advertisementId);
         if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
