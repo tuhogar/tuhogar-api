@@ -308,13 +308,61 @@ Este documento contém o plano detalhado para o desenvolvimento do sistema tuhog
 
 ### 2.6. Testes
 
+#### Testes Unitários
+- [x] 2.6.1. Implementar testes unitários para os casos de uso (2h)
+- [x] 2.6.2. Implementar testes unitários para os controllers (1.5h)
+- [x] 2.6.3. Implementar testes unitários para os mappers (1h)
+
 #### Testes de Integração
-- [ ] 2.6.1. Implementar testes de integração para o fluxo completo (2h) - *Nota: Decidiu-se focar apenas nos testes unitários nesta fase do projeto. Testes de integração poderão ser implementados em uma fase posterior, se necessário.*
+- [ ] 2.6.4. Implementar testes de integração para o fluxo completo (2h) - *Nota: Decidiu-se focar apenas nos testes unitários nesta fase do projeto. Testes de integração poderão ser implementados em uma fase posterior, se necessário.*
 
 #### Testes E2E
-- [ ] 2.6.2. Implementar testes E2E para os endpoints de estatísticas (2h) - *Nota: Decidiu-se focar apenas nos testes unitários nesta fase do projeto. Testes E2E poderão ser implementados em uma fase posterior, se necessário.*
+- [ ] 2.6.5. Implementar testes E2E para os endpoints (2h) - *Nota: Decidiu-se focar apenas nos testes unitários nesta fase do projeto. Testes E2E poderão ser implementados em uma fase posterior, se necessário.*
 
 ### 2.7. Documentação
 
-#### Documentação Técnica
-- [x] 2.7.1. Criar documentação técnica da funcionalidade (1h)
+- [x] 2.7.1. Atualizar documentação técnica (1h)
+
+### 2.8. Implementação de Cálculo Diferencial para Estatísticas Mensais
+
+#### Análise e Planejamento
+- [x] 2.8.1. Analisar o modelo atual de acumulação de eventos e identificar pontos de modificação (2h)
+- [x] 2.8.2. Definir estratégia para armazenamento e recuperação de estatísticas do mês anterior (1h)
+- [x] 2.8.3. Planejar modificações na interface do repositório, se necessário (1h)
+
+#### Modificações no Caso de Uso
+- [x] 2.8.4. Modificar GenerateMonthlyStatisticsUseCase para buscar estatísticas do mês anterior (2h)
+- [x] 2.8.5. Implementar lógica para subtrair valores do mês anterior das estatísticas atuais (3h)
+- [x] 2.8.6. Adicionar tratamento para o primeiro mês sem estatísticas anteriores (1h)
+- [x] 2.8.7. Atualizar método calculateMetrics para considerar valores diferenciais (2h)
+
+#### Modificações nos Testes
+- [x] 2.8.8. Atualizar testes unitários do GenerateMonthlyStatisticsUseCase para cobrir cálculo diferencial (2h)
+- [x] 2.8.9. Adicionar testes específicos para cenários de primeiro mês vs. meses subsequentes (1.5h)
+- [x] 2.8.10. Implementar testes para verificar a precisão dos cálculos diferenciais (2h)
+
+#### Documentação
+- [x] 2.8.11. Atualizar documentação técnica para explicar o cálculo diferencial (1h)
+- [x] 2.8.12. Adicionar comentários no código para explicar a lógica de cálculo diferencial (0.5h)
+
+#### Integração e Validação
+- [x] 2.8.13. Validar que a implementação não afeta endpoints existentes (1h)
+- [x] 2.8.14. Verificar compatibilidade com dados históricos já armazenados (1.5h)
+
+### 2.9. Correção do Cálculo Diferencial para totalAdvertisements
+
+#### Análise e Planejamento
+- [x] 2.9.1. Analisar o impacto da correção no cálculo diferencial (1h)
+- [x] 2.9.2. Identificar todos os pontos onde totalAdvertisements é utilizado (0.5h)
+
+#### Modificações no Caso de Uso
+- [x] 2.9.3. Modificar o método calculateDifferentialMetricBase para excluir totalAdvertisements do cálculo diferencial (1h)
+- [x] 2.9.4. Garantir que totalAdvertisements mantenha seus valores acumulativos originais (1h)
+
+#### Modificações nos Testes
+- [x] 2.9.5. Atualizar testes unitários para verificar que totalAdvertisements permanece acumulativo (1h)
+- [x] 2.9.6. Adicionar testes específicos para validar o comportamento correto de totalAdvertisements (1h)
+
+#### Documentação
+- [x] 2.9.7. Atualizar documentação técnica para explicar o tratamento especial de totalAdvertisements (0.5h)
+- [x] 2.9.8. Adicionar comentários no código para explicar a lógica específica para totalAdvertisements (0.5h)
