@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
-import { UploadImageAccountDto } from 'src/infraestructure/http/dtos/account/upload-image-account.dto';
 import { CloudinaryService } from 'src/infraestructure/cloudinary/cloudinary.service';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 import { ConfigService } from '@nestjs/config';
+
+interface ProcessImageAccountUseCaseCommand {
+  accountId: string;
+  content: string;
+  contentType: string;
+}
 
 @Injectable()
 export class ProcessImageAccountUseCase {
@@ -16,22 +20,26 @@ export class ProcessImageAccountUseCase {
     this.cloudinaryFolders = this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : '';
   }
 
-  async execute(authenticatedUser: AuthenticatedUser, uploadImageAccountDto: UploadImageAccountDto): Promise<void> {
-    const account = await this.accountRepository.findOneById(authenticatedUser.accountId);
+  async execute({
+    accountId,
+    content,
+    contentType
+  }: ProcessImageAccountUseCaseCommand): Promise<void> {
+    const account = await this.accountRepository.findOneById(accountId);
     if (!account) throw new Error('notfound.account.do.not.exists');
 
-    const imageName = authenticatedUser.accountId;
+    const imageName = accountId;
 
-    let imageContent = uploadImageAccountDto.content;
+    let imageContent = content;
 
-    if (!uploadImageAccountDto.contentType.includes('webp')) {
+    if (!contentType.includes('webp')) {
       imageContent = await this.cloudinaryService.convertToWebP(imageContent);
     }
 
     const imageUrl = await this.cloudinaryService.uploadBase64Image(imageContent, 'image/webp', imageName, `accounts${this.cloudinaryFolders}`);
     const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
    
-    const updatedAccount = await this.accountRepository.updateImage(authenticatedUser.accountId, imageUrlStr);
+    const updatedAccount = await this.accountRepository.updateImage(accountId, imageUrlStr);
 
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
   }
