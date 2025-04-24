@@ -14,6 +14,8 @@ export class EPaycoService implements IPaymentGateway {
   private readonly epaycoClient: any;
   private readonly pCustIdCliente: string;
   private readonly pKey: string;
+  private readonly baseUrl: string;
+  private readonly subscriptionConfirmationPath: string;
 
   constructor(private readonly configService: ConfigService) {
     this.epaycoClient = new epayco({
@@ -24,6 +26,9 @@ export class EPaycoService implements IPaymentGateway {
     
     this.pCustIdCliente = this.configService.get<string>('EPAYCO_P_CUST_ID_CLIENTE');
     this.pKey = this.configService.get<string>('EPAYCO_P_KEY');
+
+    this.baseUrl = this.configService.get<string>('BASE_URL');
+    this.subscriptionConfirmationPath = this.configService.get<string>('SUBSCRIPTION_CONFIRMATION_PATH');
   }
 
   async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any): Promise<Subscription> {
@@ -58,6 +63,8 @@ export class EPaycoService implements IPaymentGateway {
         doc_type: paymentData.docType,
         doc_number: paymentData.docNumber,
         ip: paymentData.ip,
+        url_confirmation: `${this.baseUrl}/${this.subscriptionConfirmationPath}`,
+        method_confirmation: 'POST',
       };
 
       const subscriptionResult = await this.epaycoClient.subscriptions.create(subscriptionData);
