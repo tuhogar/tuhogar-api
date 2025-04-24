@@ -284,7 +284,7 @@ export class GenerateMonthlyStatisticsUseCase {
               contactInfoClicksByTransactionType[transactionType] += event.count;
               contactInfoClicksByPropertyTypeAndTransaction[propertyType][transactionType] += event.count;
               break;
-            case 'AD_PROFILE_CLICK':
+            case 'AD_PROFILE_VIEW':
               digitalCatalogViews += event.count;
               break;
           }
@@ -315,7 +315,7 @@ export class GenerateMonthlyStatisticsUseCase {
     const totalVisits = Object.values(visitsByTransactionType).reduce((sum, count) => sum + count, 0);
     const totalPhoneClicks = Object.values(phoneClicksByTransactionType).reduce((sum, count) => sum + count, 0);
     const totalContactInfoClicks = Object.values(contactInfoClicksByTransactionType).reduce((sum, count) => sum + count, 0);
-    
+
     // Criar rankings de anúncios mais visualizados
     const topViewedSale = Array.from(advertisementViewsMap.values())
       .filter(item => item.transactionType === AdvertisementTransactionType.SALE)
