@@ -113,7 +113,6 @@ export class AdvertisementController {
         return this.getAdvertisementLocationsUseCase.execute(getActivesAdvertisementLocationDto);
     }
 
-    @ApiBearerAuth()
     @Get('actives/:advertisementid')
     @UsePipes(new ValidationPipe({transform: true}))
     async getActive(@Param('advertisementid') advertisementId: string): Promise<Advertisement> {

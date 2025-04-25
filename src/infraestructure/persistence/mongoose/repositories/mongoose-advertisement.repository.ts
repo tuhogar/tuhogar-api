@@ -343,4 +343,13 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
     
         return advertisements;
     }
+
+    async countActiveOrWaitingByAccountId(accountId: string): Promise<number> {
+        const count = await this.advertisementModel.countDocuments({
+            accountId: new Types.ObjectId(accountId),
+            status: { $in: [AdvertisementStatus.ACTIVE, AdvertisementStatus.WAITING_FOR_APPROVAL] }
+        }).exec();
+
+        return count;
+    }
 }

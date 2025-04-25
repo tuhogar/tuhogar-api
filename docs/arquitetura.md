@@ -53,6 +53,15 @@ Esta camada contém implementações concretas das interfaces definidas na camad
 - **Authentication**: Serviços de autenticação
   - Firebase: Integração com Firebase Authentication
 
+## Funcionalidades Principais
+
+### 1. Gerenciamento de Contas e Usuários
+- Criação e gerenciamento de contas
+- Registro e autenticação de usuários
+- Controle de acesso baseado em papéis (RBAC)
+- Recuperação de senha
+- Limitação de anúncios por plano ([Documentação detalhada](./funcionalidades/limitacao-anuncios-por-plano.md))
+
 ## Padrões Arquiteturais
 
 ### 1. Injeção de Dependência
