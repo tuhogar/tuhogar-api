@@ -52,7 +52,7 @@ export class EPaycoService implements IPaymentGateway {
 
       if (!customer.success) {
         console.error(`Error creating ePayco customer: ${customer.message || 'Unknown error'}`);
-        throw new Error(`invalid.subscription.create.customer.creation.failed: ${customer.message || 'Unknown error'}`);
+        throw new Error(`error.subscription.create.customer.creation.failed`);
       }
 
       // 2. Criar assinatura na ePayco
@@ -76,7 +76,7 @@ export class EPaycoService implements IPaymentGateway {
 
       if (!subscriptionResult.success) {
         console.error(`Error creating ePayco subscription: ${subscriptionResult.message || 'Unknown error'}`);
-        throw new Error(`invalid.subscription.create.subscription.creation.failed: ${subscriptionResult.message || 'Unknown error'}`);
+        throw new Error(`error.subscription.create.subscription.creation.failed`);
       }
 
       // 3. Iniciar cobrança da assinatura
@@ -117,7 +117,7 @@ export class EPaycoService implements IPaymentGateway {
               case 'Fallida':
                 await this.cancelSubscriptionOnInvalidCreate(subscriptionResult.id);
                 console.error(`Payment rejected or failed: ${charge.data.respuesta || 'Unknown reason'}`);
-                throw new Error(`invalid.subscription.create.payment.creation.failed: ${charge.data.respuesta || 'Unknown reason'}`);
+                throw new Error(`error.subscription.create.payment.creation.failed`);
             }
           }
           
@@ -141,13 +141,13 @@ export class EPaycoService implements IPaymentGateway {
           } else {
             await this.cancelSubscriptionOnInvalidCreate(subscriptionResult.id);
             console.error(`Payment rejected or failed: ${charge?.data?.respuesta || 'Unknown reason'}`);
-            throw new Error(`invalid.subscription.create.payment.creation.failed: ${charge?.data?.respuesta || 'Unknown reason'}`);
+            throw new Error(`error.subscription.create.payment.creation.failed`);
           }
         } else {
           // Se a cobrança falhou completamente
           await this.cancelSubscriptionOnInvalidCreate(subscriptionResult.id);
           console.error(`Error charging subscription: ${charge?.message || 'Unknown error'}`);
-          throw new Error(`invalid.subscription.create.payment.creation.failed: ${charge?.message || 'Unknown error'}`);
+          throw new Error(`error.subscription.create.payment.creation.failed`);
         }
       }
 
@@ -185,7 +185,7 @@ export class EPaycoService implements IPaymentGateway {
     const result = await this.epaycoClient.subscriptions.cancel(subscriptionId);
 
     if (!result.status) {
-      throw new Error(result.message || 'Error cancelling subscription');
+      throw new Error('error.subscription.cancel.failed');
     }
 
     return result.data;
@@ -195,7 +195,7 @@ export class EPaycoService implements IPaymentGateway {
     const result = await this.epaycoClient.subscriptions.cancel(subscriptionId);
 
     if (!result.status) {
-      throw new Error(result.message || 'Error cancelling subscription');
+      throw new Error('error.subscription.create.cancel.on.invalid.create.failed');
     }
 
     return result.data;
