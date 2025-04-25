@@ -244,7 +244,7 @@
                 };
 
                 // Primeiro faz login para obter o token
-                fetch("https://tuhogar-api-development.up.railway.app/v1/users/login", {
+                fetch("http://localhost:3000/v1/users/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -257,7 +257,7 @@
                 .then(response => response.json())
                 .then(loginData => {
                     // Com o token de autenticação, envia os dados do cartão
-                    return fetch("https://tuhogar-api-development.up.railway.app/v1/subscriptions", {
+                    return fetch("http://localhost:3000/v1/subscriptions", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

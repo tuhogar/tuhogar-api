@@ -52,7 +52,7 @@ export class EPaycoService implements IPaymentGateway {
 
       if (!customer.success) {
         console.error(`Error creating ePayco customer: ${customer.message || 'Unknown error'}`);
-        throw new Error(`invalid.payment.customer.creation.failed: ${customer.message || 'Unknown error'}`);
+        throw new Error(`invalid.subscription.create.customer.creation.failed: ${customer.message || 'Unknown error'}`);
       }
 
       // 2. Criar assinatura na ePayco
@@ -76,7 +76,7 @@ export class EPaycoService implements IPaymentGateway {
 
       if (!subscriptionResult.success) {
         console.error(`Error creating ePayco subscription: ${subscriptionResult.message || 'Unknown error'}`);
-        throw new Error(`invalid.payment.subscription.creation.failed: ${subscriptionResult.message || 'Unknown error'}`);
+        throw new Error(`invalid.subscription.create.subscription.creation.failed: ${subscriptionResult.message || 'Unknown error'}`);
       }
 
       // 3. Iniciar cobrança da assinatura
@@ -115,8 +115,9 @@ export class EPaycoService implements IPaymentGateway {
                 break;
               case 'Rechazada':
               case 'Fallida':
-                console.warn(`Payment rejected or failed: ${charge.data.respuesta || 'Unknown reason'}`);
-                break;
+                await this.cancelSubscriptionOnInvalidCreate(subscriptionResult.id);
+                console.error(`Payment rejected or failed: ${charge.data.respuesta || 'Unknown reason'}`);
+                throw new Error(`invalid.subscription.create.payment.creation.failed: ${charge.data.respuesta || 'Unknown reason'}`);
             }
           }
           
@@ -138,12 +139,15 @@ export class EPaycoService implements IPaymentGateway {
           } else if (paymentPending) {
             subscriptionStatus = SubscriptionStatus.PENDING;
           } else {
-            subscriptionStatus = SubscriptionStatus.CANCELLED;
+            await this.cancelSubscriptionOnInvalidCreate(subscriptionResult.id);
+            console.error(`Payment rejected or failed: ${charge?.data?.respuesta || 'Unknown reason'}`);
+            throw new Error(`invalid.subscription.create.payment.creation.failed: ${charge?.data?.respuesta || 'Unknown reason'}`);
           }
         } else {
           // Se a cobrança falhou completamente
-          subscriptionStatus = SubscriptionStatus.CANCELLED;
-          console.error(`Error charging subscription: ${charge.message || 'Unknown error'}`);
+          await this.cancelSubscriptionOnInvalidCreate(subscriptionResult.id);
+          console.error(`Error charging subscription: ${charge?.message || 'Unknown error'}`);
+          throw new Error(`invalid.subscription.create.payment.creation.failed: ${charge?.message || 'Unknown error'}`);
         }
       }
 
