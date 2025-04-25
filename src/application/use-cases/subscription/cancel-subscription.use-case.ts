@@ -25,21 +25,16 @@ export class CancelSubscriptionUseCase {
   }
 
   async execute({ id, accountId }: CancelSubscriptionUseCaseCommand): Promise<void> {
-    try {
       const subscription = await this.subscriptionRepository.findOneById(id);
       if (!subscription || subscription.status !== SubscriptionStatus.ACTIVE) throw new Error('notfound.subscription.do.not.exists');
 
       const externalSubscriptionCanceled = await this.paymentGateway.cancelSubscription(subscription.externalId);
-      if (!externalSubscriptionCanceled) throw new Error('error.on.cancel.subscription');
+      if (!externalSubscriptionCanceled) throw new Error('invalid.subscription.cancel.failed');
 
       await this.subscriptionRepository.cancel(id);
 
       const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId: this.firstSubscriptionPlanId });
       await this.subscriptionRepository.active(subscriptionCreated.id);
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
-
-    } catch (error) {
-      throw new Error(`Failed to cancel subscription: ${error.message}`);
-    }
   }
 }
