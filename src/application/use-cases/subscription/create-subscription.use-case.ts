@@ -40,7 +40,7 @@ export class CreateSubscriptionUseCase {
     if (
       (actualSubscriptionStatus === SubscriptionStatus.ACTIVE || actualSubscriptionStatus === SubscriptionStatus.CREATED) 
       && 
-      actualPlanId !== this.firstSubscriptionPlanId) throw new Error('invalid.subscription.exists');
+      actualPlanId !== this.firstSubscriptionPlanId) throw new Error('error.subscription.exists');
 
     const plan = await this.planRepository.findOneById(planId);
     const user = await this.userRepository.findOneById(userId);
@@ -49,7 +49,7 @@ export class CreateSubscriptionUseCase {
 
     try {
       const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, email, user.name, plan, paymentData);
-      if (!externalSubscriptionCreated) throw new Error('invalid.subscription.create.failed');
+      if (!externalSubscriptionCreated) throw new Error('error.subscription.create.failed');
 
       const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(subscriptionCreated.id, externalSubscriptionCreated.externalId, externalSubscriptionCreated.externalPayerReference, externalSubscriptionCreated.resultIntegration, externalSubscriptionCreated.status);
         

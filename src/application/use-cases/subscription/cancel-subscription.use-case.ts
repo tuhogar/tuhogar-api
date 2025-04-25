@@ -26,10 +26,10 @@ export class CancelSubscriptionUseCase {
 
   async execute({ id, accountId }: CancelSubscriptionUseCaseCommand): Promise<void> {
       const subscription = await this.subscriptionRepository.findOneById(id);
-      if (!subscription || subscription.status !== SubscriptionStatus.ACTIVE) throw new Error('notfound.subscription.do.not.exists');
+      if (!subscription || subscription.status !== SubscriptionStatus.ACTIVE) throw new Error('error.subscription.do.not.exists');
 
       const externalSubscriptionCanceled = await this.paymentGateway.cancelSubscription(subscription.externalId);
-      if (!externalSubscriptionCanceled) throw new Error('invalid.subscription.cancel.failed');
+      if (!externalSubscriptionCanceled) throw new Error('error.subscription.cancel.failed');
 
       await this.subscriptionRepository.cancel(id);
 
