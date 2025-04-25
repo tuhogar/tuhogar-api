@@ -8,6 +8,7 @@ import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-da
 import { ConfigService } from '@nestjs/config';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 import { RemoveInternalSubscriptionUseCase } from './remove-internal-subscription.use-case';
+import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 
 interface CreateSubscriptionUseCaseCommand {
   actualSubscriptionId: string;
@@ -32,6 +33,7 @@ export class CreateSubscriptionUseCase {
     private readonly userRepository: IUserRepository,
     private readonly paymentGateway: IPaymentGateway,
     private readonly configService: ConfigService,
+    private readonly accountRepository: IAccountRepository,
   ) {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
@@ -54,6 +56,7 @@ export class CreateSubscriptionUseCase {
       const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(subscriptionCreated.id, externalSubscriptionCreated.externalId, externalSubscriptionCreated.externalPayerReference, externalSubscriptionCreated.resultIntegration, externalSubscriptionCreated.status);
         
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
+      await this.accountRepository.updatePlan(accountId, planId);
 
       // Se a assinatura atual for a free, deixa criar uma nova como acima e cancela a atual
       if (actualPlanId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscriptionId);
