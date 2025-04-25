@@ -27,7 +27,7 @@ export class SubscriptionController {
       console.log(`-------createSubscription.body: ${new Date()}`);
       console.log(createSubscriptionDto);
       console.log(`-------createSubscription.body: ${new Date()}`);
-    return await this.createSubscriptionUseCase.execute({ 
+    const response = await this.createSubscriptionUseCase.execute({ 
       actualSubscriptionId: authenticatedUser.subscriptionId,
       actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
       actualPlanId: authenticatedUser.planId,
@@ -37,6 +37,8 @@ export class SubscriptionController {
       planId: createSubscriptionDto.planId, 
       paymentData: createSubscriptionDto.paymentData,
     });
+
+    return { id: response.id, status: response.status };
   }
 
   @Post('notifications')

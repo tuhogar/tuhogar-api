@@ -52,11 +52,6 @@ export class CreateSubscriptionUseCase {
       if (!externalSubscriptionCreated) throw new Error('error.on.create.subscription');
 
       const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(subscriptionCreated.id, externalSubscriptionCreated.externalId, externalSubscriptionCreated.externalPayerReference, externalSubscriptionCreated.resultIntegration, externalSubscriptionCreated.status);
-      
-      if (externalSubscriptionCreated.status === SubscriptionStatus.CANCELLED) {
-        await this.paymentGateway.cancelSubscriptionOnInvalidCreate(externalSubscriptionCreated.externalId);
-        throw new Error('error.on.create.subscription');
-      }
         
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
 
@@ -67,7 +62,7 @@ export class CreateSubscriptionUseCase {
       return subscriptionUpdated;
     } catch (error) {
       await this.removeInternalSubscriptionUseCase.execute({ id: subscriptionCreated.id });
-      throw new Error(`Failed to create subscription: ${error.message}`);
+      throw error;
     }
   }
 }
