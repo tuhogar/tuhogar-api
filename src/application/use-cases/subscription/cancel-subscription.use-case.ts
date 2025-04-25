@@ -5,6 +5,7 @@ import { SubscriptionStatus } from 'src/domain/entities/subscription';
 import { CreateInternalSubscriptionUseCase } from './create-internal-subscription.use-case';
 import { ConfigService } from '@nestjs/config';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
+import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 
 interface CancelSubscriptionUseCaseCommand {
   id: string;
@@ -20,6 +21,7 @@ export class CancelSubscriptionUseCase {
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly configService: ConfigService,
+    private readonly accountRepository: IAccountRepository,
   ){
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
@@ -36,5 +38,6 @@ export class CancelSubscriptionUseCase {
       const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId: this.firstSubscriptionPlanId });
       await this.subscriptionRepository.active(subscriptionCreated.id);
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
+      await this.accountRepository.updatePlan(accountId, this.firstSubscriptionPlanId)
   }
 }
