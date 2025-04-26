@@ -59,7 +59,7 @@ export class ProcessImagesAdvertisementUseCase {
         }
         
         // Validar o limite de fotos apenas se maxPhotos estiver definido
-        if (maxPhotos !== undefined && maxPhotos !== null) {
+        if (maxPhotos !== undefined && maxPhotos !== null && maxPhotos > 0) {
             const currentPhotosCount = advertisement.photos ? advertisement.photos.length : 0;
             const newPhotosCount = uploadImagesAdvertisementDto.images.length;
             

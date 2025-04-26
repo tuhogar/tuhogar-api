@@ -40,8 +40,7 @@ export class CreateAdvertisementUseCase {
             
             // Verificar se o limite foi atingido
             // Caso especial: quando maxAdvertisements é 0 e não há anúncios, permitir a criação de um anúncio
-            if (!(authenticatedUser.maxAdvertisements === 0 && currentAdvertisementsCount === 0) && 
-                currentAdvertisementsCount >= authenticatedUser.maxAdvertisements) {
+            if (authenticatedUser.maxAdvertisements > 0 && currentAdvertisementsCount >= authenticatedUser.maxAdvertisements) {
                 throw new Error('invalid.advertisement.limit.reached.for.plan');
             }
         }
