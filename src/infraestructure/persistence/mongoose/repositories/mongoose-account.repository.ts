@@ -204,9 +204,9 @@ export class MongooseAccountRepository implements IAccountRepository {
 
     async updatePlan(id: string, planId: string): Promise<Account> {
       const updated = await this.accountModel.findOneAndUpdate(
-          { _id: id },
-          { planId },
-          { new: true }
+        { _id: id },
+        { $set: { planId } },
+        { new: true }
       ).exec();
 
       if (updated) {
@@ -214,5 +214,45 @@ export class MongooseAccountRepository implements IAccountRepository {
       }
 
       return null;
+    }
+
+    async findOneByIdWithSubscription(id: string): Promise<Account> {
+      // Primeiro, buscamos a conta básica
+      const account = await this.accountModel.findById(id)
+        .populate('contractTypes')
+        .exec();
+      
+      if (!account) {
+        return null;
+      }
+
+      // Usamos aggregate para buscar as subscriptions associadas à conta
+      const subscriptions = await this.accountModel.aggregate([
+        { $match: { _id: account._id } },
+        {
+          $lookup: {
+            from: 'subscriptions', // Nome da collection de subscriptions
+            localField: '_id',
+            foreignField: 'accountId',
+            as: 'subscriptions'
+          }
+        },
+        { $sort: { 'subscriptions.createdAt': -1 } },
+        { $limit: 1 }
+      ]);
+
+      // Converte subscriptions para objetos JSON completos
+      const subscriptionsJSON = subscriptions[0]?.subscriptions?.map(sub =>
+        JSON.parse(JSON.stringify(sub))
+      ) || [];
+
+      // Converte a conta para um objeto plano JSON e adiciona subscriptions
+      const accountWithSubscriptions = {
+        ...JSON.parse(JSON.stringify(account)),
+        subscriptions: subscriptionsJSON
+      };
+
+      // Retorna a conta com subscriptions
+      return MongooseAccountMapper.toDomain(accountWithSubscriptions);
     }
 }

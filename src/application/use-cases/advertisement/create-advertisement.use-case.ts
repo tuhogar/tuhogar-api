@@ -28,6 +28,24 @@ export class CreateAdvertisementUseCase {
         authenticatedUser: AuthenticatedUser,
         createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
     ): Promise<Advertisement> {
+        // Verificar se o usuário tem um plano associado
+        if (!authenticatedUser.planId) {
+            throw new Error('invalid.user.has.no.plan.associated');
+        }
+
+        // Verificar se o plano tem um limite de anúncios definido
+        if (authenticatedUser.maxAdvertisements !== undefined && authenticatedUser.maxAdvertisements !== null) {
+            // Contar anúncios ativos ou aguardando aprovação da conta
+            const currentAdvertisementsCount = await this.advertisementRepository.countActiveOrWaitingByAccountId(authenticatedUser.accountId);
+            
+            // Verificar se o limite foi atingido
+            // Caso especial: quando maxAdvertisements é 0 e não há anúncios, permitir a criação de um anúncio
+            if (!(authenticatedUser.maxAdvertisements === 0 && currentAdvertisementsCount === 0) && 
+                currentAdvertisementsCount >= authenticatedUser.maxAdvertisements) {
+                throw new Error('invalid.advertisement.limit.reached.for.plan');
+            }
+        }
+
         createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
 
         const advertisementCode = await this.advertisementCodeRepository.generateNewCode();

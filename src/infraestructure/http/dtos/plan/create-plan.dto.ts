@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ArrayMinSize, IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { ArrayMinSize, IsArray, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 
 export class CreatePlanDto {
@@ -33,4 +33,18 @@ export class CreatePlanDto {
     @IsString()
     @Property()
     externalId: string
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'maxAdvertisements.must.be.a.number' })
+    @IsPositive({ message: 'maxAdvertisements.must.be.positive' })
+    @Property()
+    maxAdvertisements?: number
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'maxPhotos.must.be.a.number' })
+    @IsPositive({ message: 'maxPhotos.must.be.positive' })
+    @Property()
+    maxPhotos?: number
 }

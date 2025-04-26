@@ -22,6 +22,12 @@ export class Plan {
 
     @Prop()
     externalId: string;
+
+    @Prop()
+    maxAdvertisements: number;
+
+    @Prop()
+    maxPhotos: number;
 }
 
 const PlanSchema = SchemaFactory.createForClass(Plan);
