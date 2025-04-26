@@ -321,11 +321,52 @@ Este documento contém o plano detalhado para o desenvolvimento do sistema tuhog
 - [x] 4.4.1. Atualizar documentação técnica para incluir a limitação de fotos por plano (1h)
 - [x] 4.4.2. Atualizar o guia de administração para incluir a configuração de maxPhotos (0.5h)
 
+## 5. Migração da propriedade planId de Account para Subscription
+
+### 5.1. Análise e Planejamento
+
+- [ ] 5.1.1. Realizar análise completa dos locais onde planId de Account é utilizado (2h)
+- [ ] 5.1.2. Documentar endpoints que retornam planId de Account ao frontend (1h)
+- [ ] 5.1.3. Criar plano detalhado de migração com etapas e impactos (3h)
+
+### 5.2. Modificações nas Entidades e Schemas
+
+- [ ] 5.2.1. Remover propriedade planId da entidade Account (0.5h)
+- [ ] 5.2.2. Remover propriedade planId do schema Mongoose de Account (0.5h)
+- [ ] 5.2.3. Atualizar MongooseAccountMapper para não mapear mais a propriedade planId (1h)
+- [ ] 5.2.4. Atualizar testes relacionados às entidades modificadas (2h)
+
+### 5.3. Atualização dos Casos de Uso
+
+- [ ] 5.3.1. Modificar CreateAccountUseCase para não definir planId na entidade Account (1h)
+- [ ] 5.3.2. Atualizar CancelSubscriptionUseCase para não usar accountRepository.updatePlan (1h)
+- [ ] 5.3.3. Atualizar UpdateFirebaseUsersDataUseCase para obter planId da subscription (1.5h)
+- [ ] 5.3.4. Modificar casos de uso que validam limites de anúncios e fotos (2h)
+- [ ] 5.3.5. Atualizar testes para os casos de uso modificados (3h)
+
+### 5.4. Atualização dos Controllers e DTOs
+
+- [ ] 5.4.1. Atualizar DTOs relacionados à Account para não incluir planId (1h)
+- [ ] 5.4.2. Modificar controllers para usar planId apenas para criar subscriptions (1.5h)
+- [ ] 5.4.3. Atualizar documentação Swagger se necessário (1h)
+
+### 5.5. Migração de Dados
+
+- [ ] 5.5.1. Criar script de migração para garantir que todas as contas tenham uma subscription correspondente (3h)
+- [ ] 5.5.2. Testar script de migração em ambiente de desenvolvimento (2h)
+- [ ] 5.5.3. Executar migração em ambiente de produção (1h)
+
+### 5.6. Testes e Documentação
+
+- [ ] 5.6.1. Realizar testes de integração completos após as modificações (4h)
+- [ ] 5.6.2. Atualizar documentação técnica para refletir a nova arquitetura (2h)
+- [ ] 5.6.3. Documentar mudanças necessárias no frontend (1h)
+
 ## Resumo do Progresso do Projeto
 
 ```
-Progresso Geral: 100% concluído (154/154 tarefas reais)
-[####################]  
+Progresso Geral: 82.8% concluído (154/186 tarefas reais)
+[################....]  
 ```
 
 ### Status por Sessão
@@ -334,5 +375,6 @@ Progresso Geral: 100% concluído (154/154 tarefas reais)
 - **2. Relatórios estatísticos mensais**: 100% concluído ✓
 - **3. Limitação de anúncios por plano**: 100% concluído ✓
 - **4. Limitação de fotos por plano**: 100% concluído ✓
+- **5. Migração de planId Account → Subscription**: 0% concluído
 
-*Atualizado em: 24/04/2025 21:52*
+*Atualizado em: 25/04/2025 22:33*
