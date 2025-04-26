@@ -362,11 +362,52 @@ Este documento contém o plano detalhado para o desenvolvimento do sistema tuhog
 - [ ] 5.6.2. Atualizar documentação técnica para refletir a nova arquitetura (2h)
 - [ ] 5.6.3. Documentar mudanças necessárias no frontend (1h)
 
+## 6. Implementação do Ajuste Automático de Anúncios na Mudança de Plano
+
+### 6.1. Domínio
+
+- [ ] 6.1.1. Definir interface para o caso de uso de ajuste de anúncios (1h)
+- [ ] 6.1.2. Definir constantes e tipos para as operações de ajuste (0.5h)
+
+### 6.2. Aplicação
+
+#### Caso de Uso Principal
+- [ ] 6.2.1. Criar AdjustAdvertisementsAfterPlanChangeUseCase (3h)
+- [ ] 6.2.2. Implementar lógica para pausar anúncios com excesso de fotos (2h)
+- [ ] 6.2.3. Implementar lógica para limitar número de anúncios ativos (2.5h)
+- [ ] 6.2.4. Implementar ordenação por data de atualização (1h)
+
+#### Integração com Casos de Uso Existentes
+- [ ] 6.2.5. Atualizar CancelSubscriptionUseCase para chamar o novo caso de uso (1h)
+- [ ] 6.2.6. Atualizar CreateSubscriptionUseCase para chamar o novo caso de uso (1h)
+- [ ] 6.2.7. Atualizar ReceiveSubscriptionPaymentNotificationUseCase para chamar o novo caso de uso (1h)
+- [ ] 6.2.8. Atualizar UpdateSubscriptionPlanUseCase para chamar o novo caso de uso (1h)
+
+### 6.3. Infraestrutura
+
+#### Repositório
+- [ ] 6.3.1. Adicionar método findActiveOrWaitingByAccountId ao IAdvertisementRepository (0.5h)
+- [ ] 6.3.2. Adicionar método findActiveOrWaitingWithExcessPhotos ao IAdvertisementRepository (1.5h)
+- [ ] 6.3.3. Adicionar método updateStatusForExcessAdvertisements ao IAdvertisementRepository (2h)
+- [ ] 6.3.4. Implementar métodos no MongooseAdvertisementRepository (3h)
+
+### 6.4. Testes
+
+- [ ] 6.4.1. Criar testes unitários para AdjustAdvertisementsAfterPlanChangeUseCase (2h)
+- [ ] 6.4.2. Atualizar testes dos casos de uso de assinatura (2h)
+- [ ] 6.4.3. Criar testes de integração para o fluxo completo (2.5h)
+
+### 6.5. Documentação
+
+- [ ] 6.5.1. Documentar o comportamento do ajuste automático de anúncios (1h)
+- [ ] 6.5.2. Atualizar documentação de API se necessário (0.5h)
+- [ ] 6.5.3. Criar guia para administradores sobre o comportamento do sistema (1h)
+
 ## Resumo do Progresso do Projeto
 
 ```
-Progresso Geral: 82.8% concluído (154/186 tarefas reais)
-[################....]  
+Progresso Geral: 75.1% concluído (154/205 tarefas reais)
+[###############.....]  
 ```
 
 ### Status por Sessão
@@ -376,5 +417,6 @@ Progresso Geral: 82.8% concluído (154/186 tarefas reais)
 - **3. Limitação de anúncios por plano**: 100% concluído ✓
 - **4. Limitação de fotos por plano**: 100% concluído ✓
 - **5. Migração de planId Account → Subscription**: 0% concluído
+- **6. Ajuste automático de anúncios na mudança de plano**: 0% concluído
 
-*Atualizado em: 25/04/2025 22:33*
+*Atualizado em: 25/04/2025 23:11*
