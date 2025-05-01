@@ -19,6 +19,7 @@ export class MongooseSubscriptionPaymentMapper {
             amount: entity.amount,
             currency: entity.currency,
             status: entity.status as SubscriptionPaymentStatus,
+            paymentDate: entity.paymentDate,
         });
         return model;
     }
@@ -36,6 +37,7 @@ export class MongooseSubscriptionPaymentMapper {
             amount: subscriptionPayment.amount,
             currency: subscriptionPayment.currency,
             status: subscriptionPayment.status,
+            paymentDate: subscriptionPayment.paymentDate,
         }
     }
 }

@@ -89,15 +89,30 @@ export class EPaycoService implements IPaymentGateway {
 
       // 4. Determinar o status da assinatura com base no resultado
       // Verificar se o plano tem período gratuito
-      const hasFreeTrialPeriod = result.subscription && 
-                                result.subscription.data && 
-                                result.subscription.data.trialDays && 
-                                Number(result.subscription.data.trialDays) > 0;
+      const hasFreeTrialPeriod = (result.charge?.subscription?.data?.trialDays && Number(result.charge?.subscription?.data?.trialDays) > 0) ||
+            (result.charge?.data?.trialDays && Number(result.charge?.data?.trialDays) > 0);
+
+      // Definir a data do próximo pagamento como D+30 (data atual + 30 dias)
+      let nextPaymentDate = new Date();
 
       if (hasFreeTrialPeriod) {
         // Para planos com período gratuito, a assinatura é sempre ativa durante o período gratuito
         subscriptionStatus = SubscriptionStatus.ACTIVE;
         console.info(`Subscription with trial period created successfully. Trial ends on: ${charge.nextVerificationDate || 'Unknown'}`);
+        
+        // Atualizar a data do próximo pagamento com base na data de verificação do ePayco
+        if (charge.nextVerificationDate) {
+          // Converter a data do formato DD-MM-YYYY para um objeto Date
+          const parts = charge.nextVerificationDate.split('-');
+          if (parts.length === 3) {
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // Meses em JavaScript são 0-indexed
+            const year = parseInt(parts[2], 10);
+            
+            nextPaymentDate = new Date(year, month, day);
+            console.log(`Updated nextPaymentDate based on ePayco verification date: ${nextPaymentDate.toISOString()}`);
+          }
+        }
       } else {
         // Para planos sem período gratuito, o status depende do resultado da cobrança
         if (charge.success) {
@@ -122,16 +137,35 @@ export class EPaycoService implements IPaymentGateway {
           }
           
           // Verificar também o status da assinatura no objeto charge.subscription
-          if (charge.subscription && charge.subscription.status) {
-            switch (charge.subscription.status.toLowerCase()) {
-              case 'active':
-                paymentAccepted = true;
-                break;
-              case 'pending':
-                paymentPending = true;
-                break;
+          if (charge.subscription) {
+            if (charge.subscription.status) {
+             switch (charge.subscription.status.toLowerCase()) {
+               case 'active':
+                 paymentAccepted = true;
+                 break;
+               case 'pending':
+                 paymentPending = true;
+                 break;
+             }
+            }
+
+            if (charge.subscription.nextVerificationDate) {
+              console.info(`Next verification date: ${charge.subscription.nextVerificationDate}`);
+              
+              // Converter a data do formato DD-MM-YYYY para um objeto Date
+              const parts = charge.subscription.nextVerificationDate.split('-');
+              if (parts.length === 3) {
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1; // Meses em JavaScript são 0-indexed
+                const year = parseInt(parts[2], 10);
+                
+                nextPaymentDate = new Date(year, month, day);
+                console.log(`Updated nextPaymentDate based on subscription verification date: ${nextPaymentDate.toISOString()}`);
+              }
             }
           }
+
+        
           
           // Determinar o status final com base nas verificações
           if (paymentAccepted) {
@@ -159,6 +193,8 @@ export class EPaycoService implements IPaymentGateway {
         status: subscriptionStatus,
         externalPayerReference: customer.data.customerId,
         resultIntegration: result,
+        // Incluir a data do próximo pagamento
+        nextPaymentDate,
       });
 
       // 6. Registrar informações importantes para rastreamento
@@ -168,10 +204,6 @@ export class EPaycoService implements IPaymentGateway {
         console.info(`Payment reference: ${charge.data.ref_payco}, Invoice: ${charge.data.factura || 'N/A'}`);
       }
       
-      if (charge.subscription && charge.subscription.nextVerificationDate) {
-        console.info(`Next verification date: ${charge.subscription.nextVerificationDate}`);
-      }
-
       return subscription;
     } catch (error) {
       console.error('-------error');
@@ -239,6 +271,56 @@ export class EPaycoService implements IPaymentGateway {
         break;
     }
 
+    // Converter a string de data para um objeto Date
+    let paymentDate: Date = null;
+    
+    if (paymentNotificated.x_transaction_date) {
+      try {
+        // Verificar o formato da data
+        const dateParts = paymentNotificated.x_transaction_date.split(' ');
+        
+        if (dateParts.length === 2) {
+          // Verificar se o formato é YYYY-MM-DD HH:MM:SS ou DD/MM/YYYY HH:MM:SS
+          const dateFormat = dateParts[0].includes('-') ? 'ISO' : 'BR';
+          
+          if (dateFormat === 'ISO') {
+            // Formato ISO: YYYY-MM-DD HH:MM:SS
+            const [year, month, day] = dateParts[0].split('-');
+            const [hour, minute, second] = dateParts[1].split(':');
+            
+            // Mês em JavaScript é 0-indexed (0-11)
+            paymentDate = new Date(
+              parseInt(year), 
+              parseInt(month) - 1, 
+              parseInt(day),
+              parseInt(hour),
+              parseInt(minute),
+              parseInt(second)
+            );
+          } else {
+            // Formato BR: DD/MM/YYYY HH:MM:SS
+            const [day, month, year] = dateParts[0].split('/');
+            const [hour, minute, second] = dateParts[1].split(':');
+            
+            // Mês em JavaScript é 0-indexed (0-11)
+            paymentDate = new Date(
+              parseInt(year), 
+              parseInt(month) - 1, 
+              parseInt(day),
+              parseInt(hour),
+              parseInt(minute),
+              parseInt(second)
+            );
+          }
+        } else if (dateParts.length === 1) {
+          // Tentar converter diretamente, pode ser um formato ISO completo
+          paymentDate = new Date(paymentNotificated.x_transaction_date);
+        }
+      } catch (error) {
+        console.error(`Erro ao converter a data do pagamento: ${paymentNotificated.x_transaction_date}`, error);
+      }
+    }
+
     return new SubscriptionPayment({
       subscriptionId: null,
       accountId: null,
@@ -251,6 +333,7 @@ export class EPaycoService implements IPaymentGateway {
       amount: paymentNotificated.x_amount,
       currency: paymentNotificated.x_currency_code,
       status,
+      paymentDate,
     });
   }
 

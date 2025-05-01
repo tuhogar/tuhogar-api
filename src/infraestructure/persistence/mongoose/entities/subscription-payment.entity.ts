@@ -42,6 +42,13 @@ export class SubscriptionPayment {
 
     @Prop()
     public statusDescription: string;
+    
+    /**
+     * Data em que o pagamento foi realizado
+     * Obtida a partir do campo x_transaction_date do gateway de pagamento
+     */
+    @Prop()
+    public paymentDate: Date;
 }
 
 const SubscriptionPaymentSchema = SchemaFactory.createForClass(SubscriptionPayment);

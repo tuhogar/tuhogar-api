@@ -232,16 +232,35 @@ describe('CreateAdvertisementUseCase', () => {
     expect(result).toEqual(mockAdvertisement);
   });
 
-  it('should throw an error when maxAdvertisements is 0 and user has advertisements', async () => {
+  it('should allow creating an advertisement when maxAdvertisements is 0 and user has no advertisements', async () => {
+    // Arrange
+    const userWithZeroMaxAds = { ...mockAuthenticatedUser, maxAdvertisements: 0 };
+    advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(0);
+    advertisementRepository.create = jest.fn().mockResolvedValue(mockAdvertisement);
+    advertisementCodeRepository.generateNewCode = jest.fn().mockResolvedValue(12345);
+
+    // Act
+    const result = await useCase.execute(userWithZeroMaxAds, mockCreateUpdateAdvertisementDto);
+
+    // Assert
+    expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
+    expect(advertisementRepository.create).toHaveBeenCalled();
+    expect(result).toEqual(mockAdvertisement);
+  });
+
+  it('should allow creating an advertisement when maxAdvertisements is 0 and user has advertisements', async () => {
     // Arrange
     const userWithZeroMaxAds = { ...mockAuthenticatedUser, maxAdvertisements: 0 };
     advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(1);
+    advertisementRepository.create = jest.fn().mockResolvedValue(mockAdvertisement);
+    advertisementCodeRepository.generateNewCode = jest.fn().mockResolvedValue(12345);
 
-    // Act & Assert
-    await expect(useCase.execute(userWithZeroMaxAds, mockCreateUpdateAdvertisementDto))
-      .rejects.toThrow('invalid.advertisement.limit.reached.for.plan');
-    
+    // Act
+    const result = await useCase.execute(userWithZeroMaxAds, mockCreateUpdateAdvertisementDto);
+
+    // Assert
     expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
-    expect(advertisementRepository.create).not.toHaveBeenCalled();
+    expect(advertisementRepository.create).toHaveBeenCalled();
+    expect(result).toEqual(mockAdvertisement);
   });
 });

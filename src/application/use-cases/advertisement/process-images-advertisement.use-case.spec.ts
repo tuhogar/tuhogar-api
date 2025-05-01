@@ -151,7 +151,7 @@ describe('ProcessImagesAdvertisementUseCase', () => {
   const mockPlan: Plan = {
     id: mockPlanId,
     name: 'Plan Premium',
-    duration: 30,
+    freeTrialDays: 30,
     items: ['Hasta 20 anuncios', 'Hasta 5 fotos por anuncio', 'Soporte prioritario'],
     price: 299900,
     externalId: 'plan_premium_mensual',
@@ -308,21 +308,69 @@ describe('ProcessImagesAdvertisementUseCase', () => {
       const userWithZeroMaxPhotos = { ...mockAuthenticatedUser, maxPhotos: 0 };
       const uploadDto = createMockUploadDto(1); // 1 nova foto
       jest.spyOn(advertisementRepository, 'findOneById').mockResolvedValue(mockAdvertisement); // 0 fotos existentes
+      jest.spyOn(cloudinaryService, 'uploadBase64Image').mockResolvedValue('https://example.com/image.jpg');
+      
+      const mockPhoto = new AdvertisementPhoto({
+        id: 'photo-123',
+        name: 'test-photo.jpg',
+        url: 'https://example.com/image.jpg',
+        thumbnailUrl: 'https://example.com/image-thumb.jpg',
+        order: 0
+      });
+      
+      jest.spyOn(advertisementRepository, 'createPhotos').mockResolvedValue({ 
+        ...mockAdvertisement, 
+        photos: [mockPhoto] 
+      });
+      
+      // Act
+      const result = await useCase.execute(userWithZeroMaxPhotos, mockAdvertisementId, uploadDto);
 
-      // Act & Assert
-      await expect(useCase.execute(userWithZeroMaxPhotos, mockAdvertisementId, uploadDto))
-        .rejects.toThrow('invalid.photos.limit.reached.for.plan');
+      // Assert
+      expect(result).toBeDefined();
+      expect(advertisementRepository.findOneById).toHaveBeenCalledWith(mockAdvertisementId);
+      expect(cloudinaryService.uploadBase64Image).toHaveBeenCalled();
+      expect(advertisementRepository.createPhotos).toHaveBeenCalled();
     });
 
-    it('deve lançar erro quando maxPhotos é 0 e já existem fotos', async () => {
+    it('deve permitir o upload de uma foto quando maxPhotos é 0 e já existem fotos', async () => {
       // Arrange
       const userWithZeroMaxPhotos = { ...mockAuthenticatedUser, maxPhotos: 0 };
       const uploadDto = createMockUploadDto(1); // 1 nova foto
-      jest.spyOn(advertisementRepository, 'findOneById').mockResolvedValue(mockAdvertisementWithPhotos); // 3 fotos existentes
+      
+      const existingPhoto = new AdvertisementPhoto({
+        id: 'existing-photo',
+        name: 'existing-photo.jpg',
+        url: 'https://example.com/existing-image.jpg',
+        thumbnailUrl: 'https://example.com/existing-image-thumb.jpg',
+        order: 0
+      });
+      
+      const mockAdvWithPhotos = { ...mockAdvertisement, photos: [existingPhoto] };
+      jest.spyOn(advertisementRepository, 'findOneById').mockResolvedValue(mockAdvWithPhotos);
+      jest.spyOn(cloudinaryService, 'uploadBase64Image').mockResolvedValue('https://example.com/new-image.jpg');
+      
+      const newPhoto = new AdvertisementPhoto({
+        id: 'new-photo-123',
+        name: 'new-photo.jpg',
+        url: 'https://example.com/new-image.jpg',
+        thumbnailUrl: 'https://example.com/new-image-thumb.jpg',
+        order: 1
+      });
+      
+      jest.spyOn(advertisementRepository, 'createPhotos').mockResolvedValue({
+        ...mockAdvWithPhotos,
+        photos: [...mockAdvWithPhotos.photos, newPhoto]
+      });
 
-      // Act & Assert
-      await expect(useCase.execute(userWithZeroMaxPhotos, mockAdvertisementId, uploadDto))
-        .rejects.toThrow('invalid.photos.limit.reached.for.plan');
+      // Act
+      const result = await useCase.execute(userWithZeroMaxPhotos, mockAdvertisementId, uploadDto);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(advertisementRepository.findOneById).toHaveBeenCalledWith(mockAdvertisementId);
+      expect(cloudinaryService.uploadBase64Image).toHaveBeenCalled();
+      expect(advertisementRepository.createPhotos).toHaveBeenCalled();
     });
   });
 

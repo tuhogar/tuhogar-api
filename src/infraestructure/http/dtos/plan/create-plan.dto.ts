@@ -9,11 +9,11 @@ export class CreatePlanDto {
     @Property()
     name: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
+    @ApiProperty({ description: 'Número de dias gratuitos no período de teste da assinatura', required: false })
+    @IsOptional()
     @IsNumber()
     @Property()
-    duration: number
+    freeTrialDays?: number
 
     @ApiProperty({ type: [String] })
     @IsNotEmpty()

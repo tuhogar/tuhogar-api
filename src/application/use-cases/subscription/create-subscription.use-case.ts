@@ -44,8 +44,11 @@ export class CreateSubscriptionUseCase {
       && 
       actualPlanId !== this.firstSubscriptionPlanId) throw new Error('error.subscription.exists');
 
+    const account = await this.accountRepository.findOneById(accountId);
     const plan = await this.planRepository.findOneById(planId);
     const user = await this.userRepository.findOneById(userId);
+
+    if (account.hasPaidPlan && plan.freeTrialDays > 0) throw new Error('invalid.subscription.plan');
 
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 
@@ -53,7 +56,16 @@ export class CreateSubscriptionUseCase {
       const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, email, user.name, plan, paymentData);
       if (!externalSubscriptionCreated) throw new Error('error.subscription.create.failed');
 
-      const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(subscriptionCreated.id, externalSubscriptionCreated.externalId, externalSubscriptionCreated.externalPayerReference, externalSubscriptionCreated.resultIntegration, externalSubscriptionCreated.status);
+      // A data do próximo pagamento já vem definida pelo gateway de pagamento (ePayco)
+      // através do campo nextVerificationDate
+      const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(
+        subscriptionCreated.id, 
+        externalSubscriptionCreated.externalId, 
+        externalSubscriptionCreated.externalPayerReference, 
+        externalSubscriptionCreated.resultIntegration, 
+        externalSubscriptionCreated.status,
+        externalSubscriptionCreated.nextPaymentDate
+      );
         
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
       await this.accountRepository.updatePlan(accountId, planId);
@@ -61,9 +73,17 @@ export class CreateSubscriptionUseCase {
       // Se a assinatura atual for a free, deixa criar uma nova como acima e cancela a atual
       if (actualPlanId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscriptionId);
       
+      // Marcar a conta como tendo assinado um plano pago
+      if (planId !== this.firstSubscriptionPlanId) {
+        await this.accountRepository.updateHasPaidPlan(accountId, true);
+        console.log(`Conta ${accountId} marcada como tendo assinado um plano pago`);
+      }
 
       return subscriptionUpdated;
     } catch (error) {
+      console.log('-------------error-on-create-subscription-------------');
+      console.log(error);
+      console.log('-------------error-on-create-subscription-------------');
       await this.removeInternalSubscriptionUseCase.execute({ id: subscriptionCreated.id });
       throw error;
     }

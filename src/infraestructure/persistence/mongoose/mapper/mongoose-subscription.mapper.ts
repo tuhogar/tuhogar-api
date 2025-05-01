@@ -14,6 +14,10 @@ export class MongooseSubscriptionMapper {
             status: entity.status as SubscriptionStatus,
             externalPayerReference: entity.externalPayerReference,
             resultIntegration: entity.resultIntegration,
+            effectiveCancellationDate: entity.effectiveCancellationDate,
+            paymentDate: entity.paymentDate,
+            nextPaymentDate: entity.nextPaymentDate,
+            createdAt: entity.createdAt,
         });
         return model;
     }
@@ -26,6 +30,9 @@ export class MongooseSubscriptionMapper {
             status: subscription.status,
             externalPayerReference: subscription.externalPayerReference,
             resultIntegration: subscription.resultIntegration,
+            effectiveCancellationDate: subscription.effectiveCancellationDate,
+            paymentDate: subscription.paymentDate,
+            nextPaymentDate: subscription.nextPaymentDate,
         }
     }
 }

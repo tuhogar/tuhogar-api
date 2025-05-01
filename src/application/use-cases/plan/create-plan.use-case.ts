@@ -4,7 +4,7 @@ import { Plan } from 'src/domain/entities/plan';
 
 interface CreatePlanUseCaseCommand {
     name: string,
-    duration: number,
+    freeTrialDays?: number,
     items: string[],
     price: number,
     externalId: string,
@@ -19,14 +19,14 @@ export class CreatePlanUseCase {
 
     async execute({
         name,
-        duration,
+        freeTrialDays,
         items,
         price,
         externalId,
     }: CreatePlanUseCaseCommand): Promise<Plan> {
         const plan = new Plan({
             name,
-            duration,
+            freeTrialDays,
             items,
             price,
             externalId,

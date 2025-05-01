@@ -4,14 +4,34 @@ import { Plan as PlanMongoose } from "../entities/plan.entity"
 import { Plan } from "src/domain/entities/plan";
 import { IPlanRepository } from "src/application/interfaces/repositories/plan.repository.interface";
 import { MongoosePlanMapper } from "../mapper/mongoose-plan.mapper";
+import { ConfigService } from "@nestjs/config";
 
 export class MongoosePlanRepository implements IPlanRepository {
+    private readonly firstSubscriptionPlanId: string;
     constructor(
         @InjectModel(PlanMongoose.name) private readonly planModel: Model<PlanMongoose>,
-    ) {}
+        private readonly configService: ConfigService,
+    ) {
+        this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
+    }
     
     async find(): Promise<Plan[]> {
         const query = await this.planModel.find().sort({ 'price': 1 }).exec();
+        return query.map((item) => MongoosePlanMapper.toDomain(item));
+    }
+
+    async findNotFreeDays(): Promise<Plan[]> {
+        const query = await this.planModel.find({ freeTrialDays: { $exists: false } }).sort({ 'price': 1 }).exec();
+        return query.map((item) => MongoosePlanMapper.toDomain(item));
+    }
+
+    async findOnlyFreeDays(): Promise<Plan[]> {
+        const query = await this.planModel.find({
+            $or: [
+                { freeTrialDays: { $exists: true } },
+                { _id: this.firstSubscriptionPlanId }
+            ]
+        }).sort({ 'price': 1 }).exec();
         return query.map((item) => MongoosePlanMapper.toDomain(item));
     }
     

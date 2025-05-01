@@ -27,8 +27,7 @@ export class GenerateMonthlyStatisticsUseCase {
    * no primeiro dia de cada mês às 00:00
    */
   @Cron('0 0 1 * *', {
-    name: 'generate-monthly-statistics',
-    timeZone: 'America/Sao_Paulo',
+    name: 'generate-monthly-statistics'
   })
   async executeScheduled(): Promise<void> {
     try {
