@@ -6,9 +6,12 @@ import { Auth } from 'src/infraestructure/decorators/auth.decorator';
 import { Authenticated } from 'src/infraestructure/decorators/authenticated.decorator';
 import { CreateSubscriptionDto } from '../dtos/subscription/create-subscription.dto';
 import { ReceiveSubscriptionNotificationUseCase } from 'src/application/use-cases/subscription/receive-subscription-notification.use-case';
-import { CancelSubscriptionUseCase } from 'src/application/use-cases/subscription/cancel-subscription.use-case';
+import { CancelSubscriptionOnPaymentGatewayUseCase } from 'src/application/use-cases/subscription/cancel-subscription-on-payment-gateway.use-case';
 import { UpdateSubscriptionDto } from '../dtos/subscription/update-subscription.dto';
 import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/subscription/update-subscription-plan.use-case';
+import { GetCurrentSubscriptionUseCase } from 'src/application/use-cases/subscription/get-current-subscription.use-case';
+import { GetAllPlanUseCase } from 'src/application/use-cases/plan/get-all-plan.use-case';
+import { Plan } from 'src/domain/entities/plan';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -16,7 +19,9 @@ export class SubscriptionController {
     private readonly createSubscriptionUseCase: CreateSubscriptionUseCase,
     private readonly updateSubscriptionPlanUseCase: UpdateSubscriptionPlanUseCase,
     private readonly receiveSubscriptionNotificationUseCase: ReceiveSubscriptionNotificationUseCase,
-    private readonly cancelSubscriptionUseCase: CancelSubscriptionUseCase) {}
+    private readonly cancelSubscriptionOnPaymentGatewayUseCase: CancelSubscriptionOnPaymentGatewayUseCase,
+    private readonly getCurrentSubscriptionUseCase: GetCurrentSubscriptionUseCase,
+    private readonly getAllPlanUseCase: GetAllPlanUseCase) {}
 
   @ApiBearerAuth()
   @Post()
@@ -63,7 +68,21 @@ export class SubscriptionController {
   @Delete()
   @Auth('ADMIN')
   async cancelSubscription(@Authenticated() authenticatedUser: AuthenticatedUser) {
-    return await this.cancelSubscriptionUseCase.execute({ id: authenticatedUser.subscriptionId, accountId: authenticatedUser.accountId });
+    return await this.cancelSubscriptionOnPaymentGatewayUseCase.execute({ id: authenticatedUser.subscriptionId, accountId: authenticatedUser.accountId });
+  }
+
+  @ApiBearerAuth()
+  @Get('current')
+  @Auth('ADMIN', 'USER')
+  async getCurrentSubscription(@Authenticated() authenticatedUser: AuthenticatedUser) {
+    return await this.getCurrentSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId });
+  }
+
+  @ApiBearerAuth()
+  @Auth('ADMIN', 'USER')
+  @Get('plans')
+  async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<Plan[]> {
+      return this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId });
   }
 
   /*

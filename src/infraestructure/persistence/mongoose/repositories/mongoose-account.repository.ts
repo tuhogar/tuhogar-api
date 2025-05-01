@@ -255,4 +255,24 @@ export class MongooseAccountRepository implements IAccountRepository {
       // Retorna a conta com subscriptions
       return MongooseAccountMapper.toDomain(accountWithSubscriptions);
     }
+
+    /**
+     * Atualiza o campo hasPaidPlan de uma conta
+     * @param id ID da conta
+     * @param hasPaidPlan Valor booleano indicando se o usuário já assinou algum plano pago
+     * @returns A conta atualizada
+     */
+    async updateHasPaidPlan(id: string, hasPaidPlan: boolean): Promise<Account> {
+      const updated = await this.accountModel.findOneAndUpdate(
+        { _id: id },
+        { $set: { hasPaidPlan } },
+        { new: true }
+      ).exec();
+
+      if (updated) {
+        return MongooseAccountMapper.toDomain(updated);
+      }
+
+      return null;
+    }
 }

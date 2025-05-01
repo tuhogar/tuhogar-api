@@ -352,4 +352,49 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
 
         return count;
     }
+
+    /**
+     * Busca anúncios ativos ou aguardando aprovação que possuem mais fotos do que o limite permitido
+     * @param accountId ID da conta
+     * @param maxPhotos Número máximo de fotos permitido pelo plano
+     * @returns Lista de anúncios com excesso de fotos
+     */
+    async findActiveOrWaitingWithExcessPhotos(accountId: string, maxPhotos: number): Promise<Advertisement[]> {
+        const advertisements = await this.advertisementModel.find({
+            accountId: new Types.ObjectId(accountId),
+            status: { $in: [AdvertisementStatus.ACTIVE, AdvertisementStatus.WAITING_FOR_APPROVAL] },
+            $expr: { $gt: [{ $size: '$photos' }, maxPhotos] }
+        }).exec();
+
+        return advertisements.map(ad => MongooseAdvertisementMapper.toDomain(ad));
+    }
+
+    /**
+     * Busca anúncios ativos ou aguardando aprovação com ordenação flexível
+     * @param accountId ID da conta
+     * @param orderBy Campo pelo qual ordenar (ex: 'updatedAt', 'createdAt', 'price')
+     * @param orderDirection Direção da ordenação ('asc' para ascendente, 'desc' para descendente)
+     * @returns Lista de anúncios ordenados conforme especificado
+     */
+    async findActiveOrWaitingByAccountIdWithOrder(
+        accountId: string, 
+        orderBy: string, 
+        orderDirection: 'asc' | 'desc'
+    ): Promise<Advertisement[]> {
+        // Definir a direção da ordenação (1 para ascendente, -1 para descendente)
+        const sortDirection = orderDirection === 'asc' ? 1 : -1;
+        
+        // Criar objeto de ordenação dinâmico
+        const sortObj: { [key: string]: 1 | -1 } = {};
+        sortObj[orderBy] = sortDirection as 1 | -1;
+        
+        const advertisements = await this.advertisementModel.find({
+            accountId: new Types.ObjectId(accountId),
+            status: { $in: [AdvertisementStatus.ACTIVE, AdvertisementStatus.WAITING_FOR_APPROVAL] }
+        })
+        .sort(sortObj)
+        .exec();
+
+        return advertisements.map(ad => MongooseAdvertisementMapper.toDomain(ad));
+    }
 }

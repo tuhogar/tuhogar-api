@@ -58,6 +58,12 @@ export class Account {
 
     @Prop()
     status: string;
+    
+    /**
+     * Indica se o usuário já assinou algum plano pago
+     */
+    @Prop({ type: Boolean, default: false })
+    hasPaidPlan: boolean;
 
     @Prop()
     createdAt: Date

@@ -8,8 +8,12 @@ export class Plan {
     @Prop()
     name: string;
 
-    @Prop()
-    duration: number;
+    /**
+     * Número de dias gratuitos no período de teste da assinatura
+     * Opcional: se não for fornecido, o plano não terá período gratuito
+     */
+    @Prop({ required: false })
+    freeTrialDays?: number;
 
     @Prop({ type: [String] })
     items: string[];

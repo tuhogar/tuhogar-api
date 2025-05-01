@@ -30,4 +30,11 @@ export abstract class IAccountRepository {
     abstract delete(id: string): Promise<void>
     abstract updatePlan(id: string, planId: string): Promise<Account>
     abstract findOneByIdWithSubscription(id: string): Promise<Account>
+    /**
+     * Atualiza o campo hasPaidPlan de uma conta
+     * @param id ID da conta
+     * @param hasPaidPlan Valor booleano indicando se o usuário já assinou algum plano pago
+     * @returns A conta atualizada
+     */
+    abstract updateHasPaidPlan(id: string, hasPaidPlan: boolean): Promise<Account>
 }

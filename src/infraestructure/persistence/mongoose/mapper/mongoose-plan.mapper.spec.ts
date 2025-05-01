@@ -9,7 +9,7 @@ describe('MongoosePlanMapper', () => {
   const mockMongooseDocument = {
     _id: mockId,
     name: 'Premium Plan',
-    duration: 30,
+    freeTrialDays: 30,
     items: ['Feature 1', 'Feature 2'],
     price: 99.99,
     photo: 'https://example.com/photo.jpg',
@@ -22,7 +22,7 @@ describe('MongoosePlanMapper', () => {
   const mockDomainEntity: Plan = {
     id: mockId.toString(),
     name: 'Premium Plan',
-    duration: 30,
+    freeTrialDays: 30,
     items: ['Feature 1', 'Feature 2'],
     price: 99.99,
     photo: 'https://example.com/photo.jpg',
@@ -40,7 +40,7 @@ describe('MongoosePlanMapper', () => {
       expect(result).toBeInstanceOf(Plan);
       expect(result.id).toBe(mockId.toString());
       expect(result.name).toBe(mockMongooseDocument.name);
-      expect(result.duration).toBe(mockMongooseDocument.duration);
+      expect(result.freeTrialDays).toBe(mockMongooseDocument.freeTrialDays);
       expect(result.items).toEqual(mockMongooseDocument.items);
       expect(result.price).toBe(mockMongooseDocument.price);
       expect(result.photo).toBe(mockMongooseDocument.photo);
@@ -92,7 +92,7 @@ describe('MongoosePlanMapper', () => {
       // Assert
       expect(result).not.toHaveProperty('id');
       expect(result.name).toBe(mockDomainEntity.name);
-      expect(result.duration).toBe(mockDomainEntity.duration);
+      expect(result.freeTrialDays).toBe(mockDomainEntity.freeTrialDays);
       expect(result.items).toEqual(mockDomainEntity.items);
       expect(result.price).toBe(mockDomainEntity.price);
       expect(result.externalId).toBe(mockDomainEntity.externalId);

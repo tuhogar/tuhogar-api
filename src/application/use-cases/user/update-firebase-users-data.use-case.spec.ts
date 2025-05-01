@@ -24,7 +24,7 @@ describe('UpdateFirebaseUsersDataUseCase', () => {
   const mockPlan: Plan = {
     id: mockPlanId,
     name: 'Premium Plan',
-    duration: 30,
+    freeTrialDays: 30,
     items: ['Feature 1', 'Feature 2'],
     price: 99.99,
     externalId: 'ext-123',

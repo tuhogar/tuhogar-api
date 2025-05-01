@@ -61,15 +61,29 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
       await this.subscriptionPaymentRepository.update(payment.id, paymentNotificated);
     }
 
-    if (paymentNotificated.status === SubscriptionPaymentStatus.APPROVED && subscription.status !== SubscriptionStatus.ACTIVE && subscription.status !== SubscriptionStatus.CANCELLED) {
-      console.log('ATIVA ASSINATURA');
-      await this.subscriptionRepository.active(subscription.id);
-      await this.updateFirebaseUsersDataUseCase.execute({ accountId: subscription.accountId });
+    if (paymentNotificated.status === SubscriptionPaymentStatus.APPROVED) {
+      if (subscription.status !== SubscriptionStatus.ACTIVE && subscription.status !== SubscriptionStatus.CANCELLED && subscription.status !== SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY) {
+        console.log('ATIVA ASSINATURA');
+        await this.subscriptionRepository.active(subscription.id);
+        await this.updateFirebaseUsersDataUseCase.execute({ accountId: subscription.accountId });
 
-      const actualSubscription = await this.subscriptionRepository.findOneActiveByAccountId(subscription.accountId);
+        const actualSubscription = await this.subscriptionRepository.findOneActiveByAccountId(subscription.accountId);
 
-      // Se a assinatura atual for a free, cancela a atual
-      if (actualSubscription && actualSubscription.planId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscription.id);
+        // Se a assinatura atual for a free, cancela a atual
+        if (actualSubscription && actualSubscription.planId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscription.id);
+      }
+
+      // Gravar a data do pagamento na assinatura
+      if (paymentNotificated.paymentDate && subscription) {
+        console.log(`Atualizando data de pagamento da assinatura ${subscription.id}`);
+        await this.subscriptionRepository.updatePaymentDate(subscription.id, paymentNotificated.paymentDate);
+        
+        // Calcular e gravar a data do próximo pagamento (paymentDate + 30 dias)
+        const nextPaymentDate = new Date(paymentNotificated.paymentDate);
+        nextPaymentDate.setDate(nextPaymentDate.getDate() + 2);
+        console.log(`Atualizando data do próximo pagamento da assinatura ${subscription.id} para ${nextPaymentDate.toISOString()}`);
+        await this.subscriptionRepository.updateNextPaymentDate(subscription.id, nextPaymentDate);
+      }
     }
   }
 }

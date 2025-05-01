@@ -5,7 +5,7 @@ describe('Plan Entity', () => {
     // Arrange
     const planData = {
       name: 'Premium Plan',
-      duration: 30,
+      freeTrialDays: 30,
       items: ['Feature 1', 'Feature 2'],
       price: 99.99,
       externalId: 'ext-123',
@@ -17,7 +17,7 @@ describe('Plan Entity', () => {
     // Assert
     expect(plan).toBeDefined();
     expect(plan.name).toBe('Premium Plan');
-    expect(plan.duration).toBe(30);
+    expect(plan.freeTrialDays).toBe(30);
     expect(plan.items).toEqual(['Feature 1', 'Feature 2']);
     expect(plan.price).toBe(99.99);
     expect(plan.externalId).toBe('ext-123');
@@ -30,7 +30,7 @@ describe('Plan Entity', () => {
     const planData = {
       id: '123',
       name: 'Premium Plan',
-      duration: 30,
+      freeTrialDays: 30,
       items: ['Feature 1', 'Feature 2'],
       price: 99.99,
       photo: 'https://example.com/photo.jpg',
@@ -46,7 +46,7 @@ describe('Plan Entity', () => {
     expect(plan).toBeDefined();
     expect(plan.id).toBe('123');
     expect(plan.name).toBe('Premium Plan');
-    expect(plan.duration).toBe(30);
+    expect(plan.freeTrialDays).toBe(30);
     expect(plan.items).toEqual(['Feature 1', 'Feature 2']);
     expect(plan.price).toBe(99.99);
     expect(plan.photo).toBe('https://example.com/photo.jpg');
@@ -59,7 +59,7 @@ describe('Plan Entity', () => {
     // Arrange
     const planData = {
       name: 'Free Plan',
-      duration: 30,
+      freeTrialDays: 30,
       items: ['Basic Feature'],
       price: 0,
       externalId: 'free-plan',
@@ -78,7 +78,7 @@ describe('Plan Entity', () => {
     // Arrange
     const planData = {
       name: 'Basic Plan',
-      duration: 30,
+      freeTrialDays: 30,
       items: ['Basic Feature'],
       price: 9.99,
       externalId: 'basic-plan',
@@ -97,7 +97,7 @@ describe('Plan Entity', () => {
     // Arrange
     const planData = {
       name: 'Complete Plan',
-      duration: 30,
+      freeTrialDays: 30,
       items: ['All Features'],
       price: 49.99,
       externalId: 'complete-plan',

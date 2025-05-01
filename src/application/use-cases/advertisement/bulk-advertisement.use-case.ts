@@ -21,7 +21,9 @@ export class BulkAdvertisementUseCase {
         private readonly redisService: RedisService
     ) {}
 
-    @Cron('*/1 * * * *')
+    @Cron('*/1 * * * *', {
+        name: 'bulk-advertisement'
+      })
     async execute(bulkAdvertisementUseCaseCommand: BulkAdvertisementUseCaseCommand): Promise<void> {
         let lastUpdatedAt = undefined;
 

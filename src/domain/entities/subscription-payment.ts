@@ -22,6 +22,12 @@ export class SubscriptionPayment {
   public currency: string;
   public status: SubscriptionPaymentStatus;
   
+  /**
+   * Data em que o pagamento foi realizado
+   * Obtida a partir do campo x_transaction_date do gateway de pagamento
+   */
+  public paymentDate?: Date;
+  
   constructor(props: SubscriptionPayment) {
     Object.assign(this, props);
   }

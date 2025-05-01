@@ -17,9 +17,10 @@ export class PlanController {
 
     @Get()
     async getAll(): Promise<Plan[]> {
-        return this.getAllPlanUseCase.execute();
+        return this.getAllPlanUseCase.execute({});
     }
 
+    @ApiBearerAuth()
     @Post()
     @Auth('MASTER')
     async create(@Body() createPlanDto: CreatePlanDto): Promise<Plan> {
