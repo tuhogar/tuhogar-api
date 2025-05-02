@@ -160,10 +160,10 @@ describe('CancelSubscriptionOnPaymentGatewayUseCase', () => {
       expect.any(Date)
     );
     
-    // Verificar que a data está exatamente 1 dia após a data de pagamento
+    // Verificar que a data está exatamente 2 dias após a data de pagamento
     const effectiveCancellationDate = subscriptionRepository.cancelOnPaymentGateway.mock.calls[0][1];
     const expectedDate = new Date(mockPaymentDate);
-    expectedDate.setDate(expectedDate.getDate() + 1);
+    expectedDate.setDate(expectedDate.getDate() + 2);
     
     expect(effectiveCancellationDate.getTime()).toBe(expectedDate.getTime());
     
