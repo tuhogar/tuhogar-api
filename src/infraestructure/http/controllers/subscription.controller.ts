@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Delete, Param, Put, Get, HttpStatus } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBody, ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateSubscriptionUseCase } from 'src/application/use-cases/subscription/create-subscription.use-case';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
@@ -12,6 +12,9 @@ import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/subscri
 import { GetCurrentSubscriptionUseCase } from 'src/application/use-cases/subscription/get-current-subscription.use-case';
 import { GetAllPlanUseCase } from 'src/application/use-cases/plan/get-all-plan.use-case';
 import { Plan } from 'src/domain/entities/plan';
+import { SubscriptionWithRemainingFreeDays } from 'src/domain/entities/subscription-with-remaining-free-days';
+import { GetCurrentSubscriptionOutputDto } from '../dtos/subscription/output/get-current-subscription.output.dto';
+import { GetCurrentSubscriptionOutputDtoMapper } from '../dtos/subscription/output/mapper/get-current-subscription.output.dto.mapper';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -74,8 +77,14 @@ export class SubscriptionController {
   @ApiBearerAuth()
   @Get('current')
   @Auth('ADMIN', 'USER')
-  async getCurrentSubscription(@Authenticated() authenticatedUser: AuthenticatedUser) {
-    return await this.getCurrentSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId });
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna a assinatura atual do usuário com dias gratuitos restantes',
+    type: GetCurrentSubscriptionOutputDto
+  })
+  async getCurrentSubscription(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetCurrentSubscriptionOutputDto> {
+    const subscription = await this.getCurrentSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId });
+    return GetCurrentSubscriptionOutputDtoMapper.toOutputDto(subscription);
   }
 
   @ApiBearerAuth()

@@ -592,13 +592,40 @@ Esta sessão descreve as tarefas necessárias para renomear a propriedade `durat
 
 ### 14.6. Documentação
 
-- [x] 14.6.1. Atualizar a documentação da API para refletir a mudança de nome da propriedade (0.5h)
-- [x] 14.6.2. Atualizar comentários e documentação interna do código (0.5h)
+- [x] 14.6.1. Atualizar a documentação técnica para refletir a mudança de propriedade (0.5h)
+- [x] 14.6.2. Atualizar a documentação da API para refletir a mudança de propriedade (0.5h)
+- [x] 14.6.3. Atualizar o plano de desenvolvimento para refletir o progresso (0.5h)
+
+## 15. Implementação de DTOs de saída para endpoints
+
+Esta sessão descreve as tarefas necessárias para implementar DTOs de saída para os endpoints da API, melhorando a organização e a documentação dos dados retornados.
+
+### 15.1. Análise e Planejamento
+
+- [x] 15.1.1. Identificar endpoints que necessitam de DTOs de saída (1h)
+- [x] 15.1.2. Definir padrão para DTOs de saída no projeto (0.5h)
+
+### 15.2. Implementação do DTO para o endpoint GET /v1/subscriptions/current
+
+- [x] 15.2.1. Criar DTO de saída GetCurrentSubscriptionOutputDto (1h)
+- [x] 15.2.2. Atualizar o controller para utilizar o DTO de saída (0.5h)
+- [x] 15.2.3. Criar mapeador GetCurrentSubscriptionOutputDtoMapper com método toOutputDto() (0.5h)
+- [x] 15.2.4. Organizar arquivos em estrutura de diretórios apropriada (0.5h)
+- [x] 15.2.5. Adicionar documentação Swagger para o DTO de saída (0.5h)
+
+### 15.3. Testes e Validação
+
+- [x] 15.3.1. Implementar testes unitários para o mapeador GetCurrentSubscriptionOutputDtoMapper (1h)
+- [x] 15.3.2. Validar a resposta do endpoint com o novo DTO (0.5h)
+
+### 15.4. Documentação
+
+- [x] 15.4.1. Atualizar a documentação técnica para incluir o novo DTO (0.5h)
 
 ## Resumo do Progresso do Projeto
 
 ```
-Progresso Geral: 91.7% concluído (232/253 tarefas reais)
+Progresso Geral: 95.3% concluído (241/253 tarefas reais)
 [##################--]
 ```
 
@@ -618,5 +645,6 @@ Progresso Geral: 91.7% concluído (232/253 tarefas reais)
 - **12. Rastreamento de Usuários com Plano Pago**: 100% concluído ✓
 - **13. Cálculo de dias gratuitos restantes em assinaturas**: 100% concluído ✓
 - **14. Renomeação da propriedade duration para freeTrialDays**: 100% concluído ✓
+- **15. Implementação de DTOs de saída para endpoints**: 100% concluído ✓
 
-*Atualizado em: 30/04/2025 23:48*
+*Atualizado em: 02/05/2025 14:45*
