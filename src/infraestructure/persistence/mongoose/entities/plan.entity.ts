@@ -32,6 +32,9 @@ export class Plan {
 
     @Prop()
     maxPhotos: number;
+
+    @Prop()
+    createdAt: Date
 }
 
 const PlanSchema = SchemaFactory.createForClass(Plan);

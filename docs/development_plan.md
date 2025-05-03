@@ -622,11 +622,47 @@ Esta sessão descreve as tarefas necessárias para implementar DTOs de saída pa
 
 - [x] 15.4.1. Atualizar a documentação técnica para incluir o novo DTO (0.5h)
 
+## 16. Inclusão do objeto plan no DTO de saída GetCurrentSubscriptionOutputDto
+
+Esta sessão descreve as tarefas necessárias para incluir o objeto plan no DTO de saída GetCurrentSubscriptionOutputDto, melhorando a experiência do usuário ao fornecer informações detalhadas do plano diretamente na resposta da API.
+
+### 16.1. Análise e Planejamento
+
+- [x] 16.1.1. Analisar a estrutura atual do DTO e do domínio (0.5h)
+- [x] 16.1.2. Definir a estrutura do objeto plan no DTO de saída (0.5h)
+
+### 16.2. Modificações no Domínio e Repositório
+
+- [x] 16.2.1. Atualizar a classe de domínio Subscription para incluir a propriedade plan opcional do tipo Plan (0.5h)
+- [x] 16.2.2. Modificar o método findMostRecentByAccountId da MongooseSubscriptionRepository para incluir o populate do planId (1h)
+- [x] 16.2.3. Atualizar o MongooseSubscriptionMapper para mapear o plan quando disponível (1h)
+
+### 16.3. Modificações no DTO e Mapeador
+
+- [x] 16.3.1. Atualizar o GetCurrentSubscriptionOutputDto para incluir o objeto plan com as propriedades necessárias (1h)
+- [x] 16.3.2. Atualizar o GetCurrentSubscriptionOutputDtoMapper para mapear o plan quando disponível (1h)
+
+### 16.4. Modificações no Caso de Uso
+
+- [x] 16.4.1. Atualizar o GetCurrentSubscriptionUseCase para incluir o plan no objeto de retorno (1h)
+
+### 16.5. Testes e Validação
+
+- [x] 16.5.1. Atualizar os testes unitários do mapeador GetCurrentSubscriptionOutputDtoMapper (1h)
+- [x] 16.5.2. Atualizar os testes de integração do mapeador GetCurrentSubscriptionOutputDtoMapper (1h)
+- [x] 16.5.3. Atualizar os testes do GetCurrentSubscriptionUseCase (1h)
+- [x] 16.5.4. Validar a resposta do endpoint com o novo objeto plan (0.5h)
+
+### 16.6. Documentação
+
+- [x] 16.6.1. Atualizar a documentação Swagger para refletir o novo objeto plan no DTO de saída (0.5h)
+- [x] 16.6.2. Adicionar documentação técnica sobre a integração do objeto plan (0.5h)
+
 ## Resumo do Progresso do Projeto
 
 ```
-Progresso Geral: 95.3% concluído (241/253 tarefas reais)
-[##################--]
+Progresso Geral: 92.4% concluído (257/278 tarefas)
+[###################-]
 ```
 
 ### Status por Sessão
@@ -646,5 +682,6 @@ Progresso Geral: 95.3% concluído (241/253 tarefas reais)
 - **13. Cálculo de dias gratuitos restantes em assinaturas**: 100% concluído ✓
 - **14. Renomeação da propriedade duration para freeTrialDays**: 100% concluído ✓
 - **15. Implementação de DTOs de saída para endpoints**: 100% concluído ✓
+- **16. Inclusão do objeto plan no DTO de saída GetCurrentSubscriptionOutputDto**: 100% concluído ✓
 
-*Atualizado em: 02/05/2025 14:45*
+*Atualizado em: 02/05/2025 22:30*

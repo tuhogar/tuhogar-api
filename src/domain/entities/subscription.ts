@@ -1,3 +1,5 @@
+import { Plan } from './plan';
+
 export enum SubscriptionStatus {
   UNKNOWN = 'UNKNOWN',
   PENDING = 'PENDING',
@@ -45,6 +47,12 @@ export class Subscription {
    * Adicionada automaticamente pelo Mongoose
    */
   public updatedAt?: Date;
+
+  /**
+   * Objeto Plan associado à assinatura
+   * Preenchido quando o populate é utilizado na consulta
+   */
+  public plan?: Plan;
   
   constructor(props: Subscription) {
     Object.assign(this, props);

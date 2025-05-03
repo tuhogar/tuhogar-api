@@ -45,15 +45,12 @@ export class GetCurrentSubscriptionUseCase {
       throw new Error('notfound.subscription.do.not.exists');
     }
     
-    // Busca o plano associado à assinatura
-    const plan = await this.planRepository.findOneById(subscription.planId);
-    
     // Calcula os dias gratuitos restantes
     let remainingFreeDays = 0;
     
-    if (plan && plan.freeTrialDays && plan.freeTrialDays > 0) {
+    if (subscription.plan.freeTrialDays && subscription.plan.freeTrialDays > 0) {
       // Dias totais do período gratuito
-      const totalFreeDays = plan.freeTrialDays;
+      const totalFreeDays = subscription.plan.freeTrialDays;
       
       // Calcular os dias decorridos desde a criação da assinatura
       const currentDate = new Date();
