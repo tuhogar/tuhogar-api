@@ -217,9 +217,9 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   }
 
   /**
-   * Busca a assinatura mais recente de um usuário pelo ID da conta
+   * Busca a assinatura mais recente de uma conta
    * @param accountId ID da conta do usuário
-   * @returns Assinatura mais recente ou null se não existir
+   * @returns Assinatura mais recente com o plano populado ou null se não existir
    */
   async findMostRecentByAccountId(accountId: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findOne(
@@ -227,6 +227,7 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
       { resultIntegration: 0, externalId: 0, externalPayerReference: 0 }
     )
     .sort({ createdAt: -1 })
+    .populate('planId') // Popula o plano associado à assinatura
     .exec();
     
     return MongooseSubscriptionMapper.toDomain(query);

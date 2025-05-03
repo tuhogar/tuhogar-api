@@ -22,7 +22,16 @@ export class GetCurrentSubscriptionOutputDtoMapper {
       paymentDate: subscription.paymentDate || null,
       nextPaymentDate: subscription.nextPaymentDate || null,
       createdAt: subscription.createdAt || null,
-      remainingFreeDays: subscription.remainingFreeDays
+      remainingFreeDays: subscription.remainingFreeDays,
+      // Mapeia o plan quando disponível
+      plan: subscription.plan ? {
+        id: subscription.plan.id,
+        name: subscription.plan.name,
+        price: subscription.plan.price,
+        items: subscription.plan.items,
+        freeTrialDays: subscription.plan.freeTrialDays || null,
+        photo: subscription.plan.photo || null
+      } : null
     };
   }
 }

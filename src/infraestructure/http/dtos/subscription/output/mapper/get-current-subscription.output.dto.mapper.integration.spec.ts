@@ -1,3 +1,4 @@
+import { Plan } from 'src/domain/entities/plan';
 import { SubscriptionStatus } from 'src/domain/entities/subscription';
 import { SubscriptionWithRemainingFreeDays } from 'src/domain/entities/subscription-with-remaining-free-days';
 import { GetCurrentSubscriptionOutputDto } from '../get-current-subscription.output.dto';
@@ -16,6 +17,18 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
     it('deve produzir um DTO com o formato exato esperado pela API', () => {
       // Arrange
       const mockDate = new Date('2025-05-01T10:00:00Z');
+      const mockPlan = new Plan({
+        id: 'plan-789',
+        name: 'Plano Premium',
+        freeTrialDays: 30,
+        items: ['Item 1', 'Item 2'],
+        price: 99.90,
+        photo: 'https://example.com/photo.jpg',
+        externalId: 'ext-plan-123',
+        maxAdvertisements: 10,
+        maxPhotos: 20
+      });
+
       const mockSubscription: SubscriptionWithRemainingFreeDays = {
         id: 'subscription-123',
         accountId: 'account-456',
@@ -29,7 +42,8 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         nextPaymentDate: mockDate,
         createdAt: mockDate,
         updatedAt: mockDate,
-        remainingFreeDays: 5
+        remainingFreeDays: 5,
+        plan: mockPlan
       };
 
       // Act
@@ -39,7 +53,7 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
       // Verificar que o resultado tem exatamente as propriedades esperadas
       const expectedProperties = [
         'id', 'planId', 'status', 'effectiveCancellationDate',
-        'paymentDate', 'nextPaymentDate', 'createdAt', 'remainingFreeDays'
+        'paymentDate', 'nextPaymentDate', 'createdAt', 'remainingFreeDays', 'plan'
       ];
       
       const resultProperties = Object.keys(result);
@@ -69,6 +83,15 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
       expect(result.nextPaymentDate).toEqual(mockDate);
       expect(result.createdAt).toEqual(mockDate);
       expect(result.remainingFreeDays).toBe(5);
+      
+      // Verificar o objeto plan
+      expect(result.plan).toBeDefined();
+      expect(result.plan.id).toBe('plan-789');
+      expect(result.plan.name).toBe('Plano Premium');
+      expect(result.plan.price).toBe(99.90);
+      expect(result.plan.items).toEqual(['Item 1', 'Item 2']);
+      expect(result.plan.freeTrialDays).toBe(30);
+      expect(result.plan.photo).toBe('https://example.com/photo.jpg');
     });
 
     it('deve lidar corretamente com valores nulos ou indefinidos', () => {
@@ -78,7 +101,8 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         accountId: 'account-456',
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
-        remainingFreeDays: 0
+        remainingFreeDays: 0,
+        plan: undefined
       };
 
       // Act
@@ -93,16 +117,26 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
       expect(result.nextPaymentDate).toBeNull();
       expect(result.createdAt).toBeNull();
       expect(result.remainingFreeDays).toBe(0);
+      expect(result.plan).toBeNull();
     });
 
     it('deve garantir que o DTO de saída segue o contrato da API', () => {
       // Arrange
+      const mockPlanMinimal = new Plan({
+        id: 'plan-789',
+        name: 'Plano Básico',
+        items: ['Item 1'],
+        price: 49.90,
+        externalId: 'ext-plan-123'
+      });
+
       const mockSubscription: SubscriptionWithRemainingFreeDays = {
         id: 'subscription-123',
         accountId: 'account-456',
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
-        remainingFreeDays: 5
+        remainingFreeDays: 5,
+        plan: mockPlanMinimal
       };
 
       // Act
@@ -123,6 +157,79 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
       expect(deserialized.paymentDate).toBeNull();
       expect(deserialized.nextPaymentDate).toBeNull();
       expect(deserialized.createdAt).toBeNull();
+      
+      // Verificar que o objeto plan é serializado corretamente
+      expect(deserialized.plan).toBeDefined();
+      expect(deserialized.plan.id).toBe('plan-789');
+      expect(deserialized.plan.name).toBe('Plano Básico');
+      expect(deserialized.plan.price).toBe(49.90);
+      expect(deserialized.plan.items).toEqual(['Item 1']);
+      expect(deserialized.plan.freeTrialDays).toBeNull();
+      expect(deserialized.plan.photo).toBeNull();
+    });
+  });
+
+  describe('Validação específica do objeto plan', () => {
+    it('deve mapear corretamente o objeto plan com todas as propriedades', () => {
+      // Arrange
+      const mockPlan = new Plan({
+        id: 'plan-789',
+        name: 'Plano Premium',
+        freeTrialDays: 30,
+        items: ['Item 1', 'Item 2'],
+        price: 99.90,
+        photo: 'https://example.com/photo.jpg',
+        externalId: 'ext-plan-123',
+        maxAdvertisements: 10,
+        maxPhotos: 20
+      });
+
+      const mockSubscription: SubscriptionWithRemainingFreeDays = {
+        id: 'subscription-123',
+        accountId: 'account-456',
+        planId: 'plan-789',
+        status: SubscriptionStatus.ACTIVE,
+        remainingFreeDays: 5,
+        plan: mockPlan
+      };
+
+      // Act
+      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+
+      // Assert
+      expect(result.plan).toBeDefined();
+      
+      // Verificar que o objeto plan tem exatamente as propriedades esperadas
+      const planProperties = Object.keys(result.plan);
+      const expectedPlanProperties = ['id', 'name', 'price', 'items', 'freeTrialDays', 'photo'];
+      
+      expect(planProperties.length).toBe(expectedPlanProperties.length);
+      expectedPlanProperties.forEach(prop => {
+        expect(planProperties).toContain(prop);
+      });
+      
+      // Verificar que propriedades internas do Plan não são expostas
+      expect(planProperties).not.toContain('externalId');
+      expect(planProperties).not.toContain('maxAdvertisements');
+      expect(planProperties).not.toContain('maxPhotos');
+    });
+
+    it('deve lidar corretamente com plan nulo', () => {
+      // Arrange
+      const mockSubscription: SubscriptionWithRemainingFreeDays = {
+        id: 'subscription-123',
+        accountId: 'account-456',
+        planId: 'plan-789',
+        status: SubscriptionStatus.ACTIVE,
+        remainingFreeDays: 5,
+        plan: null
+      };
+
+      // Act
+      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+
+      // Assert
+      expect(result.plan).toBeNull();
     });
   });
 });

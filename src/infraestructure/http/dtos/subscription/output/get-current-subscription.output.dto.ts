@@ -37,4 +37,28 @@ export class GetCurrentSubscriptionOutputDto {
   @ApiProperty({ description: 'Número de dias gratuitos restantes na assinatura' })
   @Property()
   remainingFreeDays: number;
+
+  @ApiProperty({ 
+    description: 'Detalhes do plano associado à assinatura',
+    required: false,
+    nullable: true,
+    type: 'object',
+    properties: {
+      id: { type: 'string', description: 'ID do plano' },
+      name: { type: 'string', description: 'Nome do plano', nullable: true },
+      price: { type: 'number', description: 'Preço do plano', nullable: true },
+      items: { type: 'array', items: { type: 'string' }, description: 'Itens incluídos no plano' },
+      freeTrialDays: { type: 'number', description: 'Número de dias gratuitos no período de teste', nullable: true },
+      photo: { type: 'string', description: 'URL da foto do plano', nullable: true }
+    }
+  })
+  @Property()
+  plan: {
+    id: string;
+    name: string | null;
+    price: number | null;
+    items: string[];
+    freeTrialDays: number | null;
+    photo: string | null;
+  } | null;
 }
