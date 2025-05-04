@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { IAdvertisementRepository } from 'src/application/interfaces/repositories/advertisement.repository.interface';
 import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 import { AdvertisementStatus } from 'src/domain/entities/advertisement';
+import { AlgoliaService } from 'src/infraestructure/algolia/algolia.service';
+import { RedisService } from 'src/infraestructure/persistence/redis/redis.service';
 
 /**
  * Interface para o comando de ajuste de anúncios após mudança de plano
@@ -32,7 +34,9 @@ export class AdjustAdvertisementsAfterPlanChangeUseCase {
 
   constructor(
     private readonly advertisementRepository: IAdvertisementRepository,
-    private readonly planRepository: IPlanRepository
+    private readonly planRepository: IPlanRepository,
+    private readonly algoliaService: AlgoliaService,
+    private readonly redisService: RedisService
   ) {}
 
   /**
@@ -88,8 +92,14 @@ export class AdjustAdvertisementsAfterPlanChangeUseCase {
           null,
           null
         );
-        
+
         pausedDueToPhotoLimit = advertisementsWithExcessPhotos.length;
+
+        await Promise.all(idsToUpdate.map((a) => this.algoliaService.delete(a)));
+        await Promise.all(
+          idsToUpdate.map((a) => this.redisService.delete(a))
+        );
+        
         this.logger.log(`${pausedDueToPhotoLimit} anúncios pausados por excederem o limite de fotos`);
       } else {
         this.logger.log('Nenhum anúncio com excesso de fotos encontrado');
@@ -129,8 +139,14 @@ export class AdjustAdvertisementsAfterPlanChangeUseCase {
             null,
             null
           );
-          
+
           pausedDueToAdvertisementLimit = advertisementsToPause.length;
+
+          await Promise.all(idsToUpdate.map((a) => this.algoliaService.delete(a)));
+          await Promise.all(
+            idsToUpdate.map((a) => this.redisService.delete(a))
+          );
+          
           this.logger.log(`${pausedDueToAdvertisementLimit} anúncios mais recentes pausados por excederem o limite de anúncios ativos`);
         } else {
           this.logger.log(`Número de anúncios ativos (${activeAdvertisements.length}) está dentro do limite do plano (${plan.maxAdvertisements})`);

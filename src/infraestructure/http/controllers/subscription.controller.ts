@@ -15,6 +15,8 @@ import { Plan } from 'src/domain/entities/plan';
 import { SubscriptionWithRemainingFreeDays } from 'src/domain/entities/subscription-with-remaining-free-days';
 import { GetCurrentSubscriptionOutputDto } from '../dtos/subscription/output/get-current-subscription.output.dto';
 import { GetCurrentSubscriptionOutputDtoMapper } from '../dtos/subscription/output/mapper/get-current-subscription.output.dto.mapper';
+import { GetAllPlansOutputDto } from '../dtos/plan/output/get-all-plans.output.dto';
+import { GetAllPlansOutputDtoMapper } from '../dtos/plan/output/mapper/get-all-plans.output.dto.mapper';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -90,8 +92,9 @@ export class SubscriptionController {
   @ApiBearerAuth()
   @Auth('ADMIN', 'USER')
   @Get('plans')
-  async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<Plan[]> {
-      return this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId });
+  async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetAllPlansOutputDto[]> {
+    const plans = await this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId });
+    return GetAllPlansOutputDtoMapper.toOutputDtoList(plans);
   }
 
   /*

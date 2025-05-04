@@ -46,7 +46,7 @@ export class GetCurrentSubscriptionOutputDto {
     properties: {
       id: { type: 'string', description: 'ID do plano' },
       name: { type: 'string', description: 'Nome do plano', nullable: true },
-      price: { type: 'number', description: 'Preço do plano', nullable: true },
+      price: { type: 'number', description: 'Preço do plano' },
       items: { type: 'array', items: { type: 'string' }, description: 'Itens incluídos no plano' },
       freeTrialDays: { type: 'number', description: 'Número de dias gratuitos no período de teste', nullable: true },
       photo: { type: 'string', description: 'URL da foto do plano', nullable: true }
