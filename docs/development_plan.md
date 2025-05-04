@@ -658,10 +658,41 @@ Esta sessão descreve as tarefas necessárias para incluir o objeto plan no DTO 
 - [x] 16.6.1. Atualizar a documentação Swagger para refletir o novo objeto plan no DTO de saída (0.5h)
 - [x] 16.6.2. Adicionar documentação técnica sobre a integração do objeto plan (0.5h)
 
+## 17. Implementação do DTO de saída para o endpoint GET /v1/plans
+
+### 17.1. Análise e Planejamento
+
+- [x] 17.1.1. Analisar a entidade Plan e definir as propriedades que devem ser expostas na API (0.5h)
+- [x] 17.1.2. Definir a estrutura do DTO de saída GetAllPlansOutputDto (0.5h)
+
+### 17.2. Implementação do DTO
+
+- [x] 17.2.1. Criar a classe GetAllPlansOutputDto com as propriedades necessárias (0.5h)
+- [x] 17.2.2. Adicionar documentação Swagger com decoradores ApiProperty (0.5h)
+
+### 17.3. Implementação do Mapeador
+
+- [x] 17.3.1. Criar a classe GetAllPlansOutputDtoMapper com o método toOutputDto (0.5h)
+- [x] 17.3.2. Implementar a lógica de mapeamento da entidade Plan para o DTO (0.5h)
+
+### 17.4. Atualização do Controller
+
+- [x] 17.4.1. Atualizar o método getAll() do PlanController para utilizar o mapeador (0.5h)
+- [x] 17.4.2. Atualizar a documentação Swagger do endpoint (0.5h)
+
+### 17.5. Testes
+
+- [x] 17.5.1. Implementar testes unitários para o mapeador GetAllPlansOutputDtoMapper (1h)
+- [x] 17.5.2. Implementar testes de integração para validar o formato da resposta da API (1h)
+
+### 17.6. Documentação
+
+- [x] 17.6.1. Atualizar a documentação técnica para incluir o novo DTO de saída (0.5h)
+
 ## Resumo do Progresso do Projeto
 
 ```
-Progresso Geral: 92.4% concluído (257/278 tarefas)
+Progresso Geral: 93.4% concluído (268/287 tarefas)
 [###################-]
 ```
 
@@ -683,5 +714,6 @@ Progresso Geral: 92.4% concluído (257/278 tarefas)
 - **14. Renomeação da propriedade duration para freeTrialDays**: 100% concluído ✓
 - **15. Implementação de DTOs de saída para endpoints**: 100% concluído ✓
 - **16. Inclusão do objeto plan no DTO de saída GetCurrentSubscriptionOutputDto**: 100% concluído ✓
+- **17. Implementação do DTO de saída para o endpoint GET /v1/plans**: 100% concluído ✓
 
-*Atualizado em: 02/05/2025 22:30*
+*Atualizado em: 03/05/2025 23:10*

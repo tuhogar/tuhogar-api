@@ -30,7 +30,7 @@ src/infraestructure/http/dtos/{módulo}/output/
 - **Mapeadores**: Utilizam o formato PascalCase com o sufixo `OutputDtoMapper`
 - **Métodos de mapeamento**: Utilizam o nome `toOutputDto()`
 
-## Exemplo Implementado
+## Exemplos Implementados
 
 ### GetCurrentSubscriptionOutputDto
 
@@ -82,3 +82,47 @@ public static toOutputDto(subscription: SubscriptionWithRemainingFreeDays): GetC
 - **Documentação melhorada**: Propriedades bem documentadas com Swagger
 - **Consistência nas respostas**: Formato padronizado para todas as respostas da API
 - **Flexibilidade para evolução**: Possibilidade de evoluir as entidades de domínio sem afetar a API pública
+
+### GetAllPlansOutputDto
+
+Este DTO foi implementado para o endpoint `GET /v1/plans` e retorna a lista de planos disponíveis no sistema.
+
+#### Propriedades
+
+| Propriedade | Tipo | Descrição | Obrigatório |
+|-------------|------|-----------|-------------|
+| id | string | ID único do plano | Sim |
+| name | string | Nome do plano | Sim |
+| freeTrialDays | number | Número de dias gratuitos no período de teste | Não |
+| items | string[] | Lista de itens/benefícios incluídos no plano | Sim |
+| price | number | Preço do plano | Sim |
+| photo | string | URL da foto do plano | Não |
+
+#### Mapeador
+
+O mapeador `GetAllPlansOutputDtoMapper` é responsável por converter a entidade de domínio `Plan` para o DTO de saída `GetAllPlansOutputDto`.
+
+```typescript
+public static toOutputDto(plan: Plan): GetAllPlansOutputDto {
+  if (!plan) return null;
+  
+  return {
+    id: plan.id,
+    name: plan.name,
+    freeTrialDays: plan.freeTrialDays || null,
+    items: plan.items || [],
+    price: plan.price,
+    photo: plan.photo || null
+  };
+}
+
+public static toOutputDtoList(plans: Plan[]): GetAllPlansOutputDto[] {
+  if (!plans || !Array.isArray(plans)) return [];
+  
+  return plans.map(plan => this.toOutputDto(plan));
+}
+```
+
+Este mapeador implementa dois métodos:
+1. `toOutputDto`: Converte uma entidade Plan individual para o DTO
+2. `toOutputDtoList`: Converte uma lista de entidades Plan para uma lista de DTOs
