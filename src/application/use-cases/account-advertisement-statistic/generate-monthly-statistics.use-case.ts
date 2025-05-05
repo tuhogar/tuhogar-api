@@ -421,7 +421,15 @@ export class GenerateMonthlyStatisticsUseCase {
   }
 
   private getPreviousMonth(): string {
-    const date = new Date();
+    const date = new Date(Date.UTC(
+      new Date().getUTCFullYear(),
+      new Date().getUTCMonth(),
+      new Date().getUTCDate(),
+      new Date().getUTCHours(),
+      new Date().getUTCMinutes(),
+      new Date().getUTCSeconds(),
+      new Date().getUTCMilliseconds()
+  ));
     // Subtrair um mês da data atual
     date.setMonth(date.getMonth() - 1);
     // Formatar como YYYY-MM

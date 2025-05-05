@@ -42,9 +42,32 @@ export class ProcessCancelledSubscriptionsUseCase {
   })
   async executeScheduled(): Promise<void> {
     try {
-      this.logger.log(`Iniciando processamento automático de assinaturas canceladas em ${new Date().toISOString()}`);
+      // Criar data atual em UTC para os logs
+      const startDate = new Date(Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+        new Date().getUTCHours(),
+        new Date().getUTCMinutes(),
+        new Date().getUTCSeconds(),
+        new Date().getUTCMilliseconds()
+      ));
+      
+      this.logger.log(`Iniciando processamento automático de assinaturas canceladas em ${startDate.toISOString()} (UTC)`);
       await this.execute();
-      this.logger.log(`Processamento automático de assinaturas canceladas concluído com sucesso em ${new Date().toISOString()}`);
+      
+      // Criar nova data UTC para o log de conclusão
+      const endDate = new Date(Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+        new Date().getUTCHours(),
+        new Date().getUTCMinutes(),
+        new Date().getUTCSeconds(),
+        new Date().getUTCMilliseconds()
+      ));
+      
+      this.logger.log(`Processamento automático de assinaturas canceladas concluído com sucesso em ${endDate.toISOString()} (UTC)`);
     } catch (error) {
       this.logger.error(`Erro no processamento automático de assinaturas canceladas: ${error.message}`);
       // Não propagar o erro para não interromper outros jobs agendados
@@ -56,8 +79,19 @@ export class ProcessCancelledSubscriptionsUseCase {
    * Pode ser chamado manualmente ou pelo agendamento
    */
   async execute(): Promise<void> {
-    const currentDate = new Date();
-    this.logger.log(`Buscando assinaturas canceladas com data efetiva de cancelamento <= ${currentDate.toISOString()}`);
+    // Criar data atual em UTC explicitamente
+    const now = new Date();
+    const currentDate = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      now.getUTCHours(),
+      now.getUTCMinutes(),
+      now.getUTCSeconds(),
+      now.getUTCMilliseconds()
+    ));
+    
+    this.logger.log(`Buscando assinaturas canceladas com data efetiva de cancelamento <= ${currentDate.toISOString()} (UTC)`);
     
     // Buscar assinaturas que precisam ser canceladas
     const subscriptionsToCancel = await this.subscriptionRepository.findSubscriptionsToCancel(currentDate);
