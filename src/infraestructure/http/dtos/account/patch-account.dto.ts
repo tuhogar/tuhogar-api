@@ -72,15 +72,15 @@ export class PatchAccountDto {
     @Property()
     description: string;
 
-    @ApiProperty()
-    @IsNotEmpty({ message: 'invalid.documentType.should.not.be.empty' })
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsEnum(AccountDocumentType, { message: 'invalid.documentType.must.be.one.of.the.following.values.CC.CE.NIT' })
     @Property()
     documentType: AccountDocumentType;
 
-    @ApiProperty()
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsString({ message: 'invalid.documentNumber.must.be.a.string' })
-    @IsNotEmpty({ message: 'invalid.documentNumber.should.not.be.empty' })
     @MaxLength(30, { message: 'invalid.documentNumber.must.be.shorter.than.or.equal.to.30.characters' })
     @Property()
     documentNumber: string;

@@ -73,7 +73,7 @@ export class MongooseAccountRepository implements IAccountRepository {
       contractTypes: string[],
     ): Promise<Account> {
 
-      const update: any = { documentType, documentNumber };
+      const update: any = {};
 
       if (name !== undefined) update.name = name;
       if (address !== undefined) update.address = address;
@@ -85,6 +85,8 @@ export class MongooseAccountRepository implements IAccountRepository {
       if (socialMedia !== undefined) update.socialMedia = socialMedia;
       if (description !== undefined) update.description = description;
       if (contractTypes !== undefined) update.contractTypes = contractTypes;
+      if (documentType !== undefined) update.documentType = documentType;
+      if (documentNumber !== undefined) update.documentNumber = documentNumber;
 
       const updated = await this.accountModel.findOneAndUpdate(
         { _id: id },
