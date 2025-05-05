@@ -94,7 +94,15 @@ export class AccountAdvertisementStatistics {
         this.id = props.id;
         this.accountId = props.accountId;
         this.month = props.month;
-        this.createdAt = props.createdAt || new Date();
+        this.createdAt = props.createdAt || new Date(Date.UTC(
+            new Date().getUTCFullYear(),
+            new Date().getUTCMonth(),
+            new Date().getUTCDate(),
+            new Date().getUTCHours(),
+            new Date().getUTCMinutes(),
+            new Date().getUTCSeconds(),
+            new Date().getUTCMilliseconds()
+        ));
         this.digitalCatalogViews = props.digitalCatalogViews || 0;
         
         if (props.totalAdvertisements) {

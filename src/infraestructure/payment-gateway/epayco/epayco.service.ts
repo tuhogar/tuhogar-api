@@ -17,6 +17,65 @@ export class EPaycoService implements IPaymentGateway {
   private readonly baseUrl: string;
   private readonly subscriptionConfirmationPath: string;
 
+  /**
+   * Converte uma data no formato DD-MM-YYYY da Colômbia para UTC,
+   * usando a hora atual convertida para o fuso horário da Colômbia
+   * @param dateString Data no formato DD-MM-YYYY
+   * @returns Data em UTC
+   */
+  private convertColombianDateToUTC(dateString: string): Date {
+    // Verificar se a string de data é válida
+    if (!dateString || typeof dateString !== 'string') {
+      console.error(`Invalid date string: ${dateString}`);
+      return null;
+    }
+    
+    // Converter a data do formato DD-MM-YYYY para um objeto Date
+    const parts = dateString.split('-');
+    if (parts.length !== 3) {
+      console.error(`Invalid date format: ${dateString}`);
+      return null;
+    }
+    
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Meses em JavaScript são 0-indexed
+    const year = parseInt(parts[2], 10);
+    
+    if (isNaN(day) || isNaN(month) || isNaN(year)) {
+      console.error(`Invalid date components: day=${parts[0]}, month=${parts[1]}, year=${parts[2]}`);
+      return null;
+    }
+    
+    // Obter a hora atual em UTC
+    const now = new Date();
+    
+    // Converter a hora atual para o fuso horário da Colômbia (UTC-5)
+    // Primeiro, obtemos os componentes de hora em UTC
+    const utcHours = now.getUTCHours();
+    const utcMinutes = now.getUTCMinutes();
+    const utcSeconds = now.getUTCSeconds();
+    
+    // Calcular a hora equivalente na Colômbia (UTC-5)
+    let colombiaHours = utcHours - 5;
+    // Ajustar se a hora ficar negativa (atravessar para o dia anterior)
+    if (colombiaHours < 0) {
+      colombiaHours += 24;
+    }
+    
+    // Como a data fornecida pelo ePayco já está no fuso horário da Colômbia,
+    // usamos diretamente os componentes da data sem ajustes
+    
+    // Criar uma data com a data fornecida pelo ePayco e a hora atual convertida para o fuso da Colômbia
+    const colombianDateTime = new Date(Date.UTC(year, month, day, colombiaHours, utcMinutes, utcSeconds));
+    
+    // Converter de volta para UTC (a data já está em UTC, então não precisamos ajustar)
+    console.log(`Original Colombian date: ${dateString}`);
+    console.log(`Current time in Colombia: ${colombiaHours}:${utcMinutes}:${utcSeconds}`);
+    console.log(`Combined date and time in UTC: ${colombianDateTime.toISOString()}`);
+    
+    return colombianDateTime;
+  }
+
   constructor(private readonly configService: ConfigService) {
     this.epaycoClient = new epayco({
       apiKey: this.configService.get<string>('EPAYCO_PUBLIC_KEY'),
@@ -100,17 +159,14 @@ export class EPaycoService implements IPaymentGateway {
         subscriptionStatus = SubscriptionStatus.ACTIVE;
         console.info(`Subscription with trial period created successfully. Trial ends on: ${charge.nextVerificationDate || 'Unknown'}`);
         
-        // Atualizar a data do próximo pagamento com base na data de verificação do ePayco
+        // Atualizar a data do próximo pagamento
         if (charge.nextVerificationDate) {
-          // Converter a data do formato DD-MM-YYYY para um objeto Date
-          const parts = charge.nextVerificationDate.split('-');
-          if (parts.length === 3) {
-            const day = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) - 1; // Meses em JavaScript são 0-indexed
-            const year = parseInt(parts[2], 10);
-            
-            nextPaymentDate = new Date(year, month, day);
-            console.log(`Updated nextPaymentDate based on ePayco verification date: ${nextPaymentDate.toISOString()}`);
+          console.info(`Next verification date: ${charge.nextVerificationDate}`);
+          
+          // Converter a data do formato DD-MM-YYYY da Colômbia para UTC
+          nextPaymentDate = this.convertColombianDateToUTC(charge.nextVerificationDate);
+          if (nextPaymentDate) {
+            console.log(`Updated nextPaymentDate based on charge verification date: ${nextPaymentDate.toISOString()}`);
           }
         }
       } else {
@@ -152,14 +208,9 @@ export class EPaycoService implements IPaymentGateway {
             if (charge.subscription.nextVerificationDate) {
               console.info(`Next verification date: ${charge.subscription.nextVerificationDate}`);
               
-              // Converter a data do formato DD-MM-YYYY para um objeto Date
-              const parts = charge.subscription.nextVerificationDate.split('-');
-              if (parts.length === 3) {
-                const day = parseInt(parts[0], 10);
-                const month = parseInt(parts[1], 10) - 1; // Meses em JavaScript são 0-indexed
-                const year = parseInt(parts[2], 10);
-                
-                nextPaymentDate = new Date(year, month, day);
+              // Converter a data do formato DD-MM-YYYY da Colômbia para UTC
+              nextPaymentDate = this.convertColombianDateToUTC(charge.subscription.nextVerificationDate);
+              if (nextPaymentDate) {
                 console.log(`Updated nextPaymentDate based on subscription verification date: ${nextPaymentDate.toISOString()}`);
               }
             }
@@ -283,38 +334,60 @@ export class EPaycoService implements IPaymentGateway {
           // Verificar se o formato é YYYY-MM-DD HH:MM:SS ou DD/MM/YYYY HH:MM:SS
           const dateFormat = dateParts[0].includes('-') ? 'ISO' : 'BR';
           
+          // Extrair componentes de data e hora
+          let year: string, month: string, day: string;
+          const [hour, minute, second] = dateParts[1].split(':');
+          
           if (dateFormat === 'ISO') {
             // Formato ISO: YYYY-MM-DD HH:MM:SS
-            const [year, month, day] = dateParts[0].split('-');
-            const [hour, minute, second] = dateParts[1].split(':');
-            
-            // Mês em JavaScript é 0-indexed (0-11)
-            paymentDate = new Date(
-              parseInt(year), 
-              parseInt(month) - 1, 
-              parseInt(day),
-              parseInt(hour),
-              parseInt(minute),
-              parseInt(second)
-            );
+            [year, month, day] = dateParts[0].split('-');
           } else {
             // Formato BR: DD/MM/YYYY HH:MM:SS
-            const [day, month, year] = dateParts[0].split('/');
-            const [hour, minute, second] = dateParts[1].split(':');
-            
-            // Mês em JavaScript é 0-indexed (0-11)
-            paymentDate = new Date(
-              parseInt(year), 
-              parseInt(month) - 1, 
-              parseInt(day),
-              parseInt(hour),
-              parseInt(minute),
-              parseInt(second)
-            );
+            [day, month, year] = dateParts[0].split('/');
           }
+          
+          // Converter os componentes para números
+          const yearNum = parseInt(year, 10);
+          const monthNum = parseInt(month, 10) - 1; // Mês em JavaScript é 0-indexed (0-11)
+          const dayNum = parseInt(day, 10);
+          const hourNum = parseInt(hour, 10);
+          const minuteNum = parseInt(minute, 10);
+          const secondNum = parseInt(second, 10);
+          
+          // Criar a data no fuso horário da Colômbia usando UTC
+          // A data vem no fuso horário da Colômbia (UTC-5)
+          // Para converter para UTC, adicionamos 5 horas
+          const colombianDate = new Date(Date.UTC(yearNum, monthNum, dayNum, hourNum, minuteNum, secondNum));
+          colombianDate.setUTCHours(colombianDate.getUTCHours() + 5);
+          
+          console.log(`Original Colombian transaction date: ${paymentNotificated.x_transaction_date}`);
+          console.log(`Converted to UTC: ${colombianDate.toISOString()}`);
+          
+          paymentDate = colombianDate;
         } else if (dateParts.length === 1) {
-          // Tentar converter diretamente, pode ser um formato ISO completo
-          paymentDate = new Date(paymentNotificated.x_transaction_date);
+          // Tentar converter diretamente, assumindo que é um formato ISO completo
+          const localDate = new Date(paymentNotificated.x_transaction_date);
+          
+          // Converter para UTC explicitamente
+          // Primeiro criamos uma data UTC com os componentes da data local
+          const utcDate = new Date(Date.UTC(
+            localDate.getFullYear(),
+            localDate.getMonth(),
+            localDate.getDate(),
+            localDate.getHours(),
+            localDate.getMinutes(),
+            localDate.getSeconds(),
+            localDate.getMilliseconds()
+          ));
+          
+          // Assumimos que a data está no fuso horário da Colômbia (UTC-5)
+          // Para converter para UTC, adicionamos 5 horas
+          utcDate.setUTCHours(utcDate.getUTCHours() + 5);
+          
+          console.log(`Original Colombian single-part date: ${paymentNotificated.x_transaction_date}`);
+          console.log(`Converted to UTC: ${utcDate.toISOString()}`);
+          
+          paymentDate = utcDate;
         }
       } catch (error) {
         console.error(`Erro ao converter a data do pagamento: ${paymentNotificated.x_transaction_date}`, error);

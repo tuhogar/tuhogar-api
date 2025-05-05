@@ -34,9 +34,20 @@ export class SubscriptionController {
   async createSubscription(
     @Authenticated() authenticatedUser: AuthenticatedUser,
     @Body() createSubscriptionDto: CreateSubscriptionDto) {
-      console.log(`-------createSubscription.body: ${new Date()}`);
+
+      const date = new Date(Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+        new Date().getUTCHours(),
+        new Date().getUTCMinutes(),
+        new Date().getUTCSeconds(),
+        new Date().getUTCMilliseconds()
+      ));
+      
+      console.log(`-------createSubscription.body: ${date.toISOString()} (UTC)`);
       console.log(createSubscriptionDto);
-      console.log(`-------createSubscription.body: ${new Date()}`);
+      console.log(`-------createSubscription.body: ${date.toISOString()} (UTC)`);
     const response = await this.createSubscriptionUseCase.execute({ 
       actualSubscriptionId: authenticatedUser.subscriptionId,
       actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
@@ -53,18 +64,37 @@ export class SubscriptionController {
 
   @Post('notifications')
   async notification(@Body() body: any) {
-    console.log(`-------post-notification.body: ${new Date()}`);
+    const date = new Date(Date.UTC(
+      new Date().getUTCFullYear(),
+      new Date().getUTCMonth(),
+      new Date().getUTCDate(),
+      new Date().getUTCHours(),
+      new Date().getUTCMinutes(),
+      new Date().getUTCSeconds(),
+      new Date().getUTCMilliseconds()
+    ));
+    console.log(`-------post-notification.body: ${date.toISOString()} (UTC)`);
     console.log(body);
-    console.log(`-------post-notification.body: ${new Date()}`);
+    console.log(`-------post-notification.body: ${date.toISOString()} (UTC)`);
 
     await this.receiveSubscriptionNotificationUseCase.execute(body);
   }
 
   @Get('notifications')
   async getNotification(@Body() body: any) {
-    console.log(`-------get-notification.body: ${new Date()}`);
+    const date = new Date(Date.UTC(
+      new Date().getUTCFullYear(),
+      new Date().getUTCMonth(),
+      new Date().getUTCDate(),
+      new Date().getUTCHours(),
+      new Date().getUTCMinutes(),
+      new Date().getUTCSeconds(),
+      new Date().getUTCMilliseconds()
+    ));
+
+    console.log(`-------get-notification.body: ${date.toISOString()} (UTC)`);
     console.log(body);
-    console.log(`-------get-notification.body: ${new Date()}`);
+    console.log(`-------get-notification.body: ${date.toISOString()} (UTC)`);
 
     return HttpStatus.CREATED;
   }
@@ -104,9 +134,19 @@ export class SubscriptionController {
   async updateSubscriptionPlan(
     @Authenticated() authenticatedUser: AuthenticatedUser,
     @Body() updateSubscriptionDto: UpdateSubscriptionDto) {
-      console.log(`-------updateSubscriptionPlan.body: ${new Date()}`);
-      console.log(updateSubscriptionDto);
-      console.log(`-------updateSubscriptionPlan.body: ${new Date()}`);
+    const date = new Date(Date.UTC(
+      new Date().getUTCFullYear(),
+      new Date().getUTCMonth(),
+      new Date().getUTCDate(),
+      new Date().getUTCHours(),
+      new Date().getUTCMinutes(),
+      new Date().getUTCSeconds(),
+      new Date().getUTCMilliseconds()
+    ));
+
+    console.log(`-------updateSubscriptionPlan.body: ${date.toISOString()} (UTC)`);
+    console.log(updateSubscriptionDto);
+    console.log(`-------updateSubscriptionPlan.body: ${date.toISOString()} (UTC)`);
     return await this.updateSubscriptionPlanUseCase.execute({ 
       actualSubscriptionId: authenticatedUser.subscriptionId,
       accountId: authenticatedUser.accountId, 
