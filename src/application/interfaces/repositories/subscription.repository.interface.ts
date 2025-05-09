@@ -19,4 +19,11 @@ export abstract class ISubscriptionRepository {
   abstract updatePaymentDate(id: string, paymentDate: Date): Promise<Subscription>;
   abstract updateNextPaymentDate(id: string, nextPaymentDate: Date): Promise<Subscription>;
   abstract findMostRecentByAccountId(accountId: string): Promise<Subscription>;
+
+  /**
+   * Busca todas as assinaturas de uma conta, ordenadas por data de criação (mais recentes primeiro)
+   * @param accountId ID da conta do usuário
+   * @returns Array de assinaturas com os planos populados
+   */
+  abstract findAllByAccountId(accountId: string): Promise<Subscription[]>;
 }

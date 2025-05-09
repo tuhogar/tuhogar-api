@@ -90,6 +90,7 @@ import { GenerateMonthlyStatisticsUseCase } from "src/application/use-cases/acco
 import { AdvertisementStatisticsController } from "./controllers/advertisement-statistics.controller";
 import { ProcessCancelledSubscriptionsUseCase } from "src/application/use-cases/subscription/process-cancelled-subscriptions.use-case";
 import { GetCurrentSubscriptionUseCase } from "src/application/use-cases/subscription/get-current-subscription.use-case";
+import { GetSubscriptionHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-history.use-case";
 
 @Module({
     imports: [
@@ -164,6 +165,7 @@ import { GetCurrentSubscriptionUseCase } from "src/application/use-cases/subscri
         GenerateMonthlyStatisticsUseCase,
         ProcessCancelledSubscriptionsUseCase,
         GetCurrentSubscriptionUseCase,
+        GetSubscriptionHistoryUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,

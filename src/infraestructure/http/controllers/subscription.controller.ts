@@ -10,11 +10,14 @@ import { CancelSubscriptionOnPaymentGatewayUseCase } from 'src/application/use-c
 import { UpdateSubscriptionDto } from '../dtos/subscription/update-subscription.dto';
 import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/subscription/update-subscription-plan.use-case';
 import { GetCurrentSubscriptionUseCase } from 'src/application/use-cases/subscription/get-current-subscription.use-case';
+import { GetSubscriptionHistoryUseCase } from 'src/application/use-cases/subscription/get-subscription-history.use-case';
 import { GetAllPlanUseCase } from 'src/application/use-cases/plan/get-all-plan.use-case';
 import { Plan } from 'src/domain/entities/plan';
 import { SubscriptionWithRemainingFreeDays } from 'src/domain/entities/subscription-with-remaining-free-days';
 import { GetCurrentSubscriptionOutputDto } from '../dtos/subscription/output/get-current-subscription.output.dto';
 import { GetCurrentSubscriptionOutputDtoMapper } from '../dtos/subscription/output/mapper/get-current-subscription.output.dto.mapper';
+import { GetSubscriptionHistoryOutputDto } from '../dtos/subscription/output/get-subscription-history.output.dto';
+import { GetSubscriptionHistoryOutputDtoMapper } from '../dtos/subscription/output/mapper/get-subscription-history.output.dto.mapper';
 import { GetAllPlansOutputDto } from '../dtos/plan/output/get-all-plans.output.dto';
 import { GetAllPlansOutputDtoMapper } from '../dtos/plan/output/mapper/get-all-plans.output.dto.mapper';
 
@@ -26,6 +29,7 @@ export class SubscriptionController {
     private readonly receiveSubscriptionNotificationUseCase: ReceiveSubscriptionNotificationUseCase,
     private readonly cancelSubscriptionOnPaymentGatewayUseCase: CancelSubscriptionOnPaymentGatewayUseCase,
     private readonly getCurrentSubscriptionUseCase: GetCurrentSubscriptionUseCase,
+    private readonly getSubscriptionHistoryUseCase: GetSubscriptionHistoryUseCase,
     private readonly getAllPlanUseCase: GetAllPlanUseCase) {}
 
   @ApiBearerAuth()
@@ -125,6 +129,19 @@ export class SubscriptionController {
   async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetAllPlansOutputDto[]> {
     const plans = await this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId });
     return GetAllPlansOutputDtoMapper.toOutputDtoList(plans);
+  }
+
+  @ApiBearerAuth()
+  @Get('history')
+  @Auth('ADMIN', 'USER')
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna o histórico completo de assinaturas do usuário com seus pagamentos',
+    type: [GetSubscriptionHistoryOutputDto]
+  })
+  async getSubscriptionHistory(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetSubscriptionHistoryOutputDto[]> {
+    const subscriptionsWithPayments = await this.getSubscriptionHistoryUseCase.execute({ accountId: authenticatedUser.accountId });
+    return GetSubscriptionHistoryOutputDtoMapper.toOutputDtoList(subscriptionsWithPayments);
   }
 
   /*

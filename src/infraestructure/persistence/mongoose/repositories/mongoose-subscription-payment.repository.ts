@@ -44,4 +44,17 @@ export class MongooseSubscriptionPaymentRepository implements ISubscriptionPayme
 
     return null;
   }
+
+  /**
+   * Busca todos os pagamentos relacionados a uma assinatura, ordenados por data de pagamento (mais recentes primeiro)
+   * @param subscriptionId ID da assinatura
+   * @returns Array de pagamentos da assinatura
+   */
+  async findAllBySubscriptionId(subscriptionId: string): Promise<SubscriptionPayment[]> {
+    const query = await this.subscriptionPaymentModel.find({ subscriptionId })
+      .sort({ paymentDate: -1 }) // Ordenar por data de pagamento (mais recentes primeiro)
+      .exec();
+    
+    return query.map(item => MongooseSubscriptionPaymentMapper.toDomain(item));
+  }
 }
