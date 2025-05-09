@@ -159,6 +159,115 @@ Retorna todos os pagamentos associados a uma assinatura.
 ]
 ```
 
+#### Obter Histórico de Assinaturas
+
+```
+GET /subscriptions/history
+```
+
+Retorna o histórico completo de assinaturas do usuário autenticado, incluindo todos os pagamentos relacionados a cada assinatura. Este endpoint está disponível para usuários com perfil ADMIN e USER.
+
+**Parâmetros de URL:**
+Nenhum
+
+**Resposta de Sucesso:**
+- Código: 200 OK
+- Conteúdo:
+```json
+[
+  {
+    "id": "subscription-123",
+    "accountId": "account-123",
+    "planId": "plan-123",
+    "status": "ACTIVE",
+    "externalId": "ext-subscription-123",
+    "externalPayerReference": "ext-payer-123",
+    "paymentDate": "2025-04-15T10:30:22-03:00",
+    "createdAt": "2025-04-15T10:30:22-03:00",
+    "updatedAt": "2025-04-15T10:30:22-03:00",
+    "plan": {
+      "id": "plan-123",
+      "name": "Plano Premium",
+      "price": 29.99,
+      "freeTrialDays": 30,
+      "maxAdvertisements": 10,
+      "maxPhotos": 20
+    },
+    "payments": [
+      {
+        "id": "payment-123",
+        "subscriptionId": "subscription-123",
+        "accountId": "account-123",
+        "externalId": "ext-payment-123",
+        "type": "subscription",
+        "method": "credit_card",
+        "description": "Pagamento mensal - Plano Premium",
+        "amount": 29.99,
+        "currency": "COP",
+        "status": "APPROVED",
+        "paymentDate": "2025-04-15T10:30:22-03:00"
+      },
+      {
+        "id": "payment-124",
+        "subscriptionId": "subscription-123",
+        "accountId": "account-123",
+        "externalId": "ext-payment-124",
+        "type": "subscription",
+        "method": "credit_card",
+        "description": "Pagamento mensal - Plano Premium",
+        "amount": 29.99,
+        "currency": "COP",
+        "status": "APPROVED",
+        "paymentDate": "2025-05-15T10:30:22-03:00"
+      }
+    ]
+  },
+  {
+    "id": "subscription-122",
+    "accountId": "account-123",
+    "planId": "plan-122",
+    "status": "CANCELLED",
+    "externalId": "ext-subscription-122",
+    "externalPayerReference": "ext-payer-123",
+    "paymentDate": "2025-03-15T10:30:22-03:00",
+    "createdAt": "2025-03-15T10:30:22-03:00",
+    "updatedAt": "2025-04-10T10:30:22-03:00",
+    "plan": {
+      "id": "plan-122",
+      "name": "Plano Básico",
+      "price": 19.99,
+      "freeTrialDays": 15,
+      "maxAdvertisements": 5,
+      "maxPhotos": 10
+    },
+    "payments": [
+      {
+        "id": "payment-122",
+        "subscriptionId": "subscription-122",
+        "accountId": "account-123",
+        "externalId": "ext-payment-122",
+        "type": "subscription",
+        "method": "credit_card",
+        "description": "Pagamento mensal - Plano Básico",
+        "amount": 19.99,
+        "currency": "COP",
+        "status": "APPROVED",
+        "paymentDate": "2025-03-15T10:30:22-03:00"
+      }
+    ]
+  }
+]
+```
+
+**Respostas de Erro:**
+- Código: 404 Not Found
+  ```json
+  {
+    "message": "Nenhum histórico de assinaturas encontrado para este usuário",
+    "error": "notfound.subscription.history.do.not.exists"
+  }
+  ```
+
 ### Webhook de Notificação de Pagamento
 
 ```

@@ -232,4 +232,21 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     
     return MongooseSubscriptionMapper.toDomain(query);
   }
+
+  /**
+   * Busca todas as assinaturas de uma conta, ordenadas por data de criação (mais recentes primeiro)
+   * @param accountId ID da conta do usuário
+   * @returns Array de assinaturas com os planos populados
+   */
+  async findAllByAccountId(accountId: string): Promise<Subscription[]> {
+    const query = await this.subscriptionModel.find(
+      { accountId },
+      { resultIntegration: 0, externalId: 0, externalPayerReference: 0 }
+    )
+    .sort({ createdAt: -1 }) // Ordenar por data de criação (mais recentes primeiro)
+    .populate('planId') // Popula o plano associado à assinatura
+    .exec();
+    
+    return query.map(item => MongooseSubscriptionMapper.toDomain(item));
+  }
 }
