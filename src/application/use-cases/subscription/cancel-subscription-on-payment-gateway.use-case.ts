@@ -34,8 +34,9 @@ export class CancelSubscriptionOnPaymentGatewayUseCase {
       if (!externalSubscriptionCanceled) throw new Error('error.subscription.cancel.on.payment.gateway.failed');
       
       // Calcular a data efetiva de cancelamento
-      let effectiveCancellationDate: Date;
+      let effectiveCancellationDate = subscription.nextPaymentDate;
       
+      /*
       if (subscription.paymentDate) {
         // Se houver data de pagamento, usa ela como base e adiciona 1 dia (para testes)
         console.log(`Usando data de pagamento ${subscription.paymentDate.toISOString()} como base para cálculo da data efetiva de cancelamento`);
@@ -56,6 +57,7 @@ export class CancelSubscriptionOnPaymentGatewayUseCase {
       ));
         console.log(`Data atual em UTC: ${effectiveCancellationDate.toISOString()}`);
       }
+      */
       
       console.log(`Data efetiva de cancelamento calculada: ${effectiveCancellationDate.toISOString()}`);
       
