@@ -17,6 +17,20 @@ export class EPaycoService implements IPaymentGateway {
   private readonly baseUrl: string;
   private readonly subscriptionConfirmationPath: string;
 
+  constructor(private readonly configService: ConfigService) {
+    this.epaycoClient = new epayco({
+      apiKey: this.configService.get<string>('EPAYCO_PUBLIC_KEY'),
+      privateKey: this.configService.get<string>('EPAYCO_PRIVATE_KEY'),
+      test: this.configService.get<string>('EPAYCO_TEST') === 'true',
+    });
+    
+    this.pCustIdCliente = this.configService.get<string>('EPAYCO_P_CUST_ID_CLIENTE');
+    this.pKey = this.configService.get<string>('EPAYCO_P_KEY');
+
+    this.baseUrl = this.configService.get<string>('BASE_URL');
+    this.subscriptionConfirmationPath = this.configService.get<string>('SUBSCRIPTION_CONFIRMATION_PATH');
+  }
+  
   /**
    * Converte uma data no formato DD-MM-YYYY da Colômbia para UTC,
    * usando a hora atual convertida para o fuso horário da Colômbia
@@ -67,27 +81,15 @@ export class EPaycoService implements IPaymentGateway {
     
     // Criar uma data com a data fornecida pelo ePayco e a hora atual convertida para o fuso da Colômbia
     const colombianDateTime = new Date(Date.UTC(year, month, day, colombiaHours, utcMinutes, utcSeconds));
+    const utcDateTime = new Date(Date.UTC(year, month, day, colombiaHours+5, utcMinutes, utcSeconds));
     
     // Converter de volta para UTC (a data já está em UTC, então não precisamos ajustar)
     console.log(`Original Colombian date: ${dateString}`);
     console.log(`Current time in Colombia: ${colombiaHours}:${utcMinutes}:${utcSeconds}`);
     console.log(`Combined date and time in UTC: ${colombianDateTime.toISOString()}`);
+    console.log(`Combined date and time in UTC: ${utcDateTime.toISOString()}`);
     
-    return colombianDateTime;
-  }
-
-  constructor(private readonly configService: ConfigService) {
-    this.epaycoClient = new epayco({
-      apiKey: this.configService.get<string>('EPAYCO_PUBLIC_KEY'),
-      privateKey: this.configService.get<string>('EPAYCO_PRIVATE_KEY'),
-      test: this.configService.get<string>('EPAYCO_TEST') === 'true',
-    });
-    
-    this.pCustIdCliente = this.configService.get<string>('EPAYCO_P_CUST_ID_CLIENTE');
-    this.pKey = this.configService.get<string>('EPAYCO_P_KEY');
-
-    this.baseUrl = this.configService.get<string>('BASE_URL');
-    this.subscriptionConfirmationPath = this.configService.get<string>('SUBSCRIPTION_CONFIRMATION_PATH');
+    return utcDateTime;
   }
 
   async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any): Promise<Subscription> {
