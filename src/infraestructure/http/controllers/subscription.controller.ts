@@ -196,7 +196,7 @@ export class SubscriptionController {
   @ApiBearerAuth()
   @Put('vip-plan')
   @Auth('MASTER')
-  async updateSubscriptionPlan(@Body() { planId, accountId, nextPaymentDate }: { planId: string, accountId: string, nextPaymentDate: string }) {
+  async updateSubscriptionPlan(@Body() { planId, accountId, nextPaymentDate }: { planId: string, accountId: string, nextPaymentDate?: string }) {
     return await this.updateSubscriptionVipPlanUseCase.execute({ planId, accountId, nextPaymentDate });
   }
 

@@ -10,7 +10,7 @@ import { IAccountRepository } from 'src/application/interfaces/repositories/acco
 interface UpdateSubscriptionVipPlanUseCaseCommand {
   accountId: string;
   planId: string;
-  nextPaymentDate: string;
+  nextPaymentDate?: string;
 }
 
 @Injectable()
@@ -19,7 +19,6 @@ export class UpdateSubscriptionVipPlanUseCase {
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly planRepository: IPlanRepository,
-    private readonly paymentGateway: IPaymentGateway,
     private readonly accountRepository: IAccountRepository,
       ) {}
 
@@ -37,7 +36,10 @@ export class UpdateSubscriptionVipPlanUseCase {
 
     try {
       const subscriptionUpdated = await this.subscriptionRepository.updatePlan(subscription.id, planId);
-      await this.subscriptionRepository.updateNextPaymentDate(subscriptionUpdated.id, new Date(Date.UTC(parseInt(nextPaymentDate.substring(0, 4)), parseInt(nextPaymentDate.substring(4, 6)) - 1, parseInt(nextPaymentDate.substring(6, 8)))));
+      if (nextPaymentDate) {
+        await this.subscriptionRepository.updateNextPaymentDate(subscriptionUpdated.id, new Date(Date.UTC(parseInt(nextPaymentDate.substring(0, 4)), parseInt(nextPaymentDate.substring(4, 6)) - 1, parseInt(nextPaymentDate.substring(6, 8)))));
+      }
+
       await this.accountRepository.updatePlan(accountId, planId);
       
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
