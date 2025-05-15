@@ -91,6 +91,7 @@ import { AdvertisementStatisticsController } from "./controllers/advertisement-s
 import { ProcessCancelledSubscriptionsUseCase } from "src/application/use-cases/subscription/process-cancelled-subscriptions.use-case";
 import { GetCurrentSubscriptionUseCase } from "src/application/use-cases/subscription/get-current-subscription.use-case";
 import { GetSubscriptionHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-history.use-case";
+import { GetSubscriptionPaymentHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-payment-history.use-case";
 
 @Module({
     imports: [
@@ -166,6 +167,7 @@ import { GetSubscriptionHistoryUseCase } from "src/application/use-cases/subscri
         ProcessCancelledSubscriptionsUseCase,
         GetCurrentSubscriptionUseCase,
         GetSubscriptionHistoryUseCase,
+        GetSubscriptionPaymentHistoryUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,
