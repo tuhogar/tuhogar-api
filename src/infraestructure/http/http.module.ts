@@ -92,6 +92,7 @@ import { ProcessCancelledSubscriptionsUseCase } from "src/application/use-cases/
 import { GetCurrentSubscriptionUseCase } from "src/application/use-cases/subscription/get-current-subscription.use-case";
 import { GetSubscriptionHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-history.use-case";
 import { GetSubscriptionPaymentHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-payment-history.use-case";
+import { UpdateSubscriptionVipPlanUseCase } from "src/application/use-cases/subscription/update-subscription-vip-plan.use-case";
 
 @Module({
     imports: [
@@ -168,6 +169,7 @@ import { GetSubscriptionPaymentHistoryUseCase } from "src/application/use-cases/
         GetCurrentSubscriptionUseCase,
         GetSubscriptionHistoryUseCase,
         GetSubscriptionPaymentHistoryUseCase,
+        UpdateSubscriptionVipPlanUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,
