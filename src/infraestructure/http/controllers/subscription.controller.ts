@@ -24,6 +24,7 @@ import { GetSubscriptionPaymentHistoryOutputDtoMapper } from '../dtos/subscripti
 import { GetAllPlansOutputDto } from '../dtos/plan/output/get-all-plans.output.dto';
 import { GetAllPlansOutputDtoMapper } from '../dtos/plan/output/mapper/get-all-plans.output.dto.mapper';
 import { GetSubscriptionPaymentHistoryDto } from '../dtos/subscription/get-subscription-payment-history.dto';
+import { UpdateSubscriptionVipPlanUseCase } from 'src/application/use-cases/subscription/update-subscription-vip-plan.use-case';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -35,6 +36,7 @@ export class SubscriptionController {
     private readonly getCurrentSubscriptionUseCase: GetCurrentSubscriptionUseCase,
     private readonly getSubscriptionHistoryUseCase: GetSubscriptionHistoryUseCase,
     private readonly getSubscriptionPaymentHistoryUseCase: GetSubscriptionPaymentHistoryUseCase,
+    private readonly updateSubscriptionVipPlanUseCase: UpdateSubscriptionVipPlanUseCase,
     private readonly getAllPlanUseCase: GetAllPlanUseCase) {}
 
   @ApiBearerAuth()
@@ -189,6 +191,13 @@ export class SubscriptionController {
       data: GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList(data),
       count
     };
+  }
+
+  @ApiBearerAuth()
+  @Put('vip-plan')
+  @Auth('MASTER')
+  async updateSubscriptionPlan(@Body() { planId, accountId, nextPaymentDate }: { planId: string, accountId: string, nextPaymentDate: string }) {
+    return await this.updateSubscriptionVipPlanUseCase.execute({ planId, accountId, nextPaymentDate });
   }
 
   /*
