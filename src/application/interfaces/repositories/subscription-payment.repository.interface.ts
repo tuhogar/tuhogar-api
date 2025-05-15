@@ -12,4 +12,13 @@ export abstract class ISubscriptionPaymentRepository {
      * @returns Array de pagamentos da assinatura
      */
     abstract findAllBySubscriptionId(subscriptionId: string): Promise<SubscriptionPayment[]>
+
+    /**
+     * Busca todos os pagamentos de uma conta com paginação, ordenados por data de criação (mais recentes primeiro)
+     * @param accountId ID da conta do usuário
+     * @param page Número da página (começando em 1)
+     * @param limit Quantidade de itens por página
+     * @returns Objeto contendo array de pagamentos e contagem total
+     */
+    abstract findAllByAccountIdPaginated(accountId: string, page: number, limit: number): Promise<{ data: SubscriptionPayment[], count: number }>
 }

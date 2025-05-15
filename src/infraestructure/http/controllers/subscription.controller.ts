@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Delete, Param, Put, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Delete, Param, Put, Get, HttpStatus, Query } from '@nestjs/common';
 import { ApiBody, ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateSubscriptionUseCase } from 'src/application/use-cases/subscription/create-subscription.use-case';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
@@ -11,6 +11,7 @@ import { UpdateSubscriptionDto } from '../dtos/subscription/update-subscription.
 import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/subscription/update-subscription-plan.use-case';
 import { GetCurrentSubscriptionUseCase } from 'src/application/use-cases/subscription/get-current-subscription.use-case';
 import { GetSubscriptionHistoryUseCase } from 'src/application/use-cases/subscription/get-subscription-history.use-case';
+import { GetSubscriptionPaymentHistoryUseCase } from 'src/application/use-cases/subscription/get-subscription-payment-history.use-case';
 import { GetAllPlanUseCase } from 'src/application/use-cases/plan/get-all-plan.use-case';
 import { Plan } from 'src/domain/entities/plan';
 import { SubscriptionWithRemainingFreeDays } from 'src/domain/entities/subscription-with-remaining-free-days';
@@ -18,8 +19,11 @@ import { GetCurrentSubscriptionOutputDto } from '../dtos/subscription/output/get
 import { GetCurrentSubscriptionOutputDtoMapper } from '../dtos/subscription/output/mapper/get-current-subscription.output.dto.mapper';
 import { GetSubscriptionHistoryOutputDto } from '../dtos/subscription/output/get-subscription-history.output.dto';
 import { GetSubscriptionHistoryOutputDtoMapper } from '../dtos/subscription/output/mapper/get-subscription-history.output.dto.mapper';
+import { GetSubscriptionPaymentHistoryOutputDto } from '../dtos/subscription/output/get-subscription-payment-history.output.dto';
+import { GetSubscriptionPaymentHistoryOutputDtoMapper } from '../dtos/subscription/output/mapper/get-subscription-payment-history.output.dto.mapper';
 import { GetAllPlansOutputDto } from '../dtos/plan/output/get-all-plans.output.dto';
 import { GetAllPlansOutputDtoMapper } from '../dtos/plan/output/mapper/get-all-plans.output.dto.mapper';
+import { GetSubscriptionPaymentHistoryDto } from '../dtos/subscription/get-subscription-payment-history.dto';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -30,6 +34,7 @@ export class SubscriptionController {
     private readonly cancelSubscriptionOnPaymentGatewayUseCase: CancelSubscriptionOnPaymentGatewayUseCase,
     private readonly getCurrentSubscriptionUseCase: GetCurrentSubscriptionUseCase,
     private readonly getSubscriptionHistoryUseCase: GetSubscriptionHistoryUseCase,
+    private readonly getSubscriptionPaymentHistoryUseCase: GetSubscriptionPaymentHistoryUseCase,
     private readonly getAllPlanUseCase: GetAllPlanUseCase) {}
 
   @ApiBearerAuth()
@@ -142,6 +147,48 @@ export class SubscriptionController {
   async getSubscriptionHistory(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetSubscriptionHistoryOutputDto[]> {
     const subscriptionsWithPayments = await this.getSubscriptionHistoryUseCase.execute({ accountId: authenticatedUser.accountId });
     return GetSubscriptionHistoryOutputDtoMapper.toOutputDtoList(subscriptionsWithPayments);
+  }
+
+  @ApiBearerAuth()
+  @Get('payments/history')
+  @Auth('ADMIN', 'USER')
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna o histórico de pagamentos de assinaturas do usuário com paginação',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/GetSubscriptionPaymentHistoryOutputDto' }
+        },
+        count: {
+          type: 'number',
+          description: 'Total de pagamentos encontrados'
+        }
+      }
+    }
+  })
+  async getSubscriptionPaymentHistory(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Query() query: GetSubscriptionPaymentHistoryDto
+  ): Promise<{ data: GetSubscriptionPaymentHistoryOutputDto[], count: number }> {
+    // Extrair page e limit do DTO, com valores padrão
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    
+    // Chamar o caso de uso
+    const { data, count } = await this.getSubscriptionPaymentHistoryUseCase.execute({
+      accountId: authenticatedUser.accountId,
+      page,
+      limit
+    });
+    
+    // Mapear os resultados e retornar no formato esperado
+    return {
+      data: GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList(data),
+      count
+    };
   }
 
   /*
