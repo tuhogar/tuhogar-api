@@ -30,6 +30,8 @@ export class GetCurrentSubscriptionOutputDtoMapper {
         price: subscription.plan.price,
         items: subscription.plan.items,
         freeTrialDays: subscription.plan.freeTrialDays || null,
+        maxAdvertisements: subscription.plan.maxAdvertisements,
+        maxPhotos: subscription.plan.maxPhotos,
         photo: subscription.plan.photo || null
       } : null
     };
