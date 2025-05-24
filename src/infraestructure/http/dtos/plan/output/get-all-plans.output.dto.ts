@@ -35,6 +35,18 @@ export class GetAllPlansOutputDto {
   price: number;
 
   @ApiProperty({
+    description: 'Máximo de anúncios',
+    example: 2
+  })
+  maxAdvertisements: number;
+
+  @ApiProperty({
+    description: 'Máximo de fotos por anúncio',
+    example: 20
+  })
+  maxPhotos: number;
+
+  @ApiProperty({
     description: 'URL da foto do plano',
     example: 'https://example.com/images/premium-plan.jpg',
     required: false,
