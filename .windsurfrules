@@ -1,0 +1,137 @@
+# Regras de Workspace - TuHogar API
+
+Este documento define as regras específicas para o desenvolvimento no projeto tuhogar-api, complementando as regras globais do Windsurf.
+
+## Arquitetura
+
+- **Clean Architecture**: Seguir estritamente os princípios de Clean Architecture com separação clara entre camadas:
+  - Domain (Entidades de negócio)
+  - Application (Casos de uso)
+  - Infrastructure (Implementações concretas)
+
+- **Domain-Driven Design**: Aplicar princípios de DDD na modelagem de entidades e agregados
+
+- **Injeção de Dependência**: Utilizar o sistema de injeção de dependência do NestJS com interfaces abstratas
+
+## Estrutura de Diretórios
+
+- **Camadas Principais**:
+  ```
+  src/
+  ├── domain/
+  │   └── entities/
+  ├── application/
+  │   ├── interfaces/
+  │   └── use-cases/
+  └── infraestructure/
+      ├── http/
+      ├── persistence/
+      └── services/
+  ```
+
+- **Organização por Módulos**: Cada módulo de negócio deve seguir a mesma estrutura de camadas
+
+- **Nomenclatura de Diretórios**: Usar kebab-case para nomes de diretórios
+
+## Padrões de Nomenclatura
+
+- **Entidades**: PascalCase singular (ex: `Account`, `Advertisement`)
+- **Interfaces de Repositório**: Prefixo "I" + PascalCase + "Repository" (ex: `IAccountRepository`)
+- **Implementações de Repositório**: Prefixo tecnologia + PascalCase + "Repository" (ex: `MongooseAccountRepository`)
+- **Casos de Uso**: PascalCase + "UseCase" (ex: `CreateAdvertisementUseCase`)
+- **Interfaces de Comando**: PascalCase + "UseCaseCommand" (ex: `CreateAdvertisementUseCaseCommand`)
+- **Controllers**: PascalCase + "Controller" (ex: `AdvertisementController`)
+- **DTOs**: PascalCase + "Dto" (ex: `CreateAdvertisementDto`)
+- **Arquivos**: kebab-case.tipo.ts (ex: `create-advertisement.use-case.ts`)
+
+## Padrões de Código
+
+- **Decoradores**: Usar decoradores do NestJS para injeção de dependência, validação e documentação
+- **Validação**: Utilizar class-validator para validação de entrada
+- **Transformação**: Utilizar class-transformer para transformação de objetos
+- **Documentação**: Usar decoradores do Swagger para documentação de API
+- **Logging**: Utilizar o Logger do NestJS para logs estruturados
+
+## Padrões de Implementação
+
+- **Repositórios**:
+  - Definir interfaces abstratas em `application/interfaces/repositories`
+  - Implementar em `infraestructure/persistence/{tecnologia}/repositories`
+  - Usar padrão de mapper para conversão entre entidades de domínio e modelos de persistência
+
+- **Casos de Uso**:
+  - Definir interfaces de comando no mesmo arquivo do caso de uso
+  - Implementar em `application/use-cases/{módulo}`
+  - Retornar entidades de domínio diretamente (não DTOs)
+  - Usar injeção de dependência para repositórios e serviços
+
+- **Controllers**:
+  - Implementar em `infraestructure/http/controllers`
+  - Usar decoradores para validação, autenticação e autorização
+  - Definir DTOs em `infraestructure/http/dtos/{módulo}`
+
+- **Agendamento**:
+  - Usar o decorador `@Cron` diretamente nos casos de uso
+  - Configurar expressões cron diretamente no decorador
+  - Implementar tratamento de erros para não interromper outros jobs
+
+## Tecnologias e Versões
+
+- **Framework**: NestJS ^10.0.0
+- **Banco de Dados**: MongoDB com Mongoose ^8.4.0
+- **Validação**: class-validator ^0.14.1
+- **Documentação**: @nestjs/swagger ^7.3.1
+- **Agendamento**: @nestjs/schedule ^4.1.0
+- **Configuração**: @nestjs/config ^3.2.2
+- **Integrações**:
+  - Firebase Admin ^12.1.1
+  - Algolia ^4.23.3
+  - Cloudinary ^2.3.0
+  - ePayco SDK ^1.4.0
+
+## Testes
+
+- **Nomenclatura**: {nome-do-arquivo}.spec.ts
+- **Estrutura**: Seguir padrão AAA (Arrange-Act-Assert)
+- **Mocks**: Usar jest.mock() para dependências externas
+- **Cobertura**: Manter cobertura mínima de 80% para casos de uso
+
+## Documentação
+
+- **Plano de Desenvolvimento**: Manter atualizado em `/docs/development_plan.md`
+- **Comentários**: Usar JSDoc para documentar interfaces, classes e métodos públicos
+- **Swagger**: Documentar todos os endpoints com decoradores do Swagger
+
+## Convenções de Estilo
+
+- **Formatação**: Prettier com configuração padrão do projeto
+- **Linting**: ESLint com regras do TypeScript
+- **Indentação**: 2 espaços
+- **Aspas**: Simples
+- **Ponto e vírgula**: Obrigatório
+- **Vírgula final**: Obrigatória em arrays e objetos multi-linha
+
+## Segurança
+
+- **Autenticação**: Implementar usando decoradores `@Auth` e `@Authenticated`
+- **Autorização**: Verificar permissões em nível de controller
+- **Validação de Entrada**: Usar class-validator para validar todas as entradas
+- **Sanitização**: Implementar sanitização de dados sensíveis
+
+## Gerenciamento de Erros
+
+- **Padrão de Erros**: Usar `throw new Error()` com mensagens prefixadas que indicam o tipo de erro
+- **Prefixos de Mensagem**: 
+  - `notfound.` para recursos não encontrados (convertido para 404)
+  - `invalid.` para dados inválidos (convertido para 400)
+  - `Unauthorized` para problemas de autorização (convertido para 401)
+- **Transformação de Exceções**: Utilizar o `CustomExceptionFilter` que converte automaticamente os erros para o tipo de exceção HTTP apropriado com base no prefixo da mensagem
+- **Internacionalização**: Usar chaves de mensagem padronizadas (ex: 'notfound.account.do.not.exists')
+- **Logging**: Registrar erros com nível de severidade apropriado
+
+## CI/CD
+
+- **Linting**: Executar ESLint em cada commit
+- **Testes**: Executar testes unitários e de integração em cada PR
+- **Build**: Verificar compilação TypeScript em cada PR
+- **Deploy**: Automatizar deploy para ambientes de desenvolvimento e produção

@@ -6,6 +6,9 @@ import { IPlanRepository } from 'src/application/interfaces/repositories/plan.re
 import { CreateInternalSubscriptionUseCase } from './create-internal-subscription.use-case';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
 import { ConfigService } from '@nestjs/config';
+import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
+import { RemoveInternalSubscriptionUseCase } from './remove-internal-subscription.use-case';
+import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 
 interface CreateSubscriptionUseCaseCommand {
   actualSubscriptionId: string;
@@ -13,6 +16,7 @@ interface CreateSubscriptionUseCaseCommand {
   actualPlanId: string;
   accountId: string;
   email: string;
+  userId: string;
   planId: string;
   paymentData: Record<string, any>
 }
@@ -22,35 +26,66 @@ export class CreateSubscriptionUseCase {
   private readonly firstSubscriptionPlanId: string;
   constructor(
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
+    private readonly removeInternalSubscriptionUseCase: RemoveInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly planRepository: IPlanRepository,
+    private readonly userRepository: IUserRepository,
     private readonly paymentGateway: IPaymentGateway,
     private readonly configService: ConfigService,
+    private readonly accountRepository: IAccountRepository,
   ) {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
 
-  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
+  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, userId, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
     if (
       (actualSubscriptionStatus === SubscriptionStatus.ACTIVE || actualSubscriptionStatus === SubscriptionStatus.CREATED) 
       && 
-      actualPlanId !== this.firstSubscriptionPlanId) throw new Error('invalid.subscription.exists');
+      actualPlanId !== this.firstSubscriptionPlanId) throw new Error('error.subscription.exists');
 
+    const account = await this.accountRepository.findOneById(accountId);
     const plan = await this.planRepository.findOneById(planId);
+    const user = await this.userRepository.findOneById(userId);
+
+    if (account.hasPaidPlan && plan.freeTrialDays > 0) throw new Error('invalid.subscription.plan');
 
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 
-    const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, email, plan, paymentData);
-    if (!externalSubscriptionCreated) throw new Error('error.on.create.subscription');
+    try {
+      const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, email, user.name, plan, paymentData);
+      if (!externalSubscriptionCreated) throw new Error('error.subscription.create.failed');
 
-    const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(subscriptionCreated.id, externalSubscriptionCreated.externalId, externalSubscriptionCreated.externalPayerReference);
+      // A data do próximo pagamento já vem definida pelo gateway de pagamento (ePayco)
+      // através do campo nextVerificationDate
+      const subscriptionUpdated = await this.subscriptionRepository.updateExternalReferences(
+        subscriptionCreated.id, 
+        externalSubscriptionCreated.externalId, 
+        externalSubscriptionCreated.externalPayerReference, 
+        externalSubscriptionCreated.resultIntegration, 
+        externalSubscriptionCreated.status,
+        externalSubscriptionCreated.nextPaymentDate
+      );
+        
+      await this.updateFirebaseUsersDataUseCase.execute({ accountId });
+      await this.accountRepository.updatePlan(accountId, planId);
 
-    await this.updateFirebaseUsersDataUseCase.execute({ accountId });
+      // Se a assinatura atual for a free, deixa criar uma nova como acima e cancela a atual
+      if (actualPlanId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscriptionId);
+      
+      // Marcar a conta como tendo assinado um plano pago
+      if (planId !== this.firstSubscriptionPlanId) {
+        await this.accountRepository.updateHasPaidPlan(accountId, true);
+        console.log(`Conta ${accountId} marcada como tendo assinado um plano pago`);
+      }
 
-    // Se a assinatura atual for a free, deixa criar uma nova como acima e cancela a atual
-    if (actualPlanId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscriptionId);
-
-    return subscriptionUpdated;
+      return subscriptionUpdated;
+    } catch (error) {
+      console.log('-------------error-on-create-subscription-------------');
+      console.log(error);
+      console.log('-------------error-on-create-subscription-------------');
+      await this.removeInternalSubscriptionUseCase.execute({ id: subscriptionCreated.id });
+      throw error;
+    }
   }
 }

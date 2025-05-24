@@ -34,6 +34,12 @@ export class Account {
     subscription?: Subscription;
     subscriptions?: Subscription[];
     status: AccountStatus;
+    /**
+     * Indica se o usuário já assinou algum plano pago
+     * Esta propriedade é usada para identificar usuários que já foram clientes pagantes
+     * mesmo que atualmente estejam em um plano gratuito
+     */
+    hasPaidPlan?: boolean;
 
     constructor(props: Account) {
         Object.assign(this, props);

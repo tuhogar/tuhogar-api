@@ -50,27 +50,37 @@ export class UserController {
     @Get()
     @Auth('ADMIN')
     async getAll(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User[]> {
-        return this.getAllUserByAccountIdUseCase.execute(authenticatedUser.accountId);
+        return this.getAllUserByAccountIdUseCase.execute({
+            accountId: authenticatedUser.accountId
+        });
     }
 
     @ApiBearerAuth()
     @Get('me')
     @Auth()
     async get(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<User> {
-        return this.getMeUserUseCase.execute(authenticatedUser.uid);
+        return this.getMeUserUseCase.execute({
+            uid: authenticatedUser.uid
+        });
     }
 
     @Post('login')
     // TODO: remover?, este endpoint é apenas para testes
     async login(@Body() loginDto: LoginDto) {
-        return this.loginUserUseCase.execute(loginDto.email, loginDto.password);
+        return this.loginUserUseCase.execute({
+            email: loginDto.email,
+            password: loginDto.password
+        });
     }
 
     @ApiBearerAuth()
     @Post('favorites')
     @Auth('ADMIN', 'USER')
     async createFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createFavoriteAdvertisementDto: CreateFavoriteAdvertisementDto): Promise<User> {
-        const response = await this.createFavoriteUserUseCase.execute(authenticatedUser.userId, createFavoriteAdvertisementDto.id);
+        const response = await this.createFavoriteUserUseCase.execute({
+            userId: authenticatedUser.userId,
+            advertisementId: createFavoriteAdvertisementDto.id
+        });
         return response;
     }
 
@@ -78,14 +88,19 @@ export class UserController {
     @Get('favorites')
     @Auth('ADMIN', 'USER')
     async getFavorites(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<any[]> {
-        return this.getFavoritesUserUseCase.execute(authenticatedUser.userId);
+        return this.getFavoritesUserUseCase.execute({
+            userId: authenticatedUser.userId
+        });
     }
 
     @ApiBearerAuth()
     @Delete('favorites/:advertisementid')
     @Auth('ADMIN', 'USER')
     async deleteFavorite(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string): Promise<void> {
-        await this.deleteFavoriteUserUseCase.execute(authenticatedUser.userId, advertisementId);
+        await this.deleteFavoriteUserUseCase.execute({
+            userId: authenticatedUser.userId,
+            advertisementId
+        });
     }
 
     /*
@@ -104,7 +119,14 @@ export class UserController {
     async patch(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string, @Body() patchUserDto: PatchUserDto): Promise<void> {
         if(authenticatedUser.userRole === UserRole.USER && userId !== authenticatedUser.userId) throw new Error('Unauthorized');
         
-        await this.pathUserUseCase.execute(authenticatedUser, userId, patchUserDto);
+        await this.pathUserUseCase.execute({
+            userRole: authenticatedUser.userRole,
+            accountId: authenticatedUser.accountId,
+            userId,
+            name: patchUserDto.name,
+            phone: patchUserDto.phone,
+            whatsApp: patchUserDto.whatsApp
+        });
     }
 
     @ApiBearerAuth()
@@ -113,7 +135,12 @@ export class UserController {
     async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string, @Body() updateStatusUserDto: UpdateStatusUserDto): Promise<void> {
         if(userId === authenticatedUser.userId) throw new Error('Unauthorized');
 
-        await this.updateStatusUserUseCase.execute(authenticatedUser, userId, updateStatusUserDto);
+        await this.updateStatusUserUseCase.execute({
+            userRole: authenticatedUser.userRole,
+            accountId: authenticatedUser.accountId,
+            userId,
+            status: updateStatusUserDto.status
+        });
     }
 
     @ApiBearerAuth()
@@ -122,6 +149,10 @@ export class UserController {
     async delete(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string): Promise<void> {
         if(userId === authenticatedUser.userId) throw new Error('Unauthorized');
         
-        await this.deleteUserUseCase.execute(authenticatedUser, userId);
+        await this.deleteUserUseCase.execute({
+            userRole: authenticatedUser.userRole,
+            accountId: authenticatedUser.accountId,
+            userId
+        });
     }
 }

@@ -8,15 +8,22 @@ import { SubscriptionPayment, SubscriptionPaymentStatus } from 'src/domain/entit
 import { ISubscriptionNotificationRepository } from 'src/application/interfaces/repositories/subscription-notification.repository.interface';
 import { SubscriptionNotification, SubscriptionNotificationAction, SubscriptionNotificationType } from 'src/domain/entities/subscription-notification';
 import { ExternalSubscriptionPaymentStatus } from 'src/domain/entities/external-subscription-payment';
+import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ReceiveSubscriptionPaymentNotificationUseCase {
+  private readonly firstSubscriptionPlanId: string;
   constructor(
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly subscriptionPaymentRepository: ISubscriptionPaymentRepository,
     private readonly subscriptionNotificationRepository: ISubscriptionNotificationRepository,
     private readonly paymentGateway: IPaymentGateway,
-  ) {}
+    private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
+    private readonly configService: ConfigService,
+  ) {
+    this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
+  }
 
   async execute(subscriptionNotification: SubscriptionNotification): Promise<void> {
     const paymentNotificated = await this.paymentGateway.getPayment(subscriptionNotification);
@@ -39,11 +46,12 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
       paymentNotificated.accountId = subscription.accountId;
     }
 
-    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE) {
+    const payment = await this.subscriptionPaymentRepository.findOneByExternalId(paymentNotificated.externalId);
+
+    if (subscriptionNotification.action === SubscriptionNotificationAction.CREATE && !payment) {
       console.log('CRIA PAGAMENTO');
       await this.subscriptionPaymentRepository.create(paymentNotificated);
     } else {
-      const payment = await this.subscriptionPaymentRepository.findOneByExternalId(paymentNotificated.externalId);
       if (!payment) {
         console.log('NAO ENCONTROU O PAGAMENTO NA BASE DE DADOS');
         throw new Error('notfound.payment.do.not.exists');
@@ -51,6 +59,31 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
 
       console.log('ATUALIZA PAGAMENTO');
       await this.subscriptionPaymentRepository.update(payment.id, paymentNotificated);
+    }
+
+    if (paymentNotificated.status === SubscriptionPaymentStatus.APPROVED) {
+      if (subscription.status !== SubscriptionStatus.ACTIVE && subscription.status !== SubscriptionStatus.CANCELLED && subscription.status !== SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY) {
+        console.log('ATIVA ASSINATURA');
+        await this.subscriptionRepository.active(subscription.id);
+        await this.updateFirebaseUsersDataUseCase.execute({ accountId: subscription.accountId });
+
+        const actualSubscription = await this.subscriptionRepository.findOneActiveByAccountId(subscription.accountId);
+
+        // Se a assinatura atual for a free, cancela a atual
+        if (actualSubscription && actualSubscription.planId === this.firstSubscriptionPlanId) await this.subscriptionRepository.cancel(actualSubscription.id);
+      }
+
+      // Gravar a data do pagamento na assinatura
+      if (paymentNotificated.paymentDate && subscription) {
+        console.log(`Atualizando data de pagamento da assinatura ${subscription.id}`);
+        await this.subscriptionRepository.updatePaymentDate(subscription.id, paymentNotificated.paymentDate);
+        
+        // Calcular e gravar a data do próximo pagamento (paymentDate + 30 dias)
+        const nextPaymentDate = new Date(paymentNotificated.paymentDate);
+        nextPaymentDate.setDate(nextPaymentDate.getDate() + 2);
+        console.log(`Atualizando data do próximo pagamento da assinatura ${subscription.id} para ${nextPaymentDate.toISOString()}`);
+        await this.subscriptionRepository.updateNextPaymentDate(subscription.id, nextPaymentDate);
+      }
     }
   }
 }

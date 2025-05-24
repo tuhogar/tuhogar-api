@@ -17,4 +17,7 @@ export abstract class IAdvertisementRepository {
     abstract findSimilarDocuments(embedding: number[]): Promise<any[]>
     abstract findWithReports(): Promise<Advertisement[]>
     abstract transfer(userId: string, accountIdFrom: string, accountIdTo: string): Promise<any>
+    abstract countActiveOrWaitingByAccountId(accountId: string): Promise<number>
+    abstract findActiveOrWaitingWithExcessPhotos(accountId: string, maxPhotos: number): Promise<Advertisement[]>
+    abstract findActiveOrWaitingByAccountIdWithOrder(accountId: string, orderBy: string, orderDirection: 'asc' | 'desc'): Promise<Advertisement[]>
 }

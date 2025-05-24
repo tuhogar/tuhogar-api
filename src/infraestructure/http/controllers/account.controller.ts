@@ -50,7 +50,15 @@ export class AccountController {
     @Authenticated() authenticatedUser: AuthenticatedUser,
     @Body() createAccountDto: CreateAccountDto,
   ): Promise<{ id: string }> {
-    return this.createAccountUseCase.execute(authenticatedUser, createAccountDto);
+    return this.createAccountUseCase.execute({
+      email: authenticatedUser.email,
+      uid: authenticatedUser.uid,
+      planId: createAccountDto.planId,
+      name: createAccountDto.name,
+      phone: createAccountDto.phone,
+      documentType: createAccountDto.documentType,
+      documentNumber: createAccountDto.documentNumber
+    });
   }
 
   @ApiBearerAuth()
@@ -71,34 +79,60 @@ export class AccountController {
   @Get('registrations')
   @Auth('MASTER')
   async getAccountRegistrations(@Query('period') period: 'week' | 'month'): Promise<any[]> {
-    return this.getRegisteredAccountsUseCase.execute(period);
+    return this.getRegisteredAccountsUseCase.execute({
+      period
+    });
   }
 
   @ApiBearerAuth()
   @Get(':accountid')
   async get(@Param('accountid') accountId: string): Promise<Account> {
-      return this.getByIdAccountUseCase.execute(accountId);
+      return this.getByIdAccountUseCase.execute({
+        id: accountId
+      });
   }
 
   @ApiBearerAuth()
   @Patch(':accountid')
   @Auth('MASTER', 'ADMIN', 'USER')
   async patch(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() patchAccountDto: PatchAccountDto): Promise<void> {
-      await this.pathAccountUseCase.execute(authenticatedUser, accountId, patchAccountDto);
+      await this.pathAccountUseCase.execute({
+        userRole: authenticatedUser.userRole,
+        accountId: authenticatedUser.accountId,
+        targetAccountId: accountId,
+        documentType: patchAccountDto.documentType,
+        documentNumber: patchAccountDto.documentNumber,
+        name: patchAccountDto.name,
+        address: patchAccountDto.address,
+        phone: patchAccountDto.phone,
+        whatsApp: patchAccountDto.whatsApp,
+        phone2: patchAccountDto.phone2,
+        whatsApp2: patchAccountDto.whatsApp2,
+        webSite: patchAccountDto.webSite,
+        socialMedia: patchAccountDto.socialMedia,
+        description: patchAccountDto.description,
+        contractTypes: patchAccountDto.contractTypes
+      });
   }
 
   @ApiBearerAuth()
   @Put(':accountid/status')
   @Auth('MASTER')
   async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() updateStatusAccountDto: UpdateStatusAccountDto): Promise<{ id: string }> {
-      return await this.updateStatusAccountUseCase.execute(authenticatedUser, accountId, updateStatusAccountDto);
+      return await this.updateStatusAccountUseCase.execute({
+        userRole: authenticatedUser.userRole,
+        accountId,
+        status: updateStatusAccountDto.status
+      });
   }
 
   @ApiBearerAuth()
   @Get(':accountid/users')
   @Auth('MASTER')
   async getUsers(@Param('accountid') accountId: string): Promise<User[]> {
-      return this.getAllUserByAccountIdUseCase.execute(accountId);
+      return this.getAllUserByAccountIdUseCase.execute({
+          accountId
+      });
   }
 
   @ApiBearerAuth()
@@ -112,7 +146,11 @@ export class AccountController {
   @Delete(':accountid/users/:userid')
   @Auth('MASTER')
   async deleteUser(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string): Promise<void> {
-      await this.deleteUserAccountUseCase.execute(authenticatedUser, userId);
+      await this.deleteUserAccountUseCase.execute({
+        userRole: authenticatedUser.userRole,
+        accountId: authenticatedUser.accountId,
+        userId
+      });
   }
 
   @ApiBearerAuth()
@@ -121,13 +159,19 @@ export class AccountController {
   @UsePipes(new ValidationPipe({transform: true}))
   async uploadImage(
       @Authenticated() authenticatedUser: AuthenticatedUser, @Body() uploadImageAccountDto: UploadImageAccountDto): Promise<void> {
-      await this.processImageAccountUseCase.execute(authenticatedUser, uploadImageAccountDto);
+      await this.processImageAccountUseCase.execute({
+        accountId: authenticatedUser.accountId,
+        content: uploadImageAccountDto.content,
+        contentType: uploadImageAccountDto.contentType
+      });
   }
 
   @ApiBearerAuth()
   @Delete('me/images')
   @Auth('ADMIN', 'USER')
   async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
-      await this.deleteImageAccountUseCase.execute(authenticatedUser);
+      await this.deleteImageAccountUseCase.execute({
+        accountId: authenticatedUser.accountId
+      });
   }
 }

@@ -13,6 +13,8 @@ export class AuthenticatedUser {
     accountStatus: AccountStatus;
     subscriptionId: string;
     subscriptionStatus: SubscriptionStatus;
+    maxAdvertisements?: number;
+    maxPhotos?: number;
 
     constructor(props: AuthenticatedUser) {
       Object.assign(this, props);

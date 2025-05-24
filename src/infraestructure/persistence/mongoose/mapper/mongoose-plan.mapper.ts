@@ -9,11 +9,13 @@ export class MongoosePlanMapper {
         const model = new Plan({
             id: entity._id.toString(),
             name: entity.name,
-            duration: entity.duration,
+            freeTrialDays: entity.freeTrialDays,
             items: entity.items,
             price: entity.price,
             photo: entity.photo,
             externalId: entity.externalId,
+            maxAdvertisements: entity.maxAdvertisements,
+            maxPhotos: entity.maxPhotos,
         });
         return model;
     }
@@ -21,10 +23,12 @@ export class MongoosePlanMapper {
     static toMongoose(plan: Plan) {
         return {
             name: plan.name,
-            duration: plan.duration,
+            freeTrialDays: plan.freeTrialDays,
             items: plan.items,
             price: plan.price,
             externalId: plan.externalId,
+            maxAdvertisements: plan.maxAdvertisements,
+            maxPhotos: plan.maxPhotos,
         }
     }
 }

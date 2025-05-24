@@ -3,6 +3,7 @@ export enum SubscriptionNotificationType {
   SUBSCRIPTION = 'SUBSCRIPTION',
   INVOICE = 'INVOICE',
   PAYMENT = 'PAYMENT',
+  INVOICE_AND_PAYMENT = 'INVOICE_AND_PAYMENT',
 }
 
 export enum SubscriptionNotificationAction {

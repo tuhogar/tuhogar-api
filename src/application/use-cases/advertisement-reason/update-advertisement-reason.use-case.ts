@@ -3,7 +3,8 @@ import { IAdvertisementReasonRepository } from 'src/application/interfaces/repos
 import { AdvertisementReason } from 'src/domain/entities/advertisement-reason';
 
 interface UpdateAdvertisementReasonUseCaseCommand {
-    name: string,
+    id: string;
+    name: string;
 }
 
 @Injectable()
@@ -12,10 +13,10 @@ export class UpdateAdvertisementReasonUseCase {
         private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
     ) {}
 
-    async execute(
-        id: string,
-        { name }: UpdateAdvertisementReasonUseCaseCommand,
-    ): Promise<AdvertisementReason> {
+    async execute({
+        id,
+        name
+    }: UpdateAdvertisementReasonUseCaseCommand): Promise<AdvertisementReason> {
         const advertisementReason = new AdvertisementReason({
             name,
         });

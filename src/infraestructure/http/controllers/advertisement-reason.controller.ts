@@ -46,10 +46,10 @@ export class AdvertisementReasonController {
     @Put(':advertisementreasonid')
     @Auth('MASTER')
     async update(@Param('advertisementreasonid') id: string, @Body() createUpdateAdvertisementReasonDto: CreateUpdateAdvertisementReasonDto): Promise<AdvertisementReason> {
-        const response = await this.updateAdvertisementReasonUseCase.execute(
+        const response = await this.updateAdvertisementReasonUseCase.execute({
             id,
-            createUpdateAdvertisementReasonDto,
-        );
+            name: createUpdateAdvertisementReasonDto.name
+        });
         return response;
     }
 }

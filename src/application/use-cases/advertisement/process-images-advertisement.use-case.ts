@@ -9,6 +9,8 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../../infraestructure/persistence/redis/redis.service';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { UserRole } from 'src/domain/entities/user';
+import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
+import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 
 @Injectable()
 export class ProcessImagesAdvertisementUseCase {
@@ -18,7 +20,9 @@ export class ProcessImagesAdvertisementUseCase {
         private readonly cloudinaryService: CloudinaryService,
         private readonly advertisementRepository: IAdvertisementRepository,
         private readonly configService: ConfigService,
-        private readonly redisService: RedisService
+        private readonly redisService: RedisService,
+        private readonly accountRepository: IAccountRepository,
+        private readonly planRepository: IPlanRepository
     ) {
         this.cloudinaryFolders = this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : '';
     }
@@ -29,6 +33,39 @@ export class ProcessImagesAdvertisementUseCase {
 
         if (authenticatedUser.accountId !== advertisement.accountId && authenticatedUser.userRole !== UserRole.MASTER) {
             throw new Error('notfound.advertisement.do.not.exists');
+        }
+        
+        // Verificar limite de fotos
+        let maxPhotos: number | undefined | null = null;
+        
+        if (authenticatedUser.userRole === UserRole.MASTER) {
+            // Para usuários MASTER, buscar o plano da conta do anúncio
+            const account = await this.accountRepository.findOneByIdWithSubscription(advertisement.accountId);
+            if (!account) throw new Error('notfound.account.do.not.exists');
+            
+            if (account.subscription?.planId) {
+                try {
+                    const plan = await this.planRepository.findOneById(account.subscription.planId);
+                    if (plan) {
+                        maxPhotos = plan.maxPhotos;
+                    }
+                } catch (planError) {
+                    console.error('error.fetching.plan.for.photos.limit.validation');
+                }
+            }
+        } else {
+            // Para usuários normais, usar o valor do JWT
+            maxPhotos = authenticatedUser.maxPhotos;
+        }
+        
+        // Validar o limite de fotos apenas se maxPhotos estiver definido
+        if (maxPhotos !== undefined && maxPhotos !== null && maxPhotos > 0) {
+            const currentPhotosCount = advertisement.photos ? advertisement.photos.length : 0;
+            const newPhotosCount = uploadImagesAdvertisementDto.images.length;
+            
+            if (currentPhotosCount + newPhotosCount > maxPhotos) {
+                throw new Error('invalid.photos.limit.reached.for.plan');
+            }
         }
 
         const newPhotos: AdvertisementPhoto[] = [];

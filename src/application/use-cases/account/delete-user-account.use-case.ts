@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { UserRole } from 'src/domain/entities/user';
 import { DeleteUserUseCase } from '../user/delete-user.use-case';
+
+interface DeleteUserAccountUseCaseCommand {
+  userRole: UserRole;
+  accountId: string;
+  userId: string;
+}
 
 @Injectable()
 export class DeleteUserAccountUseCase {
@@ -8,7 +14,15 @@ export class DeleteUserAccountUseCase {
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
-  async execute(authenticatedUser: AuthenticatedUser, userId: string): Promise<void> {
-    await this.deleteUserUseCase.execute(authenticatedUser, userId);
+  async execute({
+    userRole,
+    accountId,
+    userId
+  }: DeleteUserAccountUseCaseCommand): Promise<void> {
+    await this.deleteUserUseCase.execute({
+      userRole,
+      accountId,
+      userId
+    });
   }
 }

@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IPaymentGateway } from 'src/application/interfaces/payment-gateway/payment-gateway.interface';
@@ -18,7 +17,7 @@ export class MercadoPagoService implements IPaymentGateway {
     this.accessToken = this.configService.get<string>('MERCADOPAGO_ACCESS_TOKEN');
   }
   
-  async createSubscription(accountId: string, subscriptionId: string, email: string, plan: Plan, paymentData: any): Promise<Subscription> {
+  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>): Promise<Subscription> {
     const subscriptionToCreate: any = {
       preapproval_plan_id: plan.externalId,
       reason: plan.name,
@@ -81,6 +80,10 @@ export class MercadoPagoService implements IPaymentGateway {
   
     return await response.json();
     */
+  }
+
+  cancelSubscriptionOnInvalidCreate(subscriptionId: string): Promise<any> {
+    throw Error('not implementation');
   }
 
   async getSubscription(subscriptionNotification: SubscriptionNotification): Promise<Subscription> {
@@ -316,5 +319,9 @@ export class MercadoPagoService implements IPaymentGateway {
     });
 
     return subscriptionNotification;
+  }
+
+  async updateSubscriptionPlan(actualSubscription: Subscription, plan: Plan): Promise<Subscription> {
+    throw new Error('Method not implemented.');
   }
 }

@@ -40,6 +40,7 @@ export class MongooseAccountMapper {
             subscription,
             subscriptions,
             status: entity.status as AccountStatus,
+            hasPaidPlan: entity.hasPaidPlan,
         });
 
         return model;
@@ -49,6 +50,7 @@ export class MongooseAccountMapper {
         return {
             planId: account.planId,
             photo: account.photo,
+            hasPaidPlan: account.hasPaidPlan,
             name: account.name,
             email: account.email,
             address: account.address,

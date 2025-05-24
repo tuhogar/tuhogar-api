@@ -44,4 +44,44 @@ export class MongooseSubscriptionPaymentRepository implements ISubscriptionPayme
 
     return null;
   }
+
+  /**
+   * Busca todos os pagamentos relacionados a uma assinatura, ordenados por data de pagamento (mais recentes primeiro)
+   * @param subscriptionId ID da assinatura
+   * @returns Array de pagamentos da assinatura
+   */
+  async findAllBySubscriptionId(subscriptionId: string): Promise<SubscriptionPayment[]> {
+    const query = await this.subscriptionPaymentModel.find({ subscriptionId })
+      .sort({ paymentDate: -1 }) // Ordenar por data de pagamento (mais recentes primeiro)
+      .exec();
+    
+    return query.map(item => MongooseSubscriptionPaymentMapper.toDomain(item));
+  }
+
+  /**
+   * Busca todos os pagamentos de uma conta com paginação, ordenados por data de criação (mais recentes primeiro)
+   * @param accountId ID da conta do usuário
+   * @param page Número da página (começando em 1)
+   * @param limit Quantidade de itens por página
+   * @returns Objeto contendo array de pagamentos e contagem total
+   */
+  async findAllByAccountIdPaginated(accountId: string, page: number, limit: number): Promise<{ data: SubscriptionPayment[], count: number }> {
+    // Calcular o número de documentos a pular com base na página e limite
+    const skip = (page - 1) * limit;
+    
+    // Buscar os pagamentos com paginação
+    const query = await this.subscriptionPaymentModel.find({ accountId })
+      .sort({ createdAt: -1 }) // Ordenar por data de criação (mais recentes primeiro)
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    
+    // Contar o total de documentos para a propriedade count
+    const count = await this.subscriptionPaymentModel.countDocuments({ accountId }).exec();
+    
+    // Mapear os resultados para o domínio
+    const data = query.map(item => MongooseSubscriptionPaymentMapper.toDomain(item));
+    
+    return { data, count };
+  }
 }

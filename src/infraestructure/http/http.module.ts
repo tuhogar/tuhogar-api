@@ -65,7 +65,7 @@ import { GetAllContractTypeUseCase } from "src/application/use-cases/contract-ty
 import { ContractTypeIsExistingIdConstraint } from "./validators/contract-type/contract-type-is-existing-id.validator";
 import { CreateSubscriptionUseCase } from "src/application/use-cases/subscription/create-subscription.use-case";
 import { SubscriptionController } from "./controllers/subscription.controller";
-import { MercadoPagoService } from "../payment-gateway/mercado-pago/mercado-pago.service";
+import { EPaycoService } from "../payment-gateway/epayco/epayco.service";
 import { IPaymentGateway } from "src/application/interfaces/payment-gateway/payment-gateway.interface";
 import { ReceiveSubscriptionNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-notification.use-case";
 import { ReceiveSubscriptionInvoiceNotificationUseCase } from "src/application/use-cases/subscription/receive-subscription-invoice-notification.use-case";
@@ -82,6 +82,17 @@ import { TransferAdvertisementUseCase } from "src/application/use-cases/advertis
 import { GetAdvertisementLocationsUseCase } from "src/application/use-cases/advertisement/get-advertisement-locations.use-case";
 import { NetworkService } from "src/application/use-cases/network/network.service";
 import { NetworkController } from "./controllers/network.controller";
+import { RemoveInternalSubscriptionUseCase } from "src/application/use-cases/subscription/remove-internal-subscription.use-case";
+import { CancelSubscriptionOnPaymentGatewayUseCase } from "src/application/use-cases/subscription/cancel-subscription-on-payment-gateway.use-case";
+import { UpdateSubscriptionPlanUseCase } from "src/application/use-cases/subscription/update-subscription-plan.use-case";
+import { GetAccountAdvertisementStatisticsUseCase } from "src/application/use-cases/account-advertisement-statistic/get-account-advertisement-statistics.use-case";
+import { GenerateMonthlyStatisticsUseCase } from "src/application/use-cases/account-advertisement-statistic/generate-monthly-statistics.use-case";
+import { AdvertisementStatisticsController } from "./controllers/advertisement-statistics.controller";
+import { ProcessCancelledSubscriptionsUseCase } from "src/application/use-cases/subscription/process-cancelled-subscriptions.use-case";
+import { GetCurrentSubscriptionUseCase } from "src/application/use-cases/subscription/get-current-subscription.use-case";
+import { GetSubscriptionHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-history.use-case";
+import { GetSubscriptionPaymentHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-payment-history.use-case";
+import { UpdateSubscriptionVipPlanUseCase } from "src/application/use-cases/subscription/update-subscription-vip-plan.use-case";
 
 @Module({
     imports: [
@@ -144,11 +155,21 @@ import { NetworkController } from "./controllers/network.controller";
         UpdateStatusUserUseCase,
         GetAllContractTypeUseCase,
         CreateSubscriptionUseCase,
+        RemoveInternalSubscriptionUseCase,
+        CancelSubscriptionOnPaymentGatewayUseCase,
+        UpdateSubscriptionPlanUseCase,
         ReceiveSubscriptionNotificationUseCase,
         ReceiveSubscriptionPaymentNotificationUseCase,
         ReceiveSubscriptionInvoiceNotificationUseCase,
         UpdateFirebaseUsersDataUseCase,
         CreateInternalSubscriptionUseCase,
+        GetAccountAdvertisementStatisticsUseCase,
+        GenerateMonthlyStatisticsUseCase,
+        ProcessCancelledSubscriptionsUseCase,
+        GetCurrentSubscriptionUseCase,
+        GetSubscriptionHistoryUseCase,
+        GetSubscriptionPaymentHistoryUseCase,
+        UpdateSubscriptionVipPlanUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,
@@ -158,9 +179,9 @@ import { NetworkController } from "./controllers/network.controller";
         FirebaseAdmin,
         {
             provide: IPaymentGateway,
-            useClass: MercadoPagoService,
-          },
-          NetworkService
+            useClass: EPaycoService,
+        },
+        NetworkService
     ],
     controllers: [
         AccountController,
@@ -174,6 +195,7 @@ import { NetworkController } from "./controllers/network.controller";
         ContractTypeController,
         SubscriptionController,
         NetworkController,
+        AdvertisementStatisticsController,
         ],
 })
 export class HttpModule {}

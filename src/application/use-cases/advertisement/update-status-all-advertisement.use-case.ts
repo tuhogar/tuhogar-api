@@ -27,7 +27,16 @@ export class UpdateStatusAllAdvertisementUseCase {
         let publishedAt = undefined;
         let approvingUserId = undefined;
         if (status === AdvertisementStatus.ACTIVE) {
-            publishedAt = new Date();
+            // Criar data em UTC explicitamente
+            publishedAt = new Date(Date.UTC(
+                new Date().getUTCFullYear(),
+                new Date().getUTCMonth(),
+                new Date().getUTCDate(),
+                new Date().getUTCHours(),
+                new Date().getUTCMinutes(),
+                new Date().getUTCSeconds(),
+                new Date().getUTCMilliseconds()
+            ));
             approvingUserId = userId;
         }
 
