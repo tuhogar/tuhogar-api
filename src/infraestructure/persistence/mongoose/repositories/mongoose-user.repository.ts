@@ -172,6 +172,8 @@ export class MongooseUserRepository implements IUserRepository {
                     ...JSON.parse(JSON.stringify(user)),
                     accountId: accountWithSubscriptions
                 };
+
+                delete user.advertisementFavorites;
     
                 // Retorna o user com `account` contendo `subscriptions` ordenadas
                 return user;
