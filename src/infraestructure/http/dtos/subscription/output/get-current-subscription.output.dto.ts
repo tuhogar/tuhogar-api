@@ -59,6 +59,8 @@ export class GetCurrentSubscriptionOutputDto {
     price: number | null;
     items: string[];
     freeTrialDays: number | null;
+    maxAdvertisements: number;
+    maxPhotos: number;
     photo: string | null;
   } | null;
 }

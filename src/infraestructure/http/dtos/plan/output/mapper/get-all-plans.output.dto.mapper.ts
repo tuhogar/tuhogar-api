@@ -19,6 +19,8 @@ export class GetAllPlansOutputDtoMapper {
       freeTrialDays: plan.freeTrialDays || null,
       items: plan.items || [],
       price: plan.price,
+      maxAdvertisements: plan.maxAdvertisements,
+      maxPhotos: plan.maxPhotos,
       photo: plan.photo || null
     };
   }
