@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class ReceiveSubscriptionPaymentNotificationUseCase {
   private readonly firstSubscriptionPlanId: string;
+  private readonly subscriptionTotalDays: number;
   constructor(
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly subscriptionPaymentRepository: ISubscriptionPaymentRepository,
@@ -23,6 +24,7 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
     private readonly configService: ConfigService,
   ) {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
+    this.subscriptionTotalDays = this.configService.get<number>('SUBSCRIPTION_TOTAL_DAYS');
   }
 
   async execute(subscriptionNotification: SubscriptionNotification): Promise<void> {
@@ -80,7 +82,7 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
         
         // Calcular e gravar a data do próximo pagamento (paymentDate + 30 dias)
         const nextPaymentDate = new Date(paymentNotificated.paymentDate);
-        nextPaymentDate.setDate(nextPaymentDate.getDate() + 2);
+        nextPaymentDate.setDate(nextPaymentDate.getDate() + this.subscriptionTotalDays);
         console.log(`Atualizando data do próximo pagamento da assinatura ${subscription.id} para ${nextPaymentDate.toISOString()}`);
         await this.subscriptionRepository.updateNextPaymentDate(subscription.id, nextPaymentDate);
       }
