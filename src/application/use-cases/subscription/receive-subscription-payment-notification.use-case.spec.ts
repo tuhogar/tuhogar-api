@@ -26,6 +26,7 @@ describe('ReceiveSubscriptionPaymentNotificationUseCase', () => {
   const mockExternalSubscriptionReference = 'external-sub-123';
   const mockExternalPayerReference = 'external-payer-123';
   const mockFirstSubscriptionPlanId = 'free-plan-id';
+  const mockSubscriptionTotalDays = '30'; // Variáveis de ambiente são sempre strings
   const mockPaymentDate = new Date('2025-04-28T20:00:00Z');
   
   // Mock para Subscription
@@ -108,7 +109,11 @@ describe('ReceiveSubscriptionPaymentNotificationUseCase', () => {
     } as any;
 
     configService = {
-      get: jest.fn().mockReturnValue(mockFirstSubscriptionPlanId)
+      get: jest.fn().mockImplementation((key: string) => {
+        if (key === 'FIRST_SUBSCRIPTION_PLAN_ID') return mockFirstSubscriptionPlanId;
+        if (key === 'SUBSCRIPTION_TOTAL_DAYS') return mockSubscriptionTotalDays;
+        return null;
+      })
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -147,7 +152,7 @@ describe('ReceiveSubscriptionPaymentNotificationUseCase', () => {
     
     // Mock para a atualização da data do próximo pagamento
     const mockNextPaymentDate = new Date(mockPaymentDate);
-    mockNextPaymentDate.setDate(mockNextPaymentDate.getDate() + 30);
+    mockNextPaymentDate.setDate(mockNextPaymentDate.getDate() + parseInt(mockSubscriptionTotalDays, 10));
     subscriptionRepository.updateNextPaymentDate.mockResolvedValue({
       ...mockSubscription,
       paymentDate: mockPaymentDate,
