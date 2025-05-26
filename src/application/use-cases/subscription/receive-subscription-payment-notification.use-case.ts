@@ -24,7 +24,9 @@ export class ReceiveSubscriptionPaymentNotificationUseCase {
     private readonly configService: ConfigService,
   ) {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
-    this.subscriptionTotalDays = this.configService.get<number>('SUBSCRIPTION_TOTAL_DAYS');
+    // Garantir que a variável de ambiente seja convertida para número
+    const subscriptionTotalDays = this.configService.get<string>('SUBSCRIPTION_TOTAL_DAYS');
+    this.subscriptionTotalDays = subscriptionTotalDays ? parseInt(subscriptionTotalDays, 10) : 30; // Valor padrão de 30 dias se não for definido
   }
 
   async execute(subscriptionNotification: SubscriptionNotification): Promise<void> {
