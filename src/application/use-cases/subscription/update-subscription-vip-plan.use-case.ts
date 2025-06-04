@@ -6,6 +6,7 @@ import { IPlanRepository } from 'src/application/interfaces/repositories/plan.re
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
 import { ConfigService } from '@nestjs/config';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
+import { AdjustAdvertisementsAfterPlanChangeUseCase } from '../advertisement/adjust-advertisements-after-plan-change.use-case';
 
 interface UpdateSubscriptionVipPlanUseCaseCommand {
   accountId: string;
@@ -17,6 +18,7 @@ interface UpdateSubscriptionVipPlanUseCaseCommand {
 export class UpdateSubscriptionVipPlanUseCase {
   constructor(
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
+    private readonly adjustAdvertisementsAfterPlanChangeUseCase: AdjustAdvertisementsAfterPlanChangeUseCase,
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly planRepository: IPlanRepository,
     private readonly accountRepository: IAccountRepository,
@@ -43,6 +45,8 @@ export class UpdateSubscriptionVipPlanUseCase {
       await this.accountRepository.updatePlan(accountId, planId);
       
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
+
+      await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId, planId });
 
       return subscriptionUpdated;
     } catch (error) {
