@@ -34,6 +34,12 @@ export class Plan {
     maxPhotos: number;
 
     @Prop()
+    discount?: number;
+
+    @Prop()
+    oldPrice?: number;
+
+    @Prop()
     createdAt: Date
 }
 
