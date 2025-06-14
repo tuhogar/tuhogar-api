@@ -12,6 +12,8 @@ export class Plan {
     externalId: string;
     maxAdvertisements?: number;
     maxPhotos?: number;
+    discount?: number;
+    oldPrice?: number;
 
     constructor(props: Plan) {
         Object.assign(this, props);

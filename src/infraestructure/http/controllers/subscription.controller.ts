@@ -25,6 +25,7 @@ import { GetAllPlansOutputDto } from '../dtos/plan/output/get-all-plans.output.d
 import { GetAllPlansOutputDtoMapper } from '../dtos/plan/output/mapper/get-all-plans.output.dto.mapper';
 import { GetSubscriptionPaymentHistoryDto } from '../dtos/subscription/get-subscription-payment-history.dto';
 import { UpdateSubscriptionVipPlanUseCase } from 'src/application/use-cases/subscription/update-subscription-vip-plan.use-case';
+import { GetAllPlansForSubscriptionsDto } from '../dtos/plan/get-all-plans-for-subscriptions.dto';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -66,7 +67,10 @@ export class SubscriptionController {
       accountId: authenticatedUser.accountId, 
       email: authenticatedUser.email, 
       userId: authenticatedUser.userId,
-      planId: createSubscriptionDto.planId, 
+      planId: createSubscriptionDto.planId,
+      documentType: createSubscriptionDto.documentType,
+      documentNumber: createSubscriptionDto.documentNumber,
+      coupon: createSubscriptionDto.coupon,
       paymentData: createSubscriptionDto.paymentData,
     });
 
@@ -133,8 +137,8 @@ export class SubscriptionController {
   @ApiBearerAuth()
   @Auth('ADMIN', 'USER')
   @Get('plans')
-  async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetAllPlansOutputDto[]> {
-    const plans = await this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId });
+  async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() query: GetAllPlansForSubscriptionsDto): Promise<GetAllPlansOutputDto[]> {
+    const plans = await this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId, coupon: query.coupon });
     return GetAllPlansOutputDtoMapper.toOutputDtoList(plans);
   }
 

@@ -16,6 +16,8 @@ export class MongoosePlanMapper {
             externalId: entity.externalId,
             maxAdvertisements: entity.maxAdvertisements,
             maxPhotos: entity.maxPhotos,
+            discount: entity.discount,
+            oldPrice: entity.oldPrice,
         });
         return model;
     }
@@ -29,6 +31,8 @@ export class MongoosePlanMapper {
             externalId: plan.externalId,
             maxAdvertisements: plan.maxAdvertisements,
             maxPhotos: plan.maxPhotos,
+            discount: plan.discount,
+            oldPrice: plan.oldPrice,
         }
     }
 }

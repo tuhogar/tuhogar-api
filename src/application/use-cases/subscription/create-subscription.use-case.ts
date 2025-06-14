@@ -9,6 +9,12 @@ import { ConfigService } from '@nestjs/config';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 import { RemoveInternalSubscriptionUseCase } from './remove-internal-subscription.use-case';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
+import { AccountDocumentType } from 'src/domain/entities/account';
+import { PathAccountUseCase } from '../account/path-account.use-case';
+import { UserRole } from 'src/domain/entities/user';
+import { Coupon, CouponType } from 'src/domain/entities/coupon';
+import { ValidateCouponUseCase } from '../coupon/validate-coupon.use-case';
+import { ICouponRepository } from 'src/application/interfaces/repositories/coupon.repository.interface';
 
 interface CreateSubscriptionUseCaseCommand {
   actualSubscriptionId: string;
@@ -18,6 +24,9 @@ interface CreateSubscriptionUseCaseCommand {
   email: string;
   userId: string;
   planId: string;
+  documentType?: AccountDocumentType;
+  documentNumber?: string;
+  coupon?: string;
   paymentData: Record<string, any>
 }
 
@@ -28,17 +37,20 @@ export class CreateSubscriptionUseCase {
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
     private readonly removeInternalSubscriptionUseCase: RemoveInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
+    private readonly pathAccountUseCase: PathAccountUseCase,
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly planRepository: IPlanRepository,
     private readonly userRepository: IUserRepository,
+    private readonly validateCouponUseCase: ValidateCouponUseCase,
     private readonly paymentGateway: IPaymentGateway,
     private readonly configService: ConfigService,
     private readonly accountRepository: IAccountRepository,
+    private readonly couponRepository: ICouponRepository,
   ) {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
 
-  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, userId, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
+  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, userId, planId, documentType, documentNumber, coupon, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
     if (
       (actualSubscriptionStatus === SubscriptionStatus.ACTIVE || actualSubscriptionStatus === SubscriptionStatus.CREATED) 
       && 
@@ -49,6 +61,28 @@ export class CreateSubscriptionUseCase {
     const user = await this.userRepository.findOneById(userId);
 
     if (account.hasPaidPlan && plan.freeTrialDays > 0) throw new Error('invalid.subscription.plan');
+
+    let couponExists: Coupon;
+    if (coupon) {
+      couponExists = await this.validateCouponUseCase.execute({ coupon });
+      if (account.hasPaidPlan && !couponExists.hasPaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
+      if (!account.hasPaidPlan && !couponExists.doesNotHavePaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
+
+      if (couponExists.type === CouponType.DOCUMENT) {
+        if (documentNumber !== couponExists.coupon) throw new Error('invalid.coupon.and.documentnumber.does.not.match');
+        if (account.documentNumber && account.documentNumber !== documentNumber) throw new Error('invalid.account.documentnumber.and.documentnumber.does.not.match');
+
+        if (!account.documentNumber) {
+          await this.pathAccountUseCase.execute({
+            userRole: UserRole.ADMIN,
+            accountId: accountId,
+            targetAccountId: accountId,
+            documentType: documentType,
+            documentNumber: documentNumber,
+          });
+        }
+      }
+    }
 
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 
@@ -77,6 +111,10 @@ export class CreateSubscriptionUseCase {
       if (planId !== this.firstSubscriptionPlanId) {
         await this.accountRepository.updateHasPaidPlan(accountId, true);
         console.log(`Conta ${accountId} marcada como tendo assinado um plano pago`);
+      }
+
+      if (coupon && couponExists.singleUse) {
+        await this.couponRepository.delete(couponExists.id);
       }
 
       return subscriptionUpdated;

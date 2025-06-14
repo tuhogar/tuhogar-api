@@ -53,4 +53,20 @@ export class GetAllPlansOutputDto {
     nullable: true
   })
   photo: string | null;
+
+  @ApiProperty({
+    description: 'Preço original do plano',
+    example: 199.90,
+    required: false,
+    nullable: true
+  })
+  oldPrice: number | null;
+
+  @ApiProperty({
+    description: 'Desconto do plano em %',
+    example: 50,
+    required: false,
+    nullable: true
+  })
+  discount: number | null;
 }

@@ -18,7 +18,9 @@ export class GetAllPlansOutputDtoMapper {
       name: plan.name,
       freeTrialDays: plan.freeTrialDays || null,
       items: plan.items || [],
+      oldPrice: plan.oldPrice || null,
       price: plan.price,
+      discount: plan.discount || null,
       maxAdvertisements: plan.maxAdvertisements,
       maxPhotos: plan.maxPhotos,
       photo: plan.photo || null

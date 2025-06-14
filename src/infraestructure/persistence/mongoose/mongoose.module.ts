@@ -49,6 +49,9 @@ import { AdvertisementEvent, AdvertisementEventSchema } from "./entities/adverti
 import { AccountAdvertisementStatistics, AccountAdvertisementStatisticsSchema } from "./entities/account-advertisement-statistics.entity";
 import { IAccountAdvertisementStatisticsRepository } from "src/application/interfaces/repositories/account-advertisement-statistics.repository.interface";
 import { MongooseAccountAdvertisementStatisticsRepository } from "./repositories/mongoose-account-advertisement-statistics.repository";
+import { Coupon, CouponSchema } from "./entities/coupon.entity";
+import { ICouponRepository } from "src/application/interfaces/repositories/coupon.repository.interface";
+import { MongooseCouponRepository } from "./repositories/mongoose-coupon.repository";
 
 @Module({
     imports: [
@@ -81,6 +84,7 @@ import { MongooseAccountAdvertisementStatisticsRepository } from "./repositories
           { name: SubscriptionInvoice.name, schema: SubscriptionInvoiceSchema },
           { name: SubscriptionNotification.name, schema: SubscriptionNotificationSchema },
           { name: AccountAdvertisementStatistics.name, schema: AccountAdvertisementStatisticsSchema },
+          { name: Coupon.name, schema: CouponSchema },
       ]),
     ],
     providers: [
@@ -147,6 +151,10 @@ import { MongooseAccountAdvertisementStatisticsRepository } from "./repositories
       {
         provide: IAccountAdvertisementStatisticsRepository,
         useClass: MongooseAccountAdvertisementStatisticsRepository,
+      },
+      {
+        provide: ICouponRepository,
+        useClass: MongooseCouponRepository,
       }
     ],
     exports: [
@@ -166,6 +174,7 @@ import { MongooseAccountAdvertisementStatisticsRepository } from "./repositories
       ISubscriptionInvoiceRepository,
       ISubscriptionNotificationRepository,
       IAccountAdvertisementStatisticsRepository,
+      ICouponRepository,
     ],
 })
 export class MongooseModule {}
