@@ -30,7 +30,7 @@ export class GetAccountAdvertisementStatisticsUseCase {
     }
 
     /**
-     * Lista todos os relatórios de uma conta
+     * Lista todos os meses de uma conta
      */
     async getAllMonthsByAccount(accountId: string): Promise<string[]> {
         const allMonths = await this.accountAdvertisementStatisticsRepository.findAllMonthsByAccountId(
