@@ -13,16 +13,6 @@ export class GetAccountAdvertisementStatisticsUseCase {
         private readonly accountAdvertisementStatisticsRepository: IAccountAdvertisementStatisticsRepository,
     ) {}
 
-    async execute({ accountId, month }: GetAccountAdvertisementStatisticsUseCaseCommand): Promise<AccountAdvertisementStatistics | AccountAdvertisementStatistics[]> {
-        // Se o mês for informado, buscar estatísticas específicas
-        if (month) {
-            return this.getByMonth(accountId, month);
-        } 
-        
-        // Se o mês não for informado, buscar todas as estatísticas da conta
-        return this.getAllByAccount(accountId);
-    }
-
     /**
      * Busca um relatório específico pelo mês
      */
@@ -40,17 +30,17 @@ export class GetAccountAdvertisementStatisticsUseCase {
     }
 
     /**
-     * Lista todos os relatórios de uma conta
+     * Lista todos os meses de uma conta
      */
-    async getAllByAccount(accountId: string): Promise<AccountAdvertisementStatistics[]> {
-        const allStatistics = await this.accountAdvertisementStatisticsRepository.findAllByAccountId(
+    async getAllMonthsByAccount(accountId: string): Promise<string[]> {
+        const allMonths = await this.accountAdvertisementStatisticsRepository.findAllMonthsByAccountId(
             accountId
         );
 
-        if (!allStatistics || allStatistics.length === 0) {
+        if (!allMonths || allMonths.length === 0) {
             throw new Error('notfound.account.advertisement.statistics.do.not.exists');
         }
 
-        return allStatistics;
+        return allMonths;
     }
 }

@@ -27,13 +27,15 @@ export class MongooseAccountAdvertisementStatisticsRepository implements IAccoun
         return MongooseAccountAdvertisementStatisticsMapper.toDomain(query);
     }
     
-    async findAllByAccountId(accountId: string): Promise<AccountAdvertisementStatistics[]> {
+    async findAllMonthsByAccountId(accountId: string): Promise<string[]> {
         const query = await this.accountAdvertisementStatisticsModel
             .find({ accountId })
             .sort({ month: -1 })
+            .limit(12)
+            .select('month')
             .exec();
         
-        return query.map(entity => MongooseAccountAdvertisementStatisticsMapper.toDomain(entity));
+        return query.map(entity => entity.month);
     }
     
     async update(id: string, statistics: Partial<AccountAdvertisementStatistics>): Promise<AccountAdvertisementStatistics> {

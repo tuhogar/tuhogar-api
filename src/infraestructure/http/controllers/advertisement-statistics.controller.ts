@@ -23,7 +23,7 @@ export class AdvertisementStatisticsController {
   @Get()
   @Auth('ADMIN', 'USER', 'MASTER')
   @UsePipes(new ValidationPipe({ transform: true }))
-  @ApiOperation({ summary: 'Listar todos os relatórios de estatísticas da conta do usuário logado ou de uma conta específica (MASTER)' })
+  @ApiOperation({ summary: 'Listar todos os meses de estatísticas da conta do usuário logado ou de uma conta específica (MASTER)' })
   @ApiQuery({
     name: 'accountId',
     description: 'ID da conta para filtrar estatísticas (obrigatório para MASTER, ignorado para outros perfis)',
@@ -32,16 +32,16 @@ export class AdvertisementStatisticsController {
   })
   @ApiResponse({ 
     status: 200, 
-    description: 'Lista de estatísticas de anúncios encontradas com sucesso',
-    type: AccountAdvertisementStatistics,
+    description: 'Lista de meses de estatísticas de anúncios encontrados com sucesso',
+    type: String,
     isArray: true
   })
   @ApiResponse({ status: 400, description: 'Parâmetros inválidos' })
   @ApiResponse({ status: 404, description: 'Estatísticas não encontradas' })
-  async getAll(
+  async getAllMonthsByAccount(
     @Authenticated() authenticatedUser: AuthenticatedUser,
     @Query() query: GetAllAdvertisementStatisticsDto,
-  ): Promise<AccountAdvertisementStatistics[]> {
+  ): Promise<string[]> {
     // Validação específica para usuários MASTER
     if (authenticatedUser.userRole === UserRole.MASTER && !query.accountId) {
       throw new Error('invalid.accountId.should.not.be.empty');
@@ -49,7 +49,7 @@ export class AdvertisementStatisticsController {
     
     const accountId = authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : query.accountId;
     
-    return this.getAccountAdvertisementStatisticsUseCase.getAllByAccount(accountId);
+    return this.getAccountAdvertisementStatisticsUseCase.getAllMonthsByAccount(accountId);
   }
 
   @ApiBearerAuth()
