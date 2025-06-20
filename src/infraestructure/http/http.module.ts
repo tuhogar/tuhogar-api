@@ -94,7 +94,7 @@ import { GetSubscriptionHistoryUseCase } from "src/application/use-cases/subscri
 import { GetSubscriptionPaymentHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-payment-history.use-case";
 import { UpdateSubscriptionVipPlanUseCase } from "src/application/use-cases/subscription/update-subscription-vip-plan.use-case";
 import { AdjustAdvertisementsAfterPlanChangeUseCase } from "src/application/use-cases/advertisement/adjust-advertisements-after-plan-change.use-case";
-import { ValidateCouponUseCase } from "src/application/use-cases/coupon/validate-coupon.use-case";
+import { ApplyCouponUseCase } from "src/application/use-cases/coupon/apply-coupon.use-case";
 import { CouponController } from "./controllers/coupon.controller";
 
 @Module({
@@ -174,7 +174,7 @@ import { CouponController } from "./controllers/coupon.controller";
         GetSubscriptionPaymentHistoryUseCase,
         UpdateSubscriptionVipPlanUseCase,
         AdjustAdvertisementsAfterPlanChangeUseCase,
-        ValidateCouponUseCase,
+        ApplyCouponUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,

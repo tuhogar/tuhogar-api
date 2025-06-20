@@ -23,6 +23,12 @@ export class Coupon {
 
     @Prop()
     expirationDate: Date
+
+    @Prop()
+    singleUseApplied: boolean;
+
+    @Prop()
+    createdAt: Date;
 }
 
 const CouponSchema = SchemaFactory.createForClass(Coupon);

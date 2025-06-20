@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ValidateCouponOutputDto {
+export class ApplyCouponOutputDto {
   @ApiProperty({
     description: 'Cupom',
     example: '1234567890',
@@ -16,4 +16,12 @@ export class ValidateCouponOutputDto {
     nullable: true
   })
   type: string;
+
+  @ApiProperty({
+    description: 'Data de expiração do cupom',
+    example: '2025-06-20T10:21:28.000Z',
+    required: false,
+    nullable: true
+  })
+  expirationDate: Date;
 }
