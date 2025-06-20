@@ -25,12 +25,6 @@ export class CreateSubscriptionDto {
     @Property()
     documentNumber?: string;
 
-    @ApiPropertyOptional()
-    @IsOptional()
-    @IsString({ message: 'invalid.coupon.must.be.a.string' })
-    @Property()
-    coupon?: string;
-
     @ApiProperty()
     @IsObject()
     @IsNotEmpty()

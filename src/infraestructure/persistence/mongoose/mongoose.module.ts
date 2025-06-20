@@ -52,6 +52,9 @@ import { MongooseAccountAdvertisementStatisticsRepository } from "./repositories
 import { Coupon, CouponSchema } from "./entities/coupon.entity";
 import { ICouponRepository } from "src/application/interfaces/repositories/coupon.repository.interface";
 import { MongooseCouponRepository } from "./repositories/mongoose-coupon.repository";
+import { IAccountCouponRepository } from "src/application/interfaces/repositories/account-coupon.repository.interface";
+import { MongooseAccountCouponRepository } from "./repositories/mongoose-account-coupon.repository";
+import { AccountCoupon, AccountCouponSchema } from "./entities/account-coupon.entity";
 
 @Module({
     imports: [
@@ -85,6 +88,7 @@ import { MongooseCouponRepository } from "./repositories/mongoose-coupon.reposit
           { name: SubscriptionNotification.name, schema: SubscriptionNotificationSchema },
           { name: AccountAdvertisementStatistics.name, schema: AccountAdvertisementStatisticsSchema },
           { name: Coupon.name, schema: CouponSchema },
+          { name: AccountCoupon.name, schema: AccountCouponSchema },
       ]),
     ],
     providers: [
@@ -155,6 +159,10 @@ import { MongooseCouponRepository } from "./repositories/mongoose-coupon.reposit
       {
         provide: ICouponRepository,
         useClass: MongooseCouponRepository,
+      },
+      { 
+        provide: IAccountCouponRepository,
+        useClass: MongooseAccountCouponRepository
       }
     ],
     exports: [
@@ -175,6 +183,7 @@ import { MongooseCouponRepository } from "./repositories/mongoose-coupon.reposit
       ISubscriptionNotificationRepository,
       IAccountAdvertisementStatisticsRepository,
       ICouponRepository,
+      IAccountCouponRepository,
     ],
 })
 export class MongooseModule {}

@@ -15,6 +15,7 @@ export class MongooseCouponMapper {
             doesNotHavePaidPlanIds: !!entity.doesNotHavePaidPlanIds ? entity.doesNotHavePaidPlanIds.map((a) => MongoosePlanMapper.toDomain(a)) : undefined,
             hasPaidPlanIds: !!entity.hasPaidPlanIds ? entity.hasPaidPlanIds.map((a) => MongoosePlanMapper.toDomain(a)) : undefined,
             expirationDate: entity.expirationDate,
+            singleUseApplied: entity.singleUseApplied,
         });
         return model;
     }

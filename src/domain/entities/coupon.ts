@@ -12,6 +12,7 @@ export class Coupon {
     doesNotHavePaidPlanIds: Plan[];
     hasPaidPlanIds: Plan[];
     expirationDate: Date;
+    singleUseApplied: boolean;
 
     constructor(props: Coupon) {
         Object.assign(this, props);

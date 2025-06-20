@@ -15,7 +15,7 @@ export class MongooseCouponRepository implements ICouponRepository {
         return MongooseCouponMapper.toDomain(query);
     }
 
-    async delete(id: string): Promise<void> {
-        await this.couponModel.deleteOne({ _id: id }).exec();
+    async apply(id: string): Promise<void> {
+        await this.couponModel.updateOne({ _id: id, singleUse: true, singleUseApplied: false }, { singleUseApplied: true }).exec();
     }
 }

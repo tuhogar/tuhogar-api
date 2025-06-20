@@ -1,34 +1,31 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Plan } from 'src/domain/entities/plan';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApplyCouponUseCase } from 'src/application/use-cases/coupon/apply-coupon.use-case';
+import { ApplyCouponDto } from '../dtos/coupon/apply-coupon.dto';
+import { ApplyCouponOutputDtoMapper } from '../dtos/coupon/output/mapper/apply-coupon.output.dto.mapper';
+import { ApplyCouponOutputDto } from '../dtos/coupon/output/apply-coupon.output.dto';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
-import { CreatePlanDto } from 'src/infraestructure/http/dtos/plan/create-plan.dto';
-import { CreatePlanUseCase } from 'src/application/use-cases/plan/create-plan.use-case';
-import { GetAllPlanUseCase } from 'src/application/use-cases/plan/get-all-plan.use-case';
-import { GetAllPlansOutputDto } from 'src/infraestructure/http/dtos/plan/output/get-all-plans.output.dto';
-import { GetAllPlansOutputDtoMapper } from 'src/infraestructure/http/dtos/plan/output/mapper/get-all-plans.output.dto.mapper';
-import { ValidateCouponUseCase } from 'src/application/use-cases/coupon/validate-coupon.use-case';
-import { Coupon } from 'src/domain/entities/coupon';
-import { ValidateCouponDto } from '../dtos/coupon/validate-coupon.dto';
-import { ValidateCouponOutputDtoMapper } from '../dtos/coupon/output/mapper/validate-coupon.output.dto.mapper';
-import { ValidateCouponOutputDto } from '../dtos/coupon/output/validate-coupon.output.dto';
+import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
+import { Authenticated } from 'src/infraestructure/decorators/authenticated.decorator';
 
 @ApiTags('v1/coupons')
 @Controller('v1/coupons')
 export class CouponController {
 
     constructor(
-        private readonly validateCouponUseCase: ValidateCouponUseCase,
+        private readonly applyCouponUseCase: ApplyCouponUseCase,
     ) {}
 
-    @Post()
+    @ApiBearerAuth()
+    @Post('apply')
+    @Auth('ADMIN')
     @ApiResponse({
         status: 200,
-        description: 'Valida um cupom',
-        type: ValidateCouponOutputDto
+        description: 'Aplica um cupom',
+        type: ApplyCouponOutputDto
     })
-    async validate(@Body() validateCouponDto: ValidateCouponDto): Promise<ValidateCouponOutputDto> {
-        const coupon = await this.validateCouponUseCase.execute({ coupon: validateCouponDto.coupon });
-        return ValidateCouponOutputDtoMapper.toOutputDto(coupon);
+    async apply(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() applyCouponDto: ApplyCouponDto): Promise<ApplyCouponOutputDto> {
+        const coupon = await this.applyCouponUseCase.execute({ coupon: applyCouponDto.coupon, accountId: authenticatedUser.accountId });
+        return ApplyCouponOutputDtoMapper.toOutputDto(coupon);
     }
 }
