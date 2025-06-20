@@ -12,19 +12,6 @@ export class CreateSubscriptionDto {
     @Property()
     planId: string;
 
-    @ApiPropertyOptional()
-    @IsOptional()
-    @IsEnum(AccountDocumentType, { message: 'invalid.documentType.must.be.one.of.the.following.values.CC.CE.NIT' })
-    @Property()
-    documentType?: AccountDocumentType;
-
-    @ApiPropertyOptional()
-    @IsOptional()
-    @IsString({ message: 'invalid.documentNumber.must.be.a.string' })
-    @MaxLength(30, { message: 'invalid.documentNumber.must.be.shorter.than.or.equal.to.30.characters' })
-    @Property()
-    documentNumber?: string;
-
     @ApiProperty()
     @IsObject()
     @IsNotEmpty()

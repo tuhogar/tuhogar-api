@@ -23,8 +23,6 @@ interface CreateSubscriptionUseCaseCommand {
   email: string;
   userId: string;
   planId: string;
-  documentType?: AccountDocumentType;
-  documentNumber?: string;
   paymentData: Record<string, any>
 }
 
@@ -47,7 +45,7 @@ export class CreateSubscriptionUseCase {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
 
-  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, userId, planId, documentType, documentNumber, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
+  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, userId, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
     if (
       (actualSubscriptionStatus === SubscriptionStatus.ACTIVE || actualSubscriptionStatus === SubscriptionStatus.CREATED) 
       && 
@@ -66,21 +64,6 @@ export class CreateSubscriptionUseCase {
       if (coupon.expirationDate && coupon.expirationDate < new Date()) throw new Error('invalid.coupon.expiredDate');
       if (account.hasPaidPlan && !coupon.hasPaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
       if (!account.hasPaidPlan && !coupon.doesNotHavePaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
-
-      if (coupon.type === CouponType.DOCUMENT) {
-        if (documentNumber !== coupon.coupon) throw new Error('invalid.coupon.and.documentnumber.does.not.match');
-        if (account.documentNumber && account.documentNumber !== documentNumber) throw new Error('invalid.account.documentnumber.and.documentnumber.does.not.match');
-
-        if (!account.documentNumber) {
-          await this.pathAccountUseCase.execute({
-            userRole: UserRole.ADMIN,
-            accountId: accountId,
-            targetAccountId: accountId,
-            documentType: documentType,
-            documentNumber: documentNumber,
-          });
-        }
-      }
       couponUsed = true;
     }
 
