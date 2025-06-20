@@ -65,8 +65,6 @@ export class SubscriptionController {
       email: authenticatedUser.email, 
       userId: authenticatedUser.userId,
       planId: createSubscriptionDto.planId,
-      documentType: createSubscriptionDto.documentType,
-      documentNumber: createSubscriptionDto.documentNumber,
       paymentData: createSubscriptionDto.paymentData,
     });
 
