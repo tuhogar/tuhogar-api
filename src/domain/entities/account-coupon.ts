@@ -1,9 +1,5 @@
 import { Coupon } from "./coupon";
 
-export enum CouponType {
-    DOCUMENT = 'DOCUMENT',
-}
-
 export class AccountCoupon {
     id?: string;
     accountId: string;
