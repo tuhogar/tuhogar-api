@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { Advertisement } from './advertisement';
 
 export class TransactionTypeMetrics {
     sale: number;
@@ -59,6 +60,7 @@ export class ContactInfoClicks extends MetricBase {
 
 export class AdvertisementMetric {
     advertisementId: string;
+    advertisement?: Advertisement;
     views?: number;
     interactions?: number;
 
