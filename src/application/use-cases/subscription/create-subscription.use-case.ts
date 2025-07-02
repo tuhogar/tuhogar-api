@@ -67,6 +67,8 @@ export class CreateSubscriptionUseCase {
       couponUsed = true;
     }
 
+    if (plan.discount && !coupon) throw new Error('invalid.subscription.plan');
+
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 
     try {
