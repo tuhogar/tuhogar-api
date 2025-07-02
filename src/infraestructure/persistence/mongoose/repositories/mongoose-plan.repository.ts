@@ -21,7 +21,7 @@ export class MongoosePlanRepository implements IPlanRepository {
     }
 
     async findNotFreeDays(): Promise<Plan[]> {
-        const query = await this.planModel.find({ freeTrialDays: { $exists: false } }).sort({ 'price': 1 }).exec();
+        const query = await this.planModel.find({ freeTrialDays: { $exists: false }, discount: { $exists: false } }).sort({ 'price': 1 }).exec();
         return query.map((item) => MongoosePlanMapper.toDomain(item));
     }
 
@@ -30,7 +30,8 @@ export class MongoosePlanRepository implements IPlanRepository {
             $or: [
                 { freeTrialDays: { $exists: true } },
                 { _id: this.firstSubscriptionPlanId }
-            ]
+            ],
+            discount: { $exists: false }
         }).sort({ 'price': 1 }).exec();
         return query.map((item) => MongoosePlanMapper.toDomain(item));
     }
