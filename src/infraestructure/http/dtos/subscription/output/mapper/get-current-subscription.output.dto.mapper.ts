@@ -23,6 +23,7 @@ export class GetCurrentSubscriptionOutputDtoMapper {
       nextPaymentDate: subscription.nextPaymentDate || null,
       createdAt: subscription.createdAt || null,
       remainingFreeDays: subscription.remainingFreeDays,
+      isCouponRedeemed: subscription.isCouponRedeemed,
       // Mapeia o plan quando disponível
       plan: subscription.plan ? {
         id: subscription.plan.id,

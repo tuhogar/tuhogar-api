@@ -11,8 +11,8 @@ export class MongooseAccountCouponMapper {
             id: entity._id.toString(),
             accountId: entity.accountId?.toString(),
             couponId: entity.couponId?.toString(),
-            used: entity.used,
             coupon: entity.couponId?.createdAt ? MongooseCouponMapper.toDomain(entity.couponId) : undefined,
+            isDepleted: entity.isDepleted,
         });
         return model;
     }
@@ -21,7 +21,7 @@ export class MongooseAccountCouponMapper {
         return {
             accountId: accountCoupon.accountId,
             couponId: accountCoupon.couponId,
-            used: accountCoupon.used,
+            isDepleted: accountCoupon.isDepleted,
         }
     }
 }

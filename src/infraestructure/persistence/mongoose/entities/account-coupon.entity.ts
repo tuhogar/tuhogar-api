@@ -14,7 +14,7 @@ export class AccountCoupon {
     couponId: Coupon;
 
     @Prop()
-    used: boolean;
+    isDepleted: boolean;
 }
 
 const AccountCouponSchema = SchemaFactory.createForClass(AccountCoupon);

@@ -30,7 +30,7 @@ export class GetAllPlanUseCase {
         const account = await this.accountRepository.findOneById(accountId);
         if (!account) throw new Error('notfound.account.do.not.exists');
 
-        const accountCoupon = await this.accountCouponRepository.findLastNotusedByAccountId(accountId);
+        const accountCoupon = await this.accountCouponRepository.findLastNotDepletedByAccountId(accountId);
         const coupon = accountCoupon?.coupon;
         const couponExpiredDate = coupon?.expirationDate && coupon.expirationDate < new Date();
 

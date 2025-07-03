@@ -13,7 +13,7 @@ export class Coupon {
     type: string;
 
     @Prop()
-    singleUse: boolean;
+    isSingleRedemption: boolean;
 
     @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Plan' }])
     doesNotHavePaidPlanIds: Plan[];
@@ -25,7 +25,10 @@ export class Coupon {
     expirationDate: Date
 
     @Prop()
-    singleUseApplied: boolean;
+    isRedeemed: boolean;
+
+    @Prop()
+    allowRepeatedFulfillment: boolean;
 
     @Prop()
     createdAt: Date;
