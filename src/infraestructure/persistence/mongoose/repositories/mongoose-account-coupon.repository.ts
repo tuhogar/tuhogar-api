@@ -18,12 +18,30 @@ export class MongooseAccountCouponRepository implements IAccountCouponRepository
         return MongooseAccountCouponMapper.toDomain(entity);
     }
 
-    async findLastNotusedByAccountId(accountId: string): Promise<AccountCoupon> {
-        const entity = await this.accountCouponModel.findOne({ accountId, used: false }).populate('couponId').sort({ createdAt: -1 }).exec();
+    async findLastNotDepletedByAccountId(accountId: string): Promise<AccountCoupon> {
+        const entity = await this.accountCouponModel.findOne({ accountId, isDepleted: false }).populate('couponId').sort({ createdAt: -1 }).exec();
         return MongooseAccountCouponMapper.toDomain(entity);
     }
 
-    async use(accountCouponId: string): Promise<void> {
-        await this.accountCouponModel.updateOne({ _id: accountCouponId }, { used: true }).exec();
+    async findTypeDocumentCouponByAccountId(accountId: string): Promise<AccountCoupon | null> {
+        const entity = await this.accountCouponModel
+          .findOne({ accountId })
+          .populate({
+            path: 'couponId',
+            match: { type: 'DOCUMENT' } // Filtra cupons do tipo DOCUMENT
+          })
+          .sort({ createdAt: -1 })
+          .exec();
+      
+        // Verifica se o populate encontrou um cupom do tipo DOCUMENT
+        if (!entity || !entity.couponId) {
+          return null;
+        }
+      
+        return MongooseAccountCouponMapper.toDomain(entity);
+      }
+
+    async deplete(accountCouponId: string): Promise<void> {
+        await this.accountCouponModel.updateOne({ _id: accountCouponId }, { isDepleted: true }).exec();
     }
 }

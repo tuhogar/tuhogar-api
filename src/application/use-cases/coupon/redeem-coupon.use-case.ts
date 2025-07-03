@@ -5,13 +5,13 @@ import { AccountCoupon } from 'src/domain/entities/account-coupon';
 import { IAccountCouponRepository } from 'src/application/interfaces/repositories/account-coupon.repository.interface';
 import { Coupon } from 'src/domain/entities/coupon';
 
-interface ApplyCouponUseCaseCommand {
+interface RedeemCouponUseCaseCommand {
     coupon: string;
     accountId: string;
 }
 
 @Injectable()
-export class ApplyCouponUseCase {
+export class RedeemCouponUseCase {
 
     constructor(
         private readonly couponRepository: ICouponRepository,
@@ -19,26 +19,26 @@ export class ApplyCouponUseCase {
         private readonly accountCouponRepository: IAccountCouponRepository,
     ) {}
 
-    async execute({ coupon, accountId }: ApplyCouponUseCaseCommand): Promise<Coupon> {
+    async execute({ coupon, accountId }: RedeemCouponUseCaseCommand): Promise<Coupon> {
         const account = await this.accountRepository.findOneById(accountId);
         if (!account) throw new Error('notfound.account.do.not.exists');
 
         const couponExists = await this.couponRepository.findOneByCoupon(coupon);
         if (!couponExists) throw new Error('invalid.coupon');
         if (couponExists.expirationDate && couponExists.expirationDate < new Date()) throw new Error('invalid.coupon.expirednDate');
-        if (couponExists.singleUse && couponExists.singleUseApplied) throw new Error('invalid.coupon.applied');
+        if (couponExists.isSingleRedemption && couponExists.isRedeemed) throw new Error('invalid.coupon.redeemed');
 
 
         const accountCoupon = new AccountCoupon({
             accountId,
             couponId: couponExists.id,
-            used: false,
+            isDepleted: false,
         })
 
         await this.accountCouponRepository.create(accountCoupon);
 
-        if (couponExists.singleUse) {
-            await this.couponRepository.apply(couponExists.id);
+        if (couponExists.isSingleRedemption) {
+            await this.couponRepository.redeem(couponExists.id);
         }
 
         return couponExists;

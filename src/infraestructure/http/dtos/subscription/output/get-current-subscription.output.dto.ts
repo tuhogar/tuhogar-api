@@ -38,6 +38,10 @@ export class GetCurrentSubscriptionOutputDto {
   @Property()
   remainingFreeDays: number;
 
+  @ApiProperty({ description: 'Indica se o cupom de documento foi aplicado' })
+  @Property()
+  isCouponRedeemed: boolean;
+
   @ApiProperty({ 
     description: 'Detalhes do plano associado à assinatura',
     required: false,

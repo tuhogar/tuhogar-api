@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ApplyCouponUseCase } from 'src/application/use-cases/coupon/apply-coupon.use-case';
+import { RedeemCouponUseCase } from 'src/application/use-cases/coupon/redeem-coupon.use-case';
 import { ApplyCouponDto } from '../dtos/coupon/apply-coupon.dto';
 import { ApplyCouponOutputDtoMapper } from '../dtos/coupon/output/mapper/apply-coupon.output.dto.mapper';
 import { ApplyCouponOutputDto } from '../dtos/coupon/output/apply-coupon.output.dto';
@@ -13,7 +13,7 @@ import { Authenticated } from 'src/infraestructure/decorators/authenticated.deco
 export class CouponController {
 
     constructor(
-        private readonly applyCouponUseCase: ApplyCouponUseCase,
+        private readonly redeemCouponUseCase: RedeemCouponUseCase,
     ) {}
 
     @ApiBearerAuth()
@@ -25,7 +25,7 @@ export class CouponController {
         type: ApplyCouponOutputDto
     })
     async apply(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() applyCouponDto: ApplyCouponDto): Promise<ApplyCouponOutputDto> {
-        const coupon = await this.applyCouponUseCase.execute({ coupon: applyCouponDto.coupon, accountId: authenticatedUser.accountId });
+        const coupon = await this.redeemCouponUseCase.execute({ coupon: applyCouponDto.coupon, accountId: authenticatedUser.accountId });
         return ApplyCouponOutputDtoMapper.toOutputDto(coupon);
     }
 }

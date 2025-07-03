@@ -11,11 +11,12 @@ export class MongooseCouponMapper {
             id: entity._id.toString(),
             coupon: entity.coupon,
             type: entity.type as CouponType,
-            singleUse: entity.singleUse,
+            isSingleRedemption: entity.isSingleRedemption,
             doesNotHavePaidPlanIds: !!entity.doesNotHavePaidPlanIds ? entity.doesNotHavePaidPlanIds.map((a) => MongoosePlanMapper.toDomain(a)) : undefined,
             hasPaidPlanIds: !!entity.hasPaidPlanIds ? entity.hasPaidPlanIds.map((a) => MongoosePlanMapper.toDomain(a)) : undefined,
             expirationDate: entity.expirationDate,
-            singleUseApplied: entity.singleUseApplied,
+            isRedeemed: entity.isRedeemed,
+            allowRepeatedFulfillment: entity.allowRepeatedFulfillment,
         });
         return model;
     }

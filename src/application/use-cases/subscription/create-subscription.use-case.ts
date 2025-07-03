@@ -57,14 +57,14 @@ export class CreateSubscriptionUseCase {
 
     if (account.hasPaidPlan && plan.freeTrialDays > 0) throw new Error('invalid.subscription.plan');
 
-    const accountCoupon = await this.accountCouponRepository.findLastNotusedByAccountId(accountId);
+    const accountCoupon = await this.accountCouponRepository.findLastNotDepletedByAccountId(accountId);
     const coupon = accountCoupon?.coupon;
-    let couponUsed = false;
+    let setCouponDepleted = false;
     if (coupon) {
       if (coupon.expirationDate && coupon.expirationDate < new Date()) throw new Error('invalid.coupon.expiredDate');
       if (account.hasPaidPlan && !coupon.hasPaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
       if (!account.hasPaidPlan && !coupon.doesNotHavePaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
-      couponUsed = true;
+      if (!coupon.allowRepeatedFulfillment) setCouponDepleted = true;
     }
 
     if (plan.discount && !coupon) throw new Error('invalid.subscription.plan');
@@ -98,7 +98,7 @@ export class CreateSubscriptionUseCase {
         console.log(`Conta ${accountId} marcada como tendo assinado um plano pago`);
       }
 
-      if (couponUsed) await this.accountCouponRepository.use(accountCoupon.id);
+      if (setCouponDepleted) await this.accountCouponRepository.deplete(accountCoupon.id);
 
       return subscriptionUpdated;
     } catch (error) {

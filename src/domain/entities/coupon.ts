@@ -8,11 +8,12 @@ export class Coupon {
     id?: string;
     coupon: string;
     type: CouponType;
-    singleUse: boolean;
+    isSingleRedemption: boolean;
     doesNotHavePaidPlanIds: Plan[];
     hasPaidPlanIds: Plan[];
     expirationDate: Date;
-    singleUseApplied: boolean;
+    isRedeemed: boolean;
+    allowRepeatedFulfillment: boolean;
 
     constructor(props: Coupon) {
         Object.assign(this, props);
