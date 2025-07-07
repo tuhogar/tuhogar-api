@@ -1,7 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsJSON, IsMongoId, IsNotEmpty, IsObject, IsString } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEnum, IsJSON, IsMongoId, IsNotEmpty, IsObject, IsOptional, IsString, MaxLength } from "class-validator";
 import { IsExistingPlan } from "src/infraestructure/http/validators/plan/is-existing-plan.validator";
 import { Property } from "src/infraestructure/decorators/property.decorator";
+import { AccountDocumentType } from "src/domain/entities/account";
 
 export class CreateSubscriptionDto {
 

@@ -3,6 +3,7 @@ import { ISubscriptionRepository } from 'src/application/interfaces/repositories
 import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 import { Subscription } from 'src/domain/entities/subscription';
 import { SubscriptionWithRemainingFreeDays } from 'src/domain/entities/subscription-with-remaining-free-days';
+import { IAccountCouponRepository } from 'src/application/interfaces/repositories/account-coupon.repository.interface';
 
 /**
  * Comando para execução do caso de uso GetCurrentSubscription
@@ -17,6 +18,7 @@ export class GetCurrentSubscriptionUseCase {
   constructor(
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly planRepository: IPlanRepository,
+    private readonly accountCouponRepository: IAccountCouponRepository,
   ) {}
   
   /**
@@ -70,11 +72,15 @@ export class GetCurrentSubscriptionUseCase {
       // Calcular dias restantes (0 se o período já expirou)
       remainingFreeDays = daysSinceCreation >= totalFreeDays ? 0 : totalFreeDays - daysSinceCreation;
     }
+
+    const typeDocumentCoupon = await this.accountCouponRepository.findTypeDocumentCouponByAccountId(accountId);
+    const isCouponRedeemed = typeDocumentCoupon ? true : false;
     
     // Retorna a assinatura com a informação de dias gratuitos restantes
     return {
       ...subscription,
-      remainingFreeDays
+      remainingFreeDays,
+      isCouponRedeemed
     };
   }
 }

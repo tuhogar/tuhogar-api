@@ -94,6 +94,8 @@ import { GetSubscriptionHistoryUseCase } from "src/application/use-cases/subscri
 import { GetSubscriptionPaymentHistoryUseCase } from "src/application/use-cases/subscription/get-subscription-payment-history.use-case";
 import { UpdateSubscriptionVipPlanUseCase } from "src/application/use-cases/subscription/update-subscription-vip-plan.use-case";
 import { AdjustAdvertisementsAfterPlanChangeUseCase } from "src/application/use-cases/advertisement/adjust-advertisements-after-plan-change.use-case";
+import { RedeemCouponUseCase } from "src/application/use-cases/coupon/redeem-coupon.use-case";
+import { CouponController } from "./controllers/coupon.controller";
 
 @Module({
     imports: [
@@ -172,6 +174,7 @@ import { AdjustAdvertisementsAfterPlanChangeUseCase } from "src/application/use-
         GetSubscriptionPaymentHistoryUseCase,
         UpdateSubscriptionVipPlanUseCase,
         AdjustAdvertisementsAfterPlanChangeUseCase,
+        RedeemCouponUseCase,
         IsExistingAdvertisementReasonConstraint,
         AmenityIsExistingIdConstraint,
         ContractTypeIsExistingIdConstraint,
@@ -198,6 +201,7 @@ import { AdjustAdvertisementsAfterPlanChangeUseCase } from "src/application/use-
         SubscriptionController,
         NetworkController,
         AdvertisementStatisticsController,
+        CouponController
         ],
 })
 export class HttpModule {}

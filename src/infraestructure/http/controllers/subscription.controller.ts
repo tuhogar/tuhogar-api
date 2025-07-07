@@ -1,5 +1,5 @@
-import { Controller, Post, Body, Delete, Param, Put, Get, HttpStatus, Query } from '@nestjs/common';
-import { ApiBody, ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Post, Body, Delete, Put, Get, HttpStatus, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { CreateSubscriptionUseCase } from 'src/application/use-cases/subscription/create-subscription.use-case';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { Auth } from 'src/infraestructure/decorators/auth.decorator';
@@ -13,8 +13,6 @@ import { GetCurrentSubscriptionUseCase } from 'src/application/use-cases/subscri
 import { GetSubscriptionHistoryUseCase } from 'src/application/use-cases/subscription/get-subscription-history.use-case';
 import { GetSubscriptionPaymentHistoryUseCase } from 'src/application/use-cases/subscription/get-subscription-payment-history.use-case';
 import { GetAllPlanUseCase } from 'src/application/use-cases/plan/get-all-plan.use-case';
-import { Plan } from 'src/domain/entities/plan';
-import { SubscriptionWithRemainingFreeDays } from 'src/domain/entities/subscription-with-remaining-free-days';
 import { GetCurrentSubscriptionOutputDto } from '../dtos/subscription/output/get-current-subscription.output.dto';
 import { GetCurrentSubscriptionOutputDtoMapper } from '../dtos/subscription/output/mapper/get-current-subscription.output.dto.mapper';
 import { GetSubscriptionHistoryOutputDto } from '../dtos/subscription/output/get-subscription-history.output.dto';
@@ -66,7 +64,7 @@ export class SubscriptionController {
       accountId: authenticatedUser.accountId, 
       email: authenticatedUser.email, 
       userId: authenticatedUser.userId,
-      planId: createSubscriptionDto.planId, 
+      planId: createSubscriptionDto.planId,
       paymentData: createSubscriptionDto.paymentData,
     });
 
@@ -131,7 +129,7 @@ export class SubscriptionController {
   }
 
   @ApiBearerAuth()
-  @Auth('ADMIN', 'USER')
+  @Auth('ADMIN')
   @Get('plans')
   async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetAllPlansOutputDto[]> {
     const plans = await this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId });

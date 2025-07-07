@@ -9,6 +9,11 @@ import { ConfigService } from '@nestjs/config';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 import { RemoveInternalSubscriptionUseCase } from './remove-internal-subscription.use-case';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
+import { AccountDocumentType } from 'src/domain/entities/account';
+import { PathAccountUseCase } from '../account/path-account.use-case';
+import { UserRole } from 'src/domain/entities/user';
+import { Coupon, CouponType } from 'src/domain/entities/coupon';
+import { IAccountCouponRepository } from 'src/application/interfaces/repositories/account-coupon.repository.interface';
 
 interface CreateSubscriptionUseCaseCommand {
   actualSubscriptionId: string;
@@ -28,12 +33,14 @@ export class CreateSubscriptionUseCase {
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
     private readonly removeInternalSubscriptionUseCase: RemoveInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
+    private readonly pathAccountUseCase: PathAccountUseCase,
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly planRepository: IPlanRepository,
     private readonly userRepository: IUserRepository,
     private readonly paymentGateway: IPaymentGateway,
     private readonly configService: ConfigService,
     private readonly accountRepository: IAccountRepository,
+    private readonly accountCouponRepository: IAccountCouponRepository,
   ) {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
@@ -49,6 +56,18 @@ export class CreateSubscriptionUseCase {
     const user = await this.userRepository.findOneById(userId);
 
     if (account.hasPaidPlan && plan.freeTrialDays > 0) throw new Error('invalid.subscription.plan');
+
+    const accountCoupon = await this.accountCouponRepository.findLastNotDepletedByAccountId(accountId);
+    const coupon = accountCoupon?.coupon;
+    let setCouponDepleted = false;
+    if (coupon) {
+      if (coupon.expirationDate && coupon.expirationDate < new Date()) throw new Error('invalid.coupon.expiredDate');
+      if (account.hasPaidPlan && !coupon.hasPaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
+      if (!account.hasPaidPlan && !coupon.doesNotHavePaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
+      if (!coupon.allowRepeatedFulfillment) setCouponDepleted = true;
+    }
+
+    if (plan.discount && !coupon) throw new Error('invalid.subscription.plan');
 
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 
@@ -78,6 +97,8 @@ export class CreateSubscriptionUseCase {
         await this.accountRepository.updateHasPaidPlan(accountId, true);
         console.log(`Conta ${accountId} marcada como tendo assinado um plano pago`);
       }
+
+      if (setCouponDepleted) await this.accountCouponRepository.deplete(accountCoupon.id);
 
       return subscriptionUpdated;
     } catch (error) {

@@ -15,11 +15,6 @@ export class MongoosePlanRepository implements IPlanRepository {
         this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
     }
     
-    async find(): Promise<Plan[]> {
-        const query = await this.planModel.find().sort({ 'price': 1 }).exec();
-        return query.map((item) => MongoosePlanMapper.toDomain(item));
-    }
-
     async findNotFreeDays(): Promise<Plan[]> {
         const query = await this.planModel.find({ freeTrialDays: { $exists: false }, discount: { $exists: false } }).sort({ 'price': 1 }).exec();
         return query.map((item) => MongoosePlanMapper.toDomain(item));
@@ -32,6 +27,13 @@ export class MongoosePlanRepository implements IPlanRepository {
                 { _id: this.firstSubscriptionPlanId }
             ],
             discount: { $exists: false }
+        }).sort({ 'price': 1 }).exec();
+        return query.map((item) => MongoosePlanMapper.toDomain(item));
+    }
+
+    async findByIds(ids: string[]): Promise<Plan[]> {
+        const query = await this.planModel.find({
+            _id: { $in: ids },
         }).sort({ 'price': 1 }).exec();
         return query.map((item) => MongoosePlanMapper.toDomain(item));
     }

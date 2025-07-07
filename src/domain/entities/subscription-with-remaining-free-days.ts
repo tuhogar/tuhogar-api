@@ -10,4 +10,9 @@ export interface SubscriptionWithRemainingFreeDays extends Subscription {
    * Se for zero, significa que o período gratuito já acabou
    */
   remainingFreeDays: number;
+
+  /**
+   * Indica se o cupom de documento foi aplicado
+   */
+  isCouponRedeemed: boolean;
 }
