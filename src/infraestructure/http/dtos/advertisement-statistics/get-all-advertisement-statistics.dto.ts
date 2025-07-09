@@ -1,15 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsOptional } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { Property } from 'src/infraestructure/decorators/property.decorator';
 
+/**
+ * DTO para consulta de estatísticas globais de anúncios
+ * Não possui o campo accountId pois as estatísticas são consolidadas para toda a plataforma
+ */
 export class GetAllAdvertisementStatisticsDto {
-  @ApiProperty({
-    description: 'ID da conta para filtrar estatísticas (obrigatório para MASTER, ignorado para outros perfis)',
-    example: '6073a75d56a1f3001f9d5a2b',
-    required: false
-  })
-  @IsOptional()
-  @IsMongoId({ message: 'invalid.accountId' })
-  @Property()
-  accountId?: string;
+  // Este DTO não possui campos específicos pois as estatísticas globais
+  // não são filtradas por conta, apenas por mês quando aplicável
 }
