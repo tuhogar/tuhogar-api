@@ -7,14 +7,14 @@ import { AccountAdvertisementStatistics, AdvertisementMetric, ContactInfoClicks,
 import { Advertisement, AdvertisementTransactionType, AdvertisementType } from 'src/domain/entities/advertisement';
 import { Account } from 'src/domain/entities/account';
 
-interface GenerateMonthlyStatisticsUseCaseCommand {
+interface GenerateAccountAdvertisementMonthlyStatisticsUseCaseCommand {
   month?: string; // Formato: "YYYY-MM", se não fornecido, usa o mês anterior ao atual
   accountId?: string; // Se fornecido, gera estatísticas apenas para esta conta
 }
 
 @Injectable()
-export class GenerateMonthlyStatisticsUseCase {
-  private readonly logger = new Logger(GenerateMonthlyStatisticsUseCase.name);
+export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
+  private readonly logger = new Logger(GenerateAccountAdvertisementMonthlyStatisticsUseCase.name);
 
   constructor(
     private readonly accountRepository: IAccountRepository,
@@ -27,7 +27,7 @@ export class GenerateMonthlyStatisticsUseCase {
    * no primeiro dia de cada mês às 00:00
    */
   @Cron('0 0 1 * *', {
-    name: 'generate-monthly-statistics'
+    name: 'generate-account-advertisement-monthly-statistics'
   })
   async executeScheduled(): Promise<void> {
     try {
@@ -40,7 +40,7 @@ export class GenerateMonthlyStatisticsUseCase {
     }
   }
 
-  async execute(command?: GenerateMonthlyStatisticsUseCaseCommand): Promise<void> {
+  async execute(command?: GenerateAccountAdvertisementMonthlyStatisticsUseCaseCommand): Promise<void> {
     const { month = this.getPreviousMonth(), accountId } = command || {};
     
     try {
