@@ -86,7 +86,9 @@ import { RemoveInternalSubscriptionUseCase } from "src/application/use-cases/sub
 import { CancelSubscriptionOnPaymentGatewayUseCase } from "src/application/use-cases/subscription/cancel-subscription-on-payment-gateway.use-case";
 import { UpdateSubscriptionPlanUseCase } from "src/application/use-cases/subscription/update-subscription-plan.use-case";
 import { GetAccountAdvertisementStatisticsUseCase } from "src/application/use-cases/account-advertisement-statistic/get-account-advertisement-statistics.use-case";
-import { GenerateMonthlyStatisticsUseCase } from "src/application/use-cases/account-advertisement-statistic/generate-monthly-statistics.use-case";
+import { GenerateAccountAdvertisementMonthlyStatisticsUseCase } from "src/application/use-cases/account-advertisement-statistic/generate-account-advertisement-monthly-statistics.use-case";
+import { GetAdvertisementStatisticsUseCase } from "src/application/use-cases/advertisement-statistics/get-advertisement-statistics.use-case";
+import { GenerateAdvertisementMonthlyStatisticsUseCase } from "src/application/use-cases/advertisement-statistics/generate-advertisement-monthly-statistics.use-case";
 import { AdvertisementStatisticsController } from "./controllers/advertisement-statistics.controller";
 import { ProcessCancelledSubscriptionsUseCase } from "src/application/use-cases/subscription/process-cancelled-subscriptions.use-case";
 import { GetCurrentSubscriptionUseCase } from "src/application/use-cases/subscription/get-current-subscription.use-case";
@@ -167,7 +169,9 @@ import { CouponController } from "./controllers/coupon.controller";
         UpdateFirebaseUsersDataUseCase,
         CreateInternalSubscriptionUseCase,
         GetAccountAdvertisementStatisticsUseCase,
-        GenerateMonthlyStatisticsUseCase,
+        GenerateAccountAdvertisementMonthlyStatisticsUseCase,
+        GetAdvertisementStatisticsUseCase,
+        GenerateAdvertisementMonthlyStatisticsUseCase,
         ProcessCancelledSubscriptionsUseCase,
         GetCurrentSubscriptionUseCase,
         GetSubscriptionHistoryUseCase,

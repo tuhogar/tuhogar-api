@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GenerateMonthlyStatisticsUseCase } from './generate-monthly-statistics.use-case';
-import { IAccountRepository } from '../../../application/interfaces/repositories/account.repository.interface';
-import { IAdvertisementRepository } from '../../../application/interfaces/repositories/advertisement.repository.interface';
-import { IAdvertisementEventRepository } from '../../../application/interfaces/repositories/advertisement-event.repository.interface';
-import { IAccountAdvertisementStatisticsRepository } from '../../../application/interfaces/repositories/account-advertisement-statistics.repository.interface';
+import { GenerateAccountAdvertisementMonthlyStatisticsUseCase } from './generate-account-advertisement-monthly-statistics.use-case';
+import { IAccountRepository } from '../../interfaces/repositories/account.repository.interface';
+import { IAdvertisementRepository } from '../../interfaces/repositories/advertisement.repository.interface';
+import { IAdvertisementEventRepository } from '../../interfaces/repositories/advertisement-event.repository.interface';
+import { IAccountAdvertisementStatisticsRepository } from '../../interfaces/repositories/account-advertisement-statistics.repository.interface';
 import { Account, AccountStatus } from '../../../domain/entities/account';
 import { Advertisement, AdvertisementTransactionType, AdvertisementType } from '../../../domain/entities/advertisement';
 import { AdvertisementEvent } from '../../../domain/entities/advertisement-event';
 import { AccountAdvertisementStatistics } from '../../../domain/entities/account-advertisement-statistics';
 import { Logger } from '@nestjs/common';
 
-describe('GenerateMonthlyStatisticsUseCase', () => {
-  let useCase: GenerateMonthlyStatisticsUseCase;
+describe('GenerateAccountAdvertisementMonthlyStatisticsUseCase', () => {
+  let useCase: GenerateAccountAdvertisementMonthlyStatisticsUseCase;
   let mockAccountRepository: jest.Mocked<IAccountRepository>;
   let mockAdvertisementRepository: jest.Mocked<IAdvertisementRepository>;
   let mockAdvertisementEventRepository: jest.Mocked<IAdvertisementEventRepository>;
@@ -174,7 +174,7 @@ describe('GenerateMonthlyStatisticsUseCase', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GenerateMonthlyStatisticsUseCase,
+        GenerateAccountAdvertisementMonthlyStatisticsUseCase,
         {
           provide: IAccountRepository,
           useValue: mockAccountRepository
@@ -194,7 +194,7 @@ describe('GenerateMonthlyStatisticsUseCase', () => {
       ],
     }).compile();
 
-    useCase = module.get<GenerateMonthlyStatisticsUseCase>(GenerateMonthlyStatisticsUseCase);
+    useCase = module.get<GenerateAccountAdvertisementMonthlyStatisticsUseCase>(GenerateAccountAdvertisementMonthlyStatisticsUseCase);
     
     // Mock para o método getPreviousMonth para retornar um valor fixo
     jest.spyOn(useCase as any, 'getPreviousMonth').mockReturnValue(mockMonth);

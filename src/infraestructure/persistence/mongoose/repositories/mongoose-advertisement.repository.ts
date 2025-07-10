@@ -202,6 +202,80 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         }
     }
     
+    async findAllWithEvents(page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string, status: AdvertisementStatus): Promise<{ data: Advertisement[]; count: number }> {
+
+        const skip = (page - 1) * limit;
+
+        const filter: any = {};
+
+        if (code || externalId) {
+            filter.$or = [];
+            if (code) filter.$or.push({ code });
+            if (externalId) filter.$or.push({ externalId });
+        }
+
+        if (transactionType) filter.transactionType = transactionType;
+        if (type) filter.type = type;
+        if (status) filter.status = status;
+
+        const count = await this.advertisementModel.countDocuments(filter).exec();
+    
+        const advertisements = await this.advertisementModel
+            .find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate('amenities')
+            .populate('communityAmenities')
+            .exec();
+    
+        // Coletar todos os IDs de anúncios
+        const advertisementIds = advertisements.map((ad) => ad._id);
+    
+        // Realizar uma única consulta agregada para todos os anúncios
+        const advertisementEventsData = await this.advertisementModel.aggregate([
+            { $match: { _id: { $in: advertisementIds } } },
+            {
+                $lookup: {
+                    from: 'advertisement-events',
+                    localField: '_id',
+                    foreignField: 'advertisementId',
+                    as: 'advertisementEvents'
+                }
+            },
+            { $unwind: '$advertisementEvents' },
+            { $replaceRoot: { newRoot: { $mergeObjects: ['$advertisementEvents', '$$ROOT'] } } },
+            { $sort: { 'advertisementEvents.createdAt': -1 } },
+            {
+                $group: {
+                    _id: '$_id',
+                    advertisement: { $first: '$$ROOT' },
+                    advertisementEvents: { $push: '$advertisementEvents' }
+                }
+            }
+        ]);
+        
+        // Criar um mapa para associar eventos aos anúncios
+        const eventsMap = new Map<string, any>();
+        advertisementEventsData.forEach((data) => {
+            eventsMap.set(data._id.toString(), data.advertisementEvents);
+        });
+    
+        // Adicionar eventos aos anúncios
+        const advertisementsWithAdvertisementEvents = advertisements.map((advertisement) => {
+            const events = eventsMap.get(advertisement._id.toString()) || [];
+            return {
+                ...JSON.parse(JSON.stringify(advertisement)),
+                advertisementEvents: events
+            };
+        });
+    
+        return {
+            data: advertisementsWithAdvertisementEvents.map((item) => MongooseAdvertisementMapper.toDomain(item)),
+            count,
+        }
+    }
+
     async findOneActive(advertisementId: string): Promise<Advertisement> {
         const query = await this.advertisementModel.findOne({ _id: advertisementId, status: AdvertisementStatus.ACTIVE }).populate('amenities').populate('communityAmenities').exec();
         return MongooseAdvertisementMapper.toDomain(query);
@@ -261,6 +335,13 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         const filter: any = { _id: { $in: ids } };
 
         if (accountId) filter.accountId = accountId;
+
+        const query = await this.advertisementModel.find(filter).populate('amenities').populate('communityAmenities').exec();
+        return query.map((item) => MongooseAdvertisementMapper.toDomain(item));
+    }
+
+    async findByIds(ids: string[]): Promise<Advertisement[]> {
+        const filter: any = { _id: { $in: ids } };
 
         const query = await this.advertisementModel.find(filter).populate('amenities').populate('communityAmenities').exec();
         return query.map((item) => MongooseAdvertisementMapper.toDomain(item));

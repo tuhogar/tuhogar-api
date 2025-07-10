@@ -53,7 +53,6 @@ export class ProcessCancelledSubscriptionsUseCase {
         new Date().getUTCMilliseconds()
       ));
       
-      this.logger.log(`Iniciando processamento automático de assinaturas canceladas em ${startDate.toISOString()} (UTC)`);
       await this.execute();
       
       // Criar nova data UTC para o log de conclusão
@@ -67,7 +66,6 @@ export class ProcessCancelledSubscriptionsUseCase {
         new Date().getUTCMilliseconds()
       ));
       
-      this.logger.log(`Processamento automático de assinaturas canceladas concluído com sucesso em ${endDate.toISOString()} (UTC)`);
     } catch (error) {
       this.logger.error(`Erro no processamento automático de assinaturas canceladas: ${error.message}`);
       // Não propagar o erro para não interromper outros jobs agendados
@@ -91,17 +89,12 @@ export class ProcessCancelledSubscriptionsUseCase {
       now.getUTCMilliseconds()
     ));
     
-    this.logger.log(`Buscando assinaturas canceladas com data efetiva de cancelamento <= ${currentDate.toISOString()} (UTC)`);
-    
     // Buscar assinaturas que precisam ser canceladas
     const subscriptionsToCancel = await this.subscriptionRepository.findSubscriptionsToCancel(currentDate);
     
     if (subscriptionsToCancel.length === 0) {
-      this.logger.log('Nenhuma assinatura para cancelar');
       return;
     }
-    
-    this.logger.log(`Encontradas ${subscriptionsToCancel.length} assinaturas para cancelar`);
     
     // Processar cada assinatura
     for (const subscription of subscriptionsToCancel) {
