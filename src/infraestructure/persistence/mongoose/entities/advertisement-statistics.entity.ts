@@ -52,6 +52,47 @@ export class AdvertisementStatistics {
             lot: { sale: number; rent: number };
         };
     };
+    
+    @Prop({ type: Object })
+    accumulatedMetrics: {
+        totalVisits: {
+            total: number;
+            byTransactionType: {
+                sale: number;
+                rent: number;
+            };
+            byPropertyTypeAndTransaction: {
+                house: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                lot: { sale: number; rent: number };
+            };
+        };
+        phoneClicks: {
+            total: number;
+            byTransactionType: {
+                sale: number;
+                rent: number;
+            };
+            byPropertyTypeAndTransaction: {
+                house: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                lot: { sale: number; rent: number };
+            };
+        };
+        digitalCatalogViews: number;
+        contactInfoClicks: {
+            total: number;
+            byTransactionType: {
+                sale: number;
+                rent: number;
+            };
+            byPropertyTypeAndTransaction: {
+                house: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                lot: { sale: number; rent: number };
+            };
+        };
+    };
 
     @Prop()
     digitalCatalogViews: number;

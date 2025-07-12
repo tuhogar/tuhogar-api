@@ -27,4 +27,10 @@ export abstract class IAdvertisementStatisticsRepository {
    * @returns Estatísticas atualizadas
    */
   abstract update(id: string, advertisementStatistics: AdvertisementStatistics): Promise<AdvertisementStatistics>;
+  
+  /**
+   * Busca o último registro de estatísticas acumuladas disponível
+   * @returns O último registro de estatísticas acumuladas ou null se não existir
+   */
+  abstract findLastAccumulated(): Promise<AdvertisementStatistics | null>;
 }
