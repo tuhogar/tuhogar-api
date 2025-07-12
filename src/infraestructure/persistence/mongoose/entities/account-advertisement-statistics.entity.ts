@@ -85,6 +85,47 @@ export class AccountAdvertisementStatistics {
         sale: Array<{ advertisementId: string; interactions: number }>;
         rent: Array<{ advertisementId: string; interactions: number }>;
     };
+
+    @Prop({ type: Object })
+    accumulatedMetrics: {
+        totalVisits: {
+            total: number;
+            byTransactionType: {
+                sale: number;
+                rent: number;
+            };
+            byPropertyTypeAndTransaction: {
+                house: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                lot: { sale: number; rent: number };
+            };
+        };
+        phoneClicks: {
+            total: number;
+            byTransactionType: {
+                sale: number;
+                rent: number;
+            };
+            byPropertyTypeAndTransaction: {
+                house: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                lot: { sale: number; rent: number };
+            };
+        };
+        digitalCatalogViews: number;
+        contactInfoClicks: {
+            total: number;
+            byTransactionType: {
+                sale: number;
+                rent: number;
+            };
+            byPropertyTypeAndTransaction: {
+                house: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                lot: { sale: number; rent: number };
+            };
+        };
+    };
 }
 
 const AccountAdvertisementStatisticsSchema = SchemaFactory.createForClass(AccountAdvertisementStatistics);
