@@ -12,6 +12,49 @@ import {
   TransactionTypeMetrics
 } from './account-advertisement-statistics';
 
+/**
+ * Interface para métricas acumuladas detalhadas
+ */
+export interface AccumulatedMetricsDetailed {
+  totalVisits: {
+    total: number;
+    byTransactionType: {
+      sale: number;
+      rent: number;
+    };
+    byPropertyTypeAndTransaction: {
+      house: { sale: number; rent: number };
+      apartment: { sale: number; rent: number };
+      lot: { sale: number; rent: number };
+    };
+  };
+  phoneClicks: {
+    total: number;
+    byTransactionType: {
+      sale: number;
+      rent: number;
+    };
+    byPropertyTypeAndTransaction: {
+      house: { sale: number; rent: number };
+      apartment: { sale: number; rent: number };
+      lot: { sale: number; rent: number };
+    };
+  };
+  digitalCatalogViews: number;
+  contactInfoClicks: {
+    total: number;
+    byTransactionType: {
+      sale: number;
+      rent: number;
+    };
+    byPropertyTypeAndTransaction: {
+      house: { sale: number; rent: number };
+      apartment: { sale: number; rent: number };
+      lot: { sale: number; rent: number };
+    };
+  };
+}
+
 export class AdvertisementStatistics {
   id?: string;
   month: string;
@@ -23,6 +66,7 @@ export class AdvertisementStatistics {
   contactInfoClicks: ContactInfoClicks;
   topViewedAdvertisements: TopAdvertisements;
   topInteractedAdvertisements: TopAdvertisements;
+  accumulatedMetrics?: AccumulatedMetricsDetailed;
 
   constructor(props: Partial<AdvertisementStatistics>) {
     this.id = props.id;
@@ -37,6 +81,7 @@ export class AdvertisementStatistics {
       new Date().getUTCMilliseconds()
     ));
     this.digitalCatalogViews = props.digitalCatalogViews || 0;
+    this.accumulatedMetrics = props.accumulatedMetrics;
     
     if (props.totalAdvertisements) {
       this.totalAdvertisements = new TotalAdvertisements(props.totalAdvertisements);

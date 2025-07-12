@@ -51,4 +51,20 @@ export class MongooseAdvertisementStatisticsRepository implements IAdvertisement
         
         return null;
     }
+    
+    /**
+     * Busca o último registro de estatísticas acumuladas disponível
+     * @returns O último registro de estatísticas acumuladas ou null se não existir
+     */
+    async findLastAccumulated(): Promise<AdvertisementStatistics | null> {
+        const query = await this.advertisementStatisticsModel
+            .findOne({
+                // Garantir que apenas registros com métricas acumuladas sejam considerados
+                accumulatedMetrics: { $exists: true, $ne: null }
+            })
+            .sort({ month: -1 }) // Ordenar por mês em ordem decrescente para pegar o mais recente
+            .exec();
+        
+        return MongooseAdvertisementStatisticsMapper.toDomain(query);
+    }
 }

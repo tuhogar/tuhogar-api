@@ -79,13 +79,12 @@ export class GenerateAdvertisementMonthlyStatisticsUseCase {
       // Calcular métricas acumulativas
       const currentMetrics = this.calculateMetrics(advertisements);
       
-      // Buscar estatísticas do mês anterior
-      const previousMonth = this.getPreviousMonthFromDate(month);
-      const previousMonthStats = await this.advertisementStatisticsRepository.findByMonth(previousMonth);
+      // Buscar o último registro acumulado disponível
+      const lastAccumulatedStats = await this.advertisementStatisticsRepository.findLastAccumulated();
       
-      // Se não há estatísticas do mês anterior, usar métricas acumulativas
-      if (!previousMonthStats) {
-        this.logger.log(`Não há estatísticas consolidadas do mês anterior (${previousMonth}). Usando valores acumulativos.`);
+      // Se não há estatísticas acumuladas anteriores, usar métricas acumulativas como valores iniciais
+      if (!lastAccumulatedStats) {
+        this.logger.log(`Não há estatísticas acumuladas anteriores. Usando valores acumulativos atuais como base.`);
         
         // Criar entidade de estatísticas com valores acumulativos
         const statistics = new AdvertisementStatistics({
@@ -98,6 +97,73 @@ export class GenerateAdvertisementMonthlyStatisticsUseCase {
           contactInfoClicks: currentMetrics.contactInfoClicks,
           topViewedAdvertisements: currentMetrics.topViewedAdvertisements,
           topInteractedAdvertisements: currentMetrics.topInteractedAdvertisements,
+          // Armazenar métricas acumuladas para uso futuro
+          accumulatedMetrics: {
+            totalVisits: {
+              total: currentMetrics.totalVisits.total,
+              byTransactionType: {
+                sale: currentMetrics.totalVisits.byTransactionType.sale,
+                rent: currentMetrics.totalVisits.byTransactionType.rent
+              },
+              byPropertyTypeAndTransaction: {
+                house: {
+                  sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.sale,
+                  rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.rent
+                },
+                apartment: {
+                  sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.sale,
+                  rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.rent
+                },
+                lot: {
+                  sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.sale,
+                  rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.rent
+                }
+              }
+            },
+            phoneClicks: {
+              total: currentMetrics.phoneClicks.total,
+              byTransactionType: {
+                sale: currentMetrics.phoneClicks.byTransactionType.sale,
+                rent: currentMetrics.phoneClicks.byTransactionType.rent
+              },
+              byPropertyTypeAndTransaction: {
+                house: {
+                  sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.sale,
+                  rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.rent
+                },
+                apartment: {
+                  sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.sale,
+                  rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.rent
+                },
+                lot: {
+                  sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.sale,
+                  rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.rent
+                }
+              }
+            },
+            digitalCatalogViews: currentMetrics.digitalCatalogViews,
+            contactInfoClicks: {
+              total: currentMetrics.contactInfoClicks.total,
+              byTransactionType: {
+                sale: currentMetrics.contactInfoClicks.byTransactionType.sale,
+                rent: currentMetrics.contactInfoClicks.byTransactionType.rent
+              },
+              byPropertyTypeAndTransaction: {
+                house: {
+                  sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.sale,
+                  rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.rent
+                },
+                apartment: {
+                  sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.sale,
+                  rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.rent
+                },
+                lot: {
+                  sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.sale,
+                  rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.rent
+                }
+              }
+            }
+          }
         });
         
         // Salvar estatísticas
@@ -105,8 +171,8 @@ export class GenerateAdvertisementMonthlyStatisticsUseCase {
         return;
       }
       
-      // Calcular métricas diferenciais subtraindo valores do mês anterior
-      this.logger.log(`Calculando valores diferenciais subtraindo estatísticas do mês anterior (${previousMonth})`);
+      // Calcular métricas diferenciais usando o último registro acumulado
+      this.logger.log(`Calculando valores diferenciais usando o último registro acumulado (${lastAccumulatedStats.month})`);
       
       // Criar entidade de estatísticas com valores diferenciais
       const statistics = new AdvertisementStatistics({
@@ -119,43 +185,108 @@ export class GenerateAdvertisementMonthlyStatisticsUseCase {
          * não um valor incremental como as métricas de interação.
          * 
          * Todas as outras métricas (visualizações, cliques, etc.) são calculadas
-         * diferencialmente, subtraindo os valores do mês anterior para mostrar
+         * diferencialmente, subtraindo os valores acumulados anteriores para mostrar
          * apenas a atividade específica do mês atual.
          */
         totalAdvertisements: currentMetrics.totalAdvertisements,
         
-        // Calcular totalVisits diferencial
-        totalVisits: this.calculateDifferentialMetricBase(
+        // Calcular métricas diferenciais usando valores acumulados detalhados
+        totalVisits: this.calculateDifferentialMetricBaseFromAccumulatedDetailed(
           currentMetrics.totalVisits,
-          previousMonthStats.totalVisits
+          lastAccumulatedStats.accumulatedMetrics.totalVisits
         ),
         
-        // Calcular phoneClicks diferencial
-        phoneClicks: this.calculateDifferentialMetricBase(
+        phoneClicks: this.calculateDifferentialMetricBaseFromAccumulatedDetailed(
           currentMetrics.phoneClicks,
-          previousMonthStats.phoneClicks
+          lastAccumulatedStats.accumulatedMetrics.phoneClicks
         ),
         
-        // Calcular digitalCatalogViews diferencial
-        digitalCatalogViews: Math.max(0, currentMetrics.digitalCatalogViews - previousMonthStats.digitalCatalogViews),
+        digitalCatalogViews: Math.max(0, currentMetrics.digitalCatalogViews - lastAccumulatedStats.accumulatedMetrics.digitalCatalogViews),
         
-        // Calcular contactInfoClicks diferencial
-        contactInfoClicks: this.calculateDifferentialMetricBase(
+        contactInfoClicks: this.calculateDifferentialMetricBaseFromAccumulatedDetailed(
           currentMetrics.contactInfoClicks,
-          previousMonthStats.contactInfoClicks
+          lastAccumulatedStats.accumulatedMetrics.contactInfoClicks
         ),
         
         // Calcular topViewedAdvertisements diferencial
         topViewedAdvertisements: this.calculateDifferentialTopAdvertisements(
           currentMetrics.topViewedAdvertisements,
-          previousMonthStats.topViewedAdvertisements
+          lastAccumulatedStats.topViewedAdvertisements
         ),
         
         // Calcular topInteractedAdvertisements diferencial
         topInteractedAdvertisements: this.calculateDifferentialTopAdvertisements(
           currentMetrics.topInteractedAdvertisements,
-          previousMonthStats.topInteractedAdvertisements
+          lastAccumulatedStats.topInteractedAdvertisements
         ),
+        
+        // Armazenar métricas acumuladas atuais para uso futuro
+        accumulatedMetrics: {
+          totalVisits: {
+            total: currentMetrics.totalVisits.total,
+            byTransactionType: {
+              sale: currentMetrics.totalVisits.byTransactionType.sale,
+              rent: currentMetrics.totalVisits.byTransactionType.rent
+            },
+            byPropertyTypeAndTransaction: {
+              house: {
+                sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.sale,
+                rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.rent
+              },
+              apartment: {
+                sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.sale,
+                rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.rent
+              },
+              lot: {
+                sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.sale,
+                rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.rent
+              }
+            }
+          },
+          phoneClicks: {
+            total: currentMetrics.phoneClicks.total,
+            byTransactionType: {
+              sale: currentMetrics.phoneClicks.byTransactionType.sale,
+              rent: currentMetrics.phoneClicks.byTransactionType.rent
+            },
+            byPropertyTypeAndTransaction: {
+              house: {
+                sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.sale,
+                rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.rent
+              },
+              apartment: {
+                sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.sale,
+                rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.rent
+              },
+              lot: {
+                sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.sale,
+                rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.rent
+              }
+            }
+          },
+          digitalCatalogViews: currentMetrics.digitalCatalogViews,
+          contactInfoClicks: {
+            total: currentMetrics.contactInfoClicks.total,
+            byTransactionType: {
+              sale: currentMetrics.contactInfoClicks.byTransactionType.sale,
+              rent: currentMetrics.contactInfoClicks.byTransactionType.rent
+            },
+            byPropertyTypeAndTransaction: {
+              house: {
+                sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.sale,
+                rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.rent
+              },
+              apartment: {
+                sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.sale,
+                rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.rent
+              },
+              lot: {
+                sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.sale,
+                rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.rent
+              }
+            }
+          }
+        }
       });
       
       // Salvar estatísticas
@@ -391,6 +522,73 @@ export class GenerateAdvertisementMonthlyStatisticsUseCase {
         sale: [],
         rent: [],
       }),
+      // Inicializar accumulatedMetrics com valores zerados
+      accumulatedMetrics: {
+        totalVisits: {
+          total: 0,
+          byTransactionType: {
+            sale: 0,
+            rent: 0
+          },
+          byPropertyTypeAndTransaction: {
+            house: {
+              sale: 0,
+              rent: 0
+            },
+            apartment: {
+              sale: 0,
+              rent: 0
+            },
+            lot: {
+              sale: 0,
+              rent: 0
+            }
+          }
+        },
+        phoneClicks: {
+          total: 0,
+          byTransactionType: {
+            sale: 0,
+            rent: 0
+          },
+          byPropertyTypeAndTransaction: {
+            house: {
+              sale: 0,
+              rent: 0
+            },
+            apartment: {
+              sale: 0,
+              rent: 0
+            },
+            lot: {
+              sale: 0,
+              rent: 0
+            }
+          }
+        },
+        digitalCatalogViews: 0,
+        contactInfoClicks: {
+          total: 0,
+          byTransactionType: {
+            sale: 0,
+            rent: 0
+          },
+          byPropertyTypeAndTransaction: {
+            house: {
+              sale: 0,
+              rent: 0
+            },
+            apartment: {
+              sale: 0,
+              rent: 0
+            },
+            lot: {
+              sale: 0,
+              rent: 0
+            }
+          }
+        }
+      }
     });
     
     await this.advertisementStatisticsRepository.create(statistics);
@@ -496,8 +694,74 @@ export class GenerateAdvertisementMonthlyStatisticsUseCase {
     };
   }
 
-  // Calcula rankings diferenciais subtraindo os valores do mês anterior
-  // e reordenando com base nos valores diferenciais
+  /**
+   * Calcula métricas diferenciais de base (total, byTransactionType, byPropertyTypeAndTransaction)
+   * subtraindo os valores acumulados detalhados dos valores atuais
+   * @param current Valores atuais
+   * @param accumulated Valores acumulados detalhados
+   * @returns Métricas diferenciais
+   */
+  private calculateDifferentialMetricBaseFromAccumulatedDetailed<T extends {
+    total: number;
+    byTransactionType: { sale: number; rent: number };
+    byPropertyTypeAndTransaction: {
+      house: { sale: number; rent: number };
+      apartment: { sale: number; rent: number };
+      lot: { sale: number; rent: number };
+    };
+  }>(
+    current: T,
+    accumulated: {
+      total: number;
+      byTransactionType: { sale: number; rent: number };
+      byPropertyTypeAndTransaction: {
+        house: { sale: number; rent: number };
+        apartment: { sale: number; rent: number };
+        lot: { sale: number; rent: number };
+      };
+    }
+  ): T {
+    // Calcular total diferencial
+    const total = Math.max(0, current.total - accumulated.total);
+    
+    // Calcular byTransactionType diferencial
+    const byTransactionType = {
+      sale: Math.max(0, current.byTransactionType.sale - accumulated.byTransactionType.sale),
+      rent: Math.max(0, current.byTransactionType.rent - accumulated.byTransactionType.rent),
+    };
+    
+    // Calcular byPropertyTypeAndTransaction diferencial
+    const byPropertyTypeAndTransaction = {
+      house: {
+        sale: Math.max(0, current.byPropertyTypeAndTransaction.house.sale - accumulated.byPropertyTypeAndTransaction.house.sale),
+        rent: Math.max(0, current.byPropertyTypeAndTransaction.house.rent - accumulated.byPropertyTypeAndTransaction.house.rent),
+      },
+      apartment: {
+        sale: Math.max(0, current.byPropertyTypeAndTransaction.apartment.sale - accumulated.byPropertyTypeAndTransaction.apartment.sale),
+        rent: Math.max(0, current.byPropertyTypeAndTransaction.apartment.rent - accumulated.byPropertyTypeAndTransaction.apartment.rent),
+      },
+      lot: {
+        sale: Math.max(0, current.byPropertyTypeAndTransaction.lot.sale - accumulated.byPropertyTypeAndTransaction.lot.sale),
+        rent: Math.max(0, current.byPropertyTypeAndTransaction.lot.rent - accumulated.byPropertyTypeAndTransaction.lot.rent),
+      },
+    };
+    
+    // Criar nova instância do tipo T com valores diferenciais
+    return {
+      ...current,
+      total,
+      byTransactionType,
+      byPropertyTypeAndTransaction,
+    };
+  }
+
+  /**
+   * Calcula rankings diferenciais subtraindo os valores do mês anterior
+   * e reordenando com base nos valores diferenciais
+   * @param current Valores atuais
+   * @param previous Valores do mês anterior
+   * @returns Rankings diferenciais
+   */
   private calculateDifferentialTopAdvertisements(
     current: TopAdvertisements,
     previous: TopAdvertisements
