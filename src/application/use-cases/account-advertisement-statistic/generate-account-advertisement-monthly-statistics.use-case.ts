@@ -105,13 +105,12 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
     // Calcular métricas acumulativas
     const currentMetrics = this.calculateMetrics(advertisements);
     
-    // Buscar estatísticas do mês anterior
-    const previousMonth = this.getPreviousMonthFromDate(month);
-    const previousMonthStats = await this.accountAdvertisementStatisticsRepository.findByAccountIdAndMonth(account.id, previousMonth);
+    // Buscar o último registro acumulado (pode ser do mês anterior ou de qualquer mês anterior)
+    const lastAccumulatedStats = await this.accountAdvertisementStatisticsRepository.findLastAccumulatedByAccountId(account.id);
     
-    // Se não há estatísticas do mês anterior, usar métricas acumulativas
-    if (!previousMonthStats) {
-      this.logger.log(`Não há estatísticas do mês anterior (${previousMonth}) para a conta ${account.id}. Usando valores acumulativos.`);
+    // Se não há estatísticas acumuladas anteriores, usar métricas acumulativas atuais
+    if (!lastAccumulatedStats) {
+      this.logger.log(`Não há estatísticas acumuladas anteriores para a conta ${account.id}. Usando valores acumulativos atuais.`);
       
       // Criar entidade de estatísticas com valores acumulativos
       const statistics = new AccountAdvertisementStatistics({
@@ -125,14 +124,150 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
         contactInfoClicks: currentMetrics.contactInfoClicks,
         topViewedAdvertisements: currentMetrics.topViewedAdvertisements,
         topInteractedAdvertisements: currentMetrics.topInteractedAdvertisements,
+        // Armazenar os valores acumulados com estrutura completa
+        accumulatedMetrics: {
+          totalVisits: {
+            total: currentMetrics.totalVisits.total,
+            byTransactionType: {
+              sale: currentMetrics.totalVisits.byTransactionType.sale,
+              rent: currentMetrics.totalVisits.byTransactionType.rent
+            },
+            byPropertyTypeAndTransaction: {
+              house: {
+                sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.sale,
+                rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.rent
+              },
+              apartment: {
+                sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.sale,
+                rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.rent
+              },
+              lot: {
+                sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.sale,
+                rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.rent
+              }
+            }
+          },
+          phoneClicks: {
+            total: currentMetrics.phoneClicks.total,
+            byTransactionType: {
+              sale: currentMetrics.phoneClicks.byTransactionType.sale,
+              rent: currentMetrics.phoneClicks.byTransactionType.rent
+            },
+            byPropertyTypeAndTransaction: {
+              house: {
+                sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.sale,
+                rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.rent
+              },
+              apartment: {
+                sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.sale,
+                rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.rent
+              },
+              lot: {
+                sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.sale,
+                rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.rent
+              }
+            }
+          },
+          digitalCatalogViews: currentMetrics.digitalCatalogViews,
+          contactInfoClicks: {
+            total: currentMetrics.contactInfoClicks.total,
+            byTransactionType: {
+              sale: currentMetrics.contactInfoClicks.byTransactionType.sale,
+              rent: currentMetrics.contactInfoClicks.byTransactionType.rent
+            },
+            byPropertyTypeAndTransaction: {
+              house: {
+                sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.sale,
+                rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.rent
+              },
+              apartment: {
+                sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.sale,
+                rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.rent
+              },
+              lot: {
+                sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.sale,
+                rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.rent
+              }
+            }
+          }
+        }
       });
       
       // Salvar estatísticas
       return this.accountAdvertisementStatisticsRepository.create(statistics);
     }
     
-    // Calcular métricas diferenciais subtraindo valores do mês anterior
-    this.logger.log(`Calculando valores diferenciais subtraindo estatísticas do mês anterior (${previousMonth})`);
+    // Calcular métricas diferenciais subtraindo valores acumulados anteriores
+    this.logger.log(`Calculando valores diferenciais usando estatísticas acumuladas anteriores`);
+    
+    // Verificar se o registro acumulado tem o campo accumulatedMetrics
+    // Se não tiver, criar um com base nos valores do próprio registro
+    const accumulatedMetrics = lastAccumulatedStats.accumulatedMetrics || {
+      totalVisits: {
+        total: lastAccumulatedStats.totalVisits?.total || 0,
+        byTransactionType: {
+          sale: lastAccumulatedStats.totalVisits?.byTransactionType?.sale || 0,
+          rent: lastAccumulatedStats.totalVisits?.byTransactionType?.rent || 0
+        },
+        byPropertyTypeAndTransaction: {
+          house: {
+            sale: lastAccumulatedStats.totalVisits?.byPropertyTypeAndTransaction?.house?.sale || 0,
+            rent: lastAccumulatedStats.totalVisits?.byPropertyTypeAndTransaction?.house?.rent || 0
+          },
+          apartment: {
+            sale: lastAccumulatedStats.totalVisits?.byPropertyTypeAndTransaction?.apartment?.sale || 0,
+            rent: lastAccumulatedStats.totalVisits?.byPropertyTypeAndTransaction?.apartment?.rent || 0
+          },
+          lot: {
+            sale: lastAccumulatedStats.totalVisits?.byPropertyTypeAndTransaction?.lot?.sale || 0,
+            rent: lastAccumulatedStats.totalVisits?.byPropertyTypeAndTransaction?.lot?.rent || 0
+          }
+        }
+      },
+      phoneClicks: {
+        total: lastAccumulatedStats.phoneClicks?.total || 0,
+        byTransactionType: {
+          sale: lastAccumulatedStats.phoneClicks?.byTransactionType?.sale || 0,
+          rent: lastAccumulatedStats.phoneClicks?.byTransactionType?.rent || 0
+        },
+        byPropertyTypeAndTransaction: {
+          house: {
+            sale: lastAccumulatedStats.phoneClicks?.byPropertyTypeAndTransaction?.house?.sale || 0,
+            rent: lastAccumulatedStats.phoneClicks?.byPropertyTypeAndTransaction?.house?.rent || 0
+          },
+          apartment: {
+            sale: lastAccumulatedStats.phoneClicks?.byPropertyTypeAndTransaction?.apartment?.sale || 0,
+            rent: lastAccumulatedStats.phoneClicks?.byPropertyTypeAndTransaction?.apartment?.rent || 0
+          },
+          lot: {
+            sale: lastAccumulatedStats.phoneClicks?.byPropertyTypeAndTransaction?.lot?.sale || 0,
+            rent: lastAccumulatedStats.phoneClicks?.byPropertyTypeAndTransaction?.lot?.rent || 0
+          }
+        }
+      },
+      digitalCatalogViews: lastAccumulatedStats.digitalCatalogViews || 0,
+      contactInfoClicks: {
+        total: lastAccumulatedStats.contactInfoClicks?.total || 0,
+        byTransactionType: {
+          sale: lastAccumulatedStats.contactInfoClicks?.byTransactionType?.sale || 0,
+          rent: lastAccumulatedStats.contactInfoClicks?.byTransactionType?.rent || 0
+        },
+        byPropertyTypeAndTransaction: {
+          house: {
+            sale: lastAccumulatedStats.contactInfoClicks?.byPropertyTypeAndTransaction?.house?.sale || 0,
+            rent: lastAccumulatedStats.contactInfoClicks?.byPropertyTypeAndTransaction?.house?.rent || 0
+          },
+          apartment: {
+            sale: lastAccumulatedStats.contactInfoClicks?.byPropertyTypeAndTransaction?.apartment?.sale || 0,
+            rent: lastAccumulatedStats.contactInfoClicks?.byPropertyTypeAndTransaction?.apartment?.rent || 0
+          },
+          lot: {
+            sale: lastAccumulatedStats.contactInfoClicks?.byPropertyTypeAndTransaction?.lot?.sale || 0,
+            rent: lastAccumulatedStats.contactInfoClicks?.byPropertyTypeAndTransaction?.lot?.rent || 0
+          }
+        }
+      }
+    };
     
     // Criar entidade de estatísticas com valores diferenciais
     const statistics = new AccountAdvertisementStatistics({
@@ -144,45 +279,105 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
        * IMPORTANTE: totalAdvertisements sempre deve ser acumulativo, não diferencial.
        * Isso porque representa o número total de anúncios ativos no período,
        * não um valor incremental como as métricas de interação.
-       * 
-       * Todas as outras métricas (visualizações, cliques, etc.) são calculadas
-       * diferencialmente, subtraindo os valores do mês anterior para mostrar
-       * apenas a atividade específica do mês atual.
        */
       totalAdvertisements: currentMetrics.totalAdvertisements,
       
-      // Calcular totalVisits diferencial
-      totalVisits: this.calculateDifferentialMetricBase(
+      // Calcular métricas diferenciais usando os valores acumulados
+      totalVisits: this.calculateDifferentialMetricBaseFromAccumulatedDetailed(
         currentMetrics.totalVisits,
-        previousMonthStats.totalVisits
+        accumulatedMetrics.totalVisits
       ),
       
-      // Calcular phoneClicks diferencial
-      phoneClicks: this.calculateDifferentialMetricBase(
+      phoneClicks: this.calculateDifferentialMetricBaseFromAccumulatedDetailed(
         currentMetrics.phoneClicks,
-        previousMonthStats.phoneClicks
+        accumulatedMetrics.phoneClicks
       ),
       
-      // Calcular digitalCatalogViews diferencial
-      digitalCatalogViews: Math.max(0, currentMetrics.digitalCatalogViews - previousMonthStats.digitalCatalogViews),
+      digitalCatalogViews: Math.max(0, currentMetrics.digitalCatalogViews - accumulatedMetrics.digitalCatalogViews),
       
-      // Calcular contactInfoClicks diferencial
-      contactInfoClicks: this.calculateDifferentialMetricBase(
+      contactInfoClicks: this.calculateDifferentialMetricBaseFromAccumulatedDetailed(
         currentMetrics.contactInfoClicks,
-        previousMonthStats.contactInfoClicks
+        accumulatedMetrics.contactInfoClicks
       ),
       
-      // Calcular topViewedAdvertisements diferencial
+      // Para os rankings, continuamos usando o método existente
       topViewedAdvertisements: this.calculateDifferentialTopAdvertisements(
         currentMetrics.topViewedAdvertisements,
-        previousMonthStats.topViewedAdvertisements
+        lastAccumulatedStats.topViewedAdvertisements
       ),
       
-      // Calcular topInteractedAdvertisements diferencial
       topInteractedAdvertisements: this.calculateDifferentialTopAdvertisements(
         currentMetrics.topInteractedAdvertisements,
-        previousMonthStats.topInteractedAdvertisements
+        lastAccumulatedStats.topInteractedAdvertisements
       ),
+      
+      // Armazenar os valores acumulados atuais com estrutura completa
+      accumulatedMetrics: {
+        totalVisits: {
+          total: currentMetrics.totalVisits.total,
+          byTransactionType: {
+            sale: currentMetrics.totalVisits.byTransactionType.sale,
+            rent: currentMetrics.totalVisits.byTransactionType.rent
+          },
+          byPropertyTypeAndTransaction: {
+            house: {
+              sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.sale,
+              rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.house.rent
+            },
+            apartment: {
+              sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.sale,
+              rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.apartment.rent
+            },
+            lot: {
+              sale: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.sale,
+              rent: currentMetrics.totalVisits.byPropertyTypeAndTransaction.lot.rent
+            }
+          }
+        },
+        phoneClicks: {
+          total: currentMetrics.phoneClicks.total,
+          byTransactionType: {
+            sale: currentMetrics.phoneClicks.byTransactionType.sale,
+            rent: currentMetrics.phoneClicks.byTransactionType.rent
+          },
+          byPropertyTypeAndTransaction: {
+            house: {
+              sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.sale,
+              rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.house.rent
+            },
+            apartment: {
+              sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.sale,
+              rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.apartment.rent
+            },
+            lot: {
+              sale: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.sale,
+              rent: currentMetrics.phoneClicks.byPropertyTypeAndTransaction.lot.rent
+            }
+          }
+        },
+        digitalCatalogViews: currentMetrics.digitalCatalogViews,
+        contactInfoClicks: {
+          total: currentMetrics.contactInfoClicks.total,
+          byTransactionType: {
+            sale: currentMetrics.contactInfoClicks.byTransactionType.sale,
+            rent: currentMetrics.contactInfoClicks.byTransactionType.rent
+          },
+          byPropertyTypeAndTransaction: {
+            house: {
+              sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.sale,
+              rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.house.rent
+            },
+            apartment: {
+              sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.sale,
+              rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.apartment.rent
+            },
+            lot: {
+              sale: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.sale,
+              rent: currentMetrics.contactInfoClicks.byPropertyTypeAndTransaction.lot.rent
+            }
+          }
+        }
+      }
     });
     
     // Salvar estatísticas
@@ -415,6 +610,46 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
         sale: [],
         rent: [],
       }),
+      // Adicionar valores acumulados vazios com estrutura completa
+      accumulatedMetrics: {
+        totalVisits: {
+          total: 0,
+          byTransactionType: {
+            sale: 0,
+            rent: 0
+          },
+          byPropertyTypeAndTransaction: {
+            house: { sale: 0, rent: 0 },
+            apartment: { sale: 0, rent: 0 },
+            lot: { sale: 0, rent: 0 }
+          }
+        },
+        phoneClicks: {
+          total: 0,
+          byTransactionType: {
+            sale: 0,
+            rent: 0
+          },
+          byPropertyTypeAndTransaction: {
+            house: { sale: 0, rent: 0 },
+            apartment: { sale: 0, rent: 0 },
+            lot: { sale: 0, rent: 0 }
+          }
+        },
+        digitalCatalogViews: 0,
+        contactInfoClicks: {
+          total: 0,
+          byTransactionType: {
+            sale: 0,
+            rent: 0
+          },
+          byPropertyTypeAndTransaction: {
+            house: { sale: 0, rent: 0 },
+            apartment: { sale: 0, rent: 0 },
+            lot: { sale: 0, rent: 0 }
+          }
+        }
+      }
     });
     
     return this.accountAdvertisementStatisticsRepository.create(statistics);
@@ -524,6 +759,110 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
    * Calcula rankings diferenciais subtraindo os valores do mês anterior
    * e reordenando com base nos valores diferenciais
    */
+  /**
+   * Calcula métricas diferenciais de base (total, byTransactionType, byPropertyTypeAndTransaction)
+   * subtraindo os valores acumulados anteriores dos valores atuais
+   * Esta versão usa um valor acumulado único em vez de um objeto MetricBase completo
+   */
+  private calculateDifferentialMetricBaseFromAccumulated<T extends MetricBase>(
+    current: T,
+    previousAccumulatedTotal: number
+  ): T {
+    // Criar uma nova instância do mesmo tipo
+    const Constructor = current.constructor as new (props: MetricBase) => T;
+    
+    // Calcular total diferencial (nunca negativo)
+    const total = Math.max(0, current.total - previousAccumulatedTotal);
+    
+    // Como não temos os valores detalhados por tipo de transação e propriedade no acumulado,
+    // vamos distribuir o total proporcionalmente com base nos valores atuais
+    const ratio = current.total > 0 ? total / current.total : 0;
+    
+    // Calcular valores diferenciais por tipo de transação
+    const byTransactionType = {
+      sale: Math.round(current.byTransactionType.sale * ratio),
+      rent: Math.round(current.byTransactionType.rent * ratio),
+    };
+    
+    // Calcular valores diferenciais por tipo de propriedade e transação
+    const byPropertyTypeAndTransaction = {
+      house: {
+        sale: Math.round(current.byPropertyTypeAndTransaction.house.sale * ratio),
+        rent: Math.round(current.byPropertyTypeAndTransaction.house.rent * ratio),
+      },
+      apartment: {
+        sale: Math.round(current.byPropertyTypeAndTransaction.apartment.sale * ratio),
+        rent: Math.round(current.byPropertyTypeAndTransaction.apartment.rent * ratio),
+      },
+      lot: {
+        sale: Math.round(current.byPropertyTypeAndTransaction.lot.sale * ratio),
+        rent: Math.round(current.byPropertyTypeAndTransaction.lot.rent * ratio),
+      },
+    };
+    
+    // Criar nova instância da métrica com valores diferenciais
+    return new Constructor({
+      total,
+      byTransactionType: new TransactionTypeMetrics(byTransactionType),
+      byPropertyTypeAndTransaction: new PropertyTypeAndTransactionMetrics(byPropertyTypeAndTransaction),
+    });
+  }
+
+  /**
+   * Calcula métricas diferenciais de base usando a estrutura detalhada de métricas acumuladas
+   * Esta versão usa os valores detalhados por tipo de transação e propriedade
+   */
+  private calculateDifferentialMetricBaseFromAccumulatedDetailed<T extends MetricBase>(
+    current: T,
+    previousAccumulated: {
+      total: number;
+      byTransactionType: {
+        sale: number;
+        rent: number;
+      };
+      byPropertyTypeAndTransaction: {
+        house: { sale: number; rent: number };
+        apartment: { sale: number; rent: number };
+        lot: { sale: number; rent: number };
+      };
+    }
+  ): T {
+    // Criar uma nova instância do mesmo tipo
+    const Constructor = current.constructor as new (props: MetricBase) => T;
+    
+    // Calcular total diferencial (nunca negativo)
+    const total = Math.max(0, current.total - previousAccumulated.total);
+    
+    // Calcular valores diferenciais por tipo de transação
+    const byTransactionType = {
+      sale: Math.max(0, current.byTransactionType.sale - previousAccumulated.byTransactionType.sale),
+      rent: Math.max(0, current.byTransactionType.rent - previousAccumulated.byTransactionType.rent),
+    };
+    
+    // Calcular valores diferenciais por tipo de propriedade e transação
+    const byPropertyTypeAndTransaction = {
+      house: {
+        sale: Math.max(0, current.byPropertyTypeAndTransaction.house.sale - previousAccumulated.byPropertyTypeAndTransaction.house.sale),
+        rent: Math.max(0, current.byPropertyTypeAndTransaction.house.rent - previousAccumulated.byPropertyTypeAndTransaction.house.rent),
+      },
+      apartment: {
+        sale: Math.max(0, current.byPropertyTypeAndTransaction.apartment.sale - previousAccumulated.byPropertyTypeAndTransaction.apartment.sale),
+        rent: Math.max(0, current.byPropertyTypeAndTransaction.apartment.rent - previousAccumulated.byPropertyTypeAndTransaction.apartment.rent),
+      },
+      lot: {
+        sale: Math.max(0, current.byPropertyTypeAndTransaction.lot.sale - previousAccumulated.byPropertyTypeAndTransaction.lot.sale),
+        rent: Math.max(0, current.byPropertyTypeAndTransaction.lot.rent - previousAccumulated.byPropertyTypeAndTransaction.lot.rent),
+      },
+    };
+    
+    // Criar nova instância da métrica com valores diferenciais
+    return new Constructor({
+      total,
+      byTransactionType: new TransactionTypeMetrics(byTransactionType),
+      byPropertyTypeAndTransaction: new PropertyTypeAndTransactionMetrics(byPropertyTypeAndTransaction),
+    });
+  }
+
   private calculateDifferentialTopAdvertisements(
     current: TopAdvertisements,
     previous: TopAdvertisements
