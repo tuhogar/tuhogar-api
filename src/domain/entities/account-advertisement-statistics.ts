@@ -79,6 +79,46 @@ export class TopAdvertisements {
     }
 }
 
+export interface AccumulatedMetrics {
+  totalVisits: {
+    total: number;
+    byTransactionType: {
+      sale: number;
+      rent: number;
+    };
+    byPropertyTypeAndTransaction: {
+      house: { sale: number; rent: number };
+      apartment: { sale: number; rent: number };
+      lot: { sale: number; rent: number };
+    };
+  };
+  phoneClicks: {
+    total: number;
+    byTransactionType: {
+      sale: number;
+      rent: number;
+    };
+    byPropertyTypeAndTransaction: {
+      house: { sale: number; rent: number };
+      apartment: { sale: number; rent: number };
+      lot: { sale: number; rent: number };
+    };
+  };
+  digitalCatalogViews: number;
+  contactInfoClicks: {
+    total: number;
+    byTransactionType: {
+      sale: number;
+      rent: number;
+    };
+    byPropertyTypeAndTransaction: {
+      house: { sale: number; rent: number };
+      apartment: { sale: number; rent: number };
+      lot: { sale: number; rent: number };
+    };
+  };
+}
+
 export class AccountAdvertisementStatistics {
     id?: string;
     accountId: string;
@@ -91,6 +131,7 @@ export class AccountAdvertisementStatistics {
     contactInfoClicks: ContactInfoClicks;
     topViewedAdvertisements: TopAdvertisements;
     topInteractedAdvertisements: TopAdvertisements;
+    accumulatedMetrics?: AccumulatedMetrics;
 
     constructor(props: Partial<AccountAdvertisementStatistics>) {
         this.id = props.id;
@@ -129,6 +170,10 @@ export class AccountAdvertisementStatistics {
         
         if (props.topInteractedAdvertisements) {
             this.topInteractedAdvertisements = new TopAdvertisements(props.topInteractedAdvertisements);
+        }
+        
+        if (props.accumulatedMetrics) {
+            this.accumulatedMetrics = props.accumulatedMetrics;
         }
     }
 }

@@ -51,4 +51,13 @@ export class MongooseAccountAdvertisementStatisticsRepository implements IAccoun
         
         return null;
     }
+    
+    async findLastAccumulatedByAccountId(accountId: string): Promise<AccountAdvertisementStatistics> {
+        const query = await this.accountAdvertisementStatisticsModel
+            .findOne({ accountId, accumulatedMetrics: { $exists: true, $ne: null } })
+            .sort({ month: -1 }) // Ordenar por mês em ordem decrescente para obter o mais recente
+            .exec();
+        
+        return MongooseAccountAdvertisementStatisticsMapper.toDomain(query);
+    }
 }

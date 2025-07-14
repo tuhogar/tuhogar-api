@@ -18,7 +18,8 @@ export class MongooseAccountAdvertisementStatisticsMapper {
             digitalCatalogViews: entity.digitalCatalogViews,
             contactInfoClicks: entity.contactInfoClicks,
             topViewedAdvertisements: entity.topViewedAdvertisements,
-            topInteractedAdvertisements: entity.topInteractedAdvertisements
+            topInteractedAdvertisements: entity.topInteractedAdvertisements,
+            accumulatedMetrics: entity.accumulatedMetrics
         });
         
         return model;
@@ -133,7 +134,13 @@ export class MongooseAccountAdvertisementStatisticsMapper {
                     advertisementId: item.advertisementId,
                     interactions: item.interactions
                 }))
-            }
+            },
+            accumulatedMetrics: statistics.accumulatedMetrics ? {
+                totalVisits: statistics.accumulatedMetrics.totalVisits,
+                phoneClicks: statistics.accumulatedMetrics.phoneClicks,
+                digitalCatalogViews: statistics.accumulatedMetrics.digitalCatalogViews,
+                contactInfoClicks: statistics.accumulatedMetrics.contactInfoClicks
+            } : undefined
         };
     }
 }

@@ -17,7 +17,8 @@ export class MongooseAdvertisementStatisticsMapper {
             digitalCatalogViews: entity.digitalCatalogViews,
             contactInfoClicks: entity.contactInfoClicks,
             topViewedAdvertisements: entity.topViewedAdvertisements,
-            topInteractedAdvertisements: entity.topInteractedAdvertisements
+            topInteractedAdvertisements: entity.topInteractedAdvertisements,
+            accumulatedMetrics: entity.accumulatedMetrics
         });
         
         return model;
@@ -131,7 +132,73 @@ export class MongooseAdvertisementStatisticsMapper {
                     advertisementId: item.advertisementId,
                     interactions: item.interactions
                 }))
-            }
+            },
+            accumulatedMetrics: statistics.accumulatedMetrics ? {
+                totalVisits: {
+                    total: statistics.accumulatedMetrics.totalVisits?.total || 0,
+                    byTransactionType: {
+                        sale: statistics.accumulatedMetrics.totalVisits?.byTransactionType?.sale || 0,
+                        rent: statistics.accumulatedMetrics.totalVisits?.byTransactionType?.rent || 0
+                    },
+                    byPropertyTypeAndTransaction: {
+                        house: {
+                            sale: statistics.accumulatedMetrics.totalVisits?.byPropertyTypeAndTransaction?.house?.sale || 0,
+                            rent: statistics.accumulatedMetrics.totalVisits?.byPropertyTypeAndTransaction?.house?.rent || 0
+                        },
+                        apartment: {
+                            sale: statistics.accumulatedMetrics.totalVisits?.byPropertyTypeAndTransaction?.apartment?.sale || 0,
+                            rent: statistics.accumulatedMetrics.totalVisits?.byPropertyTypeAndTransaction?.apartment?.rent || 0
+                        },
+                        lot: {
+                            sale: statistics.accumulatedMetrics.totalVisits?.byPropertyTypeAndTransaction?.lot?.sale || 0,
+                            rent: statistics.accumulatedMetrics.totalVisits?.byPropertyTypeAndTransaction?.lot?.rent || 0
+                        }
+                    }
+                },
+                phoneClicks: {
+                    total: statistics.accumulatedMetrics.phoneClicks?.total || 0,
+                    byTransactionType: {
+                        sale: statistics.accumulatedMetrics.phoneClicks?.byTransactionType?.sale || 0,
+                        rent: statistics.accumulatedMetrics.phoneClicks?.byTransactionType?.rent || 0
+                    },
+                    byPropertyTypeAndTransaction: {
+                        house: {
+                            sale: statistics.accumulatedMetrics.phoneClicks?.byPropertyTypeAndTransaction?.house?.sale || 0,
+                            rent: statistics.accumulatedMetrics.phoneClicks?.byPropertyTypeAndTransaction?.house?.rent || 0
+                        },
+                        apartment: {
+                            sale: statistics.accumulatedMetrics.phoneClicks?.byPropertyTypeAndTransaction?.apartment?.sale || 0,
+                            rent: statistics.accumulatedMetrics.phoneClicks?.byPropertyTypeAndTransaction?.apartment?.rent || 0
+                        },
+                        lot: {
+                            sale: statistics.accumulatedMetrics.phoneClicks?.byPropertyTypeAndTransaction?.lot?.sale || 0,
+                            rent: statistics.accumulatedMetrics.phoneClicks?.byPropertyTypeAndTransaction?.lot?.rent || 0
+                        }
+                    }
+                },
+                digitalCatalogViews: statistics.accumulatedMetrics.digitalCatalogViews || 0,
+                contactInfoClicks: {
+                    total: statistics.accumulatedMetrics.contactInfoClicks?.total || 0,
+                    byTransactionType: {
+                        sale: statistics.accumulatedMetrics.contactInfoClicks?.byTransactionType?.sale || 0,
+                        rent: statistics.accumulatedMetrics.contactInfoClicks?.byTransactionType?.rent || 0
+                    },
+                    byPropertyTypeAndTransaction: {
+                        house: {
+                            sale: statistics.accumulatedMetrics.contactInfoClicks?.byPropertyTypeAndTransaction?.house?.sale || 0,
+                            rent: statistics.accumulatedMetrics.contactInfoClicks?.byPropertyTypeAndTransaction?.house?.rent || 0
+                        },
+                        apartment: {
+                            sale: statistics.accumulatedMetrics.contactInfoClicks?.byPropertyTypeAndTransaction?.apartment?.sale || 0,
+                            rent: statistics.accumulatedMetrics.contactInfoClicks?.byPropertyTypeAndTransaction?.apartment?.rent || 0
+                        },
+                        lot: {
+                            sale: statistics.accumulatedMetrics.contactInfoClicks?.byPropertyTypeAndTransaction?.lot?.sale || 0,
+                            rent: statistics.accumulatedMetrics.contactInfoClicks?.byPropertyTypeAndTransaction?.lot?.rent || 0
+                        }
+                    }
+                }
+            } : null
         };
     }
 }
