@@ -128,7 +128,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
         return advertisements.map((a) => (a._id.toString()));
     }
     
-    async findByAccountIdWithEvents(accountId: string, page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string, status: AdvertisementStatus): Promise<{ data: Advertisement[]; count: number }> {
+    async findByAccountIdWithEvents(accountId: string, page: number, limit: number, code: number, transactionType: AdvertisementTransactionType, type: AdvertisementType, externalId: string, status: AdvertisementStatus[]): Promise<{ data: Advertisement[]; count: number }> {
 
         const skip = (page - 1) * limit;
 
@@ -142,7 +142,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
 
         if (transactionType) filter.transactionType = transactionType;
         if (type) filter.type = type;
-        if (status) filter.status = status;
+        if (status) filter.status = { $in: status };
 
         const count = await this.advertisementModel.countDocuments(filter).exec();
     

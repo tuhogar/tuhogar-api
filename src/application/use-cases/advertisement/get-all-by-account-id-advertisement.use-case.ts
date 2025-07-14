@@ -10,7 +10,7 @@ interface GetAllByAccountIdAdvertisementUseCaseCommand {
     transactionType?: AdvertisementTransactionType,
     type?: AdvertisementType,
     externalId?: string,
-    status?: AdvertisementStatus
+    status?: AdvertisementStatus[]
 }
 @Injectable()
 export class GetAllByAccountIdAdvertisementUseCase {
