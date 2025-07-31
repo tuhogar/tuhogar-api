@@ -18,4 +18,12 @@ export class MongooseCouponRepository implements ICouponRepository {
     async redeem(id: string): Promise<void> {
         await this.couponModel.updateOne({ _id: id, isSingleRedemption: true, isRedeemed: false }, { isRedeemed: true }).exec();
     }
+
+    async create(coupon: Coupon): Promise<Coupon> {
+        const data = MongooseCouponMapper.toMongoose(coupon);
+        const entity = new this.couponModel({ ...data });
+        await entity.save();
+
+        return MongooseCouponMapper.toDomain(entity);
+    }
 }
