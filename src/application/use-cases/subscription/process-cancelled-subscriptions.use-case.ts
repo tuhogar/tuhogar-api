@@ -112,6 +112,13 @@ export class ProcessCancelledSubscriptionsUseCase {
       
       // Atualizar o status da assinatura para CANCELLED
       await this.subscriptionRepository.cancel(subscription.id);
+
+      // Se já tiver uma assinatura ativa, não criar uma nova
+      const subscriptionActive = await this.subscriptionRepository.findOneActiveByAccountId(subscription.accountId);
+      if (subscriptionActive) {
+        this.logger.log(`Conta ${subscription.accountId} já possui uma assinatura ativa`);
+        return;
+      }
       
       // Criar nova assinatura interna com o plano gratuito
       const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ 
