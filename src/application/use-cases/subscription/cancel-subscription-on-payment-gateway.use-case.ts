@@ -30,8 +30,12 @@ export class CancelSubscriptionOnPaymentGatewayUseCase {
       const subscription = await this.subscriptionRepository.findOneById(id);
       if (!subscription || subscription.planId === this.firstSubscriptionPlanId || (subscription && subscription.status !== SubscriptionStatus.ACTIVE && subscription.status !== SubscriptionStatus.PENDING)) throw new Error('error.subscription.do.not.exists');
 
-      const externalSubscriptionCanceled = await this.paymentGateway.cancelSubscription(subscription.externalId);
-      if (!externalSubscriptionCanceled) throw new Error('error.subscription.cancel.on.payment.gateway.failed');
+      try {
+        const externalSubscriptionCanceled = await this.paymentGateway.cancelSubscription(subscription.externalId);
+        if (!externalSubscriptionCanceled) throw new Error('error.subscription.cancel.on.payment.gateway.failed');
+      } catch (error) {
+        console.error('Erro ao cancelar assinatura no gateway de pagamento:', error);
+      }
       
       // Calcular a data efetiva de cancelamento
       let effectiveCancellationDate = subscription.nextPaymentDate;
