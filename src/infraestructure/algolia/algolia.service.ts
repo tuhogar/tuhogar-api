@@ -203,18 +203,18 @@ export class AlgoliaService {
 
         hits.forEach((hit: any) => {
             const { state, city, sector, neighbourhood, establishment, stateSlug, citySlug, sectorSlug, neighbourhoodSlug } = hit.address;
-            
+
             const stateObj = { state, stateSlug };
             const cityObj = { state, stateSlug, city, citySlug };
             const sectorObj = { state, stateSlug, city, citySlug, sector, sectorSlug };
             const neighbourhoodObj = { state, stateSlug, city, citySlug, sector, sectorSlug, neighbourhood, neighbourhoodSlug };
             const establishmentObj = { state, stateSlug, city, citySlug, sector, sectorSlug, neighbourhood, neighbourhoodSlug, establishment };
     
-            const normalizedState = this.normalizeString(state);
-            const normalizedCity = this.normalizeString(city);
-            const normalizedSector = this.normalizeString(sector);
-            const normalizedNeighbourhood = this.normalizeString(neighbourhood);
-            const normalizedEstablishment = this.normalizeString(establishment);
+            const normalizedState = state ? this.normalizeString(state) : '';
+            const normalizedCity = city ? this.normalizeString(city) : '';
+            const normalizedSector = sector ? this.normalizeString(sector) : '';
+            const normalizedNeighbourhood = neighbourhood ? this.normalizeString(neighbourhood) : '';
+            const normalizedEstablishment = establishment ? this.normalizeString(establishment) : '';
     
             // Se o estado corresponder à consulta, adicione-o e todas as cidades e bairros desse estado
             if (normalizedState.includes(normalizedQuery)) {
