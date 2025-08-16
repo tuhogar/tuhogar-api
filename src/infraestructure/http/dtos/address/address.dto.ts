@@ -28,6 +28,13 @@ export class AddressDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsNotEmpty({ message: 'address.sector.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.sector.must.be.a.string' })
+    @Property()
+    sector: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsNotEmpty({ message: 'address.neighbourhood.should.not.be.empty' })
     @IsString({ message: 'invalid.address.neighbourhood.must.be.a.string' })
     @Property()
@@ -45,6 +52,9 @@ export class AddressDto {
 
     @Property()
     citySlug: string;
+
+    @Property()
+    sectorSlug: string;
 
     @Property()
     neighbourhoodSlug: string;
