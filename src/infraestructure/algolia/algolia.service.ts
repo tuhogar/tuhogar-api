@@ -110,10 +110,12 @@ export class AlgoliaService {
         addSearchText('country', getActivesAdvertisementDto.country);
         addSearchText('state', getActivesAdvertisementDto.state);
         addSearchText('city', getActivesAdvertisementDto.city);
+        addSearchText('sector', getActivesAdvertisementDto.sector);
         addSearchText('neighbourhood', getActivesAdvertisementDto.neighbourhood);
         addSearchText('street', getActivesAdvertisementDto.street);
         addSearchText('stateSlug', getActivesAdvertisementDto.stateSlug);
         addSearchText('citySlug', getActivesAdvertisementDto.citySlug);
+        addSearchText('sectorSlug', getActivesAdvertisementDto.sectorSlug);
         addSearchText('neighbourhoodSlug', getActivesAdvertisementDto.neighbourhoodSlug);
         addSearchText('postalCode', getActivesAdvertisementDto.postalCode);
         addSearchText('placeId', getActivesAdvertisementDto.placeId);
@@ -195,18 +197,24 @@ export class AlgoliaService {
 
         const states = new Map<string, { state: string; stateSlug: string }>();
         const cities = new Map<string, { state: string; stateSlug: string; city: string; citySlug: string }>();
+        const sectors = new Map<string, any>();
         const neighbourhoods = new Map<string, any>();
-    
+        const establishments = new Map<string, any>();
+
         hits.forEach((hit: any) => {
-            const { state, city, neighbourhood, stateSlug, citySlug, neighbourhoodSlug } = hit.address;
-            
+            const { state, city, sector, neighbourhood, establishment, stateSlug, citySlug, sectorSlug, neighbourhoodSlug } = hit.address;
+
             const stateObj = { state, stateSlug };
             const cityObj = { state, stateSlug, city, citySlug };
-            const neighbourhoodObj = { state, stateSlug, city, citySlug, neighbourhood, neighbourhoodSlug };
+            const sectorObj = { state, stateSlug, city, citySlug, sector, sectorSlug };
+            const neighbourhoodObj = { state, stateSlug, city, citySlug, sector, sectorSlug, neighbourhood, neighbourhoodSlug };
+            const establishmentObj = { state, stateSlug, city, citySlug, sector, sectorSlug, neighbourhood, neighbourhoodSlug, establishment };
     
-            const normalizedState = this.normalizeString(state);
-            const normalizedCity = this.normalizeString(city);
-            const normalizedNeighbourhood = this.normalizeString(neighbourhood);
+            const normalizedState = state ? this.normalizeString(state) : '';
+            const normalizedCity = city ? this.normalizeString(city) : '';
+            const normalizedSector = sector ? this.normalizeString(sector) : '';
+            const normalizedNeighbourhood = neighbourhood ? this.normalizeString(neighbourhood) : '';
+            const normalizedEstablishment = establishment ? this.normalizeString(establishment) : '';
     
             // Se o estado corresponder à consulta, adicione-o e todas as cidades e bairros desse estado
             if (normalizedState.includes(normalizedQuery)) {
@@ -214,6 +222,7 @@ export class AlgoliaService {
                     states.set(stateSlug, stateObj);
                 }
     
+                /*
                 // Adicionar todas as cidades relacionadas ao estado
                 if (!cities.has(citySlug)) {
                     cities.set(citySlug, cityObj);
@@ -223,6 +232,7 @@ export class AlgoliaService {
                 if (!neighbourhoods.has(neighbourhoodSlug)) {
                     neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
                 }
+                */
             }
     
             // Se a cidade corresponder à consulta, adicione-a e todos os bairros dessa cidade
@@ -231,21 +241,49 @@ export class AlgoliaService {
                     cities.set(citySlug, cityObj);
                 }
     
+                /*
                 // Adicionar todos os bairros dessa cidade
                 if (!neighbourhoods.has(neighbourhoodSlug)) {
                     neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
                 }
+                */
     
+                /*
                 // Adicionar estado relacionado à cidade, se não estiver já adicionado
                 if (!states.has(stateSlug)) {
                     states.set(stateSlug, stateObj);
                 }
+                */
+            }
+
+            if (normalizedSector.includes(normalizedQuery)) {
+                if (!sectors.has(sectorSlug)) {
+                    sectors.set(sectorSlug, sectorObj);
+                }
+
+                /*
+                // Adicionar cidade relacionada ao sector
+                if (!cities.has(citySlug)) {
+                    cities.set(citySlug, cityObj);
+                }
+
+                // Adicionar estado relacionado ao sector
+                if (!states.has(stateSlug)) {
+                    states.set(stateSlug, stateObj);
+                }
+                */
             }
     
             // Se o bairro corresponder à consulta, adicione-o e todas as cidades e estados dessa cidade
             if (normalizedNeighbourhood.includes(normalizedQuery)) {
                 if (!neighbourhoods.has(neighbourhoodSlug)) {
                     neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+                }
+
+                /*
+                // Adicionar sector relacionado ao bairro
+                if (!sectors.has(sectorSlug)) {
+                    sectors.set(sectorSlug, sectorObj);
                 }
     
                 // Adicionar cidade relacionada ao bairro
@@ -256,6 +294,14 @@ export class AlgoliaService {
                 // Adicionar estado relacionado ao bairro
                 if (!states.has(stateSlug)) {
                     states.set(stateSlug, stateObj);
+                }
+                */
+            }
+
+            // Se a estabelecimento corresponder à consulta, adicione-o e todas as cidades e estados desse estado
+            if (normalizedEstablishment.includes(normalizedQuery)) {
+                if (!establishments.has(establishment)) {
+                    establishments.set(establishment, establishmentObj);
                 }
             }
         });
@@ -269,9 +315,17 @@ export class AlgoliaService {
                 count: cities.size,
                 result: Array.from(cities.values()),
             },
+            sector: {
+              count: sectors.size,
+              result: Array.from(sectors.values()),
+            },
             neighbourhood: {
                 count: neighbourhoods.size,
                 result: Array.from(neighbourhoods.values()),
+            },
+            establishment: {
+                count: establishments.size,
+                result: Array.from(establishments.values()),
             },
         };
     }

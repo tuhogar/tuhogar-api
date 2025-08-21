@@ -113,6 +113,12 @@ export class GetActivesAdvertisementDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsNotEmpty({ message: 'address.sector.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.sector.must.be.a.string' })
+    sector: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsNotEmpty({ message: 'address.neighbourhood.should.not.be.empty' })
     @IsString({ message: 'invalid.address.neighbourhood.must.be.a.string' })
     neighbourhood: string;
@@ -134,6 +140,12 @@ export class GetActivesAdvertisementDto {
     @IsNotEmpty({ message: 'address.citySlug.should.not.be.empty' })
     @IsString({ message: 'invalid.address.citySlug.must.be.a.string' })
     citySlug: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty({ message: 'address.sectorSlug.should.not.be.empty' })
+    @IsString({ message: 'invalid.address.sectorSlug.must.be.a.string' })
+    sectorSlug: string;
 
     @ApiPropertyOptional()
     @IsOptional()

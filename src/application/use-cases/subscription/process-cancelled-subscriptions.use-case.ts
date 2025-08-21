@@ -5,6 +5,7 @@ import { ISubscriptionRepository } from 'src/application/interfaces/repositories
 import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
 import { CreateInternalSubscriptionUseCase } from './create-internal-subscription.use-case';
+import { AdjustAdvertisementsAfterPlanChangeUseCase } from '../advertisement/adjust-advertisements-after-plan-change.use-case';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 
 /**
@@ -28,6 +29,7 @@ export class ProcessCancelledSubscriptionsUseCase {
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
+    private readonly adjustAdvertisementsAfterPlanChangeUseCase: AdjustAdvertisementsAfterPlanChangeUseCase,
     private readonly accountRepository: IAccountRepository,
     private readonly configService: ConfigService
   ) {
@@ -136,6 +138,8 @@ export class ProcessCancelledSubscriptionsUseCase {
       await this.updateFirebaseUsersDataUseCase.execute({
         accountId: subscription.accountId
       });
+
+      await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId: subscription.accountId, planId: this.firstSubscriptionPlanId });
       
       this.logger.log(`Assinatura ${subscription.id} processada com sucesso`);
     } catch (error) {
