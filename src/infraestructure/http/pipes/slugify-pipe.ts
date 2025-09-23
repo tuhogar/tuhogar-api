@@ -10,7 +10,12 @@ export class SlugifyPipe implements PipeTransform {
       if (value.address) {
         const adjustedState = value.address.state?.replace(/,|\.|D\.C\./g, '').trim();
         const adjustedCity = value.address.city?.replace(/,|\.|D\.C\./g, '').trim();
-        const adjustedNeighbourhood = value.address.neighbourhood?.replace(/,|\.|D\.C\./g, '').trim();
+        const adjustedNeighbourhood = value.address.neighbourhood
+          ? value.address.neighbourhood
+              .replace(/^\s*barrio[:\-]?\s+/i, '') // remove prefixo "Barrio" no início
+              .replace(/,|\.|D\.C\./g, '')
+              .trim()
+          : undefined;
         const adjustedSector = value.address.sector?.replace(/,|\.|D\.C\./g, '').trim();
 
         value.address.stateSlug = adjustedState ? slugify(adjustedState, { lower: true, strict: true }) : undefined;
