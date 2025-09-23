@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { Transform } from "class-transformer";
 import slugify from "slugify";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 import { AddressIsLatitudeLongitudeMandatory } from "../../validators/address/address-is-latitude-longitude-mandatory.validator";
@@ -37,6 +38,13 @@ export class AddressDto {
     @IsOptional()
     @IsNotEmpty({ message: 'address.neighbourhood.should.not.be.empty' })
     @IsString({ message: 'invalid.address.neighbourhood.must.be.a.string' })
+    @Transform(({ value }) => {
+        if (typeof value !== 'string') return value;
+        // Remove prefix "Barrio" (case-insensitive), optionally followed by ':' or '-' and spaces
+        // Examples cleaned: "Barrio Laureles" -> "Laureles", "barrio: Poblado" -> "Poblado"
+        const cleaned = value.replace(/^\s*barrio[:\-]?\s+/i, '').trim();
+        return cleaned;
+    })
     @Property()
     neighbourhood: string;
 
