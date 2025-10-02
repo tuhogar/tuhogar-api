@@ -24,14 +24,12 @@ export class RedisCacheInterceptor implements NestInterceptor {
     return from(this.redisService.get(cacheKey)).pipe(
       mergeMap((cachedData) => {
         if (cachedData) {
-          console.log('Retornou do cache: ', cacheKey);
           return of(cachedData);
         }
 
         return next.handle().pipe(
           tap((data) => {
             this.redisService.set(cacheKey, data);
-            console.log('Gravou no cache: ', cacheKey);
           }),
         );
       }),
