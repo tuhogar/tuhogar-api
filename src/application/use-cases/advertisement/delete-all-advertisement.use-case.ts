@@ -23,10 +23,11 @@ export class DeleteAllAdvertisementUseCase {
 
         await this.advertisementRepository.deleteMany(advertisementIds, authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : undefined);
 
-        await Promise.all(advertisements.map((a) => this.algoliaService.delete(a.id)));
-        await Promise.all(
-            advertisements.map((a) => this.redisService.delete(a.id))
-        );
+        await Promise.all([
+            advertisements.map((a) => this.algoliaService.delete(a.id)),
+            advertisements.map((a) => this.redisService.delete(a.id)),
+            this.redisService.deleteByPattern('advertisements-cache:*'),
+        ]);
 
         const photoUrls: string[] = [];
         advertisements.forEach((a) => {

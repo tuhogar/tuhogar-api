@@ -51,9 +51,10 @@ export class BulkAdvertisementUseCase {
             const advertisementIds = advertisements.map((a) => a._id);
 
             const advertisementsForRedis = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
-            await Promise.all(
-                advertisementsForRedis.map((a) => this.redisService.set(a.id, a))
-            );
+            await Promise.all([
+                advertisementsForRedis.map((a) => this.redisService.set(a.id, a)),
+                this.redisService.deleteByPattern('advertisements-cache:*'),
+            ]);
         }
     }
 }

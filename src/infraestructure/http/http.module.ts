@@ -12,6 +12,8 @@ import { AdvertisementController } from "./controllers/advertisement-controller"
 import { CloudinaryModule } from "../cloudinary/cloudinary.module";
 import { OpenAiModule } from "../open-ai/open-ai.module";
 import { AlgoliaModule } from "../algolia/algolia.module";
+import { RedisService } from "../persistence/redis/redis.service";
+import { RedisCacheInterceptor } from "./interceptors/redis-cache.interceptor";
 import { FirebaseAdmin } from "../config/firebase.config";
 import { UserController } from "./controllers/user.controller";
 import { CreatePlanUseCase } from "src/application/use-cases/plan/create-plan.use-case";
@@ -192,7 +194,9 @@ import { CreateCouponUseCase } from "src/application/use-cases/coupon/create-cou
             provide: IPaymentGateway,
             useClass: EPaycoService,
         },
-        NetworkService
+        NetworkService,
+        RedisService,
+        RedisCacheInterceptor,
     ],
     controllers: [
         AccountController,

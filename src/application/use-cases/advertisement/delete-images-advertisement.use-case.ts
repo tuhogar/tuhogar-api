@@ -36,11 +36,11 @@ export class DeleteImagesAdvertisementUseCase {
         await this.advertisementRepository.updatePhotos(authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : advertisement.accountId, advertisementId, newPhotos);
 
         const updatedAdvertisementForRedis = await this.advertisementRepository.findByIdsAndAccountId([advertisementId], undefined);
-            await Promise.all(
-                updatedAdvertisementForRedis.map((a) => this.redisService.set(a.id, a))
-            );
-
-        await Promise.all(photosToRemove.map((a) => this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a.url))));
+        await Promise.all([
+            updatedAdvertisementForRedis.map((a) => this.redisService.set(a.id, a)),
+            photosToRemove.map((a) => this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(a.url))),
+            this.redisService.deleteByPattern('advertisements-cache:*'),
+        ]);
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {
