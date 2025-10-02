@@ -51,6 +51,7 @@ export class UpdateAdvertisementUseCase {
                 updatedAdvertisementForRedis.map((a) => this.redisService.set(a.id, a))
             );
         }
+        await this.redisService.deleteByPattern('advertisements-cache:*');
 
         return { id: updatedAdvertisement.id };
     }

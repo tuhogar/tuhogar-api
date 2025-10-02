@@ -44,4 +44,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     const data = await RedisService.client?.mGet(ids);
     return data?.map((item) => (item ? JSON.parse(item) : null)).filter(Boolean) ?? [];
   }
+
+  async deleteByPattern(pattern: string): Promise<void> {
+    const keys = await RedisService.client?.keys(pattern);
+    if (keys && keys.length > 0) {
+      await RedisService.client?.del(keys);
+      console.log('Deletou chaves do cache: ', keys);
+    }
+  }
 }

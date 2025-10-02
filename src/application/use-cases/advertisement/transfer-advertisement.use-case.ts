@@ -19,8 +19,9 @@ export class TransferAdvertisementUseCase {
         const advertisementIds = await this.advertisementRepository.transfer(userId, accountIdFrom, accountIdTo);
         
         const advertisementsForRedis = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
-        await Promise.all(
-            advertisementsForRedis.map((a) => this.redisService.set(a.id, a))
-        );
+        await Promise.all([
+            advertisementsForRedis.map((a) => this.redisService.set(a.id, a)),
+            this.redisService.deleteByPattern('advertisements-cache:*'),
+        ]);
     }
 }
