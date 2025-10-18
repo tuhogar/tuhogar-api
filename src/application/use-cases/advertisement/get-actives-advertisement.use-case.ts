@@ -13,7 +13,7 @@ export class GetActivesAdvertisementUseCase {
         private readonly redisService: RedisService
     ) {}
 
-    async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
+    async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto, forMaps?: boolean): Promise<{ data: {id: string, lat: number, lng: number, price: number, type: string}[] | Advertisement[]; count: number }> {
         const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
         if (!advertisementIds.length) throw Error('notfound.advertisements');
 
@@ -30,6 +30,11 @@ export class GetActivesAdvertisementUseCase {
         
         const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]).filter(ad => ad !== undefined && ad !== null);
 
-        return { data: orderedAdvertisements, count };
+        return { data: forMaps ? orderedAdvertisements.map(ad => ({ 
+            id: ad.id, 
+            lat: ad.address?.latitude, 
+            lng: ad.address?.longitude, 
+            price: ad.price, 
+            type: ad.type })) : orderedAdvertisements, count };
     }
 }

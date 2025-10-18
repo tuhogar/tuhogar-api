@@ -37,7 +37,8 @@ export class UpdateImagesOrderAdvertisementUseCase {
         if (!updatedAdvertisement) throw new Error('notfound.advertisement.do.not.exists');
 
         await this.algoliaService.delete(updatedAdvertisement.id);
-        await this.redisService.delete(updatedAdvertisement.id)
+        await this.redisService.delete(updatedAdvertisement.id);
+        await this.redisService.deleteByPattern('advertisements-cache:*');
     }
 
     private getPublicIdFromImageUrl(imageUrl: string): string {

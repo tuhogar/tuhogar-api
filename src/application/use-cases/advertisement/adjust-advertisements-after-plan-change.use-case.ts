@@ -95,10 +95,11 @@ export class AdjustAdvertisementsAfterPlanChangeUseCase {
 
         pausedDueToPhotoLimit = advertisementsWithExcessPhotos.length;
 
-        await Promise.all(idsToUpdate.map((a) => this.algoliaService.delete(a)));
-        await Promise.all(
-          idsToUpdate.map((a) => this.redisService.delete(a))
-        );
+        await Promise.all([
+          idsToUpdate.map((a) => this.algoliaService.delete(a)),
+          idsToUpdate.map((a) => this.redisService.delete(a)),
+          this.redisService.deleteByPattern('advertisements-cache:*'),
+        ]);
         
         this.logger.log(`${pausedDueToPhotoLimit} anúncios pausados por excederem o limite de fotos`);
       } else {
@@ -142,10 +143,11 @@ export class AdjustAdvertisementsAfterPlanChangeUseCase {
 
           pausedDueToAdvertisementLimit = advertisementsToPause.length;
 
-          await Promise.all(idsToUpdate.map((a) => this.algoliaService.delete(a)));
-          await Promise.all(
-            idsToUpdate.map((a) => this.redisService.delete(a))
-          );
+          await Promise.all([
+            idsToUpdate.map((a) => this.algoliaService.delete(a)),
+            idsToUpdate.map((a) => this.redisService.delete(a)),
+            this.redisService.deleteByPattern('advertisements-cache:*'),
+          ]);
           
           this.logger.log(`${pausedDueToAdvertisementLimit} anúncios mais recentes pausados por excederem o limite de anúncios ativos`);
         } else {

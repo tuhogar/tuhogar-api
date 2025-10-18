@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Authenticated } from '../../decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
@@ -34,6 +34,7 @@ import { TransferAdvertisementDto } from '../dtos/advertisement/transfer-adverti
 import { GetAdvertisementLocationsUseCase } from 'src/application/use-cases/advertisement/get-advertisement-locations.use-case';
 import { GetActivesAdvertisementLocationDto } from '../dtos/advertisement/get-actives-advertisement-locations.dto';
 import { UserRole } from 'src/domain/entities/user';
+import { RedisCacheInterceptor } from '../interceptors/redis-cache.interceptor';
 
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
@@ -104,8 +105,15 @@ export class AdvertisementController {
     }
 
     @Get('actives')
-    async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
+    @UseInterceptors(RedisCacheInterceptor)
+    async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: {id: string, lat: number, lng: number, price: number, type: string}[] | Advertisement[]; count: number }> {
         return this.getActivesAdvertisementUseCase.execute(getActivesAdvertisementDto);
+    }
+
+    @Get('actives/maps')
+    @UseInterceptors(RedisCacheInterceptor)
+    async getActivesMaps(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: {id: string, lat: number, lng: number, price: number, type: string}[] | Advertisement[]; count: number }> {
+        return this.getActivesAdvertisementUseCase.execute(getActivesAdvertisementDto, true);
     }
 
     @Get('actives/locations')

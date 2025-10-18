@@ -51,10 +51,11 @@ export class UpdateStatusAllAdvertisementUseCase {
         if (updatedAdvertisement.upsertedCount === 0 && updatedAdvertisement.modifiedCount === 0 && updatedAdvertisement.matchedCount === 0) throw new Error('notfound.advertisement.do.not.exists');
 
         if (status !== AdvertisementStatus.ACTIVE) {
-            await Promise.all(advertisementIds.map((a) => this.algoliaService.delete(a)));
-            await Promise.all(
+            await Promise.all([
+                advertisementIds.map((a) => this.algoliaService.delete(a)),
                 advertisementIds.map((a) => this.redisService.delete(a))
-            );
+            ]);
         }
+        await this.redisService.deleteByPattern('advertisements-cache:*');
     }
 }

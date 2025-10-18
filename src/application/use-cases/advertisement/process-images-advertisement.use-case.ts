@@ -111,6 +111,7 @@ export class ProcessImagesAdvertisementUseCase {
 
         await this.algoliaService.delete(updatedAdvertisement.id);
         await this.redisService.delete(updatedAdvertisement.id);
+        await this.redisService.deleteByPattern('advertisements-cache:*');
 
         return newPhotos.map((a) => ({ id: a.id, order: a.order }))
     }
