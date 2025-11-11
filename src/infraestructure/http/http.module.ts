@@ -101,6 +101,7 @@ import { AdjustAdvertisementsAfterPlanChangeUseCase } from "src/application/use-
 import { RedeemCouponUseCase } from "src/application/use-cases/coupon/redeem-coupon.use-case";
 import { CouponController } from "./controllers/coupon.controller";
 import { CreateCouponUseCase } from "src/application/use-cases/coupon/create-coupon.use-case";
+import { ChangeCardSubscriptionUseCase } from "src/application/use-cases/subscription/change-card-subscription.use-case";
 
 @Module({
     imports: [
@@ -189,6 +190,7 @@ import { CreateCouponUseCase } from "src/application/use-cases/coupon/create-cou
         UserAlreadyExistsConstraint,
         AccountAlreadyExistsConstraint,
         CreateCouponUseCase,
+        ChangeCardSubscriptionUseCase,
         FirebaseAdmin,
         {
             provide: IPaymentGateway,
