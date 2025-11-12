@@ -102,6 +102,9 @@ import { RedeemCouponUseCase } from "src/application/use-cases/coupon/redeem-cou
 import { CouponController } from "./controllers/coupon.controller";
 import { CreateCouponUseCase } from "src/application/use-cases/coupon/create-coupon.use-case";
 import { ChangeCardSubscriptionUseCase } from "src/application/use-cases/subscription/change-card-subscription.use-case";
+import { GetByAccountIdBillingUseCase } from "src/application/use-cases/billing/get-by-account-id-billing.use-case";
+import { UpdateBillingUseCase } from "src/application/use-cases/billing/update-billing.use-case";
+import { CreateBillingUseCase } from "src/application/use-cases/billing/create-billing.use-case";
 
 @Module({
     imports: [
@@ -191,6 +194,9 @@ import { ChangeCardSubscriptionUseCase } from "src/application/use-cases/subscri
         AccountAlreadyExistsConstraint,
         CreateCouponUseCase,
         ChangeCardSubscriptionUseCase,
+        CreateBillingUseCase,
+        UpdateBillingUseCase,
+        GetByAccountIdBillingUseCase,
         FirebaseAdmin,
         {
             provide: IPaymentGateway,

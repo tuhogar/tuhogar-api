@@ -23,6 +23,10 @@ import { UpdateStatusAccountUseCase } from 'src/application/use-cases/account/up
 import { GetAllUserByAccountIdUseCase } from 'src/application/use-cases/user/get-all-user-by-account-id.use-case';
 import { GetAdvertisementDto } from '../dtos/advertisement/get-advertisement.dto';
 import { GetAllByAccountIdAdvertisementUseCase } from 'src/application/use-cases/advertisement/get-all-by-account-id-advertisement.use-case';
+import { GetByAccountIdBillingUseCase } from 'src/application/use-cases/billing/get-by-account-id-billing.use-case';
+import { Billing } from 'src/domain/entities/billing';
+import { PatchBillingDto } from '../dtos/billing/patch-billing.dto';
+import { UpdateBillingUseCase } from 'src/application/use-cases/billing/update-billing.use-case';
 
 @ApiTags('v1/accounts')
 @Controller('v1/accounts')
@@ -40,6 +44,8 @@ export class AccountController {
     private readonly pathAccountUseCase: PathAccountUseCase,
     private readonly processImageAccountUseCase: ProcessImageAccountUseCase,
     private readonly updateStatusAccountUseCase: UpdateStatusAccountUseCase,
+    private readonly getByAccountIdBillingUseCase: GetByAccountIdBillingUseCase,
+    private readonly updateBillingUseCase: UpdateBillingUseCase
   ) {}
 
   @ApiBearerAuth()
@@ -93,6 +99,14 @@ export class AccountController {
   }
 
   @ApiBearerAuth()
+  @Get(':accountid/billing')
+  async getBilling(@Param('accountid') accountId: string): Promise<Billing> {
+      return this.getByAccountIdBillingUseCase.execute({
+        accountId
+      });
+  }
+
+  @ApiBearerAuth()
   @Patch(':accountid')
   @Auth('MASTER', 'ADMIN', 'USER')
   async patch(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() patchAccountDto: PatchAccountDto): Promise<void> {
@@ -112,6 +126,21 @@ export class AccountController {
         socialMedia: patchAccountDto.socialMedia,
         description: patchAccountDto.description,
         contractTypes: patchAccountDto.contractTypes
+      });
+  }
+
+  @ApiBearerAuth()
+  @Patch(':accountid/billing')
+  @Auth('ADMIN')
+  async patchBilling(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() patchBillingDto: PatchBillingDto): Promise<void> {
+      await this.updateBillingUseCase.execute({
+        accountId: authenticatedUser.accountId,
+        name: patchBillingDto.name,
+        email: patchBillingDto.email,
+        phone: patchBillingDto.phone,
+        address: patchBillingDto.address,
+        documentType: patchBillingDto.documentType,
+        documentNumber: patchBillingDto.documentNumber,
       });
   }
 
