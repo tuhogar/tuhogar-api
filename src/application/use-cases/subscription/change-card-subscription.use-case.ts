@@ -31,10 +31,14 @@ export class ChangeCardSubscriptionUseCase {
        (actualPlanId !== this.firstSubscriptionPlanId && 
         actualSubscriptionStatus !== SubscriptionStatus.ACTIVE
       )
-    ) throw new Error('error.subscription.not.exists');
+    ) {
+      console.log('error.subscription.not.exists');
+      throw new Error('error.subscription.not.exists');
+    }
 
     
     const subscription = await this.subscriptionRepository.findOneById(actualSubscriptionId);
+    console.log('subscription: ', subscription);
     if (!subscription) throw new Error('error.subscription.not.exists');
     
     await this.paymentGateway.changeCard(subscription.externalPayerReference, paymentData);

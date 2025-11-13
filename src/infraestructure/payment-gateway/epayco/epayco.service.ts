@@ -529,6 +529,9 @@ export class EPaycoService implements IPaymentGateway {
   }
 
   async changeCard(customerId: string, paymentData: any): Promise<void> {
+    console.log('changeCard-start');
+    console.log('customerId: ', customerId);
+    console.log('paymentData: ', paymentData);
     await this.deleteToken(customerId);
 
     const add_customer_info = {
@@ -537,6 +540,7 @@ export class EPaycoService implements IPaymentGateway {
     }
 
     await this.epaycoClient.addNewToken(add_customer_info);
+    console.log('changeCard-end');
   }
     
 
