@@ -208,12 +208,16 @@ export class SubscriptionController {
     description: 'Retorna sucesso',
   })
   async changeCardSubscription(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() changeCardSubscriptionDto: ChangeCardSubscriptionDto): Promise<void> {
+    console.log('changeCardSubscription-start');
+    console.log('authenticatedUser: ', authenticatedUser);
+    console.log('changeCardSubscriptionDto: ', changeCardSubscriptionDto);
     await this.changeCardSubscriptionUseCase.execute({ 
       actualPlanId: authenticatedUser.planId,
       actualSubscriptionId: authenticatedUser.subscriptionId,
       actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
       paymentData: changeCardSubscriptionDto.paymentData,
      });
+    console.log('changeCardSubscription-end');
   }
 
   /*
