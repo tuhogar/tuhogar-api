@@ -11,6 +11,9 @@ export abstract class IPaymentGateway {
     abstract getPayment(subscriptionNotification: SubscriptionNotification): Promise<SubscriptionPayment>;
     abstract getInvoice(subscriptionNotification: SubscriptionNotification): Promise<SubscriptionInvoice>;
     abstract getSubscriptionNotification(payload: any): Promise<SubscriptionNotification>;
+    abstract getCustomer(customerId: string): Promise<any>
+    abstract deleteToken(customerId: string): Promise<void>
+    abstract changeCard(customerId: string, paymentData: any): Promise<void>
     abstract updateSubscriptionPlan(actualSubscription: Subscription, plan: Plan): Promise<Subscription>;
   }
   

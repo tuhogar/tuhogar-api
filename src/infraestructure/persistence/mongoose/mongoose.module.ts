@@ -58,7 +58,9 @@ import { MongooseCouponRepository } from "./repositories/mongoose-coupon.reposit
 import { IAccountCouponRepository } from "src/application/interfaces/repositories/account-coupon.repository.interface";
 import { MongooseAccountCouponRepository } from "./repositories/mongoose-account-coupon.repository";
 import { AccountCoupon, AccountCouponSchema } from "./entities/account-coupon.entity";
-
+import { Billing, BillingSchema } from "./entities/billing.entity";
+import { IBillingRepository } from "src/application/interfaces/repositories/billing.repository.interface";
+import { MongooseBillingRepository } from "./repositories/mongoose-billing.repository";
 @Module({
     imports: [
         MongooseModuleLib.forRootAsync({
@@ -93,6 +95,7 @@ import { AccountCoupon, AccountCouponSchema } from "./entities/account-coupon.en
           { name: AdvertisementStatistics.name, schema: AdvertisementStatisticsSchema },
           { name: Coupon.name, schema: CouponSchema },
           { name: AccountCoupon.name, schema: AccountCouponSchema },
+          { name: Billing.name, schema: BillingSchema },
       ]),
     ],
     providers: [
@@ -171,6 +174,10 @@ import { AccountCoupon, AccountCouponSchema } from "./entities/account-coupon.en
       { 
         provide: IAccountCouponRepository,
         useClass: MongooseAccountCouponRepository
+      },
+      {
+        provide: IBillingRepository,
+        useClass: MongooseBillingRepository
       }
     ],
     exports: [
@@ -193,6 +200,7 @@ import { AccountCoupon, AccountCouponSchema } from "./entities/account-coupon.en
       IAdvertisementStatisticsRepository,
       ICouponRepository,
       IAccountCouponRepository,
+      IBillingRepository,
     ],
 })
 export class MongooseModule {}

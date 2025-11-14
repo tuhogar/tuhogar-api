@@ -16,6 +16,15 @@ export class MercadoPagoService implements IPaymentGateway {
     this.apiUrl = this.configService.get<string>('MERCADOPAGO_API_URL');
     this.accessToken = this.configService.get<string>('MERCADOPAGO_ACCESS_TOKEN');
   }
+  changeCard(customerId: string, paymentData: any): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  deleteToken(customerId: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  getCustomer(customerId: string): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
   
   async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>): Promise<Subscription> {
     const subscriptionToCreate: any = {

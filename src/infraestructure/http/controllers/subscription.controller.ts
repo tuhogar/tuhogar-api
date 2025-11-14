@@ -23,19 +23,21 @@ import { GetAllPlansOutputDto } from '../dtos/plan/output/get-all-plans.output.d
 import { GetAllPlansOutputDtoMapper } from '../dtos/plan/output/mapper/get-all-plans.output.dto.mapper';
 import { GetSubscriptionPaymentHistoryDto } from '../dtos/subscription/get-subscription-payment-history.dto';
 import { UpdateSubscriptionVipPlanUseCase } from 'src/application/use-cases/subscription/update-subscription-vip-plan.use-case';
+import { ChangeCardSubscriptionUseCase } from 'src/application/use-cases/subscription/change-card-subscription.use-case';
+import { ChangeCardSubscriptionDto } from '../dtos/subscription/change-card-subscription.dto';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
   constructor(
     private readonly createSubscriptionUseCase: CreateSubscriptionUseCase,
-    private readonly updateSubscriptionPlanUseCase: UpdateSubscriptionPlanUseCase,
     private readonly receiveSubscriptionNotificationUseCase: ReceiveSubscriptionNotificationUseCase,
     private readonly cancelSubscriptionOnPaymentGatewayUseCase: CancelSubscriptionOnPaymentGatewayUseCase,
     private readonly getCurrentSubscriptionUseCase: GetCurrentSubscriptionUseCase,
     private readonly getSubscriptionHistoryUseCase: GetSubscriptionHistoryUseCase,
     private readonly getSubscriptionPaymentHistoryUseCase: GetSubscriptionPaymentHistoryUseCase,
     private readonly updateSubscriptionVipPlanUseCase: UpdateSubscriptionVipPlanUseCase,
-    private readonly getAllPlanUseCase: GetAllPlanUseCase) {}
+    private readonly getAllPlanUseCase: GetAllPlanUseCase,
+    private readonly changeCardSubscriptionUseCase: ChangeCardSubscriptionUseCase) {}
 
   @ApiBearerAuth()
   @Post()
@@ -196,6 +198,26 @@ export class SubscriptionController {
   @Auth('MASTER')
   async updateSubscriptionPlan(@Body() { planId, accountId, nextPaymentDate }: { planId: string, accountId: string, nextPaymentDate?: string }) {
     return await this.updateSubscriptionVipPlanUseCase.execute({ planId, accountId, nextPaymentDate });
+  }
+
+  @ApiBearerAuth()
+  @Post('change-card')
+  @Auth('ADMIN', 'USER')
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna sucesso',
+  })
+  async changeCardSubscription(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() changeCardSubscriptionDto: ChangeCardSubscriptionDto): Promise<void> {
+    console.log('changeCardSubscription-start');
+    console.log('authenticatedUser: ', authenticatedUser);
+    console.log('changeCardSubscriptionDto: ', changeCardSubscriptionDto);
+    await this.changeCardSubscriptionUseCase.execute({ 
+      actualPlanId: authenticatedUser.planId,
+      actualSubscriptionId: authenticatedUser.subscriptionId,
+      actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
+      paymentData: changeCardSubscriptionDto.paymentData,
+     });
+    console.log('changeCardSubscription-end');
   }
 
   /*

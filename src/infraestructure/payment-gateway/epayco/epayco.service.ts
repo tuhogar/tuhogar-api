@@ -503,6 +503,47 @@ export class EPaycoService implements IPaymentGateway {
     return subscriptionNotification;
   }
 
+  async getCustomer(customerId: string): Promise<any> {
+    return this.epaycoClient.customers.get(customerId);
+  }
+
+  async deleteToken(customerId: string): Promise<void> {
+    const customer = await this.getCustomer(customerId);
+    if (!customer || 
+      (customer && !customer.data) || 
+      (customer && !customer.data.cards) || 
+      (customer && !customer.data.cards.length) ||
+      (customer && !customer.data.cards.some((card: any) => card.default))) {
+      throw new Error('customer.or.card.not.found');
+    }
+
+    const card = customer.data.cards.find((card: any) => card.default);
+
+    const delete_customer_info = {
+        franchise : card.franchise,
+        mask : card.mask,
+        customer_id: customer.data.id_customer
+    }
+
+    await this.epaycoClient.customers.delete(delete_customer_info);
+  }
+
+  async changeCard(customerId: string, paymentData: any): Promise<void> {
+    console.log('changeCard-start');
+    console.log('customerId: ', customerId);
+    console.log('paymentData: ', paymentData);
+    await this.deleteToken(customerId);
+
+    const add_customer_info = {
+      token_card : paymentData.token,
+      customer_id: customerId
+    }
+
+    await this.epaycoClient.addNewToken(add_customer_info);
+    console.log('changeCard-end');
+  }
+    
+
   private validateSignature(payload: any): boolean {
     const {
       x_ref_payco,

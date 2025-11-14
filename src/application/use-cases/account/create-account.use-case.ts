@@ -6,6 +6,7 @@ import { ISubscriptionRepository } from 'src/application/interfaces/repositories
 import { CreateInternalSubscriptionUseCase } from '../subscription/create-internal-subscription.use-case';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
 import { Account, AccountDocumentType, AccountStatus } from 'src/domain/entities/account';
+import { CreateBillingUseCase } from '../billing/create-billing.use-case';
 
 interface CreateAccountUseCaseCommand {
   email: string;
@@ -25,6 +26,7 @@ export class CreateAccountUseCase {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
+    private readonly createBillingUseCase: CreateBillingUseCase
   ) {}
 
   async execute({
@@ -55,6 +57,14 @@ export class CreateAccountUseCase {
       userRole: UserRole.ADMIN,
       accountId: accountCreated.id
     });
+    await this.createBillingUseCase.execute({
+        accountId: accountCreated.id,
+        name,
+        email,
+        phone,
+        documentType,
+        documentNumber,
+      });
     try {
       await this.updateFirebaseUsersDataUseCase.execute({ accountId: accountCreated.id });
     } catch (error) {
