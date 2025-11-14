@@ -509,23 +509,22 @@ export class EPaycoService implements IPaymentGateway {
 
   async deleteToken(customerId: string): Promise<void> {
     const customer = await this.getCustomer(customerId);
-    if (!customer || 
-      (customer && !customer.data) || 
-      (customer && !customer.data.cards) || 
-      (customer && !customer.data.cards.length) ||
-      (customer && !customer.data.cards.some((card: any) => card.default))) {
-      throw new Error('customer.or.card.not.found');
+    console.log('customer: ', JSON.stringify(customer));
+    if (!customer || (customer && !customer.data) || (customer && !customer.data.cards)) {
+      throw new Error('customer.not.found');
     }
 
-    const card = customer.data.cards.find((card: any) => card.default);
+    if (customer && customer.data.cards && customer.data.cards.length > 0 && customer.data.cards.some((card: any) => card.default)) {
+      const card = customer.data.cards.find((card: any) => card.default);
 
-    const delete_customer_info = {
-        franchise : card.franchise,
-        mask : card.mask,
-        customer_id: customer.data.id_customer
+      const delete_customer_info = {
+          franchise : card.franchise,
+          mask : card.mask,
+          customer_id: customer.data.id_customer
+      }
+
+      await this.epaycoClient.customers.delete(delete_customer_info);
     }
-
-    await this.epaycoClient.customers.delete(delete_customer_info);
   }
 
   async changeCard(customerId: string, paymentData: any): Promise<void> {
@@ -541,7 +540,7 @@ export class EPaycoService implements IPaymentGateway {
 
     console.log('add_customer_info: ', JSON.stringify(add_customer_info));
 
-    await this.epaycoClient.addNewToken(add_customer_info);
+    await this.epaycoClient.customers.addNewToken(add_customer_info);
     console.log('changeCard-end');
   }
     
