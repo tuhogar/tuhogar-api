@@ -26,6 +26,11 @@ export class ChangeCardSubscriptionUseCase {
   }
   
   async execute({ actualPlanId, actualSubscriptionId, actualSubscriptionStatus, paymentData }: ChangeCardSubscriptionUseCaseCommand): Promise<void> {
+    console.log('execute-start');
+    console.log('actualPlanId: ', actualPlanId);
+    console.log('actualSubscriptionId: ', actualSubscriptionId);
+    console.log('actualSubscriptionStatus: ', actualSubscriptionStatus);
+    console.log('paymentData: ', JSON.stringify(paymentData));
 
     if (actualPlanId === this.firstSubscriptionPlanId ||
        (actualPlanId !== this.firstSubscriptionPlanId && 
@@ -38,10 +43,11 @@ export class ChangeCardSubscriptionUseCase {
 
     
     const subscription = await this.subscriptionRepository.findOneById(actualSubscriptionId);
-    console.log('subscription: ', subscription);
+    console.log('subscription: ', JSON.stringify(subscription));
     if (!subscription) throw new Error('error.subscription.not.exists');
     
     await this.paymentGateway.changeCard(subscription.externalPayerReference, paymentData);
+    console.log('execute-end');
 
   }
 }

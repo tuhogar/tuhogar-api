@@ -531,13 +531,15 @@ export class EPaycoService implements IPaymentGateway {
   async changeCard(customerId: string, paymentData: any): Promise<void> {
     console.log('changeCard-start');
     console.log('customerId: ', customerId);
-    console.log('paymentData: ', paymentData);
+    console.log('paymentData: ', JSON.stringify(paymentData));
     await this.deleteToken(customerId);
 
     const add_customer_info = {
       token_card : paymentData.token,
       customer_id: customerId
     }
+
+    console.log('add_customer_info: ', JSON.stringify(add_customer_info));
 
     await this.epaycoClient.addNewToken(add_customer_info);
     console.log('changeCard-end');

@@ -209,8 +209,8 @@ export class SubscriptionController {
   })
   async changeCardSubscription(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() changeCardSubscriptionDto: ChangeCardSubscriptionDto): Promise<void> {
     console.log('changeCardSubscription-start');
-    console.log('authenticatedUser: ', authenticatedUser);
-    console.log('changeCardSubscriptionDto: ', changeCardSubscriptionDto);
+    console.log('authenticatedUser: ', JSON.stringify(authenticatedUser));
+    console.log('changeCardSubscriptionDto: ', JSON.stringify(changeCardSubscriptionDto));
     await this.changeCardSubscriptionUseCase.execute({ 
       actualPlanId: authenticatedUser.planId,
       actualSubscriptionId: authenticatedUser.subscriptionId,
