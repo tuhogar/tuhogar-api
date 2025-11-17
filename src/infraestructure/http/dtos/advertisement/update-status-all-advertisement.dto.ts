@@ -19,7 +19,7 @@ export class UpdateStatusAllAdvertisementsDto {
     advertisements: UpdateStatusAllAdvertisementDto[];
 
     @ApiProperty()
-    @AdvertisementIsStatusValid()
+    //@AdvertisementIsStatusValid()
     @IsEnum(AdvertisementStatus, { message: 'invalid.status.must.be.one.of.the.following.values.ACTIVE.INACTIVE.PAUSED_BY_USER.PAUSED_BY_APPLICATION.WAITING_FOR_APPROVAL' })
     status: AdvertisementStatus;
 }
