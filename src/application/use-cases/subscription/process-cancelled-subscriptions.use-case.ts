@@ -139,9 +139,7 @@ export class ProcessCancelledSubscriptionsUseCase {
         accountId: subscription.accountId
       });
 
-      if (subscription.accountId !== "68c321fc208cedcaf56126da") {
-        await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId: subscription.accountId, planId: this.firstSubscriptionPlanId });
-      }
+      //await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId: subscription.accountId, planId: this.firstSubscriptionPlanId });
       
       this.logger.log(`Assinatura ${subscription.id} processada com sucesso`);
     } catch (error) {
