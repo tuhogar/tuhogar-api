@@ -23,8 +23,22 @@ export class GetAllPlanUseCase {
     }
 
     async execute({ accountId }: GetAllPlanUseCaseCommand): Promise<Plan[]> {
+        const plansWithDiscounts: string[] = [
+            this.firstSubscriptionPlanId,
+            "692a6d7b7e32d4b2b3423562",
+            "692a6dda7e32d4b2b3423563",
+            "692a6e027e32d4b2b3423564",
+        ];
+
+        const plansWithoutDiscounts: string[] = [
+            this.firstSubscriptionPlanId,
+            "692a6e1d7e32d4b2b3423565",
+            "692a6e367e32d4b2b3423566",
+            "692a6e4d7e32d4b2b3423567",
+        ];
+
         if (!accountId) {
-            return this.planRepository.findOnlyFreeDays();
+            return this.planRepository.findByIds(plansWithoutDiscounts);
         }
         
         const account = await this.accountRepository.findOneById(accountId);
@@ -35,19 +49,9 @@ export class GetAllPlanUseCase {
         const couponExpiredDate = coupon?.expirationDate && coupon.expirationDate < new Date();
 
         if (coupon && !couponExpiredDate) {
-            let couponPlanIds: string[];
-            if (account.hasPaidPlan) {
-                couponPlanIds = coupon.hasPaidPlanIds.map((plan) => plan.id);
-            } else {
-                couponPlanIds = coupon.doesNotHavePaidPlanIds.map((plan) => plan.id);
-            }
-            return this.planRepository.findByIds(couponPlanIds);
+            return this.planRepository.findByIds(plansWithDiscounts);
         }
 
-        if (account.hasPaidPlan) {
-            return this.planRepository.findNotFreeDays();
-        }
-
-        return this.planRepository.findOnlyFreeDays();
+        return this.planRepository.findByIds(plansWithoutDiscounts);
     }
 }
