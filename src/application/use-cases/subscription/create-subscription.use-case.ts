@@ -20,8 +20,6 @@ interface CreateSubscriptionUseCaseCommand {
   actualSubscriptionStatus: SubscriptionStatus;
   actualPlanId: string;
   accountId: string;
-  email: string;
-  userId: string;
   planId: string;
   paymentData: Record<string, any>
 }
@@ -45,7 +43,7 @@ export class CreateSubscriptionUseCase {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
 
-  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, email, userId, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
+  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
     console.log('---subscription-1');
     if (
       (actualSubscriptionStatus === SubscriptionStatus.ACTIVE || actualSubscriptionStatus === SubscriptionStatus.CREATED) 
@@ -57,7 +55,7 @@ export class CreateSubscriptionUseCase {
     console.log('---subscription-3');
     const plan = await this.planRepository.findOneById(planId);
     console.log('---subscription-4');
-    const user = await this.userRepository.findOneById(userId);
+    //const user = await this.userRepository.findOneById(userId);
     console.log('---subscription-5');
 
     if (account.hasPaidPlan && plan.freeTrialDays > 0) throw new Error('invalid.subscription.plan');
@@ -89,7 +87,7 @@ export class CreateSubscriptionUseCase {
 
     try {
       console.log('---subscription-18');
-      const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, email, user.name, plan, paymentData);
+      const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, account.email, account.name, plan, paymentData);
       console.log('---subscription-19');
       if (!externalSubscriptionCreated) throw new Error('error.subscription.create.failed');
       console.log('---subscription-20');

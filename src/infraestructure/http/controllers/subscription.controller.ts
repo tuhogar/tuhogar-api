@@ -64,8 +64,6 @@ export class SubscriptionController {
       actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
       actualPlanId: authenticatedUser.planId,
       accountId: authenticatedUser.accountId, 
-      email: authenticatedUser.email, 
-      userId: authenticatedUser.userId,
       planId: createSubscriptionDto.planId,
       paymentData: createSubscriptionDto.paymentData,
     });
