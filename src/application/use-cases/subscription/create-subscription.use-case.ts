@@ -73,9 +73,9 @@ export class CreateSubscriptionUseCase {
       console.log('---subscription-10');
       if (coupon.expirationDate && coupon.expirationDate < new Date()) throw new Error('invalid.coupon.expiredDate');
       console.log('---subscription-11');
-      if (account.hasPaidPlan && !coupon.hasPaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
+      //if (account.hasPaidPlan && !coupon.hasPaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
       console.log('---subscription-12');
-      if (!account.hasPaidPlan && !coupon.doesNotHavePaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
+      //if (!account.hasPaidPlan && !coupon.doesNotHavePaidPlanIds.some((plan) => plan.id === planId)) throw new Error('invalid.subscription.plan');
       console.log('---subscription-13');
       if (!coupon.allowRepeatedFulfillment) setCouponDepleted = true;
       console.log('---subscription-14');
