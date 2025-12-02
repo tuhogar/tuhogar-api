@@ -105,6 +105,7 @@ import { ChangeCardSubscriptionUseCase } from "src/application/use-cases/subscri
 import { GetByAccountIdBillingUseCase } from "src/application/use-cases/billing/get-by-account-id-billing.use-case";
 import { UpdateBillingUseCase } from "src/application/use-cases/billing/update-billing.use-case";
 import { CreateBillingUseCase } from "src/application/use-cases/billing/create-billing.use-case";
+import { UpdateCustomerSubscriptionUseCase } from "src/application/use-cases/subscription/update-customer-subscription.use-case";
 
 @Module({
     imports: [
@@ -197,6 +198,7 @@ import { CreateBillingUseCase } from "src/application/use-cases/billing/create-b
         CreateBillingUseCase,
         UpdateBillingUseCase,
         GetByAccountIdBillingUseCase,
+        UpdateCustomerSubscriptionUseCase,
         FirebaseAdmin,
         {
             provide: IPaymentGateway,

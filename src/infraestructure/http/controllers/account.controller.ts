@@ -27,6 +27,8 @@ import { GetByAccountIdBillingUseCase } from 'src/application/use-cases/billing/
 import { Billing } from 'src/domain/entities/billing';
 import { PatchBillingDto } from '../dtos/billing/patch-billing.dto';
 import { UpdateBillingUseCase } from 'src/application/use-cases/billing/update-billing.use-case';
+import { CreateBillingUseCase } from 'src/application/use-cases/billing/create-billing.use-case';
+import { CreateBillingDto } from '../dtos/billing/create-billing.dto';
 
 @ApiTags('v1/accounts')
 @Controller('v1/accounts')
@@ -45,7 +47,8 @@ export class AccountController {
     private readonly processImageAccountUseCase: ProcessImageAccountUseCase,
     private readonly updateStatusAccountUseCase: UpdateStatusAccountUseCase,
     private readonly getByAccountIdBillingUseCase: GetByAccountIdBillingUseCase,
-    private readonly updateBillingUseCase: UpdateBillingUseCase
+    private readonly updateBillingUseCase: UpdateBillingUseCase,
+    private readonly createBillingUseCase: CreateBillingUseCase,
   ) {}
 
   @ApiBearerAuth()
@@ -104,6 +107,22 @@ export class AccountController {
       return this.getByAccountIdBillingUseCase.execute({
         accountId
       });
+  }
+
+  @ApiBearerAuth()
+  @Post(':accountid/billing')
+  @Auth('ADMIN')
+  async createBilling(@Param('accountid') accountId: string, @Body() createBillingDto: CreateBillingDto): Promise<{ accountId: string }> {
+      const result = await this.createBillingUseCase.execute({
+        accountId,
+        name: createBillingDto.name,
+        email: createBillingDto.email,
+        phone: createBillingDto.phone,
+        address: createBillingDto.address,
+        documentType: createBillingDto.documentType,
+        documentNumber: createBillingDto.documentNumber
+      });
+      return { accountId: result.accountId };
   }
 
   @ApiBearerAuth()
