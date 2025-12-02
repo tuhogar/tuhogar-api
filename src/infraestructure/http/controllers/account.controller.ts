@@ -111,7 +111,7 @@ export class AccountController {
 
   @ApiBearerAuth()
   @Post(':accountid/billing')
-  @Auth('ADMIN')
+  @Auth('MASTER', 'ADMIN')
   async createBilling(@Param('accountid') accountId: string, @Body() createBillingDto: CreateBillingDto): Promise<{ accountId: string }> {
       const result = await this.createBillingUseCase.execute({
         accountId,
