@@ -97,6 +97,11 @@ export class EPaycoService implements IPaymentGateway {
       const result: Record<string, any> = {};
       let subscriptionStatus = SubscriptionStatus.CREATED;
 
+      console.log('-------customer-data');
+      console.log('Address:', paymentData?.address);
+      console.log('Phone:', paymentData?.phone);
+      console.log('-------customer-data');
+
       // 1. Criar cliente na ePayco
       const customer = await this.epaycoClient.customers.create({
         token_card: paymentData.token,
@@ -194,7 +199,7 @@ export class EPaycoService implements IPaymentGateway {
               case 'Fallida':
                 await this.cancelSubscriptionOnInvalidCreate(subscriptionResult.id);
                 console.error(`Payment rejected or failed: ${charge.data.respuesta || 'Unknown reason'}`);
-                throw new Error(`error.subscription.create.payment.creation.failed`);
+                throw new Error(`error.subscription.create.payment.rejected`);
             }
           }
           
