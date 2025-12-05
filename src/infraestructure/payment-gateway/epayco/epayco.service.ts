@@ -570,7 +570,6 @@ export class EPaycoService implements IPaymentGateway {
         last_name: '',
         email: email,
         default: true,
-        address: address,
         phone: phone,
         cell_phone: phone,
         doc_type: documentType,

@@ -27,6 +27,7 @@ import { ChangeCardSubscriptionUseCase } from 'src/application/use-cases/subscri
 import { ChangeCardSubscriptionDto } from '../dtos/subscription/change-card-subscription.dto';
 import { UpdateCustomerSubscriptionDto } from '../dtos/subscription/update-customer-subscription.dto';
 import { UpdateCustomerSubscriptionUseCase } from 'src/application/use-cases/subscription/update-customer-subscription.use-case';
+import { GetCustomerSubscriptionUseCase } from 'src/application/use-cases/subscription/get-customer-subscription.use-case';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -40,7 +41,8 @@ export class SubscriptionController {
     private readonly updateSubscriptionVipPlanUseCase: UpdateSubscriptionVipPlanUseCase,
     private readonly getAllPlanUseCase: GetAllPlanUseCase,
     private readonly changeCardSubscriptionUseCase: ChangeCardSubscriptionUseCase,
-    private readonly updateCustomerSubscriptionUseCase: UpdateCustomerSubscriptionUseCase) {}
+    private readonly updateCustomerSubscriptionUseCase: UpdateCustomerSubscriptionUseCase,
+    private readonly getCustomerSubscriptionUseCase: GetCustomerSubscriptionUseCase) {}
 
   @ApiBearerAuth()
   @Post()
@@ -245,6 +247,17 @@ export class SubscriptionController {
     
     console.log('updateCustomer-end');
     return result;
+  }
+
+  @ApiBearerAuth()
+  @Get('customer/:customerId')
+  @Auth('MASTER')
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna sucesso',
+  })
+  async getCustomer(@Param('customerId') customerId: string): Promise<any> {
+    return this.getCustomerSubscriptionUseCase.execute({ customerId });
   }
 
   /*
