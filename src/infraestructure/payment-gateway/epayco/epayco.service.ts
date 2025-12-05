@@ -142,6 +142,8 @@ export class EPaycoService implements IPaymentGateway {
         token_card: paymentData.token,
         doc_type: paymentData.docType,
         doc_number: paymentData.docNumber,
+        address: paymentData?.address,
+        city: paymentData?.city,
         ip: paymentData.ip,
         url_confirmation: `${this.baseUrl}/${this.subscriptionConfirmationPath}`,
         method_confirmation: 'POST',
