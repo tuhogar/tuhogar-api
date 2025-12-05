@@ -125,6 +125,16 @@ export class EPaycoService implements IPaymentGateway {
         throw new Error(`error.subscription.create.customer.creation.failed`);
       }
 
+      await this.updateCustomer(
+        customer.data.customerId,
+        paymentData?.name || name,
+        email,
+        paymentData?.address,
+        paymentData?.phone,
+        paymentData.docType,
+        paymentData.docNumber
+      );
+
       // 2. Criar assinatura na ePayco
       const subscriptionData = {
         id_plan: plan.externalId,
