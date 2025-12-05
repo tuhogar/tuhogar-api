@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Delete, Put, Get, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Post, Body, Delete, Put, Get, HttpStatus, Query, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { CreateSubscriptionUseCase } from 'src/application/use-cases/subscription/create-subscription.use-case';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
@@ -25,6 +25,9 @@ import { GetSubscriptionPaymentHistoryDto } from '../dtos/subscription/get-subsc
 import { UpdateSubscriptionVipPlanUseCase } from 'src/application/use-cases/subscription/update-subscription-vip-plan.use-case';
 import { ChangeCardSubscriptionUseCase } from 'src/application/use-cases/subscription/change-card-subscription.use-case';
 import { ChangeCardSubscriptionDto } from '../dtos/subscription/change-card-subscription.dto';
+import { UpdateCustomerSubscriptionDto } from '../dtos/subscription/update-customer-subscription.dto';
+import { UpdateCustomerSubscriptionUseCase } from 'src/application/use-cases/subscription/update-customer-subscription.use-case';
+import { GetCustomerSubscriptionUseCase } from 'src/application/use-cases/subscription/get-customer-subscription.use-case';
 
 @Controller('v1/subscriptions')
 export class SubscriptionController {
@@ -37,7 +40,9 @@ export class SubscriptionController {
     private readonly getSubscriptionPaymentHistoryUseCase: GetSubscriptionPaymentHistoryUseCase,
     private readonly updateSubscriptionVipPlanUseCase: UpdateSubscriptionVipPlanUseCase,
     private readonly getAllPlanUseCase: GetAllPlanUseCase,
-    private readonly changeCardSubscriptionUseCase: ChangeCardSubscriptionUseCase) {}
+    private readonly changeCardSubscriptionUseCase: ChangeCardSubscriptionUseCase,
+    private readonly updateCustomerSubscriptionUseCase: UpdateCustomerSubscriptionUseCase,
+    private readonly getCustomerSubscriptionUseCase: GetCustomerSubscriptionUseCase) {}
 
   @ApiBearerAuth()
   @Post()
@@ -218,6 +223,43 @@ export class SubscriptionController {
     console.log('changeCardSubscription-end');
   }
 
+  @ApiBearerAuth()
+  @Put('customer/:customerId')
+  @Auth('MASTER')
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna sucesso',
+  })
+  async updateCustomer(@Param('customerId') customerId: string, @Body() updateCustomerSubscriptionDto: UpdateCustomerSubscriptionDto): Promise<{ customerId: string }> {
+    console.log('updateCustomer-start');
+    console.log('customerId: ', customerId);
+    console.log('updateCustomerSubscriptionDto: ', JSON.stringify(updateCustomerSubscriptionDto));
+    
+    const result = await this.updateCustomerSubscriptionUseCase.execute({
+      customerId,
+      name: updateCustomerSubscriptionDto.name,
+      email: updateCustomerSubscriptionDto.email,
+      address: updateCustomerSubscriptionDto.address,
+      phone: updateCustomerSubscriptionDto.phone,
+      documentType: updateCustomerSubscriptionDto.documentType,
+      documentNumber: updateCustomerSubscriptionDto.documentNumber
+    });
+    
+    console.log('updateCustomer-end');
+    return result;
+  }
+
+  @ApiBearerAuth()
+  @Get('customer/:customerId')
+  @Auth('MASTER')
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna sucesso',
+  })
+  async getCustomer(@Param('customerId') customerId: string): Promise<any> {
+    return this.getCustomerSubscriptionUseCase.execute({ customerId });
+  }
+
   /*
   @ApiBearerAuth()
   @Put('plan')
@@ -246,3 +288,4 @@ export class SubscriptionController {
   }
   */
 }
+

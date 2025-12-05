@@ -125,6 +125,16 @@ export class EPaycoService implements IPaymentGateway {
         throw new Error(`error.subscription.create.customer.creation.failed`);
       }
 
+      await this.updateCustomer(
+        customer.data.customerId,
+        paymentData?.name || name,
+        email,
+        paymentData?.address,
+        paymentData?.phone,
+        paymentData.docType,
+        paymentData.docNumber
+      );
+
       // 2. Criar assinatura na ePayco
       const subscriptionData = {
         id_plan: plan.externalId,
@@ -551,7 +561,39 @@ export class EPaycoService implements IPaymentGateway {
     await this.epaycoClient.customers.addNewToken(add_customer_info);
     console.log('changeCard-end');
   }
-    
+
+  async updateCustomer(customerId: string, name: string, email: string, address: string, phone: string, documentType: string, documentNumber: string): Promise<{ customerId: string }> {
+    try {
+      // 1. Atualizar cliente na ePayco
+      const update_customer_info = {
+        name: name,
+        last_name: '',
+        email: email,
+        default: true,
+        phone: phone,
+        cell_phone: phone,
+        doc_type: documentType,
+        doc_number: documentNumber,
+      }
+
+      console.log('------update_customer_info');
+      console.log(JSON.stringify(update_customer_info));
+      console.log('------update_customer_info');
+      
+      const customer = await this.epaycoClient.customers.update(customerId, update_customer_info);
+
+      console.log('------customer-update-result');
+      console.log(JSON.stringify(customer));
+      console.log('------customer-update-result');
+
+      return { customerId };
+    } catch (error) {
+      console.error('-------customer-update-error-------');
+      console.error(error);
+      console.error('-------customer-update-error-------');
+      throw error;
+    }
+  }
 
   private validateSignature(payload: any): boolean {
     const {
