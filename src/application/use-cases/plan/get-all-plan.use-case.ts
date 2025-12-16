@@ -44,8 +44,18 @@ export class GetAllPlanUseCase {
         }
 
         if (accountId === '691e32ae5492055a1f83e58f') {
-            plansWithDiscounts = ['694189908cb266c438999938'];
-            plansWithoutDiscounts = ['694189908cb266c438999938'];
+            plansWithDiscounts = [
+            this.firstSubscriptionPlanId,
+            "692a6d7b7e32d4b2b3423562",
+            "692a6dda7e32d4b2b3423563",
+            "692a6e027e32d4b2b3423564",
+        ];
+            plansWithoutDiscounts = [
+            this.firstSubscriptionPlanId,
+            "692a6e1d7e32d4b2b3423565",
+            "692a6e367e32d4b2b3423566",
+            "692a6e4d7e32d4b2b3423567",
+        ];
         }
         
         const account = await this.accountRepository.findOneById(accountId);
