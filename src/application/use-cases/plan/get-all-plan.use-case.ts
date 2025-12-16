@@ -37,6 +37,8 @@ export class GetAllPlanUseCase {
             "692a6e4d7e32d4b2b3423567",
         ];
 
+        console.log('----accountId; ', accountId);
+
         if (!accountId) {
             return this.planRepository.findByIds(plansWithoutDiscounts);
         }
