@@ -44,6 +44,7 @@ export class GetAllPlanUseCase {
         }
 
         if (accountId === '691e32ae5492055a1f83e58f') {
+            plansWithDiscounts = ['694189908cb266c438999938'];
             plansWithoutDiscounts = ['694189908cb266c438999938'];
         }
         
