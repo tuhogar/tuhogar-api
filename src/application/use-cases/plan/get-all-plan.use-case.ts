@@ -47,10 +47,14 @@ export class GetAllPlanUseCase {
             plansWithDiscounts = [
                 this.firstSubscriptionPlanId,
                 "694189908cb266c438999938",
+                "6941a08e8cb266c438999943",
+                "6941a0d48cb266c438999944"
             ];
             plansWithoutDiscounts = [
                 this.firstSubscriptionPlanId,
                 "694189908cb266c438999938",
+                "6941a08e8cb266c438999943",
+                "6941a0d48cb266c438999944"
             ];
         }
         
