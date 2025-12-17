@@ -42,7 +42,8 @@ export class SubscriptionController {
     private readonly getAllPlanUseCase: GetAllPlanUseCase,
     private readonly changeCardSubscriptionUseCase: ChangeCardSubscriptionUseCase,
     private readonly updateCustomerSubscriptionUseCase: UpdateCustomerSubscriptionUseCase,
-    private readonly getCustomerSubscriptionUseCase: GetCustomerSubscriptionUseCase) {}
+    private readonly getCustomerSubscriptionUseCase: GetCustomerSubscriptionUseCase,
+    private readonly updateSubscriptionPlanUseCase: UpdateSubscriptionPlanUseCase) {}
 
   @ApiBearerAuth()
   @Post()
@@ -199,7 +200,7 @@ export class SubscriptionController {
   @ApiBearerAuth()
   @Put('vip-plan')
   @Auth('MASTER')
-  async updateSubscriptionPlan(@Body() { planId, accountId, nextPaymentDate }: { planId: string, accountId: string, nextPaymentDate?: string }) {
+  async updateSubscriptionVipPlan(@Body() { planId, accountId, nextPaymentDate }: { planId: string, accountId: string, nextPaymentDate?: string }) {
     return await this.updateSubscriptionVipPlanUseCase.execute({ planId, accountId, nextPaymentDate });
   }
 
@@ -260,7 +261,6 @@ export class SubscriptionController {
     return this.getCustomerSubscriptionUseCase.execute({ customerId });
   }
 
-  /*
   @ApiBearerAuth()
   @Put('plan')
   @Auth('ADMIN')
@@ -283,9 +283,9 @@ export class SubscriptionController {
     return await this.updateSubscriptionPlanUseCase.execute({ 
       actualSubscriptionId: authenticatedUser.subscriptionId,
       accountId: authenticatedUser.accountId, 
-      planId: updateSubscriptionDto.planId, 
+      planId: updateSubscriptionDto.planId,
+      paymentData: updateSubscriptionDto.paymentData
     });
   }
-  */
 }
 

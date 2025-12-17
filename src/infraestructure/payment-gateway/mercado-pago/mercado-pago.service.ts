@@ -6,6 +6,7 @@ import { Plan } from 'src/domain/entities/plan';
 import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
 import { SubscriptionNotification, SubscriptionNotificationAction, SubscriptionNotificationType } from 'src/domain/entities/subscription-notification';
 import { SubscriptionInvoice, SubscriptionInvoiceStatus } from 'src/domain/entities/subscription-invoice';
+import { Account } from 'src/domain/entities/account';
 
 @Injectable()
 export class MercadoPagoService implements IPaymentGateway {
@@ -23,9 +24,6 @@ export class MercadoPagoService implements IPaymentGateway {
     throw new Error('Method not implemented.');
   }
   getCustomer(customerId: string): Promise<any> {
-    throw new Error('Method not implemented.');
-  }
-  async updateSubscriptionPlan(actualSubscription: Subscription, plan: Plan): Promise<Subscription> {
     throw new Error('Method not implemented.');
   }
   async updateCustomer(customerId: string, name: string, email: string, address: string, phone: string, documentType: string, documentNumber: string): Promise<{ customerId: string }> {
