@@ -8,6 +8,7 @@ import { SubscriptionNotification, SubscriptionNotificationAction, SubscriptionN
 import { SubscriptionInvoice, SubscriptionInvoiceStatus } from 'src/domain/entities/subscription-invoice';
 import * as epayco from 'epayco-sdk-node';
 import * as crypto from 'crypto';
+import { Account } from 'src/domain/entities/account';
 
 @Injectable()
 export class EPaycoService implements IPaymentGateway {
@@ -148,6 +149,10 @@ export class EPaycoService implements IPaymentGateway {
         url_confirmation: `${this.baseUrl}/${this.subscriptionConfirmationPath}`,
         method_confirmation: 'POST',
       };
+
+      console.log('----subscriptionData');
+      console.log(subscriptionData);
+      console.log('----subscriptionData');
 
       const subscriptionResult = await this.epaycoClient.subscriptions.create(subscriptionData);
       console.log('-----subscription-result');
@@ -565,36 +570,20 @@ export class EPaycoService implements IPaymentGateway {
   }
 
   async updateCustomer(customerId: string, name: string, email: string, address: string, phone: string, documentType: string, documentNumber: string): Promise<{ customerId: string }> {
-    try {
-      // 1. Atualizar cliente na ePayco
-      const update_customer_info = {
-        name: name,
-        last_name: '',
-        email: email,
-        default: true,
-        phone: phone,
-        cell_phone: phone,
-        doc_type: documentType,
-        doc_number: documentNumber,
-      }
-
-      console.log('------update_customer_info');
-      console.log(JSON.stringify(update_customer_info));
-      console.log('------update_customer_info');
-      
-      const customer = await this.epaycoClient.customers.update(customerId, update_customer_info);
-
-      console.log('------customer-update-result');
-      console.log(JSON.stringify(customer));
-      console.log('------customer-update-result');
-
-      return { customerId };
-    } catch (error) {
-      console.error('-------customer-update-error-------');
-      console.error(error);
-      console.error('-------customer-update-error-------');
-      throw error;
+    // 1. Atualizar cliente na ePayco
+    const update_customer_info = {
+      name: name,
+      last_name: '',
+      email: email,
+      default: true,
+      phone: phone,
+      cell_phone: phone,
+      doc_type: documentType,
+      doc_number: documentNumber,
     }
+
+    await this.epaycoClient.customers.update(customerId, update_customer_info);
+    return { customerId };
   }
 
   private validateSignature(payload: any): boolean {
@@ -621,49 +610,5 @@ export class EPaycoService implements IPaymentGateway {
     }
 
     return true;
-  }
-
-  async updateSubscriptionPlan(actualSubscription: Subscription, plan: Plan): Promise<Subscription> {
-    try {
-      console.log('------actualSubscription');
-      console.log(actualSubscription);
-      console.log('------actualSubscription');
-      const subscriptionData = {
-        id_plan: plan.externalId,
-        customer: actualSubscription.externalPayerReference,
-        token_card: actualSubscription.resultIntegration.charge.subscription.tokenCard,
-        doc_type: actualSubscription.resultIntegration.subscription.customer.doc_type,
-        doc_number: actualSubscription.resultIntegration.subscription.customer.doc_number,
-      };
-
-      console.log('------subscriptionData');
-      console.log(subscriptionData);
-      console.log('------subscriptionData');
-
-      const result: Record<string, any> = {};
-      const charge = await this.epaycoClient.subscriptions.charge(subscriptionData);
-
-      result.charge = charge;
-
-      if (!charge.success) {
-        throw new Error(charge.message || 'Error charging subscription');
-      }
-
-      const subscription = new Subscription({
-        accountId: actualSubscription.accountId,
-        planId: plan.id,
-        externalId: actualSubscription.externalId,
-        status: SubscriptionStatus.ACTIVE,
-        externalPayerReference: actualSubscription.externalPayerReference,
-        resultIntegration: result,
-      });
-
-      return subscription;
-    } catch (error) {
-      console.log('-------error');
-      console.log(error);
-      console.log('-------error');
-      throw new Error(`Failed to update subscription plan: ${error.message}`);
-    }
   }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsMongoId } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsObject } from "class-validator";
 import { IsExistingPlan } from "src/infraestructure/http/validators/plan/is-existing-plan.validator";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 
@@ -10,4 +10,10 @@ export class UpdateSubscriptionDto {
     @IsExistingPlan()
     @Property()
     planId: string;
+
+    @ApiProperty()
+    @IsObject()
+    @IsNotEmpty()
+    @Property()
+    paymentData: Record<string, any>;
 }

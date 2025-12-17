@@ -3,6 +3,7 @@ import { Subscription } from "src/domain/entities/subscription";
 import { SubscriptionNotification } from "src/domain/entities/subscription-notification";
 import { SubscriptionPayment } from "src/domain/entities/subscription-payment";
 import { SubscriptionInvoice } from "src/domain/entities/subscription-invoice";
+import { Account } from "src/domain/entities/account";
 export abstract class IPaymentGateway {
     abstract createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>): Promise<Subscription>;
     abstract cancelSubscription(subscriptionId: string): Promise<any>;
@@ -15,6 +16,5 @@ export abstract class IPaymentGateway {
     abstract deleteToken(customerId: string): Promise<void>
     abstract changeCard(customerId: string, paymentData: any): Promise<void>
     abstract updateCustomer(customerId: string, name: string, email: string, address: string, phone: string, documentType: string, documentNumber: string): Promise<{ customerId: string }>;
-    abstract updateSubscriptionPlan(actualSubscription: Subscription, plan: Plan): Promise<Subscription>;
   }
   
