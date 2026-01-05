@@ -40,6 +40,7 @@ export class Account {
      * mesmo que atualmente estejam em um plano gratuito
      */
     hasPaidPlan?: boolean;
+    paymentToken?: string;
 
     constructor(props: Account) {
         Object.assign(this, props);

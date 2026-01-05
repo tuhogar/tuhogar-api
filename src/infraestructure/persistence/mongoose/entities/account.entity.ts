@@ -66,6 +66,9 @@ export class Account {
     hasPaidPlan: boolean;
 
     @Prop()
+    paymentToken: string;
+
+    @Prop()
     createdAt: Date
 
     @Prop()

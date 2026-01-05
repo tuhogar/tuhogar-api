@@ -3,11 +3,13 @@ import { IPaymentGateway } from 'src/application/interfaces/payment-gateway/paym
 import { SubscriptionStatus } from 'src/domain/entities/subscription';
 import { ConfigService } from '@nestjs/config';
 import { ISubscriptionRepository } from 'src/application/interfaces/repositories/subscription.repository.interface';
+import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 
 /**
  * Comando para execução do caso de uso GetCustomerSubscription
  */
 export interface ChangeCardSubscriptionUseCaseCommand {
+  accountId: string;
   actualPlanId: string;
   actualSubscriptionId: string;
   actualSubscriptionStatus: SubscriptionStatus;
@@ -21,12 +23,14 @@ export class ChangeCardSubscriptionUseCase {
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly paymentGateway: IPaymentGateway,
     private readonly configService: ConfigService,
+    private readonly accountRepository: IAccountRepository,
   ) {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
   
-  async execute({ actualPlanId, actualSubscriptionId, actualSubscriptionStatus, paymentData }: ChangeCardSubscriptionUseCaseCommand): Promise<void> {
+  async execute({ accountId, actualPlanId, actualSubscriptionId, actualSubscriptionStatus, paymentData }: ChangeCardSubscriptionUseCaseCommand): Promise<void> {
     console.log('execute-start');
+    console.log('accountId: ', accountId);
     console.log('actualPlanId: ', actualPlanId);
     console.log('actualSubscriptionId: ', actualSubscriptionId);
     console.log('actualSubscriptionStatus: ', actualSubscriptionStatus);
@@ -47,6 +51,7 @@ export class ChangeCardSubscriptionUseCase {
     if (!subscription) throw new Error('error.subscription.not.exists');
     
     await this.paymentGateway.changeCard(subscription.externalPayerReference, paymentData);
+    await this.accountRepository.updatePaymentToken(accountId, paymentData.token);
     console.log('execute-end');
 
   }

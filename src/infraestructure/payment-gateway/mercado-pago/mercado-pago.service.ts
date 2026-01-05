@@ -30,7 +30,7 @@ export class MercadoPagoService implements IPaymentGateway {
     throw new Error('Method not implemented.');
   }
   
-  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>): Promise<Subscription> {
+  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>): Promise<{ subscription: Subscription, customer: any }> {
     const subscriptionToCreate: any = {
       preapproval_plan_id: plan.externalId,
       reason: plan.name,
@@ -76,7 +76,7 @@ export class MercadoPagoService implements IPaymentGateway {
       externalPayerReference: responseObject.payer_id,
     });
 
-    return subscription;
+    return { subscription, customer: { paymentToken: paymentData.token } };
   }
 
   async cancelSubscription(subscriptionId: string): Promise<any> {

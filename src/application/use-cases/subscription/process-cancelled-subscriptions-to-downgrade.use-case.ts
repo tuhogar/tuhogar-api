@@ -2,11 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { ISubscriptionRepository } from 'src/application/interfaces/repositories/subscription.repository.interface';
-import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
-import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
-import { CreateInternalSubscriptionUseCase } from './create-internal-subscription.use-case';
-import { AdjustAdvertisementsAfterPlanChangeUseCase } from '../advertisement/adjust-advertisements-after-plan-change.use-case';
+import { Subscription } from 'src/domain/entities/subscription';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
+import { CreateSubscriptionUseCase } from './create-subscription.use-case';
+import { IPaymentGateway } from 'src/application/interfaces/payment-gateway/payment-gateway.interface';
 
 /**
  * Caso de uso responsável por processar assinaturas com status CANCELLED_ON_PAYMENT_GATEWAY
@@ -21,26 +20,22 @@ import { IAccountRepository } from 'src/application/interfaces/repositories/acco
  * 6. Chama o caso de uso UpdateFirebaseUsersDataUseCase para atualizar os dados dos usuários no Firebase
  */
 @Injectable()
-export class ProcessCancelledSubscriptionsUseCase {
-  private readonly logger = new Logger(ProcessCancelledSubscriptionsUseCase.name);
-  private readonly firstSubscriptionPlanId: string;
+export class ProcessCancelledSubscriptionsToDowngradeUseCase {
+  private readonly logger = new Logger(ProcessCancelledSubscriptionsToDowngradeUseCase.name);
 
   constructor(
     private readonly subscriptionRepository: ISubscriptionRepository,
-    private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
-    private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
-    private readonly adjustAdvertisementsAfterPlanChangeUseCase: AdjustAdvertisementsAfterPlanChangeUseCase,
+    private readonly createSubscriptionUseCase: CreateSubscriptionUseCase,
+    private readonly configService: ConfigService,
     private readonly accountRepository: IAccountRepository,
-    private readonly configService: ConfigService
-  ) {
-    this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
-  }
+    private readonly paymentGateway: IPaymentGateway,
+  ) {}
 
   /**
    * Executa o processamento de assinaturas canceladas automaticamente a cada minuto
    */
   @Cron('* * * * *', {
-    name: 'process-cancelled-subscriptions'
+    name: 'process-cancelled-subscriptions-to-downgrade'
   })
   async executeScheduled(): Promise<void> {
     try {
@@ -69,7 +64,7 @@ export class ProcessCancelledSubscriptionsUseCase {
       ));
       
     } catch (error) {
-      this.logger.error(`Erro no processamento automático de assinaturas canceladas: ${error.message}`);
+      this.logger.error(`Erro no processamento automático de assinaturas canceladas para downgrade: ${error.message}`);
       // Não propagar o erro para não interromper outros jobs agendados
     }
   }
@@ -79,6 +74,7 @@ export class ProcessCancelledSubscriptionsUseCase {
    * Pode ser chamado manualmente ou pelo agendamento
    */
   async execute(): Promise<void> {
+    this.logger.log('Iniciando processamento de assinaturas canceladas para downgrade');
     // Criar data atual em UTC explicitamente
     const now = new Date();
     const currentDate = new Date(Date.UTC(
@@ -92,7 +88,7 @@ export class ProcessCancelledSubscriptionsUseCase {
     ));
     
     // Buscar assinaturas que precisam ser canceladas
-    const subscriptionsToCancel = await this.subscriptionRepository.findSubscriptionsToCancel(currentDate);
+    const subscriptionsToCancel = await this.subscriptionRepository.findSubscriptionsToCancelAndDowngrade(currentDate);
     
     if (subscriptionsToCancel.length === 0) {
       return;
@@ -110,7 +106,7 @@ export class ProcessCancelledSubscriptionsUseCase {
    */
   private async processSubscription(subscription: Subscription): Promise<void> {
     try {
-      this.logger.log(`Processando cancelamento de assinatura ${subscription.id} da conta ${subscription.accountId}`);
+      this.logger.log(`Processando cancelamento de assinatura ${subscription.id} com downgrade da conta ${subscription.accountId}`);
       
       // Atualizar o status da assinatura para CANCELLED
       await this.subscriptionRepository.cancel(subscription.id);
@@ -121,29 +117,31 @@ export class ProcessCancelledSubscriptionsUseCase {
         this.logger.log(`Conta ${subscription.accountId} já possui uma assinatura ativa`);
         return;
       }
+
+      const account = await this.accountRepository.findOneByIdWithPaymentData(subscription.accountId);
+      if (!account) throw new Error('invalid.account.do.not.exists');
+
+      const customer = await this.paymentGateway.getCustomer(subscription.externalPayerReference);
+      if (!customer) throw new Error('invalid.customer.do.not.exists');
       
       // Criar nova assinatura interna com o plano gratuito
-      const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ 
-        accountId: subscription.accountId, 
-        planId: this.firstSubscriptionPlanId 
-      });
+      await this.createSubscriptionUseCase.execute({ 
+          actualSubscriptionId: subscription.id, 
+          actualSubscriptionStatus: subscription.status, 
+          actualPlanId: subscription.planId, 
+          accountId: subscription.accountId, 
+          planId: subscription.newPlanId, 
+          paymentData: {
+            token: account.paymentToken,
+            docType: customer.data.doc_type,
+            docNumber: customer.data.doc_number,
+            phone: customer.data.phone,
+          }, 
+        });
       
-      // Ativar a nova assinatura
-      await this.subscriptionRepository.active(subscriptionCreated.id);
-      
-      // Atualizar o plano da conta
-      await this.accountRepository.updatePlan(subscription.accountId, this.firstSubscriptionPlanId);
-      
-      // Atualizar dados dos usuários no Firebase
-      await this.updateFirebaseUsersDataUseCase.execute({
-        accountId: subscription.accountId
-      });
-
-      //await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId: subscription.accountId, planId: this.firstSubscriptionPlanId });
-      
-      this.logger.log(`Cancelamento de assinatura ${subscription.id} processada com sucesso`);
+      this.logger.log(`Cancelamento de assinatura ${subscription.id} com downgrade processada com sucesso`);
     } catch (error) {
-      this.logger.error(`Erro ao processar cancelamento de assinatura ${subscription.id}: ${error.message}`);
+      this.logger.error(`Erro ao processar cancelamento assinatura ${subscription.id} com downgrade: ${error.message}`);
       // Continuar processando as próximas assinaturas mesmo em caso de erro
     }
   }

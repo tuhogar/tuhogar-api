@@ -7,6 +7,7 @@ export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
   CANCELLED = 'CANCELLED',
   CANCELLED_ON_PAYMENT_GATEWAY = 'CANCELLED_ON_PAYMENT_GATEWAY',
+  CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED = 'CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED',
 }
 export class Subscription {
   id?: string;
@@ -35,6 +36,8 @@ export class Subscription {
    * Ou como data atual + 30 dias quando a assinatura é criada
    */
   public nextPaymentDate?: Date;
+
+  public newPlanId?: string;
   
   /**
    * Data de criação da assinatura

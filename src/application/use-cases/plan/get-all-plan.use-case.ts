@@ -43,7 +43,7 @@ export class GetAllPlanUseCase {
             return this.planRepository.findByIds(plansWithoutDiscounts);
         }
 
-        if (accountId === '691e32ae5492055a1f83e58f') {
+        if (accountId === '695c12e93ba12b26a8447952') {
             plansWithDiscounts = [
                 this.firstSubscriptionPlanId,
                 "694189908cb266c438999938",

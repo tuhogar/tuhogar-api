@@ -216,6 +216,7 @@ export class SubscriptionController {
     console.log('authenticatedUser: ', JSON.stringify(authenticatedUser));
     console.log('changeCardSubscriptionDto: ', JSON.stringify(changeCardSubscriptionDto));
     await this.changeCardSubscriptionUseCase.execute({ 
+      accountId: authenticatedUser.accountId,
       actualPlanId: authenticatedUser.planId,
       actualSubscriptionId: authenticatedUser.subscriptionId,
       actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
