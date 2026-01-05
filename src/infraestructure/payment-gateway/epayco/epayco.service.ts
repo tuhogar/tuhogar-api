@@ -93,7 +93,7 @@ export class EPaycoService implements IPaymentGateway {
     return utcDateTime;
   }
 
-  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any): Promise<Subscription> {
+  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any): Promise<{ subscription: Subscription; customer: any }> {
     try {
       const result: Record<string, any> = {};
       let subscriptionStatus = SubscriptionStatus.CREATED;
@@ -283,7 +283,7 @@ export class EPaycoService implements IPaymentGateway {
         console.info(`Payment reference: ${charge.data.ref_payco}, Invoice: ${charge.data.factura || 'N/A'}`);
       }
       
-      return subscription;
+      return { subscription, customer: { paymentToken: paymentData.token } };
     } catch (error) {
       console.error('-------error');
       console.error(error);

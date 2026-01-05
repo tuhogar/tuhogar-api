@@ -6,6 +6,7 @@ export abstract class IAccountRepository {
     abstract find(): Promise<Account[]>
     abstract findActives(): Promise<Account[]>
     abstract findOneById(id: string): Promise<Account>
+    abstract findOneByIdWithPaymentData(id: string): Promise<Account>
     abstract findOneByEmail(email: string): Promise<Account>
     abstract create(account: Account): Promise<Account>
     abstract deleteImage(id: string): Promise<Account>
@@ -37,4 +38,5 @@ export abstract class IAccountRepository {
      * @returns A conta atualizada
      */
     abstract updateHasPaidPlan(id: string, hasPaidPlan: boolean): Promise<Account>
+    abstract updatePaymentToken(id: string, paymentToken: string): Promise<Account>
 }

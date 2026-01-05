@@ -46,6 +46,25 @@ export class MongooseAccountMapper {
         return model;
     }
 
+    static toDomainForSubscriptionUpdate(entity: AccountDocument): Account {
+        if (!entity) return null;
+
+        const model = new Account({
+            id: entity._id.toString(),
+            planId: entity.planId?.toString(),
+            name: entity.name,
+            email: entity.email,
+            phone: entity.phone,
+            documentType: entity.documentType as AccountDocumentType,
+            documentNumber: entity.documentNumber,
+            status: entity.status as AccountStatus,
+            hasPaidPlan: entity.hasPaidPlan,
+            paymentToken: entity.paymentToken,
+        });
+
+        return model;
+    }
+
     static toMongoose(account: Account) {
         return {
             planId: account.planId,

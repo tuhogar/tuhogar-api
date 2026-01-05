@@ -21,7 +21,7 @@ interface CreateSubscriptionUseCaseCommand {
   actualPlanId: string;
   accountId: string;
   planId: string;
-  paymentData: Record<string, any>
+  paymentData: Record<string, any>;
 }
 
 @Injectable()
@@ -64,7 +64,7 @@ export class CreateSubscriptionUseCase {
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 
     try {
-      const externalSubscriptionCreated = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, account.email, account.name, plan, paymentData);
+      const { subscription: externalSubscriptionCreated, customer } = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, account.email, account.name, plan, paymentData);
       if (!externalSubscriptionCreated) throw new Error('error.subscription.create.failed');
 
       // A data do próximo pagamento já vem definida pelo gateway de pagamento (ePayco)
@@ -79,6 +79,7 @@ export class CreateSubscriptionUseCase {
       );
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
       await this.accountRepository.updatePlan(accountId, planId);
+      await this.accountRepository.updatePaymentToken(accountId, customer.paymentToken);
 
       // Cancela a assinatura atual
       await this.subscriptionRepository.cancel(actualSubscriptionId);
