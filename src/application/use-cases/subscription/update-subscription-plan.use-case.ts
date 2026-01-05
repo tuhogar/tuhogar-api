@@ -49,7 +49,7 @@ export class UpdateSubscriptionPlanUseCase {
       if (!customer) throw new Error('invalid.customer.do.not.exists');
 
       let planIds: string[] = [
-        "694189908cb266c438999938",
+        this.firstSubscriptionPlanId,
         "6931de07a3f1180792e76447",
         "6941a0d48cb266c438999944",
         "6941a08e8cb266c438999943",
@@ -58,7 +58,7 @@ export class UpdateSubscriptionPlanUseCase {
 
       if (accountId === '695c12e93ba12b26a8447952') {
             planIds = [
-                "6688484efb777dd43ad8a538",
+                this.firstSubscriptionPlanId,
                 "694189908cb266c438999938",
                 "6931de07a3f1180792e76447",
                 "6941a0d48cb266c438999944",
