@@ -21,6 +21,7 @@ export class MongooseSubscriptionMapper {
             createdAt: entity.createdAt,
             // Mapeia o plan quando disponível (após populate)
             plan: entity.planId?.createdAt ? MongoosePlanMapper.toDomain(entity.planId) : undefined,
+            newPlanId: entity.newPlanId,
         });
         return model;
     }

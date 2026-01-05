@@ -2,7 +2,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { IAccountRepository } from "src/application/interfaces/repositories/account.repository.interface";
 import { Account, AccountDocumentType, AccountStatus } from "src/domain/entities/account";
-import { AuthenticatedUser } from "src/domain/entities/authenticated-user";
 import { Account as AccountMongoose } from "../entities/account.entity"
 import { MongooseAccountMapper } from "../mapper/mongoose-account.mapper";
 import { AddressDto } from "src/infraestructure/http/dtos/address/address.dto";
@@ -26,6 +25,11 @@ export class MongooseAccountRepository implements IAccountRepository {
     async findOneById(id: string): Promise<Account> {
       const query = await this.accountModel.findById(id).populate('contractTypes').exec();
       return MongooseAccountMapper.toDomain(query);
+    }
+
+    async findOneByIdWithPaymentData(id: string): Promise<Account> {
+      const query = await this.accountModel.findById(id).exec();
+      return MongooseAccountMapper.toDomainForSubscriptionUpdate(query);
     }
 
     async findOneByEmail(email: string): Promise<Account> {
@@ -268,6 +272,20 @@ export class MongooseAccountRepository implements IAccountRepository {
       const updated = await this.accountModel.findOneAndUpdate(
         { _id: id },
         { $set: { hasPaidPlan } },
+        { new: true }
+      ).exec();
+
+      if (updated) {
+        return MongooseAccountMapper.toDomain(updated);
+      }
+
+      return null;
+    }
+
+    async updatePaymentToken(id: string, paymentToken: string): Promise<Account> {
+      const updated = await this.accountModel.findOneAndUpdate(
+        { _id: id },
+        { $set: { paymentToken } },
         { new: true }
       ).exec();
 

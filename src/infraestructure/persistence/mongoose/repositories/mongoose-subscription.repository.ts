@@ -77,12 +77,13 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @param effectiveCancellationDate Data efetiva de cancelamento (quando a assinatura será efetivamente cancelada)
    * @returns Assinatura atualizada
    */
-  async cancelOnPaymentGateway(id: string, effectiveCancellationDate: Date): Promise<Subscription> {
+  async cancelOnPaymentGateway(id: string, effectiveCancellationDate: Date, status: SubscriptionStatus, newPlanId?: string): Promise<Subscription> {
     const updated = await this.subscriptionModel.findByIdAndUpdate(
       id,
       { 
-        status: SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY,
-        effectiveCancellationDate: effectiveCancellationDate
+        status,
+        effectiveCancellationDate: effectiveCancellationDate,
+        newPlanId: newPlanId ? newPlanId : undefined
       },
       { new: true, select: { resultIntegration: 0 } },
     ).exec();
@@ -170,6 +171,21 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   async findSubscriptionsToCancel(currentDate: Date): Promise<Subscription[]> {
     const subscriptions = await this.subscriptionModel.find({
       status: SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY,
+      effectiveCancellationDate: { $lte: currentDate }
+    }).exec();
+
+    return subscriptions.map(subscription => MongooseSubscriptionMapper.toDomain(subscription));
+  }
+
+  /**
+   * Busca assinaturas com status CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED e
+   * data efetiva de cancelamento menor ou igual à data atual
+   * @param currentDate Data atual para comparação
+   * @returns Lista de assinaturas que devem ser efetivamente canceladas e downgraded
+   */
+  async findSubscriptionsToCancelAndDowngrade(currentDate: Date): Promise<Subscription[]> {
+    const subscriptions = await this.subscriptionModel.find({
+      status: SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED,
       effectiveCancellationDate: { $lte: currentDate }
     }).exec();
 

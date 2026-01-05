@@ -50,6 +50,9 @@ export class Subscription {
     nextPaymentDate: Date;
 
     @Prop()
+    newPlanId: string;
+
+    @Prop()
     createdAt: Date
 
     @Prop()

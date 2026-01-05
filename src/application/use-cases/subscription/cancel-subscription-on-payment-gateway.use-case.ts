@@ -10,6 +10,8 @@ import { IAccountRepository } from 'src/application/interfaces/repositories/acco
 interface CancelSubscriptionOnPaymentGatewayUseCaseCommand {
   id: string;
   accountId: string;
+  cancelForDowngrade?: boolean;
+  newPlanId?: string;
 }
 
 @Injectable()
@@ -26,7 +28,7 @@ export class CancelSubscriptionOnPaymentGatewayUseCase {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
 
-  async execute({ id, accountId }: CancelSubscriptionOnPaymentGatewayUseCaseCommand): Promise<void> {
+  async execute({ id, accountId, cancelForDowngrade, newPlanId }: CancelSubscriptionOnPaymentGatewayUseCaseCommand): Promise<void> {
       const subscription = await this.subscriptionRepository.findOneById(id);
       if (!subscription || subscription.planId === this.firstSubscriptionPlanId || (subscription && subscription.status !== SubscriptionStatus.ACTIVE && subscription.status !== SubscriptionStatus.PENDING)) throw new Error('error.subscription.do.not.exists');
 
@@ -66,7 +68,7 @@ export class CancelSubscriptionOnPaymentGatewayUseCase {
       console.log(`Data efetiva de cancelamento calculada: ${effectiveCancellationDate.toISOString()}`);
       
       // Cancelar a assinatura no gateway de pagamento e definir a data efetiva de cancelamento
-      await this.subscriptionRepository.cancelOnPaymentGateway(id, effectiveCancellationDate);
+      await this.subscriptionRepository.cancelOnPaymentGateway(id, effectiveCancellationDate, cancelForDowngrade ? SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED : SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY, cancelForDowngrade ? newPlanId : undefined);
       
       // Atualizar dados dos usuários no Firebase
       await this.updateFirebaseUsersDataUseCase.execute({ accountId });
