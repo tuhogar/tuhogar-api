@@ -76,20 +76,26 @@ export class UpdateSubscriptionPlanUseCase {
       if (downgradeOrUpgrade === 'UPGRADE') {
         await this.cancelSubscriptionOnPaymentGatewayUseCase.execute({ id: actualSubscriptionId, accountId });
 
-        return this.createSubscriptionUseCase.execute({ 
+        const data = { 
           actualSubscriptionId, 
           actualSubscriptionStatus: actualSubscription.status, 
           actualPlanId: actualSubscription.planId, 
           accountId, 
           planId, 
           paymentData: {
+            name: customer.data.name,
             token: account.paymentToken,
             docType: customer.data.doc_type,
             docNumber: customer.data.doc_number,
             phone: customer.data.phone,
             ip: paymentData.ip,
           }, 
-        });
+          customerId: customer.data.id_customer,
+        };
+
+        console.log('data: ', data);
+
+        return this.createSubscriptionUseCase.execute(data);
       } else if (downgradeOrUpgrade === 'DOWNGRADE') {
         await this.cancelSubscriptionOnPaymentGatewayUseCase.execute({ id: actualSubscriptionId, accountId, cancelForDowngrade: true, newPlanId: planId });
       }
