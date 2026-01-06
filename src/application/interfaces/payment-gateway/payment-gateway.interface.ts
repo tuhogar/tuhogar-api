@@ -5,7 +5,7 @@ import { SubscriptionPayment } from "src/domain/entities/subscription-payment";
 import { SubscriptionInvoice } from "src/domain/entities/subscription-invoice";
 import { Account } from "src/domain/entities/account";
 export abstract class IPaymentGateway {
-    abstract createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>): Promise<{ subscription: Subscription, customer: any }>;
+    abstract createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>, customerId?: string): Promise<{ subscription: Subscription, customer: any }>;
     abstract cancelSubscription(subscriptionId: string): Promise<any>;
     abstract cancelSubscriptionOnInvalidCreate(subscriptionId: string): Promise<any>;
     abstract getSubscription(subscriptionNotification: SubscriptionNotification): Promise<Subscription>;

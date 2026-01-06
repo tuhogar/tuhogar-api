@@ -22,6 +22,7 @@ interface CreateSubscriptionUseCaseCommand {
   accountId: string;
   planId: string;
   paymentData: Record<string, any>;
+  customerId?: string;
 }
 
 @Injectable()
@@ -43,7 +44,7 @@ export class CreateSubscriptionUseCase {
     this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
   }
 
-  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, planId, paymentData }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
+  async execute({ actualSubscriptionId, actualSubscriptionStatus, actualPlanId, accountId, planId, paymentData, customerId }: CreateSubscriptionUseCaseCommand): Promise<Subscription> {
     const account = await this.accountRepository.findOneById(accountId);
     const plan = await this.planRepository.findOneById(planId);
     //const user = await this.userRepository.findOneById(userId);
@@ -64,7 +65,7 @@ export class CreateSubscriptionUseCase {
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId, planId });
 
     try {
-      const { subscription: externalSubscriptionCreated, customer } = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, account.email, account.name, plan, paymentData);
+      const { subscription: externalSubscriptionCreated, customer } = await this.paymentGateway.createSubscription(accountId, subscriptionCreated.id, account.email, account.name, plan, paymentData, customerId);
       if (!externalSubscriptionCreated) throw new Error('error.subscription.create.failed');
 
       // A data do próximo pagamento já vem definida pelo gateway de pagamento (ePayco)

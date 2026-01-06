@@ -96,7 +96,7 @@ export class ProcessCancelledSubscriptionsToDowngradeUseCase {
     
     // Processar cada assinatura
     for (const subscription of subscriptionsToCancel) {
-      await this.processSubscription(subscription);
+      //await this.processSubscription(subscription);
     }
   }
 
@@ -137,6 +137,7 @@ export class ProcessCancelledSubscriptionsToDowngradeUseCase {
             docNumber: customer.data.doc_number,
             phone: customer.data.phone,
           }, 
+          customerId: customer.data.id_customer,
         });
       
       this.logger.log(`Cancelamento de assinatura ${subscription.id} com downgrade processada com sucesso`);

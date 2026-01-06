@@ -93,7 +93,7 @@ export class EPaycoService implements IPaymentGateway {
     return utcDateTime;
   }
 
-  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any): Promise<{ subscription: Subscription; customer: any }> {
+  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: any, customerId?: string): Promise<{ subscription: Subscription; customer: any }> {
     try {
       const result: Record<string, any> = {};
       let subscriptionStatus = SubscriptionStatus.CREATED;
@@ -103,31 +103,37 @@ export class EPaycoService implements IPaymentGateway {
       console.log('Phone:', paymentData?.phone);
       console.log('-------customer-data');
 
-      // 1. Criar cliente na ePayco
-      const customer = await this.epaycoClient.customers.create({
-        token_card: paymentData.token,
-        name: paymentData?.name || name,
-        last_name: '',
-        email: email,
-        default: true,
-        address: paymentData?.address,
-        phone: paymentData?.phone,
-        cell_phone: paymentData?.phone,
-      });
 
-      console.log('------customer-result');
-      console.log(JSON.stringify(customer));
-      console.log('------customer-result');
+      let customer: any;
+
+      // 1. Criar cliente na ePayco
+      if (!customerId) {
+        customer = await this.epaycoClient.customers.create({
+          token_card: paymentData.token,
+          name: paymentData?.name || name,
+          last_name: '',
+          email: email,
+          default: true,
+          address: paymentData?.address,
+          phone: paymentData?.phone,
+          cell_phone: paymentData?.phone,
+        });
+        if (!customer.success) {
+          console.error(`Error creating ePayco customer: ${customer.message || 'Unknown error'}`);
+          throw new Error(`error.subscription.create.customer.creation.failed`);
+        }
+
+        console.log('------customer-result');
+        console.log(JSON.stringify(customer));
+        console.log('------customer-result');
+      } else {
+        customer = await this.getCustomer(paymentData.customerId);
+      }
 
       result.customer = customer;
 
-      if (!customer.success) {
-        console.error(`Error creating ePayco customer: ${customer.message || 'Unknown error'}`);
-        throw new Error(`error.subscription.create.customer.creation.failed`);
-      }
-
       await this.updateCustomer(
-        customer.data.customerId,
+        customerId ||customer.data.customerId,
         paymentData?.name || name,
         email,
         paymentData?.address,
@@ -139,7 +145,7 @@ export class EPaycoService implements IPaymentGateway {
       // 2. Criar assinatura na ePayco
       const subscriptionData = {
         id_plan: plan.externalId,
-        customer: customer.data.customerId,
+        customer: customerId || customer.data.customerId,
         token_card: paymentData.token,
         doc_type: paymentData.docType,
         doc_number: paymentData.docNumber,
@@ -270,7 +276,7 @@ export class EPaycoService implements IPaymentGateway {
         planId: plan.id,
         externalId: subscriptionResult.id,
         status: subscriptionStatus,
-        externalPayerReference: customer.data.customerId,
+        externalPayerReference: customerId || customer.data.customerId,
         resultIntegration: result,
         // Incluir a data do próximo pagamento
         nextPaymentDate,
