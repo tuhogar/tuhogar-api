@@ -139,7 +139,7 @@ export class ProcessCancelledSubscriptionsUseCase {
         accountId: subscription.accountId
       });
 
-      //await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId: subscription.accountId, planId: this.firstSubscriptionPlanId });
+      await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId: subscription.accountId, planId: this.firstSubscriptionPlanId });
       
       this.logger.log(`Cancelamento de assinatura ${subscription.id} processada com sucesso`);
     } catch (error) {

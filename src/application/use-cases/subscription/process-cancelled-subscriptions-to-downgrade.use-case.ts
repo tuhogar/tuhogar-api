@@ -6,6 +6,7 @@ import { Subscription } from 'src/domain/entities/subscription';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 import { CreateSubscriptionUseCase } from './create-subscription.use-case';
 import { IPaymentGateway } from 'src/application/interfaces/payment-gateway/payment-gateway.interface';
+import { AdjustAdvertisementsAfterPlanChangeUseCase } from '../advertisement/adjust-advertisements-after-plan-change.use-case';
 
 /**
  * Caso de uso responsável por processar assinaturas com status CANCELLED_ON_PAYMENT_GATEWAY
@@ -29,6 +30,7 @@ export class ProcessCancelledSubscriptionsToDowngradeUseCase {
     private readonly configService: ConfigService,
     private readonly accountRepository: IAccountRepository,
     private readonly paymentGateway: IPaymentGateway,
+    private readonly adjustAdvertisementsAfterPlanChangeUseCase: AdjustAdvertisementsAfterPlanChangeUseCase,
   ) {}
 
   /**
@@ -96,7 +98,7 @@ export class ProcessCancelledSubscriptionsToDowngradeUseCase {
     
     // Processar cada assinatura
     for (const subscription of subscriptionsToCancel) {
-      //await this.processSubscription(subscription);
+      await this.processSubscription(subscription);
     }
   }
 
@@ -125,20 +127,25 @@ export class ProcessCancelledSubscriptionsToDowngradeUseCase {
       if (!customer) throw new Error('invalid.customer.do.not.exists');
       
       // Criar nova assinatura interna com o plano gratuito
-      await this.createSubscriptionUseCase.execute({ 
-          actualSubscriptionId: subscription.id, 
-          actualSubscriptionStatus: subscription.status, 
-          actualPlanId: subscription.planId, 
-          accountId: subscription.accountId, 
-          planId: subscription.newPlanId, 
-          paymentData: {
-            token: account.paymentToken,
-            docType: customer.data.doc_type,
-            docNumber: customer.data.doc_number,
-            phone: customer.data.phone,
-          }, 
-          customerId: customer.data.id_customer,
-        });
+      const data = { 
+        actualSubscriptionId: subscription.id, 
+        actualSubscriptionStatus: subscription.status, 
+        actualPlanId: subscription.planId, 
+        accountId: subscription.accountId, 
+        planId: subscription.newPlanId, 
+        paymentData: {
+          name: customer.data.name,
+          token: account.paymentToken,
+          docType: customer.data.doc_type,
+          docNumber: customer.data.doc_number,
+          phone: customer.data.phone,
+        }, 
+        customerId: customer.data.id_customer,
+      };
+
+      await this.createSubscriptionUseCase.execute(data);
+
+      await this.adjustAdvertisementsAfterPlanChangeUseCase.execute({ accountId: subscription.accountId, planId: subscription.newPlanId });
       
       this.logger.log(`Cancelamento de assinatura ${subscription.id} com downgrade processada com sucesso`);
     } catch (error) {
