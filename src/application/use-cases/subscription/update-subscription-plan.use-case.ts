@@ -50,7 +50,7 @@ export class UpdateSubscriptionPlanUseCase {
 
       let planIds: string[] = [
         this.firstSubscriptionPlanId,
-        "6931de07a3f1180792e76447",
+        "694189908cb266c438999938",
         "6941a0d48cb266c438999944",
         "6941a08e8cb266c438999943",
       ];
@@ -60,7 +60,6 @@ export class UpdateSubscriptionPlanUseCase {
             planIds = [
                 this.firstSubscriptionPlanId,
                 "694189908cb266c438999938",
-                "6931de07a3f1180792e76447",
                 "6941a0d48cb266c438999944",
                 "6941a08e8cb266c438999943"
             ];
