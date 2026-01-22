@@ -66,7 +66,10 @@ export class AccountController {
       name: createAccountDto.name,
       phone: createAccountDto.phone,
       documentType: createAccountDto.documentType,
-      documentNumber: createAccountDto.documentNumber
+      documentNumber: createAccountDto.documentNumber,
+      accountType: createAccountDto.accountType,
+      primaryColor: createAccountDto.primaryColor,
+      domain: createAccountDto.domain
     });
   }
 
@@ -144,7 +147,10 @@ export class AccountController {
         webSite: patchAccountDto.webSite,
         socialMedia: patchAccountDto.socialMedia,
         description: patchAccountDto.description,
-        contractTypes: patchAccountDto.contractTypes
+        contractTypes: patchAccountDto.contractTypes,
+        accountType: patchAccountDto.accountType,
+        primaryColor: patchAccountDto.primaryColor,
+        domain: patchAccountDto.domain
       });
   }
 
