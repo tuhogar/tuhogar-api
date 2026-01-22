@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetActivesAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/get-actives-advertisement.dto';
 import { Advertisement, AdvertisementActivesOrderBy } from 'src/domain/entities/advertisement';
+import { ObjectId } from 'mongodb';
 
 enum AlgoliaIndexes {
   ADVERTISEMENTS = 'advertisements',
@@ -175,7 +176,6 @@ export class AlgoliaService {
       async getLocations(query: string): Promise<any> {
         const normalizedQuery = this.normalizeString(query);
 
-
         let page = 0;
         let hits = [];
         let hasMoreResults = true;
@@ -215,94 +215,118 @@ export class AlgoliaService {
             const normalizedSector = sector ? this.normalizeString(sector) : '';
             const normalizedNeighbourhood = neighbourhood ? this.normalizeString(neighbourhood) : '';
             const normalizedEstablishment = establishment ? this.normalizeString(establishment) : '';
-    
-            // Se o estado corresponder à consulta, adicione-o e todas as cidades e bairros desse estado
-            if (normalizedState.includes(normalizedQuery)) {
-                if (!states.has(stateSlug)) {
-                    states.set(stateSlug, stateObj);
-                }
-    
-                /*
-                // Adicionar todas as cidades relacionadas ao estado
-                if (!cities.has(citySlug)) {
-                    cities.set(citySlug, cityObj);
-                }
-    
-                // Adicionar todos os bairros das cidades do estado
-                if (!neighbourhoods.has(neighbourhoodSlug)) {
-                    neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
-                }
-                */
-            }
-    
-            // Se a cidade corresponder à consulta, adicione-a e todos os bairros dessa cidade
-            if (normalizedCity.includes(normalizedQuery)) {
-                if (!cities.has(citySlug)) {
-                    cities.set(citySlug, cityObj);
-                }
-    
-                /*
-                // Adicionar todos os bairros dessa cidade
-                if (!neighbourhoods.has(neighbourhoodSlug)) {
-                    neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
-                }
-                */
-    
-                /*
-                // Adicionar estado relacionado à cidade, se não estiver já adicionado
-                if (!states.has(stateSlug)) {
-                    states.set(stateSlug, stateObj);
-                }
-                */
-            }
 
-            if (normalizedSector.includes(normalizedQuery)) {
-                if (!sectors.has(sectorSlug)) {
-                    sectors.set(sectorSlug, sectorObj);
-                }
 
-                /*
-                // Adicionar cidade relacionada ao sector
-                if (!cities.has(citySlug)) {
-                    cities.set(citySlug, cityObj);
-                }
 
-                // Adicionar estado relacionado ao sector
-                if (!states.has(stateSlug)) {
-                    states.set(stateSlug, stateObj);
-                }
-                */
-            }
-    
-            // Se o bairro corresponder à consulta, adicione-o e todas as cidades e estados dessa cidade
-            if (normalizedNeighbourhood.includes(normalizedQuery)) {
-                if (!neighbourhoods.has(neighbourhoodSlug)) {
-                    neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
-                }
+            if (ObjectId.isValid(normalizedQuery)) {
+              if (!states.has(stateSlug)) {
+                  states.set(stateSlug, stateObj);
+              }
 
-                /*
-                // Adicionar sector relacionado ao bairro
-                if (!sectors.has(sectorSlug)) {
-                    sectors.set(sectorSlug, sectorObj);
-                }
-    
-                // Adicionar cidade relacionada ao bairro
-                if (!cities.has(citySlug)) {
-                    cities.set(citySlug, cityObj);
-                }
-    
-                // Adicionar estado relacionado ao bairro
-                if (!states.has(stateSlug)) {
-                    states.set(stateSlug, stateObj);
-                }
-                */
-            }
+              if (!cities.has(citySlug)) {
+                  cities.set(citySlug, cityObj);
+              }
 
-            // Se a estabelecimento corresponder à consulta, adicione-o e todas as cidades e estados desse estado
-            if (normalizedEstablishment.includes(normalizedQuery)) {
-                if (!establishments.has(establishment)) {
-                    establishments.set(establishment, establishmentObj);
-                }
+              if (!sectors.has(sectorSlug)) {
+                  sectors.set(sectorSlug, sectorObj);
+              }
+
+              if (!neighbourhoods.has(neighbourhoodSlug)) {
+                  neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+              }
+
+              if (!establishments.has(establishment)) {
+                  establishments.set(establishment, establishmentObj);
+              }
+            } else {
+              // Se o estado corresponder à consulta, adicione-o e todas as cidades e bairros desse estado
+              if (normalizedState.includes(normalizedQuery)) {
+                  if (!states.has(stateSlug)) {
+                      states.set(stateSlug, stateObj);
+                  }
+      
+                  /*
+                  // Adicionar todas as cidades relacionadas ao estado
+                  if (!cities.has(citySlug)) {
+                      cities.set(citySlug, cityObj);
+                  }
+      
+                  // Adicionar todos os bairros das cidades do estado
+                  if (!neighbourhoods.has(neighbourhoodSlug)) {
+                      neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+                  }
+                  */
+              }
+      
+              // Se a cidade corresponder à consulta, adicione-a e todos os bairros dessa cidade
+              if (normalizedCity.includes(normalizedQuery)) {
+                  if (!cities.has(citySlug)) {
+                      cities.set(citySlug, cityObj);
+                  }
+      
+                  /*
+                  // Adicionar todos os bairros dessa cidade
+                  if (!neighbourhoods.has(neighbourhoodSlug)) {
+                      neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+                  }
+                  */
+      
+                  /*
+                  // Adicionar estado relacionado à cidade, se não estiver já adicionado
+                  if (!states.has(stateSlug)) {
+                      states.set(stateSlug, stateObj);
+                  }
+                  */
+              }
+
+              if (normalizedSector.includes(normalizedQuery)) {
+                  if (!sectors.has(sectorSlug)) {
+                      sectors.set(sectorSlug, sectorObj);
+                  }
+
+                  /*
+                  // Adicionar cidade relacionada ao sector
+                  if (!cities.has(citySlug)) {
+                      cities.set(citySlug, cityObj);
+                  }
+
+                  // Adicionar estado relacionado ao sector
+                  if (!states.has(stateSlug)) {
+                      states.set(stateSlug, stateObj);
+                  }
+                  */
+              }
+      
+              // Se o bairro corresponder à consulta, adicione-o e todas as cidades e estados dessa cidade
+              if (normalizedNeighbourhood.includes(normalizedQuery)) {
+                  if (!neighbourhoods.has(neighbourhoodSlug)) {
+                      neighbourhoods.set(neighbourhoodSlug, neighbourhoodObj);
+                  }
+
+                  /*
+                  // Adicionar sector relacionado ao bairro
+                  if (!sectors.has(sectorSlug)) {
+                      sectors.set(sectorSlug, sectorObj);
+                  }
+      
+                  // Adicionar cidade relacionada ao bairro
+                  if (!cities.has(citySlug)) {
+                      cities.set(citySlug, cityObj);
+                  }
+      
+                  // Adicionar estado relacionado ao bairro
+                  if (!states.has(stateSlug)) {
+                      states.set(stateSlug, stateObj);
+                  }
+                  */
+              }
+
+              // Se a estabelecimento corresponder à consulta, adicione-o e todas as cidades e estados desse estado
+              if (normalizedEstablishment.includes(normalizedQuery)) {
+                  if (!establishments.has(establishment)) {
+                      establishments.set(establishment, establishmentObj);
+                  }
+              }
             }
         });
     

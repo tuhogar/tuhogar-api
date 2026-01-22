@@ -108,6 +108,8 @@ import { CreateBillingUseCase } from "src/application/use-cases/billing/create-b
 import { UpdateCustomerSubscriptionUseCase } from "src/application/use-cases/subscription/update-customer-subscription.use-case";
 import { GetCustomerSubscriptionUseCase } from "src/application/use-cases/subscription/get-customer-subscription.use-case";
 import { ProcessCancelledSubscriptionsToDowngradeUseCase } from "src/application/use-cases/subscription/process-cancelled-subscriptions-to-downgrade.use-case";
+import { CreateAccountEventUseCase } from "src/application/use-cases/account-event/create-account-event.use-case";
+import { AccountEventController } from "./controllers/account-event.controller";
 
 @Module({
     imports: [
@@ -203,6 +205,7 @@ import { ProcessCancelledSubscriptionsToDowngradeUseCase } from "src/application
         UpdateCustomerSubscriptionUseCase,
         GetCustomerSubscriptionUseCase,
         ProcessCancelledSubscriptionsToDowngradeUseCase,
+        CreateAccountEventUseCase,
         FirebaseAdmin,
         {
             provide: IPaymentGateway,
@@ -225,7 +228,8 @@ import { ProcessCancelledSubscriptionsToDowngradeUseCase } from "src/application
         SubscriptionController,
         NetworkController,
         AdvertisementStatisticsController,
-        CouponController
+        CouponController,
+        AccountEventController,
         ],
 })
 export class HttpModule {}

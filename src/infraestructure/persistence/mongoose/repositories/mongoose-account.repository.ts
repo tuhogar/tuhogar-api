@@ -1,7 +1,7 @@
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { IAccountRepository } from "src/application/interfaces/repositories/account.repository.interface";
-import { Account, AccountDocumentType, AccountStatus } from "src/domain/entities/account";
+import { Account, AccountDocumentType, AccountStatus, AccountType } from "src/domain/entities/account";
 import { Account as AccountMongoose } from "../entities/account.entity"
 import { MongooseAccountMapper } from "../mapper/mongoose-account.mapper";
 import { AddressDto } from "src/infraestructure/http/dtos/address/address.dto";
@@ -20,6 +20,11 @@ export class MongooseAccountRepository implements IAccountRepository {
     async find(): Promise<Account[]> {
         const query = await this.accountModel.find().exec();
         return query.map((item) => MongooseAccountMapper.toDomain(item));
+    }
+
+    async findOneByDomain(domain: string): Promise<Account> {
+      const query = await this.accountModel.findOne({ domain }).populate('contractTypes').exec();
+      return MongooseAccountMapper.toDomain(query);
     }
     
     async findOneById(id: string): Promise<Account> {
@@ -75,6 +80,9 @@ export class MongooseAccountRepository implements IAccountRepository {
       socialMedia: SocialMediaDto,
       description: string,
       contractTypes: string[],
+      accountType: AccountType,
+      primaryColor: string,
+      domain: string
     ): Promise<Account> {
 
       const update: any = {};
@@ -91,6 +99,9 @@ export class MongooseAccountRepository implements IAccountRepository {
       if (contractTypes !== undefined) update.contractTypes = contractTypes;
       if (documentType !== undefined) update.documentType = documentType;
       if (documentNumber !== undefined) update.documentNumber = documentNumber;
+      if (accountType !== undefined) update.accountType = accountType;
+      if (primaryColor !== undefined) update.primaryColor = primaryColor;
+      if (domain !== undefined) update.domain = domain;
 
       const updated = await this.accountModel.findOneAndUpdate(
         { _id: id },

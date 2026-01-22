@@ -14,6 +14,11 @@ export enum AccountDocumentType {
     NIT = 'NIT',
 }
 
+export enum AccountType {
+    BUYER = 'BUYER',
+    SELLER = 'SELLER',
+}
+
 export class Account {
     id?: string;
     planId: string;
@@ -41,6 +46,9 @@ export class Account {
      */
     hasPaidPlan?: boolean;
     paymentToken?: string;
+    accountType?: AccountType;
+    primaryColor?: string;
+    domain?: string;
 
     constructor(props: Account) {
         Object.assign(this, props);

@@ -1,4 +1,4 @@
-import { Account, AccountDocumentType, AccountStatus } from 'src/domain/entities/account';
+import { Account, AccountDocumentType, AccountStatus, AccountType } from 'src/domain/entities/account';
 import { Account as AccountDocument } from '../entities/account.entity';
 import { MongooseContractTypeMapper } from './mongoose-contract-type.mapper';
 import { MongooseAddressMapper } from './mongoose-address.mapper';
@@ -41,6 +41,9 @@ export class MongooseAccountMapper {
             subscriptions,
             status: entity.status as AccountStatus,
             hasPaidPlan: entity.hasPaidPlan,
+            accountType: entity.accountType ? entity.accountType as AccountType : AccountType.BUYER,
+            primaryColor: entity.primaryColor,
+            domain: entity.domain,
         });
 
         return model;
@@ -83,6 +86,9 @@ export class MongooseAccountMapper {
             documentType: account.documentType,
             documentNumber: account.documentNumber,
             status: account.status,
+            accountType: account.accountType,
+            primaryColor: account.primaryColor,
+            domain: account.domain,
         }
     }
 }

@@ -69,6 +69,15 @@ export class Account {
     paymentToken: string;
 
     @Prop()
+    accountType: string;
+
+    @Prop()
+    primaryColor: string;
+
+    @Prop()
+    domain: string;
+
+    @Prop()
     createdAt: Date
 
     @Prop()

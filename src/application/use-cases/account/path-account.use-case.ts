@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRole } from 'src/domain/entities/user';
-import { AccountDocumentType } from 'src/domain/entities/account';
+import { AccountDocumentType, AccountType } from 'src/domain/entities/account';
 import { IAccountRepository } from 'src/application/interfaces/repositories/account.repository.interface';
 import { BulkAdvertisementUseCase } from '../advertisement/bulk-advertisement.use-case';
 import { AddressDto } from 'src/infraestructure/http/dtos/address/address.dto';
@@ -22,6 +22,9 @@ interface PathAccountUseCaseCommand {
   socialMedia?: SocialMediaDto;
   description?: string;
   contractTypes?: string[];
+  accountType?: AccountType;
+  primaryColor?: string;
+  domain?: string;
 }
 
 @Injectable()
@@ -46,7 +49,10 @@ export class PathAccountUseCase {
     webSite,
     socialMedia,
     description,
-    contractTypes
+    contractTypes,
+    accountType,
+    primaryColor,
+    domain
   }: PathAccountUseCaseCommand): Promise<void> {
     const updatedAccount = await this.accountRepository.update(
       userRole === UserRole.MASTER ? targetAccountId : accountId,
@@ -61,7 +67,10 @@ export class PathAccountUseCase {
       webSite,
       socialMedia,
       description,
-      contractTypes
+      contractTypes,
+      accountType,
+      primaryColor,
+      domain
     );
 
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');

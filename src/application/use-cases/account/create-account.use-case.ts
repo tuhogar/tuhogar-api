@@ -5,7 +5,7 @@ import { CreateUserUseCase } from '../user/create-user.use-case';
 import { ISubscriptionRepository } from 'src/application/interfaces/repositories/subscription.repository.interface';
 import { CreateInternalSubscriptionUseCase } from '../subscription/create-internal-subscription.use-case';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
-import { Account, AccountDocumentType, AccountStatus } from 'src/domain/entities/account';
+import { Account, AccountDocumentType, AccountStatus, AccountType } from 'src/domain/entities/account';
 import { CreateBillingUseCase } from '../billing/create-billing.use-case';
 
 interface CreateAccountUseCaseCommand {
@@ -16,6 +16,9 @@ interface CreateAccountUseCaseCommand {
   phone?: string;
   documentType?: AccountDocumentType;
   documentNumber?: string;
+  accountType?: AccountType;
+  primaryColor?: string;
+  domain?: string;
 }
 
 @Injectable()
@@ -36,7 +39,10 @@ export class CreateAccountUseCase {
     name,
     phone,
     documentType,
-    documentNumber
+    documentNumber,
+    accountType,
+    primaryColor,
+    domain
   }: CreateAccountUseCaseCommand): Promise<{ id: string }> {
     const account = new Account({
       planId,
@@ -46,6 +52,9 @@ export class CreateAccountUseCase {
       documentType,
       documentNumber,
       status: AccountStatus.ACTIVE,
+      accountType,
+      primaryColor,
+      domain
     });
     const accountCreated = await this.accountRepository.create(account);
     const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId: accountCreated.id, planId });
