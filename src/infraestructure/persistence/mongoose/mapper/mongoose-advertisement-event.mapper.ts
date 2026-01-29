@@ -1,6 +1,5 @@
 import { AdvertisementEvent } from 'src/domain/entities/advertisement-event';
 import { AdvertisementEvent as AdvertisementEventDocument } from '../entities/advertisement-event.entity';
-import * as mongoose from 'mongoose';
 
 export class MongooseAdvertisementEventMapper {
     

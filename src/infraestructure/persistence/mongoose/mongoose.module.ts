@@ -61,6 +61,9 @@ import { AccountCoupon, AccountCouponSchema } from "./entities/account-coupon.en
 import { Billing, BillingSchema } from "./entities/billing.entity";
 import { IBillingRepository } from "src/application/interfaces/repositories/billing.repository.interface";
 import { MongooseBillingRepository } from "./repositories/mongoose-billing.repository";
+import { AccountEvent, AccountEventSchema } from "./entities/account-event.entity";
+import { IAccountEventRepository } from "src/application/interfaces/repositories/account-event.repository.interface";
+import { MongooseAccountEventRepository } from "./repositories/mongoose-account-event.repository";
 @Module({
     imports: [
         MongooseModuleLib.forRootAsync({
@@ -96,6 +99,7 @@ import { MongooseBillingRepository } from "./repositories/mongoose-billing.repos
           { name: Coupon.name, schema: CouponSchema },
           { name: AccountCoupon.name, schema: AccountCouponSchema },
           { name: Billing.name, schema: BillingSchema },
+          { name: AccountEvent.name, schema: AccountEventSchema },
       ]),
     ],
     providers: [
@@ -178,6 +182,10 @@ import { MongooseBillingRepository } from "./repositories/mongoose-billing.repos
       {
         provide: IBillingRepository,
         useClass: MongooseBillingRepository
+      },
+      {
+        provide: IAccountEventRepository,
+        useClass: MongooseAccountEventRepository
       }
     ],
     exports: [
@@ -201,6 +209,7 @@ import { MongooseBillingRepository } from "./repositories/mongoose-billing.repos
       ICouponRepository,
       IAccountCouponRepository,
       IBillingRepository,
+      IAccountEventRepository
     ],
 })
 export class MongooseModule {}

@@ -1,4 +1,4 @@
-import { Account, AccountDocumentType, AccountStatus } from "src/domain/entities/account";
+import { Account, AccountDocumentType, AccountStatus, AccountType } from "src/domain/entities/account";
 import { AddressDto } from "src/infraestructure/http/dtos/address/address.dto";
 import { SocialMediaDto } from "src/infraestructure/http/dtos/social-media/create-social-media.dto";
 
@@ -6,6 +6,7 @@ export abstract class IAccountRepository {
     abstract find(): Promise<Account[]>
     abstract findActives(): Promise<Account[]>
     abstract findOneById(id: string): Promise<Account>
+    abstract findOneByDomain(domain: string): Promise<Account>
     abstract findOneByIdWithPaymentData(id: string): Promise<Account>
     abstract findOneByEmail(email: string): Promise<Account>
     abstract create(account: Account): Promise<Account>
@@ -23,7 +24,10 @@ export abstract class IAccountRepository {
         webSite: string,
         socialMedia: SocialMediaDto,
         description: string,
-        contractTypes: string[]): Promise<Account>
+        contractTypes: string[],
+        accountType: AccountType,
+        primaryColor: string,
+        domain: string): Promise<Account>
     abstract updateImage(id: string, imageUrl: string): Promise<Account>
     abstract updateStatus(id: string, status: AccountStatus): Promise<Account>
     abstract findInactiveAccounts(): Promise<Account[]>
