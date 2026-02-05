@@ -239,6 +239,22 @@ export class GetActivesAdvertisementDto {
     @IsOptional()
     @IsNotEmpty()
     @Transform(({ value }) => parseFloat(value))
+    @IsNumber({}, { message: 'invalid.floorNumberMin.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Type(() => Number)
+    floorNumberMin: number = 0;
+  
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty()
+    @Transform(({ value }) => parseFloat(value))
+    @IsNumber({}, { message: 'invalid.floorNumberMax.must.be.a.number.conforming.to.the.specified.constraints' })
+    @Type(() => Number)
+    floorNumberMax: number = 0;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNotEmpty()
+    @Transform(({ value }) => parseFloat(value))
     @IsNumber({}, { message: 'invalid.constructionYearMin.must.be.a.number.conforming.to.the.specified.constraints' })
     @Type(() => Number)
     constructionYearMin: number = 0;

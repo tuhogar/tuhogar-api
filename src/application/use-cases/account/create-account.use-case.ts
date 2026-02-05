@@ -7,6 +7,7 @@ import { CreateInternalSubscriptionUseCase } from '../subscription/create-intern
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
 import { Account, AccountDocumentType, AccountStatus, AccountType } from 'src/domain/entities/account';
 import { CreateBillingUseCase } from '../billing/create-billing.use-case';
+import { GetByIdAccountUseCase } from './get-by-id-account.use-case';
 
 interface CreateAccountUseCaseCommand {
   email: string;
@@ -29,7 +30,8 @@ export class CreateAccountUseCase {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
-    private readonly createBillingUseCase: CreateBillingUseCase
+    private readonly createBillingUseCase: CreateBillingUseCase,
+    private readonly getByIdAccountUseCase: GetByIdAccountUseCase
   ) {}
 
   async execute({

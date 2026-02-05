@@ -25,39 +25,18 @@ export class GetAllPlanUseCase {
     async execute({ accountId }: GetAllPlanUseCaseCommand): Promise<Plan[]> {
         let plansWithDiscounts: string[] = [
             this.firstSubscriptionPlanId,
-            "692a6d7b7e32d4b2b3423562",
-            "692a6dda7e32d4b2b3423563",
-            "692a6e027e32d4b2b3423564",
+            "6984f8c7910c769e16465d9f",
         ];
 
         let plansWithoutDiscounts: string[] = [
             this.firstSubscriptionPlanId,
-            "692a6e1d7e32d4b2b3423565",
-            "692a6e367e32d4b2b3423566",
-            "692a6e4d7e32d4b2b3423567",
+            "6984fa79910c769e16465da1",
         ];
-
-        console.log('----accountId; ', accountId);
 
         if (!accountId) {
             return this.planRepository.findByIds(plansWithoutDiscounts);
         }
 
-        if (accountId === '695c12e93ba12b26a8447952') {
-            plansWithDiscounts = [
-                this.firstSubscriptionPlanId,
-                "694189908cb266c438999938",
-                "6941a0d48cb266c438999944",
-                "6941a08e8cb266c438999943"
-            ];
-            plansWithoutDiscounts = [
-                this.firstSubscriptionPlanId,
-                "694189908cb266c438999938",
-                "6941a0d48cb266c438999944",
-                "6941a08e8cb266c438999943"
-            ];
-        }
-        
         const account = await this.accountRepository.findOneById(accountId);
         if (!account) throw new Error('notfound.account.do.not.exists');
 

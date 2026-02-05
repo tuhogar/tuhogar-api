@@ -61,6 +61,9 @@ export class Advertisement {
     floorsCount: number;
 
     @Prop()
+    floorNumber: number;
+
+    @Prop()
     constructionYear: number;
 
     @Prop()

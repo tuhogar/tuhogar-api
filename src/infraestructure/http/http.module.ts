@@ -110,6 +110,12 @@ import { GetCustomerSubscriptionUseCase } from "src/application/use-cases/subscr
 import { ProcessCancelledSubscriptionsToDowngradeUseCase } from "src/application/use-cases/subscription/process-cancelled-subscriptions-to-downgrade.use-case";
 import { CreateAccountEventUseCase } from "src/application/use-cases/account-event/create-account-event.use-case";
 import { AccountEventController } from "./controllers/account-event.controller";
+import { BlacklistWordController } from "./controllers/blacklist-word.controller";
+import { CreateBlacklistWordUseCase } from "src/application/use-cases/blacklist-word/create-blacklist-word.use-case";
+import { GetAllBlacklistWordUseCase } from "src/application/use-cases/blacklist-word/get-all-blacklist-word.use-case";
+import { AccountDomainAlreadyExistsConstraint } from "./validators/account/account-domain-already-exists.validator";
+import { AccountDomainIsNotBlacklistWordConstraint } from "./validators/account/account-domain-is-not-blacklist-word.validator";
+import { GetDomainIsAvailableUseCase } from "src/application/use-cases/account/get-domain-is-available.use-case";
 
 @Module({
     imports: [
@@ -197,6 +203,8 @@ import { AccountEventController } from "./controllers/account-event.controller";
         IsExistingPlanConstraint,
         UserAlreadyExistsConstraint,
         AccountAlreadyExistsConstraint,
+        AccountDomainIsNotBlacklistWordConstraint,
+        AccountDomainAlreadyExistsConstraint,
         CreateCouponUseCase,
         ChangeCardSubscriptionUseCase,
         CreateBillingUseCase,
@@ -206,6 +214,9 @@ import { AccountEventController } from "./controllers/account-event.controller";
         GetCustomerSubscriptionUseCase,
         ProcessCancelledSubscriptionsToDowngradeUseCase,
         CreateAccountEventUseCase,
+        CreateBlacklistWordUseCase,
+        GetAllBlacklistWordUseCase,
+        GetDomainIsAvailableUseCase,
         FirebaseAdmin,
         {
             provide: IPaymentGateway,
@@ -230,6 +241,7 @@ import { AccountEventController } from "./controllers/account-event.controller";
         AdvertisementStatisticsController,
         CouponController,
         AccountEventController,
+        BlacklistWordController,
         ],
 })
 export class HttpModule {}
