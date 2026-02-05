@@ -6,6 +6,8 @@ import { UserAlreadyExists } from "src/infraestructure/http/validators/user/user
 import { AccountDocumentType, AccountType } from "src/domain/entities/account";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 import { AccountAlreadyExists } from "../../validators/account/account-already-exists.validator";
+import { AccountDomainAlreadyExists } from "../../validators/account/account-domain-already-exists.validator";
+import { AccountDomainIsNotBlacklistWord } from "../../validators/account/account-domain-is-not-blacklist-word.validator";
 
 export class CreateAccountDto {
 
@@ -64,6 +66,8 @@ export class CreateAccountDto {
     @MaxLength(100, { message: 'invalid.domain.must.be.shorter.than.or.equal.to.100.characters' })
     @Matches(/^[a-zA-Z0-9]+$/, { message: 'invalid.domain.must.contain.only.letters.and.numbers' })
     @Transform(({ value }) => value ? value.toLowerCase().replace(/[^a-z0-9]/gi, '') : value)
+    @AccountDomainAlreadyExists()
+    @AccountDomainIsNotBlacklistWord()
     @Property()
     domain: string;
 }

@@ -64,6 +64,9 @@ import { MongooseBillingRepository } from "./repositories/mongoose-billing.repos
 import { AccountEvent, AccountEventSchema } from "./entities/account-event.entity";
 import { IAccountEventRepository } from "src/application/interfaces/repositories/account-event.repository.interface";
 import { MongooseAccountEventRepository } from "./repositories/mongoose-account-event.repository";
+import { IBlacklistWordRepository } from "src/application/interfaces/repositories/blacklist-word.repository.interface";
+import { MongooseBlacklistWordRepository } from "./repositories/mongoose-blacklist-word.repository";
+import { BlacklistWord, BlacklistWordSchema } from "./entities/blacklist-word.entity";
 @Module({
     imports: [
         MongooseModuleLib.forRootAsync({
@@ -100,6 +103,7 @@ import { MongooseAccountEventRepository } from "./repositories/mongoose-account-
           { name: AccountCoupon.name, schema: AccountCouponSchema },
           { name: Billing.name, schema: BillingSchema },
           { name: AccountEvent.name, schema: AccountEventSchema },
+          { name: BlacklistWord.name, schema: BlacklistWordSchema },
       ]),
     ],
     providers: [
@@ -186,6 +190,10 @@ import { MongooseAccountEventRepository } from "./repositories/mongoose-account-
       {
         provide: IAccountEventRepository,
         useClass: MongooseAccountEventRepository
+      },
+      {
+        provide: IBlacklistWordRepository,
+        useClass: MongooseBlacklistWordRepository
       }
     ],
     exports: [
@@ -209,7 +217,8 @@ import { MongooseAccountEventRepository } from "./repositories/mongoose-account-
       ICouponRepository,
       IAccountCouponRepository,
       IBillingRepository,
-      IAccountEventRepository
+      IAccountEventRepository,
+      IBlacklistWordRepository
     ],
 })
 export class MongooseModule {}

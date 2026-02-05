@@ -6,6 +6,8 @@ import { AddressDto } from "../address/address.dto";
 import { Property } from "src/infraestructure/decorators/property.decorator";
 import { SocialMediaDto } from "../social-media/create-social-media.dto";
 import { ContractTypeIsExistingId } from "../../validators/contract-type/contract-type-is-existing-id.validator";
+import { AccountDomainAlreadyExists } from "../../validators/account/account-domain-already-exists.validator";
+import { AccountDomainIsNotBlacklistWord } from "../../validators/account/account-domain-is-not-blacklist-word.validator";
 
 export class PatchAccountDto {
 
@@ -112,6 +114,8 @@ export class PatchAccountDto {
     @MaxLength(100, { message: 'invalid.domain.must.be.shorter.than.or.equal.to.100.characters' })
     @Matches(/^[a-zA-Z0-9]+$/, { message: 'invalid.domain.must.contain.only.letters.and.numbers' })
     @Transform(({ value }) => value ? value.toLowerCase().replace(/[^a-z0-9]/gi, '') : value)
+    @AccountDomainAlreadyExists()
+    @AccountDomainIsNotBlacklistWord()
     @Property()
     domain: string;
 }

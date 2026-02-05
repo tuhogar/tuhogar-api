@@ -29,6 +29,7 @@ import { PatchBillingDto } from '../dtos/billing/patch-billing.dto';
 import { UpdateBillingUseCase } from 'src/application/use-cases/billing/update-billing.use-case';
 import { CreateBillingUseCase } from 'src/application/use-cases/billing/create-billing.use-case';
 import { CreateBillingDto } from '../dtos/billing/create-billing.dto';
+import { GetDomainIsAvailableUseCase } from 'src/application/use-cases/account/get-domain-is-available.use-case';
 
 @ApiTags('v1/accounts')
 @Controller('v1/accounts')
@@ -49,6 +50,7 @@ export class AccountController {
     private readonly getByAccountIdBillingUseCase: GetByAccountIdBillingUseCase,
     private readonly updateBillingUseCase: UpdateBillingUseCase,
     private readonly createBillingUseCase: CreateBillingUseCase,
+    private readonly getDomainIsAvailableUseCase: GetDomainIsAvailableUseCase,
   ) {}
 
   @ApiBearerAuth()
@@ -94,6 +96,16 @@ export class AccountController {
     return this.getRegisteredAccountsUseCase.execute({
       period
     });
+  }
+
+  @ApiBearerAuth()
+  @Get('domain')
+  @Auth()
+  async getDomainIsAvailable(@Authenticated() authenticatedUser: AuthenticatedUser, @Query('domain') domain: string): Promise<boolean> {
+      return this.getDomainIsAvailableUseCase.execute({
+        accountId: authenticatedUser.accountId,
+        domain,
+      });
   }
 
   @ApiBearerAuth()
