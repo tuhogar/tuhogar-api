@@ -67,6 +67,7 @@ export class Advertisement {
     bathsCount: number;
     parkingCount: number;
     floorsCount: number;
+    floorNumber: number;
     constructionYear: number;
     socioEconomicLevel: number;
     isHoaIncluded: boolean;

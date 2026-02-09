@@ -70,6 +70,12 @@ export class CreateUpdateAdvertisementDto {
     @Property()
     floorsCount: number = 0;
 
+    @ApiPropertyOptional()
+    @IsNumber({}, { message: 'invalid.floorNumber.must.be.a.number.conforming.to.the.specified.constraints' })
+    @IsOptional()
+    @Property()
+    floorNumber: number = 0;
+
     @ApiProperty()
     @IsNumber({}, { message: 'invalid.constructionYear.must.be.a.number.conforming.to.the.specified.constraints' })
     @Property()

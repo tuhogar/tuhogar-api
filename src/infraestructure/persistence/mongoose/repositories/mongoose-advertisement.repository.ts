@@ -92,6 +92,7 @@ export class MongooseAdvertisementRepository implements IAdvertisementRepository
                     bathsCount: 1,
                     parkingCount: 1,
                     floorsCount: 1,
+                    floorNumber: 1,
                     constructionYear: 1,
                     socioEconomicLevel: 1,
                     isHoaIncluded: 1,

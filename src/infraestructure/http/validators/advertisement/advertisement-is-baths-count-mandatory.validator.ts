@@ -10,14 +10,14 @@ export class AdvertisementIsBathsCountMandatoryConstraint implements ValidatorCo
         const object = args.object as any;
         const type = object.type;
 
-        if (type === AdvertisementType.HOUSE || type === AdvertisementType.APARTMENT || type === AdvertisementType.OFFICE) {
+        if (type === AdvertisementType.HOUSE || type === AdvertisementType.APARTMENT) {
             return typeof bathsCount === 'number' && bathsCount > 0;
         }
         return true;
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'invalid.bathsCount.must.be.a.number.greater.than.0.when.type.is.HOUSE.APARTMENT.or.OFFICE';
+        return 'invalid.bathsCount.must.be.a.number.greater.than.0.when.type.is.HOUSE.APARTMENT';
     }
 }
 
