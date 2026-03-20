@@ -134,6 +134,7 @@ export class EPaycoService implements IPaymentGateway {
       let subscriptionStatus = SubscriptionStatus.CREATED;
 
       console.log('-------customer-data');
+      console.log('email:', email);
       console.log('Address:', paymentData?.address);
       console.log('Phone:', paymentData?.phone);
       console.log('-------customer-data');
@@ -145,13 +146,14 @@ export class EPaycoService implements IPaymentGateway {
         customer = await this.epaycoClient.customers.create({
           token_card: paymentData.token,
           name: paymentData?.name || name,
-          last_name: '',
+          last_name: paymentData?.lastName || '',
           email: email,
           default: true,
           address: paymentData?.address,
           phone: paymentData?.phone,
           cell_phone: paymentData?.phone,
         });
+
         if (!customer.success) {
           console.error(
             `Error creating ePayco customer: ${customer.message || 'Unknown error'}`,
