@@ -108,12 +108,19 @@ export class EPaycoService implements IPaymentGateway {
 
       let customer: any;
 
+      const customerName = paymentData?.name || name;
+      const firstName = customerName.split(' ')[0];
+      const lastName = customerName.split(' ').slice(1).join(' ') || '';
+      console.log('customerName:', customerName);
+      console.log('firstName:', firstName);
+      console.log('lastName:', lastName);
+
       // 1. Criar cliente na ePayco
       if (!customerId) {
         customer = await this.epaycoClient.customers.create({
           token_card: paymentData.token,
-          name: paymentData?.name || name,
-          last_name: '',
+          name: firstName,
+          last_name: lastName,
           email: email,
           default: true,
           address: paymentData?.address,
