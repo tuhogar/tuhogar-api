@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Authenticated } from '../../decorators/authenticated.decorator';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
@@ -39,192 +51,291 @@ import { RedisCacheInterceptor } from '../interceptors/redis-cache.interceptor';
 @ApiTags('v1/advertisements')
 @Controller('v1/advertisements')
 export class AdvertisementController {
+  constructor(
+    private readonly bulkAdvertisementUseCase: BulkAdvertisementUseCase,
+    private readonly getAdvertisementLocationsUseCase: GetAdvertisementLocationsUseCase,
+    private readonly createAdvertisementUseCase: CreateAdvertisementUseCase,
+    private readonly deleteAllAdvertisementUseCase: DeleteAllAdvertisementUseCase,
+    private readonly deleteImagesAdvertisementUseCase: DeleteImagesAdvertisementUseCase,
+    private readonly findSimilarDocumentsAdvertisementUseCase: FindSimilarDocumentsAdvertisementUseCase,
+    private readonly getActiveAdvertisementUseCase: GetActiveAdvertisementUseCase,
+    private readonly getActivesAdvertisementUseCase: GetActivesAdvertisementUseCase,
+    private readonly getAllByAccountIdAdvertisementUseCase: GetAllByAccountIdAdvertisementUseCase,
+    private readonly getAllToApproveAdvertisementUseCase: GetAllToApproveAdvertisementUseCase,
+    private readonly getByAccountIdAndIdAdvertisementUseCase: GetByAccountIdAndIdAdvertisementUseCase,
+    private readonly getRegisteredAdvertisementsUseCase: GetRegisteredAdvertisementsUseCase,
+    private readonly processImagesAdvertisementUseCase: ProcessImagesAdvertisementUseCase,
+    private readonly updateAdvertisementUseCase: UpdateAdvertisementUseCase,
+    private readonly updateStatusAllAdvertisementUseCase: UpdateStatusAllAdvertisementUseCase,
+    private readonly updateImagesOrderAdvertisementUseCase: UpdateImagesOrderAdvertisementUseCase,
+    private readonly transferAdvertisementUseCase: TransferAdvertisementUseCase,
+  ) {}
 
-    constructor(
-        private readonly bulkAdvertisementUseCase: BulkAdvertisementUseCase,
-        private readonly getAdvertisementLocationsUseCase: GetAdvertisementLocationsUseCase,
-        private readonly createAdvertisementUseCase: CreateAdvertisementUseCase,
-        private readonly deleteAllAdvertisementUseCase: DeleteAllAdvertisementUseCase,
-        private readonly deleteImagesAdvertisementUseCase: DeleteImagesAdvertisementUseCase,
-        private readonly findSimilarDocumentsAdvertisementUseCase: FindSimilarDocumentsAdvertisementUseCase,
-        private readonly getActiveAdvertisementUseCase: GetActiveAdvertisementUseCase,
-        private readonly getActivesAdvertisementUseCase: GetActivesAdvertisementUseCase,
-        private readonly getAllByAccountIdAdvertisementUseCase: GetAllByAccountIdAdvertisementUseCase,
-        private readonly getAllToApproveAdvertisementUseCase: GetAllToApproveAdvertisementUseCase,
-        private readonly getByAccountIdAndIdAdvertisementUseCase: GetByAccountIdAndIdAdvertisementUseCase,
-        private readonly getRegisteredAdvertisementsUseCase: GetRegisteredAdvertisementsUseCase,
-        private readonly processImagesAdvertisementUseCase: ProcessImagesAdvertisementUseCase,
-        private readonly updateAdvertisementUseCase: UpdateAdvertisementUseCase,
-        private readonly updateStatusAllAdvertisementUseCase: UpdateStatusAllAdvertisementUseCase,
-        private readonly updateImagesOrderAdvertisementUseCase: UpdateImagesOrderAdvertisementUseCase,
-        private readonly transferAdvertisementUseCase: TransferAdvertisementUseCase,
-    ) {}
+  @ApiBearerAuth()
+  @Post()
+  @Auth('ADMIN', 'USER')
+  @UsePipes(SlugifyPipe)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async create(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
+  ): Promise<Advertisement> {
+    const response = await this.createAdvertisementUseCase.execute(
+      authenticatedUser,
+      createUpdateAdvertisementDto,
+    );
+    return response;
+  }
 
-    @ApiBearerAuth()
-    @Post()
-    @Auth('ADMIN', 'USER')
-    @UsePipes(SlugifyPipe)
-    @UsePipes(new ValidationPipe({transform: true}))
-    async create(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<Advertisement> {
-        const response = await this.createAdvertisementUseCase.execute(
-            authenticatedUser,
-            createUpdateAdvertisementDto,
-        );
-        return response;
-    }
+  @ApiBearerAuth()
+  @Get()
+  @Auth('MASTER', 'ADMIN', 'USER')
+  async getAll(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Query() getAdvertisementDto: GetAdvertisementDto,
+  ): Promise<{ data: Advertisement[]; count: number }> {
+    if (
+      !authenticatedUser.accountId &&
+      authenticatedUser.userRole !== UserRole.MASTER
+    )
+      throw new Error('Unauthorized');
 
-    @ApiBearerAuth()
-    @Get()
-    @Auth('MASTER', 'ADMIN', 'USER')
-    async getAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
-        if (!authenticatedUser.accountId && authenticatedUser.userRole !== UserRole.MASTER)  throw new Error('Unauthorized');
+    const accountId =
+      authenticatedUser.userRole === UserRole.MASTER &&
+      getAdvertisementDto.accountId
+        ? getAdvertisementDto.accountId
+        : authenticatedUser.accountId;
 
-        const accountId = authenticatedUser.userRole === UserRole.MASTER && getAdvertisementDto.accountId ? getAdvertisementDto.accountId : authenticatedUser.accountId;
+    return this.getAllByAccountIdAdvertisementUseCase.execute({
+      accountId,
+      page: getAdvertisementDto.page,
+      limit: getAdvertisementDto.limit,
+      code: getAdvertisementDto.code,
+      transactionType: getAdvertisementDto.transactionType,
+      type: getAdvertisementDto.type,
+      externalId: getAdvertisementDto.externalId,
+      status: getAdvertisementDto.status,
+    });
+  }
 
-        return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, code: getAdvertisementDto.code, transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId, status: getAdvertisementDto.status });
-    }
+  @ApiBearerAuth()
+  @Get('registrations')
+  @Auth('MASTER')
+  async getRegisteredAdvertisements(
+    @Query('period') period: 'week' | 'month',
+  ): Promise<any[]> {
+    return this.getRegisteredAdvertisementsUseCase.execute(period);
+  }
 
-    @ApiBearerAuth()
-    @Get('registrations')
-    @Auth('MASTER')
-    async getRegisteredAdvertisements(@Query('period') period: 'week' | 'month'): Promise<any[]> {
-        return this.getRegisteredAdvertisementsUseCase.execute(period);
-    }
+  @ApiBearerAuth()
+  @Get('toapprove')
+  @Auth('MASTER')
+  async getAllToApprove(): Promise<Advertisement[]> {
+    return this.getAllToApproveAdvertisementUseCase.execute();
+  }
 
-    @ApiBearerAuth()
-    @Get('toapprove')
-    @Auth('MASTER')
-    async getAllToApprove(): Promise<Advertisement[]> {
-        return this.getAllToApproveAdvertisementUseCase.execute();
-    }
+  @Post('bulk')
+  @Auth('MASTER')
+  async bulk(): Promise<void> {
+    await this.bulkAdvertisementUseCase.execute({});
+  }
 
-    @Post('bulk')
-    @Auth('MASTER')
-    async bulk(): Promise<void> {
-        await this.bulkAdvertisementUseCase.execute({});
-    }
+  @Get('actives')
+  @UseInterceptors(RedisCacheInterceptor)
+  async getActives(
+    @Query(new ValidationPipe({ transform: true }))
+    getActivesAdvertisementDto: GetActivesAdvertisementDto,
+  ): Promise<{
+    data:
+      | { id: string; lat: number; lng: number; price: number; type: string }[]
+      | Advertisement[];
+    count: number;
+  }> {
+    return this.getActivesAdvertisementUseCase.execute(
+      getActivesAdvertisementDto,
+    );
+  }
 
-    @Get('actives')
-    @UseInterceptors(RedisCacheInterceptor)
-    async getActives(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: {id: string, lat: number, lng: number, price: number, type: string}[] | Advertisement[]; count: number }> {
-        return this.getActivesAdvertisementUseCase.execute(getActivesAdvertisementDto);
-    }
+  @Get('actives/maps')
+  @UseInterceptors(RedisCacheInterceptor)
+  async getActivesMaps(
+    @Query(new ValidationPipe({ transform: true }))
+    getActivesAdvertisementDto: GetActivesAdvertisementDto,
+  ): Promise<{
+    data:
+      | { id: string; lat: number; lng: number; price: number; type: string }[]
+      | Advertisement[];
+    count: number;
+  }> {
+    return this.getActivesAdvertisementUseCase.execute(
+      getActivesAdvertisementDto,
+      true,
+    );
+  }
 
-    @Get('actives/maps')
-    @UseInterceptors(RedisCacheInterceptor)
-    async getActivesMaps(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementDto: GetActivesAdvertisementDto): Promise<{ data: {id: string, lat: number, lng: number, price: number, type: string}[] | Advertisement[]; count: number }> {
-        return this.getActivesAdvertisementUseCase.execute(getActivesAdvertisementDto, true);
-    }
+  @Get('actives/locations')
+  async getActivesLocations(
+    @Query(new ValidationPipe({ transform: true }))
+    getActivesAdvertisementLocationDto: GetActivesAdvertisementLocationDto,
+  ): Promise<any> {
+    return this.getAdvertisementLocationsUseCase.execute(
+      getActivesAdvertisementLocationDto,
+    );
+  }
 
-    @Get('actives/locations')
-    async getActivesLocations(@Query(new ValidationPipe({ transform: true })) getActivesAdvertisementLocationDto: GetActivesAdvertisementLocationDto): Promise<any> {
-        return this.getAdvertisementLocationsUseCase.execute(getActivesAdvertisementLocationDto);
-    }
+  @Get('actives/:advertisementid')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getActive(
+    @Param('advertisementid') advertisementId: string,
+  ): Promise<Advertisement> {
+    return this.getActiveAdvertisementUseCase.execute(advertisementId);
+  }
 
-    @Get('actives/:advertisementid')
-    @UsePipes(new ValidationPipe({transform: true}))
-    async getActive(@Param('advertisementid') advertisementId: string): Promise<Advertisement> {
-        return this.getActiveAdvertisementUseCase.execute(advertisementId);
-    }
+  @ApiBearerAuth()
+  @Put('status')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateStatusAll(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Body() updateStatusAllAdvertisementsDto: UpdateStatusAllAdvertisementsDto,
+  ): Promise<void> {
+    const advertisementIds =
+      updateStatusAllAdvertisementsDto.advertisements.map((a) => a.id);
 
-    @ApiBearerAuth()
-    @Put('status')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    @UsePipes(new ValidationPipe({ transform: true }))
-    async updateStatusAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() updateStatusAllAdvertisementsDto: UpdateStatusAllAdvertisementsDto): Promise<void> {
-        const advertisementIds = updateStatusAllAdvertisementsDto.advertisements.map((a) => a.id);
-        
-        await this.updateStatusAllAdvertisementUseCase.execute({
-            accountId: authenticatedUser.accountId,
-            userId: authenticatedUser.userId,
-            userRole: authenticatedUser.userRole,
-            advertisementIds,
-            status: updateStatusAllAdvertisementsDto.status,
-        });
-    }
+    await this.updateStatusAllAdvertisementUseCase.execute({
+      accountId: authenticatedUser.accountId,
+      userId: authenticatedUser.userId,
+      userRole: authenticatedUser.userRole,
+      advertisementIds,
+      status: updateStatusAllAdvertisementsDto.status,
+    });
+  }
 
-    @Post('transfer')
-    @Auth('MASTER')
-    async transfer(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() transferAdvertisementDto: TransferAdvertisementDto): Promise<void> {
-        await this.transferAdvertisementUseCase.execute({ userId: authenticatedUser.userId, accountIdFrom: transferAdvertisementDto.accountIdFrom, accountIdTo: transferAdvertisementDto.accountIdTo });
-    }
+  @Post('transfer')
+  @Auth('MASTER')
+  async transfer(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Body() transferAdvertisementDto: TransferAdvertisementDto,
+  ): Promise<void> {
+    await this.transferAdvertisementUseCase.execute({
+      userId: authenticatedUser.userId,
+      accountIdFrom: transferAdvertisementDto.accountIdFrom,
+      accountIdTo: transferAdvertisementDto.accountIdTo,
+    });
+  }
 
-    @Get('find-similar')
-    async findSimilarDocuments(@Query('query') query: string) {
-        return this.findSimilarDocumentsAdvertisementUseCase.execute(query);
-    }
+  @Get('find-similar')
+  async findSimilarDocuments(@Query('query') query: string) {
+    return this.findSimilarDocumentsAdvertisementUseCase.execute(query);
+  }
 
-    @ApiBearerAuth()
-    @Get(':advertisementid')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    @UsePipes(new ValidationPipe({transform: true}))
-    async get(@Authenticated() authenticatedUser: AuthenticatedUser,@Param('advertisementid') advertisementId: string): Promise<Advertisement> {
-        return this.getByAccountIdAndIdAdvertisementUseCase.execute(authenticatedUser, advertisementId);
-    }
+  @ApiBearerAuth()
+  @Get(':advertisementid')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async get(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('advertisementid') advertisementId: string,
+  ): Promise<Advertisement> {
+    return this.getByAccountIdAndIdAdvertisementUseCase.execute(
+      authenticatedUser,
+      advertisementId,
+    );
+  }
 
-    @ApiBearerAuth()
-    @Post(':advertisementid/images')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    @UsePipes(new ValidationPipe({transform: true}))
-    async uploadImages(
-        @Authenticated() authenticatedUser: AuthenticatedUser,
-        @Param('advertisementid') advertisementId: string,
-        @Body() uploadImagesAdvertisementDto: UploadImagesAdvertisementDto): Promise<{ id: string, order: number }[]> {
-        return this.processImagesAdvertisementUseCase.execute(authenticatedUser, advertisementId, uploadImagesAdvertisementDto);
-    }
+  @ApiBearerAuth()
+  @Post(':advertisementid/images')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async uploadImages(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('advertisementid') advertisementId: string,
+    @Body() uploadImagesAdvertisementDto: UploadImagesAdvertisementDto,
+  ): Promise<{ id: string; order: number }[]> {
+    return this.processImagesAdvertisementUseCase.execute(
+      authenticatedUser,
+      advertisementId,
+      uploadImagesAdvertisementDto,
+    );
+  }
 
-    @ApiBearerAuth()
-    @Put(':advertisementid/images/orders')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    @UsePipes(new ValidationPipe({transform: true}))
-    async updateOrderImages(
-        @Authenticated() authenticatedUser: AuthenticatedUser,
-        @Param('advertisementid') advertisementId: string,
-        @Body() updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto): Promise<void> {
-        await this.updateImagesOrderAdvertisementUseCase.execute(authenticatedUser, advertisementId, updateImagesOrderAdvertisementDto);
-    }
+  @ApiBearerAuth()
+  @Put(':advertisementid/images/orders')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateOrderImages(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('advertisementid') advertisementId: string,
+    @Body()
+    updateImagesOrderAdvertisementDto: UpdateImagesOrderAdvertisementDto,
+  ): Promise<void> {
+    await this.updateImagesOrderAdvertisementUseCase.execute(
+      authenticatedUser,
+      advertisementId,
+      updateImagesOrderAdvertisementDto,
+    );
+  }
 
-    @ApiBearerAuth()
-    @Delete(':advertisementid/images')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    async deleteImages(
-        @Authenticated() authenticatedUser: AuthenticatedUser,
-        @Param('advertisementid') advertisementId: string,
-        @Body() deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto): Promise<void> {
-        await this.deleteImagesAdvertisementUseCase.execute(authenticatedUser, advertisementId, deleteImagesAdvertisementDto);
-    }
+  @ApiBearerAuth()
+  @Delete(':advertisementid/images')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  async deleteImages(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('advertisementid') advertisementId: string,
+    @Body() deleteImagesAdvertisementDto: DeleteImagesAdvertisementDto,
+  ): Promise<void> {
+    await this.deleteImagesAdvertisementUseCase.execute(
+      authenticatedUser,
+      advertisementId,
+      deleteImagesAdvertisementDto,
+    );
+  }
 
-    @ApiBearerAuth()
-    @Put(':advertisementid')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    @UsePipes(SlugifyPipe)
-    @UsePipes(new ValidationPipe({transform: true}))
-    async update(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto): Promise<{ id: string }> {
-        return await this.updateAdvertisementUseCase.execute(
-            authenticatedUser,
-            advertisementId,
-            createUpdateAdvertisementDto,
-        );
-    }
+  @ApiBearerAuth()
+  @Put(':advertisementid')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  @UsePipes(SlugifyPipe)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async update(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('advertisementid') advertisementId: string,
+    @Body() createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
+  ): Promise<{ id: string }> {
+    return await this.updateAdvertisementUseCase.execute(
+      authenticatedUser,
+      advertisementId,
+      createUpdateAdvertisementDto,
+    );
+  }
 
-    @ApiBearerAuth()
-    @Put(':advertisementid/status')
-    @Auth('MASTER', 'ADMIN', 'USER')
-    @UsePipes(new ValidationPipe({ transform: true }))
-    async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('advertisementid') advertisementId: string, @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto): Promise<void> {
-        await this.updateStatusAllAdvertisementUseCase.execute({
-            accountId: authenticatedUser.accountId,
-            userId: authenticatedUser.userId,
-            userRole: authenticatedUser.userRole,
-            advertisementIds: [advertisementId],
-            status: updateStatusAdvertisementDto.status,
-        });
-    }
+  @ApiBearerAuth()
+  @Put(':advertisementid/status')
+  @Auth('MASTER', 'ADMIN', 'USER')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateStatus(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('advertisementid') advertisementId: string,
+    @Body() updateStatusAdvertisementDto: UpdateStatusAdvertisementDto,
+  ): Promise<void> {
+    await this.updateStatusAllAdvertisementUseCase.execute({
+      accountId: authenticatedUser.accountId,
+      userId: authenticatedUser.userId,
+      userRole: authenticatedUser.userRole,
+      advertisementIds: [advertisementId],
+      status: updateStatusAdvertisementDto.status,
+    });
+  }
 
-    @ApiBearerAuth()
-    @Delete()
-    @Auth('MASTER', 'ADMIN', 'USER')
-    async deleteAll(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() deleteAdvertisementsDto: DeleteAdvertisementsDto ): Promise<void> {
-        await this.deleteAllAdvertisementUseCase.execute(authenticatedUser, deleteAdvertisementsDto);
-    }
+  @ApiBearerAuth()
+  @Delete()
+  @Auth('MASTER', 'ADMIN', 'USER')
+  async deleteAll(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Body() deleteAdvertisementsDto: DeleteAdvertisementsDto,
+  ): Promise<void> {
+    await this.deleteAllAdvertisementUseCase.execute(
+      authenticatedUser,
+      deleteAdvertisementsDto,
+    );
+  }
 }

@@ -7,13 +7,20 @@ import { SubscriptionNotification as SubscriptionNotificationMongoose } from '..
 import { MongooseSubscriptionNotificationMapper } from '../mapper/mongoose-subscription-notification.mapper';
 
 @Injectable()
-export class MongooseSubscriptionNotificationRepository implements ISubscriptionNotificationRepository {
+export class MongooseSubscriptionNotificationRepository
+  implements ISubscriptionNotificationRepository
+{
   constructor(
-    @InjectModel(SubscriptionNotificationMongoose.name) private readonly subscriptionNotificationModel: Model<SubscriptionNotificationMongoose>,
+    @InjectModel(SubscriptionNotificationMongoose.name)
+    private readonly subscriptionNotificationModel: Model<SubscriptionNotificationMongoose>,
   ) {}
-    
-  async create(subscriptionNotification: SubscriptionNotification): Promise<SubscriptionNotification> {
-    const data = MongooseSubscriptionNotificationMapper.toMongoose(subscriptionNotification);
+
+  async create(
+    subscriptionNotification: SubscriptionNotification,
+  ): Promise<SubscriptionNotification> {
+    const data = MongooseSubscriptionNotificationMapper.toMongoose(
+      subscriptionNotification,
+    );
     const entity = new this.subscriptionNotificationModel({ ...data });
     await entity.save();
 

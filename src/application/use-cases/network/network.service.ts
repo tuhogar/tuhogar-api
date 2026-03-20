@@ -8,9 +8,9 @@ export class NetworkService {
     return new Promise((resolve, reject) => {
       exec(`ping -c 4 ${host}`, (error, stdout, stderr) => {
         if (error) {
-            console.log('----error');
-            console.log(error);
-            console.log('----error');
+          console.log('----error');
+          console.log(error);
+          console.log('----error');
           reject(`Erro ao executar ping: ${stderr}`);
         } else {
           resolve(stdout);
@@ -21,16 +21,16 @@ export class NetworkService {
 
   async testTraceroute(host: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        traceroute.trace(host, (err, hops) => {
-          if (err) {
-            console.log('----err');
-            console.log(err);
-            console.log('----err');
-            reject(`Erro ao executar traceroute: ${err.message}`);
-          } else {
-            resolve(hops);
-          }
-        });
+      traceroute.trace(host, (err, hops) => {
+        if (err) {
+          console.log('----err');
+          console.log(err);
+          console.log('----err');
+          reject(`Erro ao executar traceroute: ${err.message}`);
+        } else {
+          resolve(hops);
+        }
       });
+    });
   }
 }

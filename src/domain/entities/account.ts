@@ -4,53 +4,53 @@ import { SocialMedia } from './social-media';
 import { Subscription } from './subscription';
 
 export enum AccountStatus {
-    ACTIVE = 'ACTIVE',
-    INACTIVE = 'INACTIVE',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 export enum AccountDocumentType {
-    CC = 'CC',
-    CE = 'CE',
-    NIT = 'NIT',
+  CC = 'CC',
+  CE = 'CE',
+  NIT = 'NIT',
 }
 
 export enum AccountType {
-    BUYER = 'BUYER',
-    SELLER = 'SELLER',
+  BUYER = 'BUYER',
+  SELLER = 'SELLER',
 }
 
 export class Account {
-    id?: string;
-    planId: string;
-    photo?: string;
-    name: string;
-    email: string;
-    address?: Address;
-    phone: string;
-    whatsApp?: string;
-    phone2?: string;
-    whatsApp2?: string;
-    webSite?: string;
-    socialMedia?: SocialMedia;
-    description?: string;
-    documentType: AccountDocumentType;
-    documentNumber: string;
-    contractTypes?: ContractType[];
-    subscription?: Subscription;
-    subscriptions?: Subscription[];
-    status: AccountStatus;
-    /**
-     * Indica se o usuário já assinou algum plano pago
-     * Esta propriedade é usada para identificar usuários que já foram clientes pagantes
-     * mesmo que atualmente estejam em um plano gratuito
-     */
-    hasPaidPlan?: boolean;
-    paymentToken?: string;
-    accountType?: AccountType;
-    primaryColor?: string;
-    domain?: string;
+  id?: string;
+  planId: string;
+  photo?: string;
+  name: string;
+  email: string;
+  address?: Address;
+  phone: string;
+  whatsApp?: string;
+  phone2?: string;
+  whatsApp2?: string;
+  webSite?: string;
+  socialMedia?: SocialMedia;
+  description?: string;
+  documentType: AccountDocumentType;
+  documentNumber: string;
+  contractTypes?: ContractType[];
+  subscription?: Subscription;
+  subscriptions?: Subscription[];
+  status: AccountStatus;
+  /**
+   * Indica se o usuário já assinou algum plano pago
+   * Esta propriedade é usada para identificar usuários que já foram clientes pagantes
+   * mesmo que atualmente estejam em um plano gratuito
+   */
+  hasPaidPlan?: boolean;
+  paymentToken?: string;
+  accountType?: AccountType;
+  primaryColor?: string;
+  domain?: string;
 
-    constructor(props: Account) {
-        Object.assign(this, props);
-    }
+  constructor(props: Account) {
+    Object.assign(this, props);
+  }
 }

@@ -5,35 +5,35 @@ import { Account } from './account.entity';
 
 @Schema({ timestamps: true, collection: 'users' })
 export class User {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop()
-    name: string;
+  @Prop()
+  name: string;
 
-    @Prop()
-    email: string;
+  @Prop()
+  email: string;
 
-    @Prop({ type: String, unique: true })
-    uid: string;
+  @Prop({ type: String, unique: true })
+  uid: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: Account;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
+  accountId: Account;
 
-    @Prop()
-    userRole: string;
+  @Prop()
+  userRole: string;
 
-    @Prop()
-    status: string;
+  @Prop()
+  status: string;
 
-    @Prop()
-    phone: string;
+  @Prop()
+  phone: string;
 
-    @Prop()
-    whatsApp: string;
+  @Prop()
+  whatsApp: string;
 
-    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' }])
-    advertisementFavorites: Advertisement[];
-};
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' }])
+  advertisementFavorites: Advertisement[];
+}
 
 const UserSchema = SchemaFactory.createForClass(User);
 

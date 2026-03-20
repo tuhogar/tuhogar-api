@@ -1,4 +1,4 @@
-import { AdvertisementStatistics } from "src/domain/entities/advertisement-statistics";
+import { AdvertisementStatistics } from 'src/domain/entities/advertisement-statistics';
 
 export abstract class IAdvertisementStatisticsRepository {
   /**
@@ -6,7 +6,9 @@ export abstract class IAdvertisementStatisticsRepository {
    * @param advertisementStatistics Estatísticas a serem salvas
    * @returns O registro de estatísticas salvo
    */
-  abstract create(advertisementStatistics: AdvertisementStatistics): Promise<AdvertisementStatistics>;
+  abstract create(
+    advertisementStatistics: AdvertisementStatistics,
+  ): Promise<AdvertisementStatistics>;
 
   /**
    * Busca estatísticas de anúncios consolidadas por mês
@@ -26,8 +28,11 @@ export abstract class IAdvertisementStatisticsRepository {
    * @param advertisementStatistics Estatísticas atualizadas
    * @returns Estatísticas atualizadas
    */
-  abstract update(id: string, advertisementStatistics: AdvertisementStatistics): Promise<AdvertisementStatistics>;
-  
+  abstract update(
+    id: string,
+    advertisementStatistics: AdvertisementStatistics,
+  ): Promise<AdvertisementStatistics>;
+
   /**
    * Busca o último registro de estatísticas acumuladas disponível
    * @returns O último registro de estatísticas acumuladas ou null se não existir

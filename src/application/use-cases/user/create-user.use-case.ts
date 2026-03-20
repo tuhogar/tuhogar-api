@@ -8,36 +8,36 @@ import { Subscription } from 'src/domain/entities/subscription';
 import { User, UserRole, UserStatus } from 'src/domain/entities/user';
 
 interface CreateUserUseCaseCommand {
-    email: string;
-    uid: string;
-    name: string;
-    userRole: UserRole;
-    accountId: string;
+  email: string;
+  uid: string;
+  name: string;
+  userRole: UserRole;
+  accountId: string;
 }
 
 @Injectable()
 export class CreateUserUseCase {
-    constructor(
-        private readonly admin: FirebaseAdmin,
-        private readonly userRepository: IUserRepository,
-    ) {}
+  constructor(
+    private readonly admin: FirebaseAdmin,
+    private readonly userRepository: IUserRepository,
+  ) {}
 
-    async execute({
-        email,
-        uid,
-        name,
-        userRole,
-        accountId
-    }: CreateUserUseCaseCommand): Promise<User> {
-        const user = new User({
-            name,
-            email,
-            uid,
-            userRole,
-            status: UserStatus.ACTIVE,
-            accountId,
-        });
-        const userCreated = await this.userRepository.create(user);
-        return userCreated;
-    }
+  async execute({
+    email,
+    uid,
+    name,
+    userRole,
+    accountId,
+  }: CreateUserUseCaseCommand): Promise<User> {
+    const user = new User({
+      name,
+      email,
+      uid,
+      userRole,
+      status: UserStatus.ACTIVE,
+      accountId,
+    });
+    const userCreated = await this.userRepository.create(user);
+    return userCreated;
+  }
 }

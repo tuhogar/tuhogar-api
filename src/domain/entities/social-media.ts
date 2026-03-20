@@ -1,11 +1,11 @@
 export class SocialMedia {
-    youtube: string;
-    tiktok: string;
-    instagram: string;
-    twitter: string;
-    facebook: string;
+  youtube: string;
+  tiktok: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
 
-    constructor(props: SocialMedia) {
-        Object.assign(this, props);
-    }
+  constructor(props: SocialMedia) {
+    Object.assign(this, props);
+  }
 }

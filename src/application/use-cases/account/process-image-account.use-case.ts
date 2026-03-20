@@ -17,13 +17,16 @@ export class ProcessImageAccountUseCase {
     private readonly cloudinaryService: CloudinaryService,
     private readonly configService: ConfigService,
   ) {
-    this.cloudinaryFolders = this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION' ? '_prod' : '';
+    this.cloudinaryFolders =
+      this.configService.get<string>('ENVIRONMENT') === 'PRODUCTION'
+        ? '_prod'
+        : '';
   }
 
   async execute({
     accountId,
     content,
-    contentType
+    contentType,
   }: ProcessImageAccountUseCaseCommand): Promise<void> {
     const account = await this.accountRepository.findOneById(accountId);
     if (!account) throw new Error('notfound.account.do.not.exists');
@@ -36,10 +39,18 @@ export class ProcessImageAccountUseCase {
       imageContent = await this.cloudinaryService.convertToWebP(imageContent);
     }
 
-    const imageUrl = await this.cloudinaryService.uploadBase64Image(imageContent, 'image/webp', imageName, `accounts${this.cloudinaryFolders}`);
-    const imageUrlStr = imageUrl.toString().replace('http://', 'https://')
-   
-    const updatedAccount = await this.accountRepository.updateImage(accountId, imageUrlStr);
+    const imageUrl = await this.cloudinaryService.uploadBase64Image(
+      imageContent,
+      'image/webp',
+      imageName,
+      `accounts${this.cloudinaryFolders}`,
+    );
+    const imageUrlStr = imageUrl.toString().replace('http://', 'https://');
+
+    const updatedAccount = await this.accountRepository.updateImage(
+      accountId,
+      imageUrlStr,
+    );
 
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
   }

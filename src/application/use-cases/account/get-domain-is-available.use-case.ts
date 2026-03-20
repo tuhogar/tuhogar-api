@@ -18,13 +18,12 @@ export class GetDomainIsAvailableUseCase {
 
   async execute({
     domain,
-    accountId
+    accountId,
   }: GetDomainIsAvailableUseCaseCommand): Promise<boolean> {
-
     const blacklistWords = await this.blacklistWordRepository.findAll();
-    const words = blacklistWords.map(word => word.word);
+    const words = blacklistWords.map((word) => word.word);
 
-    if (words.some(word => domain.includes(word))) {
+    if (words.some((word) => domain.includes(word))) {
       throw new Error(`invalid.account.domain.is.blacklist.word ${domain}`);
     }
 

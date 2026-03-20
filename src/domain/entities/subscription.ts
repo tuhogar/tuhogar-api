@@ -38,7 +38,7 @@ export class Subscription {
   public nextPaymentDate?: Date;
 
   public newPlanId?: string;
-  
+
   /**
    * Data de criação da assinatura
    * Adicionada automaticamente pelo Mongoose
@@ -56,7 +56,7 @@ export class Subscription {
    * Preenchido quando o populate é utilizado na consulta
    */
   public plan?: Plan;
-  
+
   constructor(props: Subscription) {
     Object.assign(this, props);
   }

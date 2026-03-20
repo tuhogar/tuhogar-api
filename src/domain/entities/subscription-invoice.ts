@@ -14,7 +14,7 @@ export class SubscriptionInvoice {
   public amount: number;
   public currency: string;
   public status: SubscriptionInvoiceStatus;
-  
+
   constructor(props: SubscriptionInvoice) {
     Object.assign(this, props);
   }

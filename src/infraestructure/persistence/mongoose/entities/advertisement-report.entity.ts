@@ -5,16 +5,17 @@ import { Advertisement } from './advertisement.entity';
 
 @Schema({ timestamps: true, collection: 'advertisement-reports' })
 export class AdvertisementReport {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' })
-    advertisementId: Advertisement;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' })
+  advertisementId: Advertisement;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'AdvertisementReason' })
-    advertisementReasonId: AdvertisementReason;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'AdvertisementReason' })
+  advertisementReasonId: AdvertisementReason;
 }
 
-const AdvertisementReportSchema = SchemaFactory.createForClass(AdvertisementReport);
+const AdvertisementReportSchema =
+  SchemaFactory.createForClass(AdvertisementReport);
 
 AdvertisementReportSchema.index({ advertisementId: -1 });
 

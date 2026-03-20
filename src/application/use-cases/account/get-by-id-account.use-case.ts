@@ -9,13 +9,9 @@ interface GetByIdAccountUseCaseCommand {
 
 @Injectable()
 export class GetByIdAccountUseCase {
-  constructor(
-    private readonly accountRepository: IAccountRepository,
-  ) {}
+  constructor(private readonly accountRepository: IAccountRepository) {}
 
-  async execute({
-    id
-  }: GetByIdAccountUseCaseCommand): Promise<Account> {
+  async execute({ id }: GetByIdAccountUseCaseCommand): Promise<Account> {
     //TODO: validar se o id é um ObjectId válido, se não for, buscar pelo domain
     if (!ObjectId.isValid(id)) {
       return this.accountRepository.findOneByDomain(id);

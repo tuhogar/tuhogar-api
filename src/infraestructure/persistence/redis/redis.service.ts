@@ -9,7 +9,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     if (!RedisService.client) {
       RedisService.client = createClient({
         url: process.env.REDIS_URL,
-        password: process.env.REDIS_PASSWORD
+        password: process.env.REDIS_PASSWORD,
       });
     }
   }
@@ -42,7 +42,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async getAll(ids: string[]): Promise<object[]> {
     if (!ids.length) return [];
     const data = await RedisService.client?.mGet(ids);
-    return data?.map((item) => (item ? JSON.parse(item) : null)).filter(Boolean) ?? [];
+    return (
+      data?.map((item) => (item ? JSON.parse(item) : null)).filter(Boolean) ??
+      []
+    );
   }
 
   async deleteByPattern(pattern: string): Promise<void> {

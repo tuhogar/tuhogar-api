@@ -1,21 +1,21 @@
-import { Plan } from "./plan";
+import { Plan } from './plan';
 
 export enum CouponType {
-    DOCUMENT = 'DOCUMENT',
+  DOCUMENT = 'DOCUMENT',
 }
 
 export class Coupon {
-    id?: string;
-    coupon: string;
-    type: CouponType;
-    isSingleRedemption: boolean;
-    doesNotHavePaidPlanIds: Plan[];
-    hasPaidPlanIds: Plan[];
-    expirationDate: Date;
-    isRedeemed: boolean;
-    allowRepeatedFulfillment: boolean;
+  id?: string;
+  coupon: string;
+  type: CouponType;
+  isSingleRedemption: boolean;
+  doesNotHavePaidPlanIds: Plan[];
+  hasPaidPlanIds: Plan[];
+  expirationDate: Date;
+  isRedeemed: boolean;
+  allowRepeatedFulfillment: boolean;
 
-    constructor(props: Coupon) {
-        Object.assign(this, props);
-    }
+  constructor(props: Coupon) {
+    Object.assign(this, props);
+  }
 }

@@ -13,7 +13,7 @@ import { configureCloudinary } from '../config/cloudinary.config';
         configureCloudinary(configService);
       },
       inject: [ConfigService],
-    }
+    },
   ],
   exports: [CloudinaryService],
 })

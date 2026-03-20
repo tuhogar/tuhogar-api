@@ -7,12 +7,10 @@ interface GetRegisteredAccountsUseCaseCommand {
 
 @Injectable()
 export class GetRegisteredAccountsUseCase {
-  constructor(
-    private readonly accountRepository: IAccountRepository,
-  ) {}
+  constructor(private readonly accountRepository: IAccountRepository) {}
 
   async execute({
-    period
+    period,
   }: GetRegisteredAccountsUseCaseCommand): Promise<any[]> {
     return this.accountRepository.getRegisteredAccounts(period);
   }

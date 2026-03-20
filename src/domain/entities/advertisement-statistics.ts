@@ -9,7 +9,7 @@ import {
   TopAdvertisements,
   TotalAdvertisements,
   TotalVisits,
-  TransactionTypeMetrics
+  TransactionTypeMetrics,
 } from './account-advertisement-statistics';
 
 /**
@@ -26,6 +26,10 @@ export interface AccumulatedMetricsDetailed {
       house: { sale: number; rent: number };
       apartment: { sale: number; rent: number };
       lot: { sale: number; rent: number };
+      building: { sale: number; rent: number };
+      warehouse: { sale: number; rent: number };
+      office: { sale: number; rent: number };
+      commercial: { sale: number; rent: number };
     };
   };
   phoneClicks: {
@@ -38,6 +42,10 @@ export interface AccumulatedMetricsDetailed {
       house: { sale: number; rent: number };
       apartment: { sale: number; rent: number };
       lot: { sale: number; rent: number };
+      building: { sale: number; rent: number };
+      warehouse: { sale: number; rent: number };
+      office: { sale: number; rent: number };
+      commercial: { sale: number; rent: number };
     };
   };
   digitalCatalogViews: number;
@@ -51,6 +59,10 @@ export interface AccumulatedMetricsDetailed {
       house: { sale: number; rent: number };
       apartment: { sale: number; rent: number };
       lot: { sale: number; rent: number };
+      building: { sale: number; rent: number };
+      warehouse: { sale: number; rent: number };
+      office: { sale: number; rent: number };
+      commercial: { sale: number; rent: number };
     };
   };
 }
@@ -71,40 +83,50 @@ export class AdvertisementStatistics {
   constructor(props: Partial<AdvertisementStatistics>) {
     this.id = props.id;
     this.month = props.month;
-    this.createdAt = props.createdAt || new Date(Date.UTC(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth(),
-      new Date().getUTCDate(),
-      new Date().getUTCHours(),
-      new Date().getUTCMinutes(),
-      new Date().getUTCSeconds(),
-      new Date().getUTCMilliseconds()
-    ));
+    this.createdAt =
+      props.createdAt ||
+      new Date(
+        Date.UTC(
+          new Date().getUTCFullYear(),
+          new Date().getUTCMonth(),
+          new Date().getUTCDate(),
+          new Date().getUTCHours(),
+          new Date().getUTCMinutes(),
+          new Date().getUTCSeconds(),
+          new Date().getUTCMilliseconds(),
+        ),
+      );
     this.digitalCatalogViews = props.digitalCatalogViews || 0;
     this.accumulatedMetrics = props.accumulatedMetrics;
-    
+
     if (props.totalAdvertisements) {
-      this.totalAdvertisements = new TotalAdvertisements(props.totalAdvertisements);
+      this.totalAdvertisements = new TotalAdvertisements(
+        props.totalAdvertisements,
+      );
     }
-    
+
     if (props.totalVisits) {
       this.totalVisits = new TotalVisits(props.totalVisits);
     }
-    
+
     if (props.phoneClicks) {
       this.phoneClicks = new PhoneClicks(props.phoneClicks);
     }
-    
+
     if (props.contactInfoClicks) {
       this.contactInfoClicks = new ContactInfoClicks(props.contactInfoClicks);
     }
-    
+
     if (props.topViewedAdvertisements) {
-      this.topViewedAdvertisements = new TopAdvertisements(props.topViewedAdvertisements);
+      this.topViewedAdvertisements = new TopAdvertisements(
+        props.topViewedAdvertisements,
+      );
     }
-    
+
     if (props.topInteractedAdvertisements) {
-      this.topInteractedAdvertisements = new TopAdvertisements(props.topInteractedAdvertisements);
+      this.topInteractedAdvertisements = new TopAdvertisements(
+        props.topInteractedAdvertisements,
+      );
     }
   }
 }

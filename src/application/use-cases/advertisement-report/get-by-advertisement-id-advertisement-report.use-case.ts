@@ -3,16 +3,22 @@ import { IAdvertisementReportRepository } from 'src/application/interfaces/repos
 import { AdvertisementReport } from 'src/domain/entities/advertisement-report';
 
 interface GetByAdvertisementIdAdvertisementReportUseCaseCommand {
-    advertisementId: string,
+  advertisementId: string;
 }
 
 @Injectable()
 export class GetByAdvertisementIdAdvertisementReportUseCase {
-    constructor(
-        private readonly advertisementReportRepository: IAdvertisementReportRepository,
-    ) {}
+  constructor(
+    private readonly advertisementReportRepository: IAdvertisementReportRepository,
+  ) {}
 
-    async execute({ advertisementId }: GetByAdvertisementIdAdvertisementReportUseCaseCommand): Promise<AdvertisementReport[]> {
-        return this.advertisementReportRepository.findByAdvertisementId(advertisementId);
-    }
+  async execute({
+    advertisementId,
+  }: GetByAdvertisementIdAdvertisementReportUseCaseCommand): Promise<
+    AdvertisementReport[]
+  > {
+    return this.advertisementReportRepository.findByAdvertisementId(
+      advertisementId,
+    );
+  }
 }

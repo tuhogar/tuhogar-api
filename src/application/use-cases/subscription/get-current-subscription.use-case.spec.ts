@@ -14,7 +14,7 @@ describe('GetCurrentSubscriptionUseCase', () => {
   // Valores para testes
   const DAYS_SINCE_CREATION_FOR_ACTIVE = 10; // Assinatura criada há 10 dias
   const DAYS_SINCE_CREATION_FOR_EXPIRED = 40; // Assinatura criada há 40 dias (período gratuito expirado)
-  
+
   // Mock para o plano com 30 dias de período gratuito
   const mockPlan: Plan = {
     id: 'plan-id',
@@ -24,9 +24,9 @@ describe('GetCurrentSubscriptionUseCase', () => {
     price: 99.99,
     externalId: 'external-plan-id',
     maxAdvertisements: 10,
-    maxPhotos: 20
+    maxPhotos: 20,
   } as Plan;
-  
+
   // Mock para a assinatura (criada 10 dias antes da data fixa)
   const mockSubscription: Subscription = {
     id: 'subscription-id',
@@ -38,15 +38,15 @@ describe('GetCurrentSubscriptionUseCase', () => {
     createdAt: new Date('2025-04-20T00:00:00Z'), // 10 dias antes da data fixa
     updatedAt: new Date('2025-04-20T00:00:00Z'),
     paymentDate: new Date('2025-04-20T00:00:00Z'),
-    plan: mockPlan
+    plan: mockPlan,
   } as Subscription;
-  
+
   // Mock para a assinatura com plano populado
   const mockSubscriptionWithPlan: Subscription = {
     ...mockSubscription,
-    plan: mockPlan
+    plan: mockPlan,
   } as Subscription;
-  
+
   // Mock para o plano sem período gratuito
   const mockPlanWithoutFreeTrial: Plan = {
     id: 'plan-without-free-trial-id',
@@ -56,13 +56,13 @@ describe('GetCurrentSubscriptionUseCase', () => {
     price: 49.99,
     externalId: 'external-basic-plan-id',
     maxAdvertisements: 5,
-    maxPhotos: 10
+    maxPhotos: 10,
   } as Plan;
 
   beforeEach(async () => {
     // Resetar todos os mocks antes de cada teste
     jest.restoreAllMocks();
-    
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GetCurrentSubscriptionUseCase,
@@ -81,11 +81,15 @@ describe('GetCurrentSubscriptionUseCase', () => {
       ],
     }).compile();
 
-    useCase = module.get<GetCurrentSubscriptionUseCase>(GetCurrentSubscriptionUseCase);
-    subscriptionRepository = module.get<ISubscriptionRepository>(ISubscriptionRepository);
+    useCase = module.get<GetCurrentSubscriptionUseCase>(
+      GetCurrentSubscriptionUseCase,
+    );
+    subscriptionRepository = module.get<ISubscriptionRepository>(
+      ISubscriptionRepository,
+    );
     planRepository = module.get<IPlanRepository>(IPlanRepository);
   });
-  
+
   afterEach(() => {
     // Limpar todos os mocks após cada teste
     jest.clearAllMocks();
@@ -99,36 +103,50 @@ describe('GetCurrentSubscriptionUseCase', () => {
     it('should return the subscription with remaining free days calculated and plan included', async () => {
       // Arrange
       const accountId = 'account-id';
-      jest.spyOn(subscriptionRepository, 'findMostRecentByAccountId').mockResolvedValue(mockSubscription);
-      
+      jest
+        .spyOn(subscriptionRepository, 'findMostRecentByAccountId')
+        .mockResolvedValue(mockSubscription);
+
       // Mock do método de cálculo de dias para retornar 10 dias
-      jest.spyOn(useCase as any, 'calculateDaysBetween').mockReturnValue(DAYS_SINCE_CREATION_FOR_ACTIVE);
+      jest
+        .spyOn(useCase as any, 'calculateDaysBetween')
+        .mockReturnValue(DAYS_SINCE_CREATION_FOR_ACTIVE);
 
       // Act
-      const result = await useCase.execute({ accountId }) as SubscriptionWithRemainingFreeDays;
+      const result = (await useCase.execute({
+        accountId,
+      })) as SubscriptionWithRemainingFreeDays;
 
       // Assert
       expect(result).toBeDefined();
       expect(result.id).toEqual(mockSubscription.id);
       expect(result.remainingFreeDays).toEqual(20); // 30 - 10 = 20 dias restantes
-      
+
       // Verificar que o plano está presente na assinatura
       expect(result.plan).toBeDefined();
       expect(result.plan).toEqual(mockPlan);
-      
-      expect(subscriptionRepository.findMostRecentByAccountId).toHaveBeenCalledWith(accountId);
+
+      expect(
+        subscriptionRepository.findMostRecentByAccountId,
+      ).toHaveBeenCalledWith(accountId);
     });
 
     it('should return 0 remaining free days when the free trial period has expired', async () => {
       // Arrange
       const accountId = 'account-id';
-      jest.spyOn(subscriptionRepository, 'findMostRecentByAccountId').mockResolvedValue(mockSubscription);
-      
+      jest
+        .spyOn(subscriptionRepository, 'findMostRecentByAccountId')
+        .mockResolvedValue(mockSubscription);
+
       // Mock do método de cálculo de dias para retornar 40 dias (período gratuito expirado)
-      jest.spyOn(useCase as any, 'calculateDaysBetween').mockReturnValue(DAYS_SINCE_CREATION_FOR_EXPIRED);
+      jest
+        .spyOn(useCase as any, 'calculateDaysBetween')
+        .mockReturnValue(DAYS_SINCE_CREATION_FOR_EXPIRED);
 
       // Act
-      const result = await useCase.execute({ accountId }) as SubscriptionWithRemainingFreeDays;
+      const result = (await useCase.execute({
+        accountId,
+      })) as SubscriptionWithRemainingFreeDays;
 
       // Assert
       expect(result).toBeDefined();
@@ -138,7 +156,7 @@ describe('GetCurrentSubscriptionUseCase', () => {
     it('should return 0 remaining free days when the plan has no free trial period', async () => {
       // Arrange
       const accountId = 'account-id';
-      
+
       // Criar uma assinatura com plano sem período gratuito já populado
       const planWithoutFreeTrial = new Plan({
         id: 'plan-id',
@@ -148,22 +166,28 @@ describe('GetCurrentSubscriptionUseCase', () => {
         price: 49.99,
         externalId: 'external-basic-plan-id',
         maxAdvertisements: 5,
-        maxPhotos: 10
+        maxPhotos: 10,
       });
-      
+
       const subscriptionWithPlanWithoutFreeTrial: Subscription = {
         ...mockSubscription,
-        plan: planWithoutFreeTrial
+        plan: planWithoutFreeTrial,
       };
-      
-      jest.spyOn(subscriptionRepository, 'findMostRecentByAccountId').mockResolvedValue(subscriptionWithPlanWithoutFreeTrial);
+
+      jest
+        .spyOn(subscriptionRepository, 'findMostRecentByAccountId')
+        .mockResolvedValue(subscriptionWithPlanWithoutFreeTrial);
       jest.spyOn(planRepository, 'findOneById'); // Spy, mas não deve ser chamado
-      
+
       // Precisamos mockar o cálculo de dias mesmo que o plano não tenha período gratuito
-      jest.spyOn(useCase as any, 'calculateDaysBetween').mockReturnValue(DAYS_SINCE_CREATION_FOR_ACTIVE);
+      jest
+        .spyOn(useCase as any, 'calculateDaysBetween')
+        .mockReturnValue(DAYS_SINCE_CREATION_FOR_ACTIVE);
 
       // Act
-      const result = await useCase.execute({ accountId }) as SubscriptionWithRemainingFreeDays;
+      const result = (await useCase.execute({
+        accountId,
+      })) as SubscriptionWithRemainingFreeDays;
 
       // Assert
       expect(result).toBeDefined();
@@ -183,21 +207,27 @@ describe('GetCurrentSubscriptionUseCase', () => {
         price: 49.99,
         externalId: 'external-basic-plan-id',
         maxAdvertisements: 5,
-        maxPhotos: 10
+        maxPhotos: 10,
       });
-      
+
       const subscriptionWithNullFreeTrialPlan: Subscription = {
         ...mockSubscription,
-        plan: planWithNullFreeTrial
+        plan: planWithNullFreeTrial,
       };
-      
-      jest.spyOn(subscriptionRepository, 'findMostRecentByAccountId').mockResolvedValue(subscriptionWithNullFreeTrialPlan);
-      
+
+      jest
+        .spyOn(subscriptionRepository, 'findMostRecentByAccountId')
+        .mockResolvedValue(subscriptionWithNullFreeTrialPlan);
+
       // Precisamos mockar o cálculo de dias mesmo que o plano não tenha período gratuito
-      jest.spyOn(useCase as any, 'calculateDaysBetween').mockReturnValue(DAYS_SINCE_CREATION_FOR_ACTIVE);
+      jest
+        .spyOn(useCase as any, 'calculateDaysBetween')
+        .mockReturnValue(DAYS_SINCE_CREATION_FOR_ACTIVE);
 
       // Act
-      const result = await useCase.execute({ accountId }) as SubscriptionWithRemainingFreeDays;
+      const result = (await useCase.execute({
+        accountId,
+      })) as SubscriptionWithRemainingFreeDays;
 
       // Assert
       expect(result).toBeDefined();
@@ -207,17 +237,19 @@ describe('GetCurrentSubscriptionUseCase', () => {
     it('should throw an error when no subscription is found', async () => {
       // Arrange
       const accountId = 'account-id';
-      jest.spyOn(subscriptionRepository, 'findMostRecentByAccountId').mockResolvedValue(null);
+      jest
+        .spyOn(subscriptionRepository, 'findMostRecentByAccountId')
+        .mockResolvedValue(null);
 
       // Act & Assert
-      await expect(useCase.execute({ accountId }))
-        .rejects
-        .toThrow('notfound.subscription.do.not.exists');
-      
-      expect(subscriptionRepository.findMostRecentByAccountId).toHaveBeenCalledWith(accountId);
+      await expect(useCase.execute({ accountId })).rejects.toThrow(
+        'notfound.subscription.do.not.exists',
+      );
+
+      expect(
+        subscriptionRepository.findMostRecentByAccountId,
+      ).toHaveBeenCalledWith(accountId);
       expect(planRepository.findOneById).not.toHaveBeenCalled();
     });
   });
-
-
 });

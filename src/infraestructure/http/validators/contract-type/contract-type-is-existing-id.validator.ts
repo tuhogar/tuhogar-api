@@ -1,11 +1,21 @@
-import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 import { Injectable } from '@nestjs/common';
 import { IContractTypeRepository } from 'src/application/interfaces/repositories/contract-type.repository.interface';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class ContractTypeIsExistingIdConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly contractTypeRepository: IContractTypeRepository,) {}
+export class ContractTypeIsExistingIdConstraint
+  implements ValidatorConstraintInterface
+{
+  constructor(
+    private readonly contractTypeRepository: IContractTypeRepository,
+  ) {}
 
   async validate(id: string): Promise<boolean> {
     if (!id) return false;
@@ -20,7 +30,9 @@ export class ContractTypeIsExistingIdConstraint implements ValidatorConstraintIn
   }
 }
 
-export function ContractTypeIsExistingId(validationOptions?: ValidationOptions) {
+export function ContractTypeIsExistingId(
+  validationOptions?: ValidationOptions,
+) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       target: object.constructor,

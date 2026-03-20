@@ -6,84 +6,83 @@ import { Subscription } from './subscription.entity';
 
 @Schema({ timestamps: true, collection: 'accounts' })
 export class Account {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Plan' })
-    planId: Plan;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Plan' })
+  planId: Plan;
 
-    @Prop()
-    photo: string;
+  @Prop()
+  photo: string;
 
-    @Prop()
-    name: string;
+  @Prop()
+  name: string;
 
-    @Prop()
-    email: string;
+  @Prop()
+  email: string;
 
-    @Prop()
-    documentType: string;
+  @Prop()
+  documentType: string;
 
-    @Prop()
-    documentNumber: string;
+  @Prop()
+  documentNumber: string;
 
-    @Prop({ type: Object })
-    address: Object;
-    
-    @Prop()
-    phone: string;
+  @Prop({ type: Object })
+  address: Object;
 
-    @Prop()
-    whatsApp: string;
+  @Prop()
+  phone: string;
 
-    @Prop()
-    phone2: string;
+  @Prop()
+  whatsApp: string;
 
-    @Prop()
-    whatsApp2: string;
+  @Prop()
+  phone2: string;
 
-    @Prop()
-    webSite: string;
+  @Prop()
+  whatsApp2: string;
 
-    @Prop({ type: Object })
-    socialMedia: Object;
+  @Prop()
+  webSite: string;
 
-    @Prop()
-    description: string;
+  @Prop({ type: Object })
+  socialMedia: Object;
 
-    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'ContractType' }])
-    contractTypes: ContractType[];
+  @Prop()
+  description: string;
 
-    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' }])
-    subscriptions: Subscription[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'ContractType' }])
+  contractTypes: ContractType[];
 
-    @Prop()
-    status: string;
-    
-    /**
-     * Indica se o usuário já assinou algum plano pago
-     */
-    @Prop({ type: Boolean, default: false })
-    hasPaidPlan: boolean;
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' }])
+  subscriptions: Subscription[];
 
-    @Prop()
-    paymentToken: string;
+  @Prop()
+  status: string;
 
-    @Prop()
-    accountType: string;
+  /**
+   * Indica se o usuário já assinou algum plano pago
+   */
+  @Prop({ type: Boolean, default: false })
+  hasPaidPlan: boolean;
 
-    @Prop()
-    primaryColor: string;
+  @Prop()
+  paymentToken: string;
 
-    @Prop()
-    domain: string;
+  @Prop()
+  accountType: string;
 
-    @Prop()
-    createdAt: Date
+  @Prop()
+  primaryColor: string;
 
-    @Prop()
-    updatedAt: Date
+  @Prop()
+  domain: string;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
-
 
 const AccountSchema = SchemaFactory.createForClass(Account);
 

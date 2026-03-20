@@ -7,136 +7,136 @@ import { AdvertisementEvent } from './advertisement-event.entity';
 
 @Schema({ timestamps: true, collection: 'advertisements' })
 export class Advertisement {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: Account;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
+  accountId: Account;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    createdUserId: User;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  createdUserId: User;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    updatedUserId: User;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  updatedUserId: User;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    approvingUserId: User;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  approvingUserId: User;
 
-    @Prop()
-    code: number;
+  @Prop()
+  code: number;
 
-    @Prop()
-    description: string;
+  @Prop()
+  description: string;
 
-    @Prop()
-    status: string;
+  @Prop()
+  status: string;
 
-    @Prop()
-    transactionType: string;
+  @Prop()
+  transactionType: string;
 
-    @Prop()
-    type: string;
+  @Prop()
+  type: string;
 
-    @Prop()
-    constructionType: string;
+  @Prop()
+  constructionType: string;
 
-    @Prop()
-    allContentsIncluded: boolean;
+  @Prop()
+  allContentsIncluded: boolean;
 
-    @Prop()
-    isResidentialComplex: boolean;
+  @Prop()
+  isResidentialComplex: boolean;
 
-    @Prop()
-    isPenthouse: boolean;
+  @Prop()
+  isPenthouse: boolean;
 
-    @Prop()
-    bedsCount: number;
+  @Prop()
+  bedsCount: number;
 
-    @Prop()
-    bathsCount: number;
+  @Prop()
+  bathsCount: number;
 
-    @Prop()
-    parkingCount: number;
+  @Prop()
+  parkingCount: number;
 
-    @Prop()
-    floorsCount: number;
+  @Prop()
+  floorsCount: number;
 
-    @Prop()
-    floorNumber: number;
+  @Prop()
+  floorNumber: number;
 
-    @Prop()
-    constructionYear: number;
+  @Prop()
+  constructionYear: number;
 
-    @Prop()
-    socioEconomicLevel: number;
+  @Prop()
+  socioEconomicLevel: number;
 
-    @Prop()
-    isHoaIncluded: boolean;
+  @Prop()
+  isHoaIncluded: boolean;
 
-    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
-    amenities: Amenity[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
+  amenities: Amenity[];
 
-    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
-    communityAmenities: Amenity[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Amenity' }])
+  communityAmenities: Amenity[];
 
-    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'AdvertisementEvent' }])
-    advertisementEvents: AdvertisementEvent[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'AdvertisementEvent' }])
+  advertisementEvents: AdvertisementEvent[];
 
-    @Prop()
-    hoaFee: number;
+  @Prop()
+  hoaFee: number;
 
-    @Prop()
-    lotArea: number;
+  @Prop()
+  lotArea: number;
 
-    @Prop()
-    floorArea: number;
+  @Prop()
+  floorArea: number;
 
-    @Prop()
-    price: number;
+  @Prop()
+  price: number;
 
-    @Prop()
-    pricePerFloorArea: number;
+  @Prop()
+  pricePerFloorArea: number;
 
-    @Prop()
-    pricePerLotArea: number;
+  @Prop()
+  pricePerLotArea: number;
 
-    @Prop()
-    propertyTax: number;
+  @Prop()
+  propertyTax: number;
 
-    @Prop({ type: Object })
-    address: Object;
+  @Prop({ type: Object })
+  address: Object;
 
-    @Prop([{ type: Object }])
-    photos: Object[];
+  @Prop([{ type: Object }])
+  photos: Object[];
 
-    @Prop()
-    tourUrl: string;
+  @Prop()
+  tourUrl: string;
 
-    @Prop()
-    videoUrl: string;
+  @Prop()
+  videoUrl: string;
 
-    @Prop()
-    isActive: boolean;
+  @Prop()
+  isActive: boolean;
 
-    @Prop()
-    isPaid: boolean;
+  @Prop()
+  isPaid: boolean;
 
-    @Prop()
-    publishedAt: Date;
+  @Prop()
+  publishedAt: Date;
 
-    @Prop()
-    isVacant: boolean;
+  @Prop()
+  isVacant: boolean;
 
-    @Prop()
-    vacancyDate: Date;
+  @Prop()
+  vacancyDate: Date;
 
-    @Prop()
-    externalId: string;
+  @Prop()
+  externalId: string;
 
-    @Prop()
-    createdAt: Date;
+  @Prop()
+  createdAt: Date;
 
-    @Prop()
-    updatedAt: Date;
+  @Prop()
+  updatedAt: Date;
 }
 
 const AdvertisementSchema = SchemaFactory.createForClass(Advertisement);

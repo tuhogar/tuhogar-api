@@ -11,30 +11,29 @@ import { GetAllPlansOutputDtoMapper } from 'src/infraestructure/http/dtos/plan/o
 @ApiTags('v1/plans')
 @Controller('v1/plans')
 export class PlanController {
+  constructor(
+    private readonly createPlanUseCase: CreatePlanUseCase,
+    private readonly getAllPlanUseCase: GetAllPlanUseCase,
+  ) {}
 
-    constructor(
-        private readonly createPlanUseCase: CreatePlanUseCase,
-        private readonly getAllPlanUseCase: GetAllPlanUseCase,
-    ) {}
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna a lista de planos disponíveis',
+    type: [GetAllPlansOutputDto],
+  })
+  async getAll(): Promise<GetAllPlansOutputDto[]> {
+    const plans = await this.getAllPlanUseCase.execute({});
+    return GetAllPlansOutputDtoMapper.toOutputDtoList(plans);
+  }
 
-    @Get()
-    @ApiResponse({
-        status: 200,
-        description: 'Retorna a lista de planos disponíveis',
-        type: [GetAllPlansOutputDto]
-    })
-    async getAll(): Promise<GetAllPlansOutputDto[]> {
-        const plans = await this.getAllPlanUseCase.execute({});
-        return GetAllPlansOutputDtoMapper.toOutputDtoList(plans);
-    }
+  @ApiBearerAuth()
+  @Post()
+  @Auth('MASTER')
+  async create(@Body() createPlanDto: CreatePlanDto): Promise<Plan> {
+    const response = await this.createPlanUseCase.execute(createPlanDto);
+    if (!response) return null;
 
-    @ApiBearerAuth()
-    @Post()
-    @Auth('MASTER')
-    async create(@Body() createPlanDto: CreatePlanDto): Promise<Plan> {
-        const response = await this.createPlanUseCase.execute(createPlanDto);
-        if (!response) return null;
-
-        return response;
-    }
+    return response;
+  }
 }

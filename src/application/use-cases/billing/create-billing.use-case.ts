@@ -15,9 +15,7 @@ interface CreateBillingUseCaseCommand {
 
 @Injectable()
 export class CreateBillingUseCase {
-  constructor(
-    private readonly billingRepository: IBillingRepository,
-  ) {}
+  constructor(private readonly billingRepository: IBillingRepository) {}
 
   async execute({
     accountId,
@@ -26,7 +24,7 @@ export class CreateBillingUseCase {
     phone,
     address,
     documentType,
-    documentNumber
+    documentNumber,
   }: CreateBillingUseCaseCommand): Promise<{ accountId: string }> {
     const billing = new Billing({
       accountId,

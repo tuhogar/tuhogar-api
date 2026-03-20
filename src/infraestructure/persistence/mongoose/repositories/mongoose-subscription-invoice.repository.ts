@@ -7,13 +7,19 @@ import { SubscriptionInvoice as SubscriptionInvoiceMongoose } from '../entities/
 import { MongooseSubscriptionInvoiceMapper } from '../mapper/mongoose-subscription-invoice.mapper';
 
 @Injectable()
-export class MongooseSubscriptionInvoiceRepository implements ISubscriptionInvoiceRepository {
+export class MongooseSubscriptionInvoiceRepository
+  implements ISubscriptionInvoiceRepository
+{
   constructor(
-    @InjectModel(SubscriptionInvoiceMongoose.name) private readonly subscriptionInvoiceModel: Model<SubscriptionInvoiceMongoose>,
+    @InjectModel(SubscriptionInvoiceMongoose.name)
+    private readonly subscriptionInvoiceModel: Model<SubscriptionInvoiceMongoose>,
   ) {}
-    
-  async create(subscriptionInvoice: SubscriptionInvoice): Promise<SubscriptionInvoice> {
-    const data = MongooseSubscriptionInvoiceMapper.toMongoose(subscriptionInvoice);
+
+  async create(
+    subscriptionInvoice: SubscriptionInvoice,
+  ): Promise<SubscriptionInvoice> {
+    const data =
+      MongooseSubscriptionInvoiceMapper.toMongoose(subscriptionInvoice);
     const entity = new this.subscriptionInvoiceModel({ ...data });
     await entity.save();
 
@@ -21,24 +27,30 @@ export class MongooseSubscriptionInvoiceRepository implements ISubscriptionInvoi
   }
 
   async findOneByExternalId(externalId: string): Promise<SubscriptionInvoice> {
-    const query = await this.subscriptionInvoiceModel.findOne({ externalId }).exec();
-    
+    const query = await this.subscriptionInvoiceModel
+      .findOne({ externalId })
+      .exec();
+
     return MongooseSubscriptionInvoiceMapper.toDomain(query);
   }
 
   async find(): Promise<SubscriptionInvoice[]> {
     const query = await this.subscriptionInvoiceModel.find();
-    return query.map((item) => MongooseSubscriptionInvoiceMapper.toDomain(item));
+    return query.map((item) =>
+      MongooseSubscriptionInvoiceMapper.toDomain(item),
+    );
   }
 
-  async update(id: string, subscriptionInvoice: SubscriptionInvoice): Promise<SubscriptionInvoice> {
-    const data = MongooseSubscriptionInvoiceMapper.toMongoose(subscriptionInvoice);
-    const updated = await this.subscriptionInvoiceModel.findByIdAndUpdate(
-      id,
-      { ...data },
-      { new: true },
-    ).exec();
-    
+  async update(
+    id: string,
+    subscriptionInvoice: SubscriptionInvoice,
+  ): Promise<SubscriptionInvoice> {
+    const data =
+      MongooseSubscriptionInvoiceMapper.toMongoose(subscriptionInvoice);
+    const updated = await this.subscriptionInvoiceModel
+      .findByIdAndUpdate(id, { ...data }, { new: true })
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionInvoiceMapper.toDomain(updated);
     }

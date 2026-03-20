@@ -24,9 +24,14 @@ export class GetSubscriptionHistoryUseCase {
    * @returns Array de assinaturas com seus respectivos pagamentos, ordenadas por data de criação (mais recentes primeiro)
    * @throws Error com prefixo 'notfound.' quando nenhuma assinatura é encontrada
    */
-  async execute({ accountId }: GetSubscriptionHistoryUseCaseCommand): Promise<SubscriptionWithPayments[]> {
+  async execute({
+    accountId,
+  }: GetSubscriptionHistoryUseCaseCommand): Promise<
+    SubscriptionWithPayments[]
+  > {
     // Busca todas as assinaturas do usuário
-    const subscriptions = await this.subscriptionRepository.findAllByAccountId(accountId);
+    const subscriptions =
+      await this.subscriptionRepository.findAllByAccountId(accountId);
 
     // Se não encontrou assinaturas, lança um erro
     if (!subscriptions || subscriptions.length === 0) {
@@ -34,18 +39,22 @@ export class GetSubscriptionHistoryUseCase {
     }
 
     // Para cada assinatura, busca os pagamentos relacionados
-    const subscriptionsWithPayments: SubscriptionWithPayments[] = await Promise.all(
-      subscriptions.map(async (subscription) => {
-        // Busca os pagamentos da assinatura
-        const payments = await this.subscriptionPaymentRepository.findAllBySubscriptionId(subscription.id);
-        
-        // Retorna a assinatura com os pagamentos
-        return {
-          ...subscription,
-          payments: payments || []
-        };
-      })
-    );
+    const subscriptionsWithPayments: SubscriptionWithPayments[] =
+      await Promise.all(
+        subscriptions.map(async (subscription) => {
+          // Busca os pagamentos da assinatura
+          const payments =
+            await this.subscriptionPaymentRepository.findAllBySubscriptionId(
+              subscription.id,
+            );
+
+          // Retorna a assinatura com os pagamentos
+          return {
+            ...subscription,
+            payments: payments || [],
+          };
+        }),
+      );
 
     // Retorna as assinaturas com pagamentos
     return subscriptionsWithPayments;

@@ -4,11 +4,11 @@ import { IAdvertisementRepository } from 'src/application/interfaces/repositorie
 
 @Injectable()
 export class GetAllToApproveAdvertisementUseCase {
-    constructor(
-        private readonly advertisementRepository: IAdvertisementRepository,
-    ) {}
+  constructor(
+    private readonly advertisementRepository: IAdvertisementRepository,
+  ) {}
 
-    async execute(): Promise<Advertisement[]> {
-        return this.advertisementRepository.findToApprove();
-    }
+  async execute(): Promise<Advertisement[]> {
+    return this.advertisementRepository.findToApprove();
+  }
 }

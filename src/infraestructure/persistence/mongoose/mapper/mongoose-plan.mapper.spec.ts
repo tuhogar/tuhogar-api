@@ -45,7 +45,9 @@ describe('MongoosePlanMapper', () => {
       expect(result.price).toBe(mockMongooseDocument.price);
       expect(result.photo).toBe(mockMongooseDocument.photo);
       expect(result.externalId).toBe(mockMongooseDocument.externalId);
-      expect(result.maxAdvertisements).toBe(mockMongooseDocument.maxAdvertisements);
+      expect(result.maxAdvertisements).toBe(
+        mockMongooseDocument.maxAdvertisements,
+      );
       expect(result.maxPhotos).toBe(mockMongooseDocument.maxPhotos);
     });
 
@@ -76,7 +78,9 @@ describe('MongoosePlanMapper', () => {
       delete documentWithoutMaxPhotos.maxPhotos;
 
       // Act
-      const result = MongoosePlanMapper.toDomain(documentWithoutMaxPhotos as any);
+      const result = MongoosePlanMapper.toDomain(
+        documentWithoutMaxPhotos as any,
+      );
 
       // Assert
       expect(result).toBeInstanceOf(Plan);
@@ -114,7 +118,10 @@ describe('MongoosePlanMapper', () => {
 
     it('should handle domain entity with maxAdvertisements set to zero', () => {
       // Arrange
-      const entityWithZeroMaxAds = { ...mockDomainEntity, maxAdvertisements: 0 };
+      const entityWithZeroMaxAds = {
+        ...mockDomainEntity,
+        maxAdvertisements: 0,
+      };
 
       // Act
       const result = MongoosePlanMapper.toMongoose(entityWithZeroMaxAds);

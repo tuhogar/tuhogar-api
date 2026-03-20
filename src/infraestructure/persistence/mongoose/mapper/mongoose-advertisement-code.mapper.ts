@@ -3,14 +3,13 @@ import { AdvertisementCode as AdvertisementCodeDocument } from '../entities/adve
 import * as mongoose from 'mongoose';
 
 export class MongooseAdvertisementCodeMapper {
-    
-    static toDomain(entity: AdvertisementCodeDocument): AdvertisementCode {
-        if (!entity) return null;
-        
-        const model = new AdvertisementCode({
-            id: entity._id.toString(),
-            code: entity.code,
-        });
-        return model;
-    }
+  static toDomain(entity: AdvertisementCodeDocument): AdvertisementCode {
+    if (!entity) return null;
+
+    const model = new AdvertisementCode({
+      id: entity._id.toString(),
+      code: entity.code,
+    });
+    return model;
+  }
 }

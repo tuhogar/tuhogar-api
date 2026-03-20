@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
+import {
+  Subscription,
+  SubscriptionStatus,
+} from 'src/domain/entities/subscription';
 import { ISubscriptionRepository } from 'src/application/interfaces/repositories/subscription.repository.interface';
 import { Subscription as SubscriptionMongoose } from '../entities/subscription.entity';
 import { MongooseSubscriptionMapper } from '../mapper/mongoose-subscription.mapper';
@@ -9,9 +12,10 @@ import { MongooseSubscriptionMapper } from '../mapper/mongoose-subscription.mapp
 @Injectable()
 export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   constructor(
-    @InjectModel(SubscriptionMongoose.name) private readonly subscriptionModel: Model<SubscriptionMongoose>,
+    @InjectModel(SubscriptionMongoose.name)
+    private readonly subscriptionModel: Model<SubscriptionMongoose>,
   ) {}
-    
+
   async create(subscription: Subscription): Promise<Subscription> {
     const data = MongooseSubscriptionMapper.toMongoose(subscription);
     const entity = new this.subscriptionModel({ ...data });
@@ -23,47 +27,75 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   }
 
   async findOneById(id: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findById(id, { resultIntegration: 0 }).exec();
-    
+    const query = await this.subscriptionModel
+      .findById(id, { resultIntegration: 0 })
+      .exec();
+
     return MongooseSubscriptionMapper.toDomain(query);
   }
   async findOneWithResultIntegrationById(id: string): Promise<Subscription> {
     const query = await this.subscriptionModel.findById(id).exec();
-    
+
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
-  async findOneActiveOrCreatedByAccountId(accountId: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ accountId, status: { $in: [ SubscriptionStatus.ACTIVE, SubscriptionStatus.CREATED ] } }, { resultIntegration: 0 }).sort({ createdAt: -1 }).exec();
-    
+  async findOneActiveOrCreatedByAccountId(
+    accountId: string,
+  ): Promise<Subscription> {
+    const query = await this.subscriptionModel
+      .findOne(
+        {
+          accountId,
+          status: {
+            $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.CREATED],
+          },
+        },
+        { resultIntegration: 0 },
+      )
+      .sort({ createdAt: -1 })
+      .exec();
+
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async findOneActiveByAccountId(accountId: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ accountId, status: SubscriptionStatus.ACTIVE }, { resultIntegration: 0 }).exec();
-    
+    const query = await this.subscriptionModel
+      .findOne(
+        { accountId, status: SubscriptionStatus.ACTIVE },
+        { resultIntegration: 0 },
+      )
+      .exec();
+
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async findOneByExternalId(externalId: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ externalId }, { resultIntegration: 0 }).exec();
-    
+    const query = await this.subscriptionModel
+      .findOne({ externalId }, { resultIntegration: 0 })
+      .exec();
+
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
-  async findOneByExternalPayerReference(externalPayerReference: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne({ externalPayerReference }, { resultIntegration: 0 }).exec();
-    
+  async findOneByExternalPayerReference(
+    externalPayerReference: string,
+  ): Promise<Subscription> {
+    const query = await this.subscriptionModel
+      .findOne({ externalPayerReference }, { resultIntegration: 0 })
+      .exec();
+
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
   async cancel(id: string): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { status: SubscriptionStatus.CANCELLED },
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+    const updated = await this.subscriptionModel
+      .findByIdAndUpdate(
+        id,
+        { status: SubscriptionStatus.CANCELLED },
+        { new: true, select: { resultIntegration: 0 } },
+      )
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -77,17 +109,24 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @param effectiveCancellationDate Data efetiva de cancelamento (quando a assinatura será efetivamente cancelada)
    * @returns Assinatura atualizada
    */
-  async cancelOnPaymentGateway(id: string, effectiveCancellationDate: Date, status: SubscriptionStatus, newPlanId?: string): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { 
-        status,
-        effectiveCancellationDate: effectiveCancellationDate,
-        newPlanId: newPlanId ? newPlanId : undefined
-      },
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+  async cancelOnPaymentGateway(
+    id: string,
+    effectiveCancellationDate: Date,
+    status: SubscriptionStatus,
+    newPlanId?: string,
+  ): Promise<Subscription> {
+    const updated = await this.subscriptionModel
+      .findByIdAndUpdate(
+        id,
+        {
+          status,
+          effectiveCancellationDate: effectiveCancellationDate,
+          newPlanId: newPlanId ? newPlanId : undefined,
+        },
+        { new: true, select: { resultIntegration: 0 } },
+      )
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -96,12 +135,14 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   }
 
   async active(id: string): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { status: SubscriptionStatus.ACTIVE },
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+    const updated = await this.subscriptionModel
+      .findByIdAndUpdate(
+        id,
+        { status: SubscriptionStatus.ACTIVE },
+        { new: true, select: { resultIntegration: 0 } },
+      )
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -110,12 +151,14 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   }
 
   async pending(id: string): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { status: SubscriptionStatus.PENDING },
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+    const updated = await this.subscriptionModel
+      .findByIdAndUpdate(
+        id,
+        { status: SubscriptionStatus.PENDING },
+        { new: true, select: { resultIntegration: 0 } },
+      )
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -123,20 +166,33 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
     return null;
   }
 
-  async updateExternalReferences(id: string, externalId: string, externalPayerReference: string, resultIntegration: Record<string, any>, status: SubscriptionStatus, nextPaymentDate?: Date): Promise<Subscription> {
-    const updateData: any = { externalId, externalPayerReference, resultIntegration, status };
-    
+  async updateExternalReferences(
+    id: string,
+    externalId: string,
+    externalPayerReference: string,
+    resultIntegration: Record<string, any>,
+    status: SubscriptionStatus,
+    nextPaymentDate?: Date,
+  ): Promise<Subscription> {
+    const updateData: any = {
+      externalId,
+      externalPayerReference,
+      resultIntegration,
+      status,
+    };
+
     // Adicionar nextPaymentDate ao objeto de atualização se fornecido
     if (nextPaymentDate) {
       updateData.nextPaymentDate = nextPaymentDate;
     }
-    
-    const updated = await this.subscriptionModel.findOneAndUpdate(
-      { _id: id },
-      updateData,
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+
+    const updated = await this.subscriptionModel
+      .findOneAndUpdate({ _id: id }, updateData, {
+        new: true,
+        select: { resultIntegration: 0 },
+      })
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -145,12 +201,14 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
   }
 
   async updatePlan(id: string, planId: string): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { planId },
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+    const updated = await this.subscriptionModel
+      .findByIdAndUpdate(
+        id,
+        { planId },
+        { new: true, select: { resultIntegration: 0 } },
+      )
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -169,12 +227,16 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @returns Lista de assinaturas que devem ser efetivamente canceladas
    */
   async findSubscriptionsToCancel(currentDate: Date): Promise<Subscription[]> {
-    const subscriptions = await this.subscriptionModel.find({
-      status: SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY,
-      effectiveCancellationDate: { $lte: currentDate }
-    }).exec();
+    const subscriptions = await this.subscriptionModel
+      .find({
+        status: SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY,
+        effectiveCancellationDate: { $lte: currentDate },
+      })
+      .exec();
 
-    return subscriptions.map(subscription => MongooseSubscriptionMapper.toDomain(subscription));
+    return subscriptions.map((subscription) =>
+      MongooseSubscriptionMapper.toDomain(subscription),
+    );
   }
 
   /**
@@ -183,13 +245,19 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @param currentDate Data atual para comparação
    * @returns Lista de assinaturas que devem ser efetivamente canceladas e downgraded
    */
-  async findSubscriptionsToCancelAndDowngrade(currentDate: Date): Promise<Subscription[]> {
-    const subscriptions = await this.subscriptionModel.find({
-      status: SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED,
-      effectiveCancellationDate: { $lte: currentDate }
-    }).exec();
+  async findSubscriptionsToCancelAndDowngrade(
+    currentDate: Date,
+  ): Promise<Subscription[]> {
+    const subscriptions = await this.subscriptionModel
+      .find({
+        status: SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED,
+        effectiveCancellationDate: { $lte: currentDate },
+      })
+      .exec();
 
-    return subscriptions.map(subscription => MongooseSubscriptionMapper.toDomain(subscription));
+    return subscriptions.map((subscription) =>
+      MongooseSubscriptionMapper.toDomain(subscription),
+    );
   }
 
   /**
@@ -198,13 +266,18 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @param paymentDate Data do pagamento
    * @returns Assinatura atualizada
    */
-  async updatePaymentDate(id: string, paymentDate: Date): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { paymentDate },
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+  async updatePaymentDate(
+    id: string,
+    paymentDate: Date,
+  ): Promise<Subscription> {
+    const updated = await this.subscriptionModel
+      .findByIdAndUpdate(
+        id,
+        { paymentDate },
+        { new: true, select: { resultIntegration: 0 } },
+      )
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -218,13 +291,18 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @param nextPaymentDate Data do próximo pagamento
    * @returns Assinatura atualizada
    */
-  async updateNextPaymentDate(id: string, nextPaymentDate: Date): Promise<Subscription> {
-    const updated = await this.subscriptionModel.findByIdAndUpdate(
-      id,
-      { nextPaymentDate },
-      { new: true, select: { resultIntegration: 0 } },
-    ).exec();
-    
+  async updateNextPaymentDate(
+    id: string,
+    nextPaymentDate: Date,
+  ): Promise<Subscription> {
+    const updated = await this.subscriptionModel
+      .findByIdAndUpdate(
+        id,
+        { nextPaymentDate },
+        { new: true, select: { resultIntegration: 0 } },
+      )
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionMapper.toDomain(updated);
     }
@@ -238,14 +316,15 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @returns Assinatura mais recente com o plano populado ou null se não existir
    */
   async findMostRecentByAccountId(accountId: string): Promise<Subscription> {
-    const query = await this.subscriptionModel.findOne(
-      { accountId },
-      { resultIntegration: 0, externalId: 0, externalPayerReference: 0 }
-    )
-    .sort({ createdAt: -1 })
-    .populate('planId') // Popula o plano associado à assinatura
-    .exec();
-    
+    const query = await this.subscriptionModel
+      .findOne(
+        { accountId },
+        { resultIntegration: 0, externalId: 0, externalPayerReference: 0 },
+      )
+      .sort({ createdAt: -1 })
+      .populate('planId') // Popula o plano associado à assinatura
+      .exec();
+
     return MongooseSubscriptionMapper.toDomain(query);
   }
 
@@ -255,14 +334,15 @@ export class MongooseSubscriptionRepository implements ISubscriptionRepository {
    * @returns Array de assinaturas com os planos populados
    */
   async findAllByAccountId(accountId: string): Promise<Subscription[]> {
-    const query = await this.subscriptionModel.find(
-      { accountId },
-      { resultIntegration: 0, externalId: 0, externalPayerReference: 0 }
-    )
-    .sort({ createdAt: -1 }) // Ordenar por data de criação (mais recentes primeiro)
-    .populate('planId') // Popula o plano associado à assinatura
-    .exec();
-    
-    return query.map(item => MongooseSubscriptionMapper.toDomain(item));
+    const query = await this.subscriptionModel
+      .find(
+        { accountId },
+        { resultIntegration: 0, externalId: 0, externalPayerReference: 0 },
+      )
+      .sort({ createdAt: -1 }) // Ordenar por data de criação (mais recentes primeiro)
+      .populate('planId') // Popula o plano associado à assinatura
+      .exec();
+
+    return query.map((item) => MongooseSubscriptionMapper.toDomain(item));
   }
 }

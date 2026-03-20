@@ -4,11 +4,9 @@ import { Amenity } from 'src/domain/entities/amenity';
 
 @Injectable()
 export class GetAllAmenityUseCase {
-    constructor(
-        private readonly amenityRepository: IAmenityRepository,
-    ) {}
+  constructor(private readonly amenityRepository: IAmenityRepository) {}
 
-    async execute(): Promise<Amenity[]> {
-        return this.amenityRepository.find();
-    }
+  async execute(): Promise<Amenity[]> {
+    return this.amenityRepository.find();
+  }
 }

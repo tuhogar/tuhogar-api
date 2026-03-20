@@ -1,10 +1,10 @@
 import { Document } from 'mongoose';
 
 export class BulkUpdateDate {
-    id?: string;
-    updatedAt: Date;
+  id?: string;
+  updatedAt: Date;
 
-    constructor(props: BulkUpdateDate) {
-        Object.assign(this, props);
-    }
+  constructor(props: BulkUpdateDate) {
+    Object.assign(this, props);
+  }
 }
