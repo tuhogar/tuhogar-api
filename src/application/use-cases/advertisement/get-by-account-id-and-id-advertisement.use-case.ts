@@ -6,18 +6,25 @@ import { IAdvertisementRepository } from 'src/application/interfaces/repositorie
 
 @Injectable()
 export class GetByAccountIdAndIdAdvertisementUseCase {
-    constructor(
-        private readonly advertisementRepository: IAdvertisementRepository,
-    ) {}
+  constructor(
+    private readonly advertisementRepository: IAdvertisementRepository,
+  ) {}
 
-    async execute(authenticatedUser: AuthenticatedUser, advertisementId: string): Promise<Advertisement> {
-        const advertisement = await this.advertisementRepository.findOneById(advertisementId);
-        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+  async execute(
+    authenticatedUser: AuthenticatedUser,
+    advertisementId: string,
+  ): Promise<Advertisement> {
+    const advertisement =
+      await this.advertisementRepository.findOneById(advertisementId);
+    if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        if (authenticatedUser.userRole !== UserRole.MASTER && authenticatedUser.accountId !== advertisement.accountId) {
-            throw new Error('notfound.advertisement.do.not.exists');
-        }
-
-        return advertisement;
+    if (
+      authenticatedUser.userRole !== UserRole.MASTER &&
+      authenticatedUser.accountId !== advertisement.accountId
+    ) {
+      throw new Error('notfound.advertisement.do.not.exists');
     }
+
+    return advertisement;
+  }
 }

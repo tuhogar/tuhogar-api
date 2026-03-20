@@ -5,16 +5,16 @@ import { Coupon } from './coupon.entity';
 
 @Schema({ timestamps: true, collection: 'account-coupons' })
 export class AccountCoupon {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: Account;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
+  accountId: Account;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' })
-    couponId: Coupon;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' })
+  couponId: Coupon;
 
-    @Prop()
-    isDepleted: boolean;
+  @Prop()
+  isDepleted: boolean;
 }
 
 const AccountCouponSchema = SchemaFactory.createForClass(AccountCoupon);

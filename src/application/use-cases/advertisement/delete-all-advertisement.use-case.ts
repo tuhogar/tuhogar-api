@@ -9,40 +9,60 @@ import { RedisService } from '../../../infraestructure/persistence/redis/redis.s
 
 @Injectable()
 export class DeleteAllAdvertisementUseCase {
-    constructor(
-        private readonly algoliaService: AlgoliaService,
-        private readonly cloudinaryService: CloudinaryService,
-        private readonly advertisementRepository: IAdvertisementRepository,
-        private readonly redisService: RedisService
-    ) {}
+  constructor(
+    private readonly algoliaService: AlgoliaService,
+    private readonly cloudinaryService: CloudinaryService,
+    private readonly advertisementRepository: IAdvertisementRepository,
+    private readonly redisService: RedisService,
+  ) {}
 
-    async execute(authenticatedUser: AuthenticatedUser, deleteAdvertisementsDto: DeleteAdvertisementsDto): Promise<void> {
-        const advertisementIds = deleteAdvertisementsDto.advertisements.map((a) => a.id);
-        
-        const advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : undefined);
+  async execute(
+    authenticatedUser: AuthenticatedUser,
+    deleteAdvertisementsDto: DeleteAdvertisementsDto,
+  ): Promise<void> {
+    const advertisementIds = deleteAdvertisementsDto.advertisements.map(
+      (a) => a.id,
+    );
 
-        await this.advertisementRepository.deleteMany(advertisementIds, authenticatedUser.userRole !== UserRole.MASTER ? authenticatedUser.accountId : undefined);
+    const advertisements =
+      await this.advertisementRepository.findByIdsAndAccountId(
+        advertisementIds,
+        authenticatedUser.userRole !== UserRole.MASTER
+          ? authenticatedUser.accountId
+          : undefined,
+      );
 
-        await Promise.all([
-            advertisements.map((a) => this.algoliaService.delete(a.id)),
-            advertisements.map((a) => this.redisService.delete(a.id)),
-            this.redisService.deleteByPattern('advertisements-cache:*'),
-        ]);
+    await this.advertisementRepository.deleteMany(
+      advertisementIds,
+      authenticatedUser.userRole !== UserRole.MASTER
+        ? authenticatedUser.accountId
+        : undefined,
+    );
 
-        const photoUrls: string[] = [];
-        advertisements.forEach((a) => {
-            a.photos.forEach((b) => {
-                photoUrls.push(b.url);
-            })
-        })
+    await Promise.all([
+      advertisements.map((a) => this.algoliaService.delete(a.id)),
+      advertisements.map((a) => this.redisService.delete(a.id)),
+      this.redisService.deleteByPattern('advertisements-cache:*'),
+    ]);
 
-        if(!photoUrls.length) return;
-        
-        await Promise.all(photoUrls.map((url) => this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(url))));
-    }
+    const photoUrls: string[] = [];
+    advertisements.forEach((a) => {
+      a.photos.forEach((b) => {
+        photoUrls.push(b.url);
+      });
+    });
 
-    private getPublicIdFromImageUrl(imageUrl: string): string {
-        const split = imageUrl.split('/');
-        return `${split[split.length-2]}/${split[split.length-1].split('.')[0]  }`;
-    }
+    if (!photoUrls.length) return;
+
+    await Promise.all(
+      photoUrls.map((url) =>
+        this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(url)),
+      ),
+    );
+  }
+
+  private getPublicIdFromImageUrl(imageUrl: string): string {
+    const split = imageUrl.split('/');
+    return `${split[split.length - 2]}/${split[split.length - 1].split('.')[0]}`;
+  }
 }

@@ -14,7 +14,7 @@ export class DeleteImageAccountUseCase {
   ) {}
 
   async execute({
-    accountId
+    accountId,
   }: DeleteImageAccountUseCaseCommand): Promise<void> {
     const account = await this.accountRepository.findOneById(accountId);
     if (!account) throw new Error('notfound.account.do.not.exists');
@@ -22,11 +22,13 @@ export class DeleteImageAccountUseCase {
     const updatedAccount = await this.accountRepository.deleteImage(accountId);
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
 
-    await this.cloudinaryService.deleteImage(this.getPublicIdFromImageUrl(account.photo));
+    await this.cloudinaryService.deleteImage(
+      this.getPublicIdFromImageUrl(account.photo),
+    );
   }
 
   private getPublicIdFromImageUrl(imageUrl: string): string {
     const split = imageUrl.split('/');
-    return `${split[split.length-2]}/${split[split.length-1].split('.')[0]  }`;
+    return `${split[split.length - 2]}/${split[split.length - 1].split('.')[0]}`;
   }
 }

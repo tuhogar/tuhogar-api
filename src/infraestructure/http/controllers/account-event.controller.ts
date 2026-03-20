@@ -7,15 +7,19 @@ import { CreateAccountEventUseCase } from 'src/application/use-cases/account-eve
 @ApiTags('v1/account-events')
 @Controller('v1/account-events')
 export class AccountEventController {
-    constructor(
-        private readonly createAccountEventUseCase: CreateAccountEventUseCase,
-    ) {}
+  constructor(
+    private readonly createAccountEventUseCase: CreateAccountEventUseCase,
+  ) {}
 
-    @Post()
-    async create(@Body() createAccountEventDto: CreateAccountEventDto): Promise<AccountEvent> {
-        const response = await this.createAccountEventUseCase.execute(createAccountEventDto);
-        if (!response) return null;
+  @Post()
+  async create(
+    @Body() createAccountEventDto: CreateAccountEventDto,
+  ): Promise<AccountEvent> {
+    const response = await this.createAccountEventUseCase.execute(
+      createAccountEventDto,
+    );
+    if (!response) return null;
 
-        return response;
-    }
+    return response;
+  }
 }

@@ -5,7 +5,7 @@ export class ApplyCouponOutputDto {
     description: 'Cupom',
     example: '1234567890',
     required: true,
-    nullable: false
+    nullable: false,
   })
   coupon: string;
 
@@ -13,7 +13,7 @@ export class ApplyCouponOutputDto {
     description: 'Tipo do cupom',
     example: 'DOCUMENT',
     required: false,
-    nullable: true
+    nullable: true,
   })
   type: string;
 
@@ -21,7 +21,7 @@ export class ApplyCouponOutputDto {
     description: 'Data de expiração do cupom',
     example: '2025-06-20T10:21:28.000Z',
     required: false,
-    nullable: true
+    nullable: true,
   })
   expirationDate: Date;
 }

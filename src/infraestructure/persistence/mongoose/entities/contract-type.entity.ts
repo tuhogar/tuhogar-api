@@ -3,13 +3,13 @@ import * as mongoose from 'mongoose';
 
 @Schema({ timestamps: true, collection: 'contract-types' })
 export class ContractType {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop()
-    key: string;
+  @Prop()
+  key: string;
 
-    @Prop()
-    name: string;
+  @Prop()
+  name: string;
 }
 
 const ContractTypeSchema = SchemaFactory.createForClass(ContractType);

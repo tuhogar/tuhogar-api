@@ -12,7 +12,7 @@ export class ApplyCouponOutputDtoMapper {
    */
   public static toOutputDto(coupon: Coupon): ApplyCouponOutputDto {
     if (!coupon) return null;
-    
+
     return {
       coupon: coupon.coupon,
       type: coupon.type,

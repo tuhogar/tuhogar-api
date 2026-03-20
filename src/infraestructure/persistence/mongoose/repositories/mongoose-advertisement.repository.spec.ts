@@ -36,7 +36,9 @@ describe('MongooseAdvertisementRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<MongooseAdvertisementRepository>(MongooseAdvertisementRepository);
+    repository = module.get<MongooseAdvertisementRepository>(
+      MongooseAdvertisementRepository,
+    );
   });
 
   describe('countActiveOrWaitingByAccountId', () => {
@@ -46,18 +48,26 @@ describe('MongooseAdvertisementRepository', () => {
       advertisementModel.exec.mockResolvedValue(expectedCount);
 
       // Act
-      const result = await repository.countActiveOrWaitingByAccountId(mockAccountId);
+      const result =
+        await repository.countActiveOrWaitingByAccountId(mockAccountId);
 
       // Assert
       expect(result).toBe(expectedCount);
       expect(advertisementModel.countDocuments).toHaveBeenCalledWith({
         accountId: expect.any(Types.ObjectId),
-        status: { $in: [AdvertisementStatus.ACTIVE, AdvertisementStatus.WAITING_FOR_APPROVAL] }
+        status: {
+          $in: [
+            AdvertisementStatus.ACTIVE,
+            AdvertisementStatus.WAITING_FOR_APPROVAL,
+          ],
+        },
       });
-      
+
       // Verificar se o ObjectId foi criado corretamente com o accountId
       const callArgs = advertisementModel.countDocuments.mock.calls[0][0];
-      expect(callArgs.accountId.toString()).toBe(new Types.ObjectId(mockAccountId).toString());
+      expect(callArgs.accountId.toString()).toBe(
+        new Types.ObjectId(mockAccountId).toString(),
+      );
     });
 
     it('should return 0 when no advertisements match the criteria', async () => {
@@ -65,7 +75,8 @@ describe('MongooseAdvertisementRepository', () => {
       advertisementModel.exec.mockResolvedValue(0);
 
       // Act
-      const result = await repository.countActiveOrWaitingByAccountId(mockAccountId);
+      const result =
+        await repository.countActiveOrWaitingByAccountId(mockAccountId);
 
       // Assert
       expect(result).toBe(0);
@@ -79,8 +90,9 @@ describe('MongooseAdvertisementRepository', () => {
       });
 
       // Act & Assert
-      await expect(repository.countActiveOrWaitingByAccountId(invalidAccountId))
-        .rejects.toThrow();
+      await expect(
+        repository.countActiveOrWaitingByAccountId(invalidAccountId),
+      ).rejects.toThrow();
     });
   });
 });

@@ -25,7 +25,7 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
       amount: 10000,
       currency: 'COP',
       status: SubscriptionPaymentStatus.APPROVED,
-      paymentDate: new Date('2023-01-01')
+      paymentDate: new Date('2023-01-01'),
     },
     {
       id: '456',
@@ -38,8 +38,8 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
       amount: 15000,
       currency: 'COP',
       status: SubscriptionPaymentStatus.APPROVED,
-      paymentDate: new Date('2023-02-01')
-    }
+      paymentDate: new Date('2023-02-01'),
+    },
   ];
 
   const mockSubscription = {
@@ -47,7 +47,7 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
     accountId: 'account123',
     planId: 'plan123',
     status: SubscriptionStatus.ACTIVE,
-    nextPaymentDate: new Date('2023-02-01')
+    nextPaymentDate: new Date('2023-02-01'),
   };
 
   const mockPlan = {
@@ -57,7 +57,7 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
     items: ['item1', 'item2'],
     freeTrialDays: 7,
     photo: 'photo.jpg',
-    externalId: 'ext-plan-123'
+    externalId: 'ext-plan-123',
   };
 
   beforeEach(async () => {
@@ -67,28 +67,37 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
         {
           provide: ISubscriptionPaymentRepository,
           useValue: {
-            findAllByAccountIdPaginated: jest.fn()
-          }
+            findAllByAccountIdPaginated: jest.fn(),
+          },
         },
         {
           provide: ISubscriptionRepository,
           useValue: {
-            findOneById: jest.fn()
-          }
+            findOneById: jest.fn(),
+          },
         },
         {
           provide: IPlanRepository,
           useValue: {
-            findOneById: jest.fn()
-          }
-        }
-      ]
+            findOneById: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
-    getSubscriptionPaymentHistoryUseCase = moduleRef.get<GetSubscriptionPaymentHistoryUseCase>(GetSubscriptionPaymentHistoryUseCase);
-    subscriptionPaymentRepository = moduleRef.get(ISubscriptionPaymentRepository) as jest.Mocked<ISubscriptionPaymentRepository>;
-    subscriptionRepository = moduleRef.get(ISubscriptionRepository) as jest.Mocked<ISubscriptionRepository>;
-    planRepository = moduleRef.get(IPlanRepository) as jest.Mocked<IPlanRepository>;
+    getSubscriptionPaymentHistoryUseCase =
+      moduleRef.get<GetSubscriptionPaymentHistoryUseCase>(
+        GetSubscriptionPaymentHistoryUseCase,
+      );
+    subscriptionPaymentRepository = moduleRef.get(
+      ISubscriptionPaymentRepository,
+    ) as jest.Mocked<ISubscriptionPaymentRepository>;
+    subscriptionRepository = moduleRef.get(
+      ISubscriptionRepository,
+    ) as jest.Mocked<ISubscriptionRepository>;
+    planRepository = moduleRef.get(
+      IPlanRepository,
+    ) as jest.Mocked<IPlanRepository>;
   });
 
   it('should be defined', () => {
@@ -101,35 +110,48 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
       const accountId = 'account123';
       const page = 1;
       const limit = 10;
-      
-      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue({
-        data: mockPayments,
-        count: 2
-      });
-      
+
+      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue(
+        {
+          data: mockPayments,
+          count: 2,
+        },
+      );
+
       subscriptionRepository.findOneById.mockResolvedValue(mockSubscription);
       planRepository.findOneById.mockResolvedValue(mockPlan);
 
       // Act
-      const result = await getSubscriptionPaymentHistoryUseCase.execute({ accountId, page, limit });
+      const result = await getSubscriptionPaymentHistoryUseCase.execute({
+        accountId,
+        page,
+        limit,
+      });
 
       // Assert
       expect(result).toBeDefined();
       expect(result.data).toHaveLength(2);
       expect(result.count).toBe(2);
-      
+
       // Check if the payments have subscription and plan data
-      const paymentWithSubscription = result.data[0] as SubscriptionPaymentWithSubscription;
+      const paymentWithSubscription = result
+        .data[0] as SubscriptionPaymentWithSubscription;
       expect(paymentWithSubscription.subscription).toBeDefined();
       expect(paymentWithSubscription.subscription.id).toBe('subscription123');
       expect(paymentWithSubscription.subscription.plan).toBeDefined();
       expect(paymentWithSubscription.subscription.plan.id).toBe('plan123');
       expect(paymentWithSubscription.subscription.plan.name).toBe('Elite');
-      
+
       // Verify repository calls
-      expect(subscriptionPaymentRepository.findAllByAccountIdPaginated).toHaveBeenCalledWith(accountId, page, limit);
-      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith('subscription123');
-      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith('subscription456');
+      expect(
+        subscriptionPaymentRepository.findAllByAccountIdPaginated,
+      ).toHaveBeenCalledWith(accountId, page, limit);
+      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith(
+        'subscription123',
+      );
+      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith(
+        'subscription456',
+      );
       expect(planRepository.findOneById).toHaveBeenCalledWith('plan123');
     });
 
@@ -138,19 +160,27 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
       const accountId = 'account123';
       const page = 1;
       const limit = 10;
-      
-      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue({
-        data: [],
-        count: 0
-      });
+
+      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue(
+        {
+          data: [],
+          count: 0,
+        },
+      );
 
       // Act & Assert
-      await expect(getSubscriptionPaymentHistoryUseCase.execute({ accountId, page, limit }))
-        .rejects
-        .toThrow('notfound.subscription.payment.history.do.not.exists');
-      
+      await expect(
+        getSubscriptionPaymentHistoryUseCase.execute({
+          accountId,
+          page,
+          limit,
+        }),
+      ).rejects.toThrow('notfound.subscription.payment.history.do.not.exists');
+
       // Verify repository calls
-      expect(subscriptionPaymentRepository.findAllByAccountIdPaginated).toHaveBeenCalledWith(accountId, page, limit);
+      expect(
+        subscriptionPaymentRepository.findAllByAccountIdPaginated,
+      ).toHaveBeenCalledWith(accountId, page, limit);
       expect(subscriptionRepository.findOneById).not.toHaveBeenCalled();
       expect(planRepository.findOneById).not.toHaveBeenCalled();
     });
@@ -160,29 +190,40 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
       const accountId = 'account123';
       const page = 1;
       const limit = 10;
-      
-      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue({
-        data: mockPayments,
-        count: 2
-      });
-      
+
+      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue(
+        {
+          data: mockPayments,
+          count: 2,
+        },
+      );
+
       subscriptionRepository.findOneById.mockResolvedValue(null);
       planRepository.findOneById.mockResolvedValue(mockPlan);
 
       // Act
-      const result = await getSubscriptionPaymentHistoryUseCase.execute({ accountId, page, limit });
+      const result = await getSubscriptionPaymentHistoryUseCase.execute({
+        accountId,
+        page,
+        limit,
+      });
 
       // Assert
       expect(result).toBeDefined();
       expect(result.data).toHaveLength(2);
-      
+
       // Check that subscription is undefined when not found
-      const paymentWithSubscription = result.data[0] as SubscriptionPaymentWithSubscription;
+      const paymentWithSubscription = result
+        .data[0] as SubscriptionPaymentWithSubscription;
       expect(paymentWithSubscription.subscription).toBeUndefined();
-      
+
       // Verify repository calls
-      expect(subscriptionPaymentRepository.findAllByAccountIdPaginated).toHaveBeenCalledWith(accountId, page, limit);
-      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith('subscription123');
+      expect(
+        subscriptionPaymentRepository.findAllByAccountIdPaginated,
+      ).toHaveBeenCalledWith(accountId, page, limit);
+      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith(
+        'subscription123',
+      );
       expect(planRepository.findOneById).not.toHaveBeenCalled();
     });
 
@@ -191,35 +232,48 @@ describe('GetSubscriptionPaymentHistoryUseCase', () => {
       const accountId = 'account123';
       const page = 1;
       const limit = 10;
-      
+
       // Criar uma cópia do mockSubscription sem o plano
       const subscriptionWithoutPlan = { ...mockSubscription };
-      
-      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue({
-        data: mockPayments,
-        count: 2
-      });
-      
+
+      subscriptionPaymentRepository.findAllByAccountIdPaginated.mockResolvedValue(
+        {
+          data: mockPayments,
+          count: 2,
+        },
+      );
+
       // Configurar o mock para retornar a assinatura sem plano
-      subscriptionRepository.findOneById.mockResolvedValue(subscriptionWithoutPlan);
-      
+      subscriptionRepository.findOneById.mockResolvedValue(
+        subscriptionWithoutPlan,
+      );
+
       // Configurar o mock do planRepository para retornar null
       planRepository.findOneById.mockResolvedValue(null);
-      
+
       // Act
-      const result = await getSubscriptionPaymentHistoryUseCase.execute({ accountId, page, limit });
+      const result = await getSubscriptionPaymentHistoryUseCase.execute({
+        accountId,
+        page,
+        limit,
+      });
 
       // Assert
       expect(result).toBeDefined();
       expect(result.data).toHaveLength(2);
-      
+
       // Verificar que a assinatura existe mas não tem plano definido
-      const paymentWithSubscription = result.data[0] as SubscriptionPaymentWithSubscription;
+      const paymentWithSubscription = result
+        .data[0] as SubscriptionPaymentWithSubscription;
       expect(paymentWithSubscription.subscription).toBeDefined();
-      
+
       // Verificar que o planRepository foi chamado com o ID correto
-      expect(subscriptionPaymentRepository.findAllByAccountIdPaginated).toHaveBeenCalledWith(accountId, page, limit);
-      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith('subscription123');
+      expect(
+        subscriptionPaymentRepository.findAllByAccountIdPaginated,
+      ).toHaveBeenCalledWith(accountId, page, limit);
+      expect(subscriptionRepository.findOneById).toHaveBeenCalledWith(
+        'subscription123',
+      );
       expect(planRepository.findOneById).toHaveBeenCalledWith('plan123');
     });
   });

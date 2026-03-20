@@ -6,22 +6,30 @@ import { AccountDocumentType } from 'src/domain/entities/account';
  * Comando para execução do caso de uso UpdateCustomerSubscriptionUseCase
  */
 export interface UpdateCustomerSubscriptionUseCaseCommand {
-  customerId: string,
-  name: string,
-  email: string,
-  address: string,
-  phone: string,
-  documentType: AccountDocumentType,
-  documentNumber: string,
+  customerId: string;
+  name: string;
+  email: string;
+  address: string;
+  phone: string;
+  documentType: AccountDocumentType;
+  documentNumber: string;
 }
 
 @Injectable()
 export class UpdateCustomerSubscriptionUseCase {
-  constructor(
-    private readonly paymentGateway: IPaymentGateway,
-  ) {}
-  
-  async execute({ customerId, name, email, address, phone, documentType, documentNumber }: UpdateCustomerSubscriptionUseCaseCommand): Promise<{ customerId: string }> {
+  constructor(private readonly paymentGateway: IPaymentGateway) {}
+
+  async execute({
+    customerId,
+    name,
+    email,
+    address,
+    phone,
+    documentType,
+    documentNumber,
+  }: UpdateCustomerSubscriptionUseCaseCommand): Promise<{
+    customerId: string;
+  }> {
     console.log('execute-start');
     console.log('customerId: ', customerId);
     console.log('name: ', name);
@@ -31,7 +39,15 @@ export class UpdateCustomerSubscriptionUseCase {
     console.log('documentType: ', documentType);
     console.log('documentNumber: ', documentNumber);
 
-    const result = await this.paymentGateway.updateCustomer(customerId, name, email, address, phone, documentType, documentNumber);
+    const result = await this.paymentGateway.updateCustomer(
+      customerId,
+      name,
+      email,
+      address,
+      phone,
+      documentType,
+      documentNumber,
+    );
     console.log('updateCustomer result: ', result);
     console.log('execute-end');
     return { customerId: result.customerId };

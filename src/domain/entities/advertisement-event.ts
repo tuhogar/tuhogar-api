@@ -1,10 +1,10 @@
 export class AdvertisementEvent {
-    id?: string;
-    advertisementId: string;
-    type: string;
-    count: number
+  id?: string;
+  advertisementId: string;
+  type: string;
+  count: number;
 
-    constructor(props: AdvertisementEvent) {
-        Object.assign(this, props);
-    }
+  constructor(props: AdvertisementEvent) {
+    Object.assign(this, props);
+  }
 }

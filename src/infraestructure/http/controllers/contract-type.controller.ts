@@ -6,14 +6,14 @@ import { GetAllContractTypeUseCase } from 'src/application/use-cases/contract-ty
 @ApiTags('v1/contract-types')
 @Controller('v1/contract-types')
 export class ContractTypeController {
-    constructor(
-        private readonly getAllContractTypeUseCase: GetAllContractTypeUseCase,
-    ) {}
+  constructor(
+    private readonly getAllContractTypeUseCase: GetAllContractTypeUseCase,
+  ) {}
 
-    @ApiBearerAuth()
-    @Get()
-    async getAll(): Promise<ContractType[]> {
-        const response = await this.getAllContractTypeUseCase.execute();
-        return response;
-    }
+  @ApiBearerAuth()
+  @Get()
+  async getAll(): Promise<ContractType[]> {
+    const response = await this.getAllContractTypeUseCase.execute();
+    return response;
+  }
 }

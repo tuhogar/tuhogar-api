@@ -12,7 +12,7 @@ export class GetAllPlansOutputDtoMapper {
    */
   public static toOutputDto(plan: Plan): GetAllPlansOutputDto {
     if (!plan) return null;
-    
+
     return {
       id: plan.id,
       name: plan.name,
@@ -23,7 +23,7 @@ export class GetAllPlansOutputDtoMapper {
       discount: plan.discount || null,
       maxAdvertisements: plan.maxAdvertisements,
       maxPhotos: plan.maxPhotos,
-      photo: plan.photo || null
+      photo: plan.photo || null,
     };
   }
 
@@ -34,7 +34,7 @@ export class GetAllPlansOutputDtoMapper {
    */
   public static toOutputDtoList(plans: Plan[]): GetAllPlansOutputDto[] {
     if (!plans || !Array.isArray(plans)) return [];
-    
-    return plans.map(plan => this.toOutputDto(plan));
+
+    return plans.map((plan) => this.toOutputDto(plan));
   }
 }

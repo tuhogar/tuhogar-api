@@ -10,7 +10,12 @@ import { UserRole, UserStatus } from 'src/domain/entities/user';
 import { AccountStatus } from 'src/domain/entities/account';
 import { SubscriptionStatus } from 'src/domain/entities/subscription';
 import { CreateUpdateAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto';
-import { Advertisement, AdvertisementStatus, AdvertisementType, AdvertisementTransactionType } from 'src/domain/entities/advertisement';
+import {
+  Advertisement,
+  AdvertisementStatus,
+  AdvertisementType,
+  AdvertisementTransactionType,
+} from 'src/domain/entities/advertisement';
 
 describe('CreateAdvertisementUseCase', () => {
   let useCase: CreateAdvertisementUseCase;
@@ -127,7 +132,9 @@ describe('CreateAdvertisementUseCase', () => {
       ],
     }).compile();
 
-    useCase = module.get<CreateAdvertisementUseCase>(CreateAdvertisementUseCase);
+    useCase = module.get<CreateAdvertisementUseCase>(
+      CreateAdvertisementUseCase,
+    );
 
     // Spy no console.error para evitar logs durante os testes
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -139,69 +146,104 @@ describe('CreateAdvertisementUseCase', () => {
 
   it('should create an advertisement when user has not reached the limit', async () => {
     // Arrange
-    advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(3); // 3 anúncios existentes, limite é 5
+    advertisementRepository.countActiveOrWaitingByAccountId = jest
+      .fn()
+      .mockResolvedValue(3); // 3 anúncios existentes, limite é 5
 
     // Act
-    const result = await useCase.execute(mockAuthenticatedUser, mockCreateUpdateAdvertisementDto);
+    const result = await useCase.execute(
+      mockAuthenticatedUser,
+      mockCreateUpdateAdvertisementDto,
+    );
 
     // Assert
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
-    expect(advertisementRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-      accountId: mockAccountId,
-      createdUserId: mockUserId,
-      updatedUserId: mockUserId,
-      status: AdvertisementStatus.WAITING_FOR_APPROVAL,
-      code: mockAdvertisementCode.code,
-    }));
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).toHaveBeenCalledWith(mockAccountId);
+    expect(advertisementRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accountId: mockAccountId,
+        createdUserId: mockUserId,
+        updatedUserId: mockUserId,
+        status: AdvertisementStatus.WAITING_FOR_APPROVAL,
+        code: mockAdvertisementCode.code,
+      }),
+    );
     expect(result).toEqual(mockAdvertisement);
   });
 
   it('should throw an error when user has reached the limit', async () => {
     // Arrange
-    advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(5); // 5 anúncios existentes, limite é 5
+    advertisementRepository.countActiveOrWaitingByAccountId = jest
+      .fn()
+      .mockResolvedValue(5); // 5 anúncios existentes, limite é 5
 
     // Act & Assert
-    await expect(useCase.execute(mockAuthenticatedUser, mockCreateUpdateAdvertisementDto))
-      .rejects.toThrow('invalid.advertisement.limit.reached.for.plan');
-    
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
+    await expect(
+      useCase.execute(mockAuthenticatedUser, mockCreateUpdateAdvertisementDto),
+    ).rejects.toThrow('invalid.advertisement.limit.reached.for.plan');
+
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).toHaveBeenCalledWith(mockAccountId);
     expect(advertisementRepository.create).not.toHaveBeenCalled();
   });
 
   it('should throw an error when user has exceeded the limit', async () => {
     // Arrange
-    advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(6); // 6 anúncios existentes, limite é 5
+    advertisementRepository.countActiveOrWaitingByAccountId = jest
+      .fn()
+      .mockResolvedValue(6); // 6 anúncios existentes, limite é 5
 
     // Act & Assert
-    await expect(useCase.execute(mockAuthenticatedUser, mockCreateUpdateAdvertisementDto))
-      .rejects.toThrow('invalid.advertisement.limit.reached.for.plan');
-    
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
+    await expect(
+      useCase.execute(mockAuthenticatedUser, mockCreateUpdateAdvertisementDto),
+    ).rejects.toThrow('invalid.advertisement.limit.reached.for.plan');
+
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).toHaveBeenCalledWith(mockAccountId);
     expect(advertisementRepository.create).not.toHaveBeenCalled();
   });
 
   it('should not check the limit when maxAdvertisements is undefined', async () => {
     // Arrange
-    const userWithoutMaxAds = { ...mockAuthenticatedUser, maxAdvertisements: undefined };
+    const userWithoutMaxAds = {
+      ...mockAuthenticatedUser,
+      maxAdvertisements: undefined,
+    };
 
     // Act
-    const result = await useCase.execute(userWithoutMaxAds, mockCreateUpdateAdvertisementDto);
+    const result = await useCase.execute(
+      userWithoutMaxAds,
+      mockCreateUpdateAdvertisementDto,
+    );
 
     // Assert
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).not.toHaveBeenCalled();
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).not.toHaveBeenCalled();
     expect(advertisementRepository.create).toHaveBeenCalled();
     expect(result).toEqual(mockAdvertisement);
   });
 
   it('should not check the limit when maxAdvertisements is null', async () => {
     // Arrange
-    const userWithNullMaxAds = { ...mockAuthenticatedUser, maxAdvertisements: null };
+    const userWithNullMaxAds = {
+      ...mockAuthenticatedUser,
+      maxAdvertisements: null,
+    };
 
     // Act
-    const result = await useCase.execute(userWithNullMaxAds, mockCreateUpdateAdvertisementDto);
+    const result = await useCase.execute(
+      userWithNullMaxAds,
+      mockCreateUpdateAdvertisementDto,
+    );
 
     // Assert
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).not.toHaveBeenCalled();
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).not.toHaveBeenCalled();
     expect(advertisementRepository.create).toHaveBeenCalled();
     expect(result).toEqual(mockAdvertisement);
   });
@@ -211,55 +253,96 @@ describe('CreateAdvertisementUseCase', () => {
     const userWithoutPlan = { ...mockAuthenticatedUser, planId: undefined };
 
     // Act & Assert
-    await expect(useCase.execute(userWithoutPlan, mockCreateUpdateAdvertisementDto))
-      .rejects.toThrow('invalid.user.has.no.plan.associated');
-    
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).not.toHaveBeenCalled();
+    await expect(
+      useCase.execute(userWithoutPlan, mockCreateUpdateAdvertisementDto),
+    ).rejects.toThrow('invalid.user.has.no.plan.associated');
+
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).not.toHaveBeenCalled();
     expect(advertisementRepository.create).not.toHaveBeenCalled();
   });
 
   it('should allow creating an advertisement when maxAdvertisements is 0 and user has no advertisements', async () => {
     // Arrange
-    const userWithZeroMaxAds = { ...mockAuthenticatedUser, maxAdvertisements: 0 };
-    advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(0);
+    const userWithZeroMaxAds = {
+      ...mockAuthenticatedUser,
+      maxAdvertisements: 0,
+    };
+    advertisementRepository.countActiveOrWaitingByAccountId = jest
+      .fn()
+      .mockResolvedValue(0);
 
     // Act
-    const result = await useCase.execute(userWithZeroMaxAds, mockCreateUpdateAdvertisementDto);
+    const result = await useCase.execute(
+      userWithZeroMaxAds,
+      mockCreateUpdateAdvertisementDto,
+    );
 
     // Assert
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).toHaveBeenCalledWith(mockAccountId);
     expect(advertisementRepository.create).toHaveBeenCalled();
     expect(result).toEqual(mockAdvertisement);
   });
 
   it('should allow creating an advertisement when maxAdvertisements is 0 and user has no advertisements', async () => {
     // Arrange
-    const userWithZeroMaxAds = { ...mockAuthenticatedUser, maxAdvertisements: 0 };
-    advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(0);
-    advertisementRepository.create = jest.fn().mockResolvedValue(mockAdvertisement);
-    advertisementCodeRepository.generateNewCode = jest.fn().mockResolvedValue(12345);
+    const userWithZeroMaxAds = {
+      ...mockAuthenticatedUser,
+      maxAdvertisements: 0,
+    };
+    advertisementRepository.countActiveOrWaitingByAccountId = jest
+      .fn()
+      .mockResolvedValue(0);
+    advertisementRepository.create = jest
+      .fn()
+      .mockResolvedValue(mockAdvertisement);
+    advertisementCodeRepository.generateNewCode = jest
+      .fn()
+      .mockResolvedValue(12345);
 
     // Act
-    const result = await useCase.execute(userWithZeroMaxAds, mockCreateUpdateAdvertisementDto);
+    const result = await useCase.execute(
+      userWithZeroMaxAds,
+      mockCreateUpdateAdvertisementDto,
+    );
 
     // Assert
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).toHaveBeenCalledWith(mockAccountId);
     expect(advertisementRepository.create).toHaveBeenCalled();
     expect(result).toEqual(mockAdvertisement);
   });
 
   it('should allow creating an advertisement when maxAdvertisements is 0 and user has advertisements', async () => {
     // Arrange
-    const userWithZeroMaxAds = { ...mockAuthenticatedUser, maxAdvertisements: 0 };
-    advertisementRepository.countActiveOrWaitingByAccountId = jest.fn().mockResolvedValue(1);
-    advertisementRepository.create = jest.fn().mockResolvedValue(mockAdvertisement);
-    advertisementCodeRepository.generateNewCode = jest.fn().mockResolvedValue(12345);
+    const userWithZeroMaxAds = {
+      ...mockAuthenticatedUser,
+      maxAdvertisements: 0,
+    };
+    advertisementRepository.countActiveOrWaitingByAccountId = jest
+      .fn()
+      .mockResolvedValue(1);
+    advertisementRepository.create = jest
+      .fn()
+      .mockResolvedValue(mockAdvertisement);
+    advertisementCodeRepository.generateNewCode = jest
+      .fn()
+      .mockResolvedValue(12345);
 
     // Act
-    const result = await useCase.execute(userWithZeroMaxAds, mockCreateUpdateAdvertisementDto);
+    const result = await useCase.execute(
+      userWithZeroMaxAds,
+      mockCreateUpdateAdvertisementDto,
+    );
 
     // Assert
-    expect(advertisementRepository.countActiveOrWaitingByAccountId).toHaveBeenCalledWith(mockAccountId);
+    expect(
+      advertisementRepository.countActiveOrWaitingByAccountId,
+    ).toHaveBeenCalledWith(mockAccountId);
     expect(advertisementRepository.create).toHaveBeenCalled();
     expect(result).toEqual(mockAdvertisement);
   });

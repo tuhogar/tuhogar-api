@@ -4,9 +4,7 @@ import { IAccountRepository } from 'src/application/interfaces/repositories/acco
 
 @Injectable()
 export class GetAllAccountUseCase {
-  constructor(
-    private readonly accountRepository: IAccountRepository,
-  ) {}
+  constructor(private readonly accountRepository: IAccountRepository) {}
 
   async execute(): Promise<Account[]> {
     return this.accountRepository.find();

@@ -1,4 +1,10 @@
-import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
+} from 'class-validator';
 import { REQUEST_CONTEXT } from 'src/infraestructure/guards/auth.guard';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { Injectable } from '@nestjs/common';
@@ -6,32 +12,36 @@ import { IAccountRepository } from 'src/application/interfaces/repositories/acco
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class AccountAlreadyExistsConstraint implements ValidatorConstraintInterface {
-    constructor(private readonly accountRepository: IAccountRepository) {}
-    
-    async validate(name: any, args: ValidationArguments) {
-        const object = args.object as any;
+export class AccountAlreadyExistsConstraint
+  implements ValidatorConstraintInterface
+{
+  constructor(private readonly accountRepository: IAccountRepository) {}
 
-        const user = object[REQUEST_CONTEXT].user as AuthenticatedUser;
+  async validate(name: any, args: ValidationArguments) {
+    const object = args.object as any;
 
-        const accountExists = await this.accountRepository.findOneByEmail(user.email);
+    const user = object[REQUEST_CONTEXT].user as AuthenticatedUser;
 
-        return !accountExists;
-    }
+    const accountExists = await this.accountRepository.findOneByEmail(
+      user.email,
+    );
 
-    defaultMessage(args: ValidationArguments) {
-       return `invalid.account.already.exists`;
-    }
+    return !accountExists;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return `invalid.account.already.exists`;
+  }
 }
 
 export function AccountAlreadyExists(validationOptions?: ValidationOptions) {
-    return function (object: Object, propertyName: string) {
-        registerDecorator({
-            target: object.constructor,
-            propertyName: propertyName,
-            options: validationOptions,
-            constraints: [],
-            validator: AccountAlreadyExistsConstraint,
-        });
-    };
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: AccountAlreadyExistsConstraint,
+    });
+  };
 }

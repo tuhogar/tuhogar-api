@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Advertisement, AdvertisementStatus } from 'src/domain/entities/advertisement';
+import {
+  Advertisement,
+  AdvertisementStatus,
+} from 'src/domain/entities/advertisement';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
 import { CreateUpdateAdvertisementDto } from 'src/infraestructure/http/dtos/advertisement/create-update-advertisement.dto';
 import { plainToClass } from 'class-transformer';
@@ -13,58 +16,73 @@ import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-da
 
 @Injectable()
 export class CreateAdvertisementUseCase {
-    private readonly firstSubscriptionPlanId: string;
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
-        private readonly advertisementRepository: IAdvertisementRepository,
-        private readonly advertisementCodeRepository: IAdvertisementCodeRepository,
-        private readonly subscriptionRepository: ISubscriptionRepository,
-    ) {
-        this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
+  private readonly firstSubscriptionPlanId: string;
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
+    private readonly advertisementRepository: IAdvertisementRepository,
+    private readonly advertisementCodeRepository: IAdvertisementCodeRepository,
+    private readonly subscriptionRepository: ISubscriptionRepository,
+  ) {
+    this.firstSubscriptionPlanId = this.configService.get<string>(
+      'FIRST_SUBSCRIPTION_PLAN_ID',
+    );
+  }
+
+  async execute(
+    authenticatedUser: AuthenticatedUser,
+    createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
+  ): Promise<Advertisement> {
+    // Verificar se o usuário tem um plano associado
+    if (!authenticatedUser.planId) {
+      throw new Error('invalid.user.has.no.plan.associated');
     }
 
-    async execute(
-        authenticatedUser: AuthenticatedUser,
-        createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
-    ): Promise<Advertisement> {
-        // Verificar se o usuário tem um plano associado
-        if (!authenticatedUser.planId) {
-            throw new Error('invalid.user.has.no.plan.associated');
-        }
+    // Verificar se o plano tem um limite de anúncios definido
+    if (
+      authenticatedUser.maxAdvertisements !== undefined &&
+      authenticatedUser.maxAdvertisements !== null
+    ) {
+      // Contar anúncios ativos ou aguardando aprovação da conta
+      const currentAdvertisementsCount =
+        await this.advertisementRepository.countActiveOrWaitingByAccountId(
+          authenticatedUser.accountId,
+        );
 
-        // Verificar se o plano tem um limite de anúncios definido
-        if (authenticatedUser.maxAdvertisements !== undefined && authenticatedUser.maxAdvertisements !== null) {
-            // Contar anúncios ativos ou aguardando aprovação da conta
-            const currentAdvertisementsCount = await this.advertisementRepository.countActiveOrWaitingByAccountId(authenticatedUser.accountId);
-            
-            // Verificar se o limite foi atingido
-            // Caso especial: quando maxAdvertisements é 0 e não há anúncios, permitir a criação de um anúncio
-            if (authenticatedUser.maxAdvertisements > 0 && currentAdvertisementsCount >= authenticatedUser.maxAdvertisements) {
-                throw new Error('invalid.advertisement.limit.reached.for.plan');
-            }
-        }
+      // Verificar se o limite foi atingido
+      // Caso especial: quando maxAdvertisements é 0 e não há anúncios, permitir a criação de um anúncio
+      if (
+        authenticatedUser.maxAdvertisements > 0 &&
+        currentAdvertisementsCount >= authenticatedUser.maxAdvertisements
+      ) {
+        throw new Error('invalid.advertisement.limit.reached.for.plan');
+      }
+    }
 
-        createUpdateAdvertisementDto.address = plainToClass(AddressDto, createUpdateAdvertisementDto.address);
+    createUpdateAdvertisementDto.address = plainToClass(
+      AddressDto,
+      createUpdateAdvertisementDto.address,
+    );
 
-        const advertisementCode = await this.advertisementCodeRepository.generateNewCode();
-        
-        const advertisementCreated = await this.advertisementRepository.create({
-            accountId: authenticatedUser.accountId, 
-            createdUserId: authenticatedUser.userId, 
-            updatedUserId: authenticatedUser.userId, 
-            status: AdvertisementStatus.WAITING_FOR_APPROVAL,
-            code: advertisementCode.code,
-            ...createUpdateAdvertisementDto,
-        });
+    const advertisementCode =
+      await this.advertisementCodeRepository.generateNewCode();
 
-        /*
+    const advertisementCreated = await this.advertisementRepository.create({
+      accountId: authenticatedUser.accountId,
+      createdUserId: authenticatedUser.userId,
+      updatedUserId: authenticatedUser.userId,
+      status: AdvertisementStatus.WAITING_FOR_APPROVAL,
+      code: advertisementCode.code,
+      ...createUpdateAdvertisementDto,
+    });
+
+    /*
         if (authenticatedUser.planId === this.firstSubscriptionPlanId && authenticatedUser.subscriptionStatus === SubscriptionStatus.CREATED) {
             await this.subscriptionRepository.active(authenticatedUser.subscriptionId);
             await this.updateFirebaseUsersDataUseCase.execute({ accountId: authenticatedUser.accountId });
         }
         */
 
-        return advertisementCreated;
-    }
+    return advertisementCreated;
+  }
 }

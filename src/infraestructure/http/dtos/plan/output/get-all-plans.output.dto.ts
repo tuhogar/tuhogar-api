@@ -3,13 +3,13 @@ import { ApiProperty } from '@nestjs/swagger';
 export class GetAllPlansOutputDto {
   @ApiProperty({
     description: 'ID único do plano',
-    example: '60f1e5b5e6c7a32d8c9e4b3a'
+    example: '60f1e5b5e6c7a32d8c9e4b3a',
   })
   id: string;
 
   @ApiProperty({
     description: 'Nome do plano',
-    example: 'Plano Premium'
+    example: 'Plano Premium',
   })
   name: string;
 
@@ -17,32 +17,36 @@ export class GetAllPlansOutputDto {
     description: 'Número de dias gratuitos no período de teste',
     example: 30,
     required: false,
-    nullable: true
+    nullable: true,
   })
   freeTrialDays: number | null;
 
   @ApiProperty({
     description: 'Lista de itens/benefícios incluídos no plano',
-    example: ['Até 10 anúncios', 'Até 20 fotos por anúncio', 'Destaque na busca'],
-    type: [String]
+    example: [
+      'Até 10 anúncios',
+      'Até 20 fotos por anúncio',
+      'Destaque na busca',
+    ],
+    type: [String],
   })
   items: string[];
 
   @ApiProperty({
     description: 'Preço do plano',
-    example: 99.90
+    example: 99.9,
   })
   price: number;
 
   @ApiProperty({
     description: 'Máximo de anúncios',
-    example: 2
+    example: 2,
   })
   maxAdvertisements: number;
 
   @ApiProperty({
     description: 'Máximo de fotos por anúncio',
-    example: 20
+    example: 20,
   })
   maxPhotos: number;
 
@@ -50,15 +54,15 @@ export class GetAllPlansOutputDto {
     description: 'URL da foto do plano',
     example: 'https://example.com/images/premium-plan.jpg',
     required: false,
-    nullable: true
+    nullable: true,
   })
   photo: string | null;
 
   @ApiProperty({
     description: 'Preço original do plano',
-    example: 199.90,
+    example: 199.9,
     required: false,
-    nullable: true
+    nullable: true,
   })
   oldPrice: number | null;
 
@@ -66,7 +70,7 @@ export class GetAllPlansOutputDto {
     description: 'Desconto do plano em %',
     example: 50,
     required: false,
-    nullable: true
+    nullable: true,
   })
   discount: number | null;
 }

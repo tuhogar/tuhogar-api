@@ -3,21 +3,24 @@ import { IAdvertisementReasonRepository } from 'src/application/interfaces/repos
 import { AdvertisementReason } from 'src/domain/entities/advertisement-reason';
 
 interface CreateAdvertisementReasonUseCaseCommand {
-    name: string,
+  name: string;
 }
 
 @Injectable()
 export class CreateAdvertisementReasonUseCase {
-    constructor(
-        private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
-    ) {}
+  constructor(
+    private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
+  ) {}
 
-    async execute({ name }: CreateAdvertisementReasonUseCaseCommand): Promise<AdvertisementReason> {
-        const advertisementReason = new AdvertisementReason({
-            name,
-        });
+  async execute({
+    name,
+  }: CreateAdvertisementReasonUseCaseCommand): Promise<AdvertisementReason> {
+    const advertisementReason = new AdvertisementReason({
+      name,
+    });
 
-        const response = await this.advertisementReasonRepository.create(advertisementReason);
-        return response;
-    }   
+    const response =
+      await this.advertisementReasonRepository.create(advertisementReason);
+    return response;
+  }
 }

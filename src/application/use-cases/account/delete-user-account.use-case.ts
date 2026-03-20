@@ -10,19 +10,17 @@ interface DeleteUserAccountUseCaseCommand {
 
 @Injectable()
 export class DeleteUserAccountUseCase {
-  constructor(
-    private readonly deleteUserUseCase: DeleteUserUseCase,
-  ) {}
+  constructor(private readonly deleteUserUseCase: DeleteUserUseCase) {}
 
   async execute({
     userRole,
     accountId,
-    userId
+    userId,
   }: DeleteUserAccountUseCaseCommand): Promise<void> {
     await this.deleteUserUseCase.execute({
       userRole,
       accountId,
-      userId
+      userId,
     });
   }
 }

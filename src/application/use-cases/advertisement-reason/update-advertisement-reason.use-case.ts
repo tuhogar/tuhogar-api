@@ -3,27 +3,30 @@ import { IAdvertisementReasonRepository } from 'src/application/interfaces/repos
 import { AdvertisementReason } from 'src/domain/entities/advertisement-reason';
 
 interface UpdateAdvertisementReasonUseCaseCommand {
-    id: string;
-    name: string;
+  id: string;
+  name: string;
 }
 
 @Injectable()
 export class UpdateAdvertisementReasonUseCase {
-    constructor(
-        private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
-    ) {}
+  constructor(
+    private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
+  ) {}
 
-    async execute({
-        id,
-        name
-    }: UpdateAdvertisementReasonUseCaseCommand): Promise<AdvertisementReason> {
-        const advertisementReason = new AdvertisementReason({
-            name,
-        });
+  async execute({
+    id,
+    name,
+  }: UpdateAdvertisementReasonUseCaseCommand): Promise<AdvertisementReason> {
+    const advertisementReason = new AdvertisementReason({
+      name,
+    });
 
-        const updated = await this.advertisementReasonRepository.update(id, advertisementReason);
-        if (!updated) throw new Error('notfound.advertisement.do.not.exists');
+    const updated = await this.advertisementReasonRepository.update(
+      id,
+      advertisementReason,
+    );
+    if (!updated) throw new Error('notfound.advertisement.do.not.exists');
 
-        return updated;
-    }
+    return updated;
+  }
 }

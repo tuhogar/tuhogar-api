@@ -32,13 +32,14 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
             items: ['item1', 'item2'],
             freeTrialDays: 7,
             photo: 'photo.jpg',
-            externalId: 'ext-plan-123'
-          }
-        }
+            externalId: 'ext-plan-123',
+          },
+        },
       };
 
       // Act
-      const result = GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDto(payment);
+      const result =
+        GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDto(payment);
 
       // Assert
       expect(result).toBeDefined();
@@ -48,13 +49,15 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
       expect(result.currency).toBe('COP');
       expect(result.status).toBe(SubscriptionPaymentStatus.APPROVED);
       expect(result.paymentDate).toEqual(new Date('2023-01-01'));
-      
+
       // Check subscription data
       expect(result.subscription).toBeDefined();
       expect(result.subscription.id).toBe('subscription123');
       expect(result.subscription.status).toBe(SubscriptionStatus.ACTIVE);
-      expect(result.subscription.nextPaymentDate).toEqual(new Date('2023-02-01'));
-      
+      expect(result.subscription.nextPaymentDate).toEqual(
+        new Date('2023-02-01'),
+      );
+
       // Check plan data
       expect(result.subscription.plan).toBeDefined();
       expect(result.subscription.plan.id).toBe('plan123');
@@ -82,12 +85,13 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
           planId: 'plan123',
           status: SubscriptionStatus.ACTIVE,
           nextPaymentDate: null,
-          plan: null
-        }
+          plan: null,
+        },
       };
 
       // Act
-      const result = GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDto(payment);
+      const result =
+        GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDto(payment);
 
       // Assert
       expect(result).toBeDefined();
@@ -110,11 +114,12 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
         currency: 'COP',
         status: SubscriptionPaymentStatus.APPROVED,
         paymentDate: new Date('2023-01-01'),
-        subscription: undefined
+        subscription: undefined,
       };
 
       // Act
-      const result = GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDto(payment);
+      const result =
+        GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDto(payment);
 
       // Assert
       expect(result).toBeDefined();
@@ -151,9 +156,9 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
               items: ['item1', 'item2'],
               freeTrialDays: 7,
               photo: 'photo.jpg',
-              externalId: 'ext-plan-123'
-            }
-          }
+              externalId: 'ext-plan-123',
+            },
+          },
         },
         {
           id: '456',
@@ -180,14 +185,15 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
               items: ['item1', 'item2', 'item3'],
               freeTrialDays: 0,
               photo: null,
-              externalId: 'ext-plan-456'
-            }
-          }
-        }
+              externalId: 'ext-plan-456',
+            },
+          },
+        },
       ];
 
       // Act
-      const result = GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList(payments);
+      const result =
+        GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList(payments);
 
       // Assert
       expect(result).toBeDefined();
@@ -198,7 +204,8 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
 
     it('should return an empty array when input is null', () => {
       // Act
-      const result = GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList(null);
+      const result =
+        GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList(null);
 
       // Assert
       expect(result).toEqual([]);
@@ -206,7 +213,8 @@ describe('GetSubscriptionPaymentHistoryOutputDtoMapper', () => {
 
     it('should return an empty array when input is an empty array', () => {
       // Act
-      const result = GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList([]);
+      const result =
+        GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList([]);
 
       // Assert
       expect(result).toEqual([]);

@@ -5,37 +5,38 @@ import { Account } from './account.entity';
 
 @Schema({ timestamps: true, collection: 'subscription-invoices' })
 export class SubscriptionInvoice {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: Account;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
+  accountId: Account;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' })
-    subscriptionId: Subscription;
-    
-    @Prop()
-    externalId: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' })
+  subscriptionId: Subscription;
 
-    @Prop()
-    externalSubscriptionReference: string;
+  @Prop()
+  externalId: string;
 
-    @Prop()
-    public description: string;
+  @Prop()
+  externalSubscriptionReference: string;
 
-    @Prop()
-    public amount: number;
+  @Prop()
+  public description: string;
 
-    @Prop()
-    public currency: string;
+  @Prop()
+  public amount: number;
 
-    @Prop()
-    status: string;
+  @Prop()
+  public currency: string;
 
-    @Prop()
-    public statusDescription: string;
+  @Prop()
+  status: string;
+
+  @Prop()
+  public statusDescription: string;
 }
 
-const SubscriptionInvoiceSchema = SchemaFactory.createForClass(SubscriptionInvoice);
+const SubscriptionInvoiceSchema =
+  SchemaFactory.createForClass(SubscriptionInvoice);
 
 SubscriptionInvoiceSchema.index({ externalId: -1 });
 

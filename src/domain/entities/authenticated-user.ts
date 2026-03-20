@@ -1,22 +1,22 @@
-import { AccountStatus } from "./account";
-import { SubscriptionStatus } from "./subscription";
-import { UserRole, UserStatus } from "./user";
+import { AccountStatus } from './account';
+import { SubscriptionStatus } from './subscription';
+import { UserRole, UserStatus } from './user';
 
 export class AuthenticatedUser {
-    userRole: UserRole;
-    uid: string;
-    userId: string;
-    email: string;
-    userStatus: UserStatus;
-    planId: string;
-    accountId: string;
-    accountStatus: AccountStatus;
-    subscriptionId: string;
-    subscriptionStatus: SubscriptionStatus;
-    maxAdvertisements?: number;
-    maxPhotos?: number;
+  userRole: UserRole;
+  uid: string;
+  userId: string;
+  email: string;
+  userStatus: UserStatus;
+  planId: string;
+  accountId: string;
+  accountStatus: AccountStatus;
+  subscriptionId: string;
+  subscriptionStatus: SubscriptionStatus;
+  maxAdvertisements?: number;
+  maxPhotos?: number;
 
-    constructor(props: AuthenticatedUser) {
-      Object.assign(this, props);
-    }
+  constructor(props: AuthenticatedUser) {
+    Object.assign(this, props);
   }
+}

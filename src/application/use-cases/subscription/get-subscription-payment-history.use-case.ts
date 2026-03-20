@@ -30,9 +30,21 @@ export class GetSubscriptionPaymentHistoryUseCase {
    * @returns Objeto contendo array de pagamentos com suas assinaturas e planos, e contagem total
    * @throws Error com prefixo 'notfound.' quando nenhum pagamento é encontrado
    */
-  async execute({ accountId, page, limit }: GetSubscriptionPaymentHistoryUseCaseCommand): Promise<{ data: SubscriptionPaymentWithSubscription[], count: number }> {
+  async execute({
+    accountId,
+    page,
+    limit,
+  }: GetSubscriptionPaymentHistoryUseCaseCommand): Promise<{
+    data: SubscriptionPaymentWithSubscription[];
+    count: number;
+  }> {
     // Busca os pagamentos paginados
-    const { data: payments, count } = await this.subscriptionPaymentRepository.findAllByAccountIdPaginated(accountId, page, limit);
+    const { data: payments, count } =
+      await this.subscriptionPaymentRepository.findAllByAccountIdPaginated(
+        accountId,
+        page,
+        limit,
+      );
 
     // Se não encontrou pagamentos, lança um erro
     if (!payments || payments.length === 0) {
@@ -40,49 +52,54 @@ export class GetSubscriptionPaymentHistoryUseCase {
     }
 
     // Para cada pagamento, busca a assinatura e o plano associados
-    const paymentsWithSubscription: SubscriptionPaymentWithSubscription[] = await Promise.all(
-      payments.map(async (payment) => {
-        // Se não tem ID da assinatura, retorna o pagamento sem assinatura
-        if (!payment.subscriptionId) {
-          return {
-            ...payment,
-            subscription: undefined
-          };
-        }
-
-        // Busca a assinatura associada ao pagamento
-        const subscription = await this.subscriptionRepository.findOneById(payment.subscriptionId);
-        
-        // Se não encontrou a assinatura, retorna o pagamento sem assinatura
-        if (!subscription) {
-          return {
-            ...payment,
-            subscription: undefined
-          };
-        }
-
-        // Se a assinatura tem planId, busca o plano
-        if (subscription.planId) {
-          const plan = await this.planRepository.findOneById(subscription.planId);
-          
-          // Adiciona o plano à assinatura
-          if (plan) {
-            subscription.plan = plan;
+    const paymentsWithSubscription: SubscriptionPaymentWithSubscription[] =
+      await Promise.all(
+        payments.map(async (payment) => {
+          // Se não tem ID da assinatura, retorna o pagamento sem assinatura
+          if (!payment.subscriptionId) {
+            return {
+              ...payment,
+              subscription: undefined,
+            };
           }
-        }
 
-        // Retorna o pagamento com a assinatura
-        return {
-          ...payment,
-          subscription
-        };
-      })
-    );
+          // Busca a assinatura associada ao pagamento
+          const subscription = await this.subscriptionRepository.findOneById(
+            payment.subscriptionId,
+          );
+
+          // Se não encontrou a assinatura, retorna o pagamento sem assinatura
+          if (!subscription) {
+            return {
+              ...payment,
+              subscription: undefined,
+            };
+          }
+
+          // Se a assinatura tem planId, busca o plano
+          if (subscription.planId) {
+            const plan = await this.planRepository.findOneById(
+              subscription.planId,
+            );
+
+            // Adiciona o plano à assinatura
+            if (plan) {
+              subscription.plan = plan;
+            }
+          }
+
+          // Retorna o pagamento com a assinatura
+          return {
+            ...payment,
+            subscription,
+          };
+        }),
+      );
 
     // Retorna os pagamentos com assinaturas e a contagem total
     return {
       data: paymentsWithSubscription,
-      count
+      count,
     };
   }
 }

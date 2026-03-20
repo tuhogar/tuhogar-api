@@ -5,7 +5,10 @@ import { IUserRepository } from 'src/application/interfaces/repositories/user.re
 import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 import { User, UserRole, UserStatus } from 'src/domain/entities/user';
 import { Account, AccountStatus } from 'src/domain/entities/account';
-import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
+import {
+  Subscription,
+  SubscriptionStatus,
+} from 'src/domain/entities/subscription';
 import { Plan } from 'src/domain/entities/plan';
 
 describe('UpdateFirebaseUsersDataUseCase', () => {
@@ -93,7 +96,9 @@ describe('UpdateFirebaseUsersDataUseCase', () => {
       ],
     }).compile();
 
-    useCase = module.get<UpdateFirebaseUsersDataUseCase>(UpdateFirebaseUsersDataUseCase);
+    useCase = module.get<UpdateFirebaseUsersDataUseCase>(
+      UpdateFirebaseUsersDataUseCase,
+    );
 
     // Spy no console.error para evitar logs durante os testes
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -135,24 +140,34 @@ describe('UpdateFirebaseUsersDataUseCase', () => {
     await useCase.execute(command);
 
     // Assert
-    expect(mockAuth.setCustomUserClaims).toHaveBeenCalledWith(mockUid, expect.objectContaining({
-      maxAdvertisements: null,
-    }));
+    expect(mockAuth.setCustomUserClaims).toHaveBeenCalledWith(
+      mockUid,
+      expect.objectContaining({
+        maxAdvertisements: null,
+      }),
+    );
   });
 
   it('should handle error when fetching plan and continue with null maxAdvertisements', async () => {
     // Arrange
     const command = { accountId: mockAccountId };
-    planRepository.findOneById = jest.fn().mockRejectedValue(new Error('Plan fetch error'));
+    planRepository.findOneById = jest
+      .fn()
+      .mockRejectedValue(new Error('Plan fetch error'));
 
     // Act
     await useCase.execute(command);
 
     // Assert
-    expect(console.error).toHaveBeenCalledWith('error.fetching.plan.for.user.claims');
-    expect(mockAuth.setCustomUserClaims).toHaveBeenCalledWith(mockUid, expect.objectContaining({
-      maxAdvertisements: null,
-    }));
+    expect(console.error).toHaveBeenCalledWith(
+      'error.fetching.plan.for.user.claims',
+    );
+    expect(mockAuth.setCustomUserClaims).toHaveBeenCalledWith(
+      mockUid,
+      expect.objectContaining({
+        maxAdvertisements: null,
+      }),
+    );
   });
 
   it('should handle user without subscription gracefully', async () => {
@@ -166,16 +181,18 @@ describe('UpdateFirebaseUsersDataUseCase', () => {
         subscription: undefined,
       },
     };
-    userRepository.findByAccountId = jest.fn().mockResolvedValue([userWithoutSubscription]);
+    userRepository.findByAccountId = jest
+      .fn()
+      .mockResolvedValue([userWithoutSubscription]);
 
     // Esperamos que o método execute sem lançar erro, mesmo que internamente
     // possa ocorrer um erro ao tentar acessar user.account.subscription.planId
     // Act & Assert
     await expect(useCase.execute(command)).resolves.not.toThrow();
-    
+
     // Verificamos que o método do repositório foi chamado
     expect(userRepository.findByAccountId).toHaveBeenCalledWith(mockAccountId);
-    
+
     // Não verificamos o setCustomUserClaims porque o comportamento depende da implementação
     // e pode lançar erro internamente, que é capturado pelo try/catch no método execute
   });
@@ -183,13 +200,17 @@ describe('UpdateFirebaseUsersDataUseCase', () => {
   it('should handle Firebase error and continue without throwing', async () => {
     // Arrange
     const command = { accountId: mockAccountId };
-    mockAuth.setCustomUserClaims = jest.fn().mockRejectedValue(new Error('Firebase error'));
+    mockAuth.setCustomUserClaims = jest
+      .fn()
+      .mockRejectedValue(new Error('Firebase error'));
 
     // Act
     await useCase.execute(command);
 
     // Assert
-    expect(console.error).toHaveBeenCalledWith('authorization.error.updating.user.data.on.the.authentication.server');
+    expect(console.error).toHaveBeenCalledWith(
+      'authorization.error.updating.user.data.on.the.authentication.server',
+    );
     // Não deve lançar erro
   });
 
@@ -201,14 +222,24 @@ describe('UpdateFirebaseUsersDataUseCase', () => {
       id: 'user-456',
       uid: 'firebase-uid-456',
     };
-    userRepository.findByAccountId = jest.fn().mockResolvedValue([mockUser, secondUser]);
+    userRepository.findByAccountId = jest
+      .fn()
+      .mockResolvedValue([mockUser, secondUser]);
 
     // Act
     await useCase.execute(command);
 
     // Assert
     expect(mockAuth.setCustomUserClaims).toHaveBeenCalledTimes(2);
-    expect(mockAuth.setCustomUserClaims).toHaveBeenNthCalledWith(1, mockUser.uid, expect.any(Object));
-    expect(mockAuth.setCustomUserClaims).toHaveBeenNthCalledWith(2, secondUser.uid, expect.any(Object));
+    expect(mockAuth.setCustomUserClaims).toHaveBeenNthCalledWith(
+      1,
+      mockUser.uid,
+      expect.any(Object),
+    );
+    expect(mockAuth.setCustomUserClaims).toHaveBeenNthCalledWith(
+      2,
+      secondUser.uid,
+      expect.any(Object),
+    );
   });
 });

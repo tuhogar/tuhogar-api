@@ -7,13 +7,19 @@ import { SubscriptionPayment as SubscriptionPaymentMongoose } from '../entities/
 import { MongooseSubscriptionPaymentMapper } from '../mapper/mongoose-subscription-payment.mapper';
 
 @Injectable()
-export class MongooseSubscriptionPaymentRepository implements ISubscriptionPaymentRepository {
+export class MongooseSubscriptionPaymentRepository
+  implements ISubscriptionPaymentRepository
+{
   constructor(
-    @InjectModel(SubscriptionPaymentMongoose.name) private readonly subscriptionPaymentModel: Model<SubscriptionPaymentMongoose>,
+    @InjectModel(SubscriptionPaymentMongoose.name)
+    private readonly subscriptionPaymentModel: Model<SubscriptionPaymentMongoose>,
   ) {}
-    
-  async create(subscriptionPayment: SubscriptionPayment): Promise<SubscriptionPayment> {
-    const data = MongooseSubscriptionPaymentMapper.toMongoose(subscriptionPayment);
+
+  async create(
+    subscriptionPayment: SubscriptionPayment,
+  ): Promise<SubscriptionPayment> {
+    const data =
+      MongooseSubscriptionPaymentMapper.toMongoose(subscriptionPayment);
     const entity = new this.subscriptionPaymentModel({ ...data });
     await entity.save();
 
@@ -21,23 +27,28 @@ export class MongooseSubscriptionPaymentRepository implements ISubscriptionPayme
   }
 
   async findOneByExternalId(externalId: string): Promise<SubscriptionPayment> {
-    const query = await this.subscriptionPaymentModel.findOne({ externalId }).exec();
-    
+    const query = await this.subscriptionPaymentModel
+      .findOne({ externalId })
+      .exec();
+
     return MongooseSubscriptionPaymentMapper.toDomain(query);
   }
 
   async find(): Promise<SubscriptionPayment[]> {
     const query = await this.subscriptionPaymentModel.find();
-    return query.map((item) => MongooseSubscriptionPaymentMapper.toDomain(item));
+    return query.map((item) =>
+      MongooseSubscriptionPaymentMapper.toDomain(item),
+    );
   }
 
-  async update(id: string, subscriptionPayment: SubscriptionPayment): Promise<SubscriptionPayment> {
-    const updated = await this.subscriptionPaymentModel.findByIdAndUpdate(
-      id,
-      subscriptionPayment,
-      { new: true },
-    ).exec();
-    
+  async update(
+    id: string,
+    subscriptionPayment: SubscriptionPayment,
+  ): Promise<SubscriptionPayment> {
+    const updated = await this.subscriptionPaymentModel
+      .findByIdAndUpdate(id, subscriptionPayment, { new: true })
+      .exec();
+
     if (updated) {
       return MongooseSubscriptionPaymentMapper.toDomain(updated);
     }
@@ -50,12 +61,17 @@ export class MongooseSubscriptionPaymentRepository implements ISubscriptionPayme
    * @param subscriptionId ID da assinatura
    * @returns Array de pagamentos da assinatura
    */
-  async findAllBySubscriptionId(subscriptionId: string): Promise<SubscriptionPayment[]> {
-    const query = await this.subscriptionPaymentModel.find({ subscriptionId })
+  async findAllBySubscriptionId(
+    subscriptionId: string,
+  ): Promise<SubscriptionPayment[]> {
+    const query = await this.subscriptionPaymentModel
+      .find({ subscriptionId })
       .sort({ paymentDate: -1 }) // Ordenar por data de pagamento (mais recentes primeiro)
       .exec();
-    
-    return query.map(item => MongooseSubscriptionPaymentMapper.toDomain(item));
+
+    return query.map((item) =>
+      MongooseSubscriptionPaymentMapper.toDomain(item),
+    );
   }
 
   /**
@@ -65,23 +81,32 @@ export class MongooseSubscriptionPaymentRepository implements ISubscriptionPayme
    * @param limit Quantidade de itens por página
    * @returns Objeto contendo array de pagamentos e contagem total
    */
-  async findAllByAccountIdPaginated(accountId: string, page: number, limit: number): Promise<{ data: SubscriptionPayment[], count: number }> {
+  async findAllByAccountIdPaginated(
+    accountId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ data: SubscriptionPayment[]; count: number }> {
     // Calcular o número de documentos a pular com base na página e limite
     const skip = (page - 1) * limit;
-    
+
     // Buscar os pagamentos com paginação
-    const query = await this.subscriptionPaymentModel.find({ accountId })
+    const query = await this.subscriptionPaymentModel
+      .find({ accountId })
       .sort({ createdAt: -1 }) // Ordenar por data de criação (mais recentes primeiro)
       .skip(skip)
       .limit(limit)
       .exec();
-    
+
     // Contar o total de documentos para a propriedade count
-    const count = await this.subscriptionPaymentModel.countDocuments({ accountId }).exec();
-    
+    const count = await this.subscriptionPaymentModel
+      .countDocuments({ accountId })
+      .exec();
+
     // Mapear os resultados para o domínio
-    const data = query.map(item => MongooseSubscriptionPaymentMapper.toDomain(item));
-    
+    const data = query.map((item) =>
+      MongooseSubscriptionPaymentMapper.toDomain(item),
+    );
+
     return { data, count };
   }
 }

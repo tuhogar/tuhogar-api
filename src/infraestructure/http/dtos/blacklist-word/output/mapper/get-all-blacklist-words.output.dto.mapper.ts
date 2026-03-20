@@ -10,9 +10,11 @@ export class GetAllBlacklistWordsOutputDtoMapper {
    * @param blacklistWord Entidade BlacklistWord a ser convertida
    * @returns DTO de saída GetAllBlacklistWordsOutputDto
    */
-  public static toOutputDto(blacklistWord: BlacklistWord): GetAllBlacklistWordsOutputDto {
+  public static toOutputDto(
+    blacklistWord: BlacklistWord,
+  ): GetAllBlacklistWordsOutputDto {
     if (!blacklistWord) return null;
-    
+
     return {
       id: blacklistWord.id,
       word: blacklistWord.word,
@@ -24,9 +26,13 @@ export class GetAllBlacklistWordsOutputDtoMapper {
    * @param blacklistWords Lista de entidades BlacklistWord a serem convertidas
    * @returns Lista de DTOs de saída GetAllBlacklistWordsOutputDto
    */
-  public static toOutputDtoList(blacklistWords: BlacklistWord[]): GetAllBlacklistWordsOutputDto[] {
+  public static toOutputDtoList(
+    blacklistWords: BlacklistWord[],
+  ): GetAllBlacklistWordsOutputDto[] {
     if (!blacklistWords || !Array.isArray(blacklistWords)) return [];
-    
-    return blacklistWords.map(blacklistWord => this.toOutputDto(blacklistWord));
+
+    return blacklistWords.map((blacklistWord) =>
+      this.toOutputDto(blacklistWord),
+    );
   }
 }
