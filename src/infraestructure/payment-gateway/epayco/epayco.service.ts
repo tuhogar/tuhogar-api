@@ -134,7 +134,6 @@ export class EPaycoService implements IPaymentGateway {
       let subscriptionStatus = SubscriptionStatus.CREATED;
 
       console.log('-------customer-data');
-      console.log('paymentData:', JSON.stringify(paymentData));
       console.log('email:', email);
       console.log('Address:', paymentData?.address);
       console.log('Phone:', paymentData?.phone);
@@ -154,10 +153,6 @@ export class EPaycoService implements IPaymentGateway {
           phone: paymentData?.phone,
           cell_phone: paymentData?.phone,
         });
-
-        console.log('------customer-created');
-        console.log(JSON.stringify(customer));
-        console.log('------customer-created');
 
         if (!customer.success) {
           console.error(
