@@ -6,19 +6,21 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class GetActiveAdvertisementUseCase {
-    constructor(
-        private readonly advertisementRepository: IAdvertisementRepository,
-        private readonly redisService: RedisService
-    ) {}
+  constructor(
+    private readonly advertisementRepository: IAdvertisementRepository,
+    private readonly redisService: RedisService,
+  ) {}
 
-    async execute(advertisementId: string): Promise<Advertisement> {
-        const advertisement = await this.redisService.get(advertisementId) as Advertisement;
-        //if (!advertisement) {
-            //advertisement = await this.advertisementRepository.findOneActive(advertisementId);
-        //}
+  async execute(advertisementId: string): Promise<Advertisement> {
+    const advertisement = (await this.redisService.get(
+      advertisementId,
+    )) as Advertisement;
+    //if (!advertisement) {
+    //advertisement = await this.advertisementRepository.findOneActive(advertisementId);
+    //}
 
-        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
+    if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        return advertisement;
-    }
+    return advertisement;
+  }
 }

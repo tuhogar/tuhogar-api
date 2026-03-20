@@ -18,7 +18,9 @@ export class SubscriptionPaymentOutputDto {
   @Property()
   accountId: string;
 
-  @ApiProperty({ description: 'ID externo do pagamento no gateway de pagamento' })
+  @ApiProperty({
+    description: 'ID externo do pagamento no gateway de pagamento',
+  })
   @Property()
   externalId: string;
 
@@ -42,11 +44,18 @@ export class SubscriptionPaymentOutputDto {
   @Property()
   currency: string;
 
-  @ApiProperty({ description: 'Status do pagamento', enum: SubscriptionPaymentStatus })
+  @ApiProperty({
+    description: 'Status do pagamento',
+    enum: SubscriptionPaymentStatus,
+  })
   @Property()
   status: SubscriptionPaymentStatus;
 
-  @ApiProperty({ description: 'Data em que o pagamento foi realizado', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data em que o pagamento foi realizado',
+    required: false,
+    nullable: true,
+  })
   @Property()
   paymentDate: Date | null;
 }

@@ -20,22 +20,28 @@ export class UpdateStatusAccountUseCase {
   async execute({
     userRole,
     accountId,
-    status
+    status,
   }: UpdateStatusAccountUseCaseCommand): Promise<{ id: string }> {
-    const updatingAccount = await this.accountRepository.updateStatus(accountId, status);
-    
+    const updatingAccount = await this.accountRepository.updateStatus(
+      accountId,
+      status,
+    );
+
     if (!updatingAccount) throw new Error('notfound.account.do.not.exists');
 
     try {
-        await this.updateAllUserStatusUseCase.execute({
-            userRole,
-            accountId,
-            status
-        });
-    } catch(error) {
-        await this.accountRepository.updateStatus(accountId, updatingAccount.status);
+      await this.updateAllUserStatusUseCase.execute({
+        userRole,
+        accountId,
+        status,
+      });
+    } catch (error) {
+      await this.accountRepository.updateStatus(
+        accountId,
+        updatingAccount.status,
+      );
 
-        throw error;
+      throw error;
     }
 
     return { id: updatingAccount.id };

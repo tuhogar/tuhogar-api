@@ -3,11 +3,11 @@ import { IAdvertisementRepository } from 'src/application/interfaces/repositorie
 
 @Injectable()
 export class GetRegisteredAdvertisementsUseCase {
-    constructor(
-        private readonly advertisementRepository: IAdvertisementRepository,
-    ) {}
+  constructor(
+    private readonly advertisementRepository: IAdvertisementRepository,
+  ) {}
 
-    async execute(period: 'week' | 'month'): Promise<any[]> {
-        return this.advertisementRepository.getRegisteredAdvertisements(period);
-    }
+  async execute(period: 'week' | 'month'): Promise<any[]> {
+    return this.advertisementRepository.getRegisteredAdvertisements(period);
+  }
 }

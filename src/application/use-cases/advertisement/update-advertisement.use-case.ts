@@ -9,50 +9,62 @@ import { UserRole } from 'src/domain/entities/user';
 
 @Injectable()
 export class UpdateAdvertisementUseCase {
-    constructor(
-        private readonly algoliaService: AlgoliaService,
-        private readonly advertisementRepository: IAdvertisementRepository,
-        private readonly redisService: RedisService
-    ) {}
+  constructor(
+    private readonly algoliaService: AlgoliaService,
+    private readonly advertisementRepository: IAdvertisementRepository,
+    private readonly redisService: RedisService,
+  ) {}
 
-    async execute(
-        authenticatedUser: AuthenticatedUser,
-        advertisementId: string,
-        createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
-    ): Promise<{ id: string }> {
+  async execute(
+    authenticatedUser: AuthenticatedUser,
+    advertisementId: string,
+    createUpdateAdvertisementDto: CreateUpdateAdvertisementDto,
+  ): Promise<{ id: string }> {
+    let removeOnAlgolia = false;
 
-        let removeOnAlgolia = false;
+    const advertisement =
+      await this.advertisementRepository.findOneById(advertisementId);
+    if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
 
-        const advertisement = await this.advertisementRepository.findOneById(advertisementId);
-        if (!advertisement) throw new Error('notfound.advertisement.do.not.exists');
-
-        if (authenticatedUser.accountId !== advertisement.accountId && authenticatedUser.userRole !== UserRole.MASTER) {
-            throw new Error('notfound.advertisement.do.not.exists');
-        }
-
-        const update: any = { 
-            updatedUserId: authenticatedUser.userId,
-            ...createUpdateAdvertisementDto
-        }
-
-        if (createUpdateAdvertisementDto.description !== advertisement.description) {
-            update.status = AdvertisementStatus.WAITING_FOR_APPROVAL;
-            removeOnAlgolia = true;
-        }
-
-        const updatedAdvertisement = await this.advertisementRepository.update(advertisementId, update);
-
-        if (removeOnAlgolia) {
-            await this.algoliaService.delete(updatedAdvertisement.id);
-            await this.redisService.delete(updatedAdvertisement.id);
-        } else {
-            const updatedAdvertisementForRedis = await this.advertisementRepository.findByIdsAndAccountId([updatedAdvertisement.id], undefined);
-            await Promise.all(
-                updatedAdvertisementForRedis.map((a) => this.redisService.set(a.id, a))
-            );
-        }
-        await this.redisService.deleteByPattern('advertisements-cache:*');
-
-        return { id: updatedAdvertisement.id };
+    if (
+      authenticatedUser.accountId !== advertisement.accountId &&
+      authenticatedUser.userRole !== UserRole.MASTER
+    ) {
+      throw new Error('notfound.advertisement.do.not.exists');
     }
+
+    const update: any = {
+      updatedUserId: authenticatedUser.userId,
+      ...createUpdateAdvertisementDto,
+    };
+
+    if (
+      createUpdateAdvertisementDto.description !== advertisement.description
+    ) {
+      update.status = AdvertisementStatus.WAITING_FOR_APPROVAL;
+      removeOnAlgolia = true;
+    }
+
+    const updatedAdvertisement = await this.advertisementRepository.update(
+      advertisementId,
+      update,
+    );
+
+    if (removeOnAlgolia) {
+      await this.algoliaService.delete(updatedAdvertisement.id);
+      await this.redisService.delete(updatedAdvertisement.id);
+    } else {
+      const updatedAdvertisementForRedis =
+        await this.advertisementRepository.findByIdsAndAccountId(
+          [updatedAdvertisement.id],
+          undefined,
+        );
+      await Promise.all(
+        updatedAdvertisementForRedis.map((a) => this.redisService.set(a.id, a)),
+      );
+    }
+    await this.redisService.deleteByPattern('advertisements-cache:*');
+
+    return { id: updatedAdvertisement.id };
+  }
 }

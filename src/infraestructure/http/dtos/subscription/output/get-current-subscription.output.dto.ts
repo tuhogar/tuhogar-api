@@ -14,27 +14,48 @@ export class GetCurrentSubscriptionOutputDto {
   @Property()
   planId: string;
 
-  @ApiProperty({ description: 'Status atual da assinatura', enum: SubscriptionStatus })
+  @ApiProperty({
+    description: 'Status atual da assinatura',
+    enum: SubscriptionStatus,
+  })
   @Property()
   status: SubscriptionStatus;
 
-  @ApiProperty({ description: 'Data efetiva de cancelamento da assinatura', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data efetiva de cancelamento da assinatura',
+    required: false,
+    nullable: true,
+  })
   @Property()
   effectiveCancellationDate: Date | null;
 
-  @ApiProperty({ description: 'Data do último pagamento realizado', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data do último pagamento realizado',
+    required: false,
+    nullable: true,
+  })
   @Property()
   paymentDate: Date | null;
 
-  @ApiProperty({ description: 'Data prevista para o próximo pagamento', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data prevista para o próximo pagamento',
+    required: false,
+    nullable: true,
+  })
   @Property()
   nextPaymentDate: Date | null;
 
-  @ApiProperty({ description: 'Data de criação da assinatura', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data de criação da assinatura',
+    required: false,
+    nullable: true,
+  })
   @Property()
   createdAt: Date | null;
-  
-  @ApiProperty({ description: 'Número de dias gratuitos restantes na assinatura' })
+
+  @ApiProperty({
+    description: 'Número de dias gratuitos restantes na assinatura',
+  })
   @Property()
   remainingFreeDays: number;
 
@@ -42,7 +63,7 @@ export class GetCurrentSubscriptionOutputDto {
   @Property()
   isCouponRedeemed: boolean;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Detalhes do plano associado à assinatura',
     required: false,
     nullable: true,
@@ -51,10 +72,22 @@ export class GetCurrentSubscriptionOutputDto {
       id: { type: 'string', description: 'ID do plano' },
       name: { type: 'string', description: 'Nome do plano', nullable: true },
       price: { type: 'number', description: 'Preço do plano' },
-      items: { type: 'array', items: { type: 'string' }, description: 'Itens incluídos no plano' },
-      freeTrialDays: { type: 'number', description: 'Número de dias gratuitos no período de teste', nullable: true },
-      photo: { type: 'string', description: 'URL da foto do plano', nullable: true }
-    }
+      items: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Itens incluídos no plano',
+      },
+      freeTrialDays: {
+        type: 'number',
+        description: 'Número de dias gratuitos no período de teste',
+        nullable: true,
+      },
+      photo: {
+        type: 'string',
+        description: 'URL da foto do plano',
+        nullable: true,
+      },
+    },
   })
   @Property()
   plan: {

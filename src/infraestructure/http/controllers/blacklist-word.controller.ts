@@ -11,32 +11,35 @@ import { GetAllBlacklistWordsOutputDtoMapper } from 'src/infraestructure/http/dt
 @ApiTags('v1/blacklist-words')
 @Controller('v1/blacklist-words')
 export class BlacklistWordController {
+  constructor(
+    private readonly createBlacklistWordUseCase: CreateBlacklistWordUseCase,
+    private readonly getAllBlacklistWordUseCase: GetAllBlacklistWordUseCase,
+  ) {}
 
-    constructor(
-        private readonly createBlacklistWordUseCase: CreateBlacklistWordUseCase,
-        private readonly getAllBlacklistWordUseCase: GetAllBlacklistWordUseCase,
-    ) {}
+  @ApiBearerAuth()
+  @Get()
+  @Auth('MASTER')
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna a lista de palavras bloqueadas',
+    type: [GetAllBlacklistWordsOutputDto],
+  })
+  async getAll(): Promise<GetAllBlacklistWordsOutputDto[]> {
+    const blacklistWords = await this.getAllBlacklistWordUseCase.execute();
+    return GetAllBlacklistWordsOutputDtoMapper.toOutputDtoList(blacklistWords);
+  }
 
-    @ApiBearerAuth()
-    @Get()
-    @Auth('MASTER')
-    @ApiResponse({
-        status: 200,
-        description: 'Retorna a lista de palavras bloqueadas',
-        type: [GetAllBlacklistWordsOutputDto]
-    })
-    async getAll(): Promise<GetAllBlacklistWordsOutputDto[]> {
-        const blacklistWords = await this.getAllBlacklistWordUseCase.execute();
-        return GetAllBlacklistWordsOutputDtoMapper.toOutputDtoList(blacklistWords);
-    }
+  @ApiBearerAuth()
+  @Post()
+  @Auth('MASTER')
+  async create(
+    @Body() createBlacklistWordDto: CreateBlacklistWordDto,
+  ): Promise<BlacklistWord> {
+    const response = await this.createBlacklistWordUseCase.execute(
+      createBlacklistWordDto,
+    );
+    if (!response) return null;
 
-    @ApiBearerAuth()
-    @Post()
-    @Auth('MASTER')
-    async create(@Body() createBlacklistWordDto: CreateBlacklistWordDto): Promise<BlacklistWord> {
-        const response = await this.createBlacklistWordUseCase.execute(createBlacklistWordDto);
-        if (!response) return null;
-
-        return response;
-    }
+    return response;
+  }
 }

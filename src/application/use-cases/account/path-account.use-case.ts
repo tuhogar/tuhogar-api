@@ -52,7 +52,7 @@ export class PathAccountUseCase {
     contractTypes,
     accountType,
     primaryColor,
-    domain
+    domain,
   }: PathAccountUseCaseCommand): Promise<void> {
     const updatedAccount = await this.accountRepository.update(
       userRole === UserRole.MASTER ? targetAccountId : accountId,
@@ -70,13 +70,15 @@ export class PathAccountUseCase {
       contractTypes,
       accountType,
       primaryColor,
-      domain
+      domain,
     );
 
     if (!updatedAccount) throw new Error('notfound.account.do.not.exists');
 
     if (contractTypes && contractTypes.length > 0) {
-      await this.bulkAdvertisementUseCase.execute({ accountId: targetAccountId });
+      await this.bulkAdvertisementUseCase.execute({
+        accountId: targetAccountId,
+      });
     }
   }
 }

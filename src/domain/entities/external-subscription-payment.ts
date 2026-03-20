@@ -8,7 +8,7 @@ export enum ExternalSubscriptionPaymentStatus {
   REJECTED = 'REJECTED',
   CANCELLED = 'CANCELLED',
   REFUNDED = 'REFUNDED',
-  CHARGED_BACK = 'CHARGED_BACK'
+  CHARGED_BACK = 'CHARGED_BACK',
 }
 
 export class ExternalSubscriptionPayment {

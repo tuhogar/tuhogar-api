@@ -4,16 +4,16 @@ import { Account } from './account.entity';
 
 @Schema({ timestamps: true, collection: 'account-events' })
 export class AccountEvent {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: Account;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
+  accountId: Account;
 
-    @Prop()
-    type: string;
+  @Prop()
+  type: string;
 
-    @Prop()
-    count: number
+  @Prop()
+  count: number;
 }
 
 const AccountEventSchema = SchemaFactory.createForClass(AccountEvent);

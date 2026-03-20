@@ -13,13 +13,11 @@ export interface GetCustomerSubscriptionUseCaseCommand {
 
 @Injectable()
 export class GetCustomerSubscriptionUseCase {
-  constructor(
-    private readonly paymentGateway: IPaymentGateway,
-  ) {
-  }
-  
-  async execute({ customerId }: GetCustomerSubscriptionUseCaseCommand): Promise<void> {
-    return this.paymentGateway.getCustomer(customerId);
+  constructor(private readonly paymentGateway: IPaymentGateway) {}
 
+  async execute({
+    customerId,
+  }: GetCustomerSubscriptionUseCaseCommand): Promise<void> {
+    return this.paymentGateway.getCustomer(customerId);
   }
 }

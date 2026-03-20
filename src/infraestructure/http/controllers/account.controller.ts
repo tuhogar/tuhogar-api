@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateAccountDto } from '../dtos/account/create-account.dto';
 import { Account } from 'src/domain/entities/account';
@@ -71,7 +83,7 @@ export class AccountController {
       documentNumber: createAccountDto.documentNumber,
       accountType: createAccountDto.accountType,
       primaryColor: createAccountDto.primaryColor,
-      domain: createAccountDto.domain
+      domain: createAccountDto.domain,
     });
   }
 
@@ -92,152 +104,190 @@ export class AccountController {
   @ApiBearerAuth()
   @Get('registrations')
   @Auth('MASTER')
-  async getAccountRegistrations(@Query('period') period: 'week' | 'month'): Promise<any[]> {
+  async getAccountRegistrations(
+    @Query('period') period: 'week' | 'month',
+  ): Promise<any[]> {
     return this.getRegisteredAccountsUseCase.execute({
-      period
+      period,
     });
   }
 
   @ApiBearerAuth()
   @Get('domain')
   @Auth()
-  async getDomainIsAvailable(@Authenticated() authenticatedUser: AuthenticatedUser, @Query('domain') domain: string): Promise<boolean> {
-      return this.getDomainIsAvailableUseCase.execute({
-        accountId: authenticatedUser.accountId,
-        domain,
-      });
+  async getDomainIsAvailable(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Query('domain') domain: string,
+  ): Promise<boolean> {
+    return this.getDomainIsAvailableUseCase.execute({
+      accountId: authenticatedUser.accountId,
+      domain,
+    });
   }
 
   @ApiBearerAuth()
   @Get(':accountid')
   async get(@Param('accountid') accountId: string): Promise<Account> {
-      return this.getByIdAccountUseCase.execute({
-        id: accountId
-      });
+    return this.getByIdAccountUseCase.execute({
+      id: accountId,
+    });
   }
 
   @ApiBearerAuth()
   @Get(':accountid/billing')
   async getBilling(@Param('accountid') accountId: string): Promise<Billing> {
-      return this.getByAccountIdBillingUseCase.execute({
-        accountId
-      });
+    return this.getByAccountIdBillingUseCase.execute({
+      accountId,
+    });
   }
 
   @ApiBearerAuth()
   @Post(':accountid/billing')
   @Auth('MASTER', 'ADMIN')
-  async createBilling(@Param('accountid') accountId: string, @Body() createBillingDto: CreateBillingDto): Promise<{ accountId: string }> {
-      const result = await this.createBillingUseCase.execute({
-        accountId,
-        name: createBillingDto.name,
-        email: createBillingDto.email,
-        phone: createBillingDto.phone,
-        address: createBillingDto.address,
-        documentType: createBillingDto.documentType,
-        documentNumber: createBillingDto.documentNumber
-      });
-      return { accountId: result.accountId };
+  async createBilling(
+    @Param('accountid') accountId: string,
+    @Body() createBillingDto: CreateBillingDto,
+  ): Promise<{ accountId: string }> {
+    const result = await this.createBillingUseCase.execute({
+      accountId,
+      name: createBillingDto.name,
+      email: createBillingDto.email,
+      phone: createBillingDto.phone,
+      address: createBillingDto.address,
+      documentType: createBillingDto.documentType,
+      documentNumber: createBillingDto.documentNumber,
+    });
+    return { accountId: result.accountId };
   }
 
   @ApiBearerAuth()
   @Patch(':accountid')
   @Auth('MASTER', 'ADMIN', 'USER')
-  async patch(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() patchAccountDto: PatchAccountDto): Promise<void> {
-      await this.pathAccountUseCase.execute({
-        userRole: authenticatedUser.userRole,
-        accountId: authenticatedUser.accountId,
-        targetAccountId: accountId,
-        documentType: patchAccountDto.documentType,
-        documentNumber: patchAccountDto.documentNumber,
-        name: patchAccountDto.name,
-        address: patchAccountDto.address,
-        phone: patchAccountDto.phone,
-        whatsApp: patchAccountDto.whatsApp,
-        phone2: patchAccountDto.phone2,
-        whatsApp2: patchAccountDto.whatsApp2,
-        webSite: patchAccountDto.webSite,
-        socialMedia: patchAccountDto.socialMedia,
-        description: patchAccountDto.description,
-        contractTypes: patchAccountDto.contractTypes,
-        accountType: patchAccountDto.accountType,
-        primaryColor: patchAccountDto.primaryColor,
-        domain: patchAccountDto.domain
-      });
+  async patch(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('accountid') accountId: string,
+    @Body() patchAccountDto: PatchAccountDto,
+  ): Promise<void> {
+    await this.pathAccountUseCase.execute({
+      userRole: authenticatedUser.userRole,
+      accountId: authenticatedUser.accountId,
+      targetAccountId: accountId,
+      documentType: patchAccountDto.documentType,
+      documentNumber: patchAccountDto.documentNumber,
+      name: patchAccountDto.name,
+      address: patchAccountDto.address,
+      phone: patchAccountDto.phone,
+      whatsApp: patchAccountDto.whatsApp,
+      phone2: patchAccountDto.phone2,
+      whatsApp2: patchAccountDto.whatsApp2,
+      webSite: patchAccountDto.webSite,
+      socialMedia: patchAccountDto.socialMedia,
+      description: patchAccountDto.description,
+      contractTypes: patchAccountDto.contractTypes,
+      accountType: patchAccountDto.accountType,
+      primaryColor: patchAccountDto.primaryColor,
+      domain: patchAccountDto.domain,
+    });
   }
 
   @ApiBearerAuth()
   @Patch(':accountid/billing')
   @Auth('ADMIN')
-  async patchBilling(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() patchBillingDto: PatchBillingDto): Promise<void> {
-      await this.updateBillingUseCase.execute({
-        accountId: authenticatedUser.accountId,
-        name: patchBillingDto.name,
-        email: patchBillingDto.email,
-        phone: patchBillingDto.phone,
-        address: patchBillingDto.address,
-        documentType: patchBillingDto.documentType,
-        documentNumber: patchBillingDto.documentNumber,
-      });
+  async patchBilling(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('accountid') accountId: string,
+    @Body() patchBillingDto: PatchBillingDto,
+  ): Promise<void> {
+    await this.updateBillingUseCase.execute({
+      accountId: authenticatedUser.accountId,
+      name: patchBillingDto.name,
+      email: patchBillingDto.email,
+      phone: patchBillingDto.phone,
+      address: patchBillingDto.address,
+      documentType: patchBillingDto.documentType,
+      documentNumber: patchBillingDto.documentNumber,
+    });
   }
 
   @ApiBearerAuth()
   @Put(':accountid/status')
   @Auth('MASTER')
-  async updateStatus(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('accountid') accountId: string, @Body() updateStatusAccountDto: UpdateStatusAccountDto): Promise<{ id: string }> {
-      return await this.updateStatusAccountUseCase.execute({
-        userRole: authenticatedUser.userRole,
-        accountId,
-        status: updateStatusAccountDto.status
-      });
+  async updateStatus(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('accountid') accountId: string,
+    @Body() updateStatusAccountDto: UpdateStatusAccountDto,
+  ): Promise<{ id: string }> {
+    return await this.updateStatusAccountUseCase.execute({
+      userRole: authenticatedUser.userRole,
+      accountId,
+      status: updateStatusAccountDto.status,
+    });
   }
 
   @ApiBearerAuth()
   @Get(':accountid/users')
   @Auth('MASTER')
   async getUsers(@Param('accountid') accountId: string): Promise<User[]> {
-      return this.getAllUserByAccountIdUseCase.execute({
-          accountId
-      });
+    return this.getAllUserByAccountIdUseCase.execute({
+      accountId,
+    });
   }
 
   @ApiBearerAuth()
   @Get(':accountid/advertisements')
   @Auth('MASTER')
-  async getAdvertisements(@Param('accountid') accountId: string, @Query() getAdvertisementDto: GetAdvertisementDto): Promise<{ data: Advertisement[]; count: number }> {
-    return this.getAllByAccountIdAdvertisementUseCase.execute({ accountId, page: getAdvertisementDto.page, limit: getAdvertisementDto.limit, code: getAdvertisementDto.code , transactionType: getAdvertisementDto.transactionType, type: getAdvertisementDto.type, externalId: getAdvertisementDto.externalId });
+  async getAdvertisements(
+    @Param('accountid') accountId: string,
+    @Query() getAdvertisementDto: GetAdvertisementDto,
+  ): Promise<{ data: Advertisement[]; count: number }> {
+    return this.getAllByAccountIdAdvertisementUseCase.execute({
+      accountId,
+      page: getAdvertisementDto.page,
+      limit: getAdvertisementDto.limit,
+      code: getAdvertisementDto.code,
+      transactionType: getAdvertisementDto.transactionType,
+      type: getAdvertisementDto.type,
+      externalId: getAdvertisementDto.externalId,
+    });
   }
 
   @ApiBearerAuth()
   @Delete(':accountid/users/:userid')
   @Auth('MASTER')
-  async deleteUser(@Authenticated() authenticatedUser: AuthenticatedUser, @Param('userid') userId: string): Promise<void> {
-      await this.deleteUserAccountUseCase.execute({
-        userRole: authenticatedUser.userRole,
-        accountId: authenticatedUser.accountId,
-        userId
-      });
+  async deleteUser(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Param('userid') userId: string,
+  ): Promise<void> {
+    await this.deleteUserAccountUseCase.execute({
+      userRole: authenticatedUser.userRole,
+      accountId: authenticatedUser.accountId,
+      userId,
+    });
   }
 
   @ApiBearerAuth()
   @Post('me/images')
   @Auth('ADMIN')
-  @UsePipes(new ValidationPipe({transform: true}))
+  @UsePipes(new ValidationPipe({ transform: true }))
   async uploadImage(
-      @Authenticated() authenticatedUser: AuthenticatedUser, @Body() uploadImageAccountDto: UploadImageAccountDto): Promise<void> {
-      await this.processImageAccountUseCase.execute({
-        accountId: authenticatedUser.accountId,
-        content: uploadImageAccountDto.content,
-        contentType: uploadImageAccountDto.contentType
-      });
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Body() uploadImageAccountDto: UploadImageAccountDto,
+  ): Promise<void> {
+    await this.processImageAccountUseCase.execute({
+      accountId: authenticatedUser.accountId,
+      content: uploadImageAccountDto.content,
+      contentType: uploadImageAccountDto.contentType,
+    });
   }
 
   @ApiBearerAuth()
   @Delete('me/images')
   @Auth('ADMIN', 'USER')
-  async deleteImage(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<void> {
-      await this.deleteImageAccountUseCase.execute({
-        accountId: authenticatedUser.accountId
-      });
+  async deleteImage(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+  ): Promise<void> {
+    await this.deleteImageAccountUseCase.execute({
+      accountId: authenticatedUser.accountId,
+    });
   }
 }

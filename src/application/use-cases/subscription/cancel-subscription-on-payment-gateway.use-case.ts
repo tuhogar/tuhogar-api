@@ -24,25 +24,44 @@ export class CancelSubscriptionOnPaymentGatewayUseCase {
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly configService: ConfigService,
     private readonly accountRepository: IAccountRepository,
-  ){
-    this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
+  ) {
+    this.firstSubscriptionPlanId = this.configService.get<string>(
+      'FIRST_SUBSCRIPTION_PLAN_ID',
+    );
   }
 
-  async execute({ id, accountId, cancelForDowngrade, newPlanId }: CancelSubscriptionOnPaymentGatewayUseCaseCommand): Promise<void> {
-      const subscription = await this.subscriptionRepository.findOneById(id);
-      if (!subscription || subscription.planId === this.firstSubscriptionPlanId || (subscription && subscription.status !== SubscriptionStatus.ACTIVE && subscription.status !== SubscriptionStatus.PENDING)) throw new Error('error.subscription.do.not.exists');
+  async execute({
+    id,
+    accountId,
+    cancelForDowngrade,
+    newPlanId,
+  }: CancelSubscriptionOnPaymentGatewayUseCaseCommand): Promise<void> {
+    const subscription = await this.subscriptionRepository.findOneById(id);
+    if (
+      !subscription ||
+      subscription.planId === this.firstSubscriptionPlanId ||
+      (subscription &&
+        subscription.status !== SubscriptionStatus.ACTIVE &&
+        subscription.status !== SubscriptionStatus.PENDING)
+    )
+      throw new Error('error.subscription.do.not.exists');
 
-      try {
-        const externalSubscriptionCanceled = await this.paymentGateway.cancelSubscription(subscription.externalId);
-        if (!externalSubscriptionCanceled) throw new Error('error.subscription.cancel.on.payment.gateway.failed');
-      } catch (error) {
-        console.error('Erro ao cancelar assinatura no gateway de pagamento:', error);
-      }
-      
-      // Calcular a data efetiva de cancelamento
-      let effectiveCancellationDate = subscription.nextPaymentDate;
-      
-      /*
+    try {
+      const externalSubscriptionCanceled =
+        await this.paymentGateway.cancelSubscription(subscription.externalId);
+      if (!externalSubscriptionCanceled)
+        throw new Error('error.subscription.cancel.on.payment.gateway.failed');
+    } catch (error) {
+      console.error(
+        'Erro ao cancelar assinatura no gateway de pagamento:',
+        error,
+      );
+    }
+
+    // Calcular a data efetiva de cancelamento
+    const effectiveCancellationDate = subscription.nextPaymentDate;
+
+    /*
       if (subscription.paymentDate) {
         // Se houver data de pagamento, usa ela como base e adiciona 1 dia (para testes)
         console.log(`Usando data de pagamento ${subscription.paymentDate.toISOString()} como base para cálculo da data efetiva de cancelamento`);
@@ -64,13 +83,22 @@ export class CancelSubscriptionOnPaymentGatewayUseCase {
         console.log(`Data atual em UTC: ${effectiveCancellationDate.toISOString()}`);
       }
       */
-      
-      console.log(`Data efetiva de cancelamento calculada: ${effectiveCancellationDate.toISOString()}`);
-      
-      // Cancelar a assinatura no gateway de pagamento e definir a data efetiva de cancelamento
-      await this.subscriptionRepository.cancelOnPaymentGateway(id, effectiveCancellationDate, cancelForDowngrade ? SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED : SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY, cancelForDowngrade ? newPlanId : undefined);
-      
-      // Atualizar dados dos usuários no Firebase
-      await this.updateFirebaseUsersDataUseCase.execute({ accountId });
+
+    console.log(
+      `Data efetiva de cancelamento calculada: ${effectiveCancellationDate.toISOString()}`,
+    );
+
+    // Cancelar a assinatura no gateway de pagamento e definir a data efetiva de cancelamento
+    await this.subscriptionRepository.cancelOnPaymentGateway(
+      id,
+      effectiveCancellationDate,
+      cancelForDowngrade
+        ? SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY_AND_DOWNGRADED
+        : SubscriptionStatus.CANCELLED_ON_PAYMENT_GATEWAY,
+      cancelForDowngrade ? newPlanId : undefined,
+    );
+
+    // Atualizar dados dos usuários no Firebase
+    await this.updateFirebaseUsersDataUseCase.execute({ accountId });
   }
 }

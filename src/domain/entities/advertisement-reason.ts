@@ -1,8 +1,8 @@
 export class AdvertisementReason {
-    id?: string;
-    name: string;
+  id?: string;
+  name: string;
 
-    constructor(props: AdvertisementReason) {
-        Object.assign(this, props);
-    }
+  constructor(props: AdvertisementReason) {
+    Object.assign(this, props);
+  }
 }

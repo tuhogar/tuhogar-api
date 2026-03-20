@@ -4,11 +4,11 @@ import { IBlacklistWordRepository } from 'src/application/interfaces/repositorie
 
 @Injectable()
 export class GetAllBlacklistWordUseCase {
-    constructor(
-        private readonly blacklistWordRepository: IBlacklistWordRepository,
-    ) {}
+  constructor(
+    private readonly blacklistWordRepository: IBlacklistWordRepository,
+  ) {}
 
-    async execute(): Promise<BlacklistWord[]> {
-        return this.blacklistWordRepository.findAll();
-    }
+  async execute(): Promise<BlacklistWord[]> {
+    return this.blacklistWordRepository.findAll();
+  }
 }

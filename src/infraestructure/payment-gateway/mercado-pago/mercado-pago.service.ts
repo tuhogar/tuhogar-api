@@ -1,21 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IPaymentGateway } from 'src/application/interfaces/payment-gateway/payment-gateway.interface';
-import { SubscriptionPayment, SubscriptionPaymentStatus } from 'src/domain/entities/subscription-payment';
+import {
+  SubscriptionPayment,
+  SubscriptionPaymentStatus,
+} from 'src/domain/entities/subscription-payment';
 import { Plan } from 'src/domain/entities/plan';
-import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
-import { SubscriptionNotification, SubscriptionNotificationAction, SubscriptionNotificationType } from 'src/domain/entities/subscription-notification';
-import { SubscriptionInvoice, SubscriptionInvoiceStatus } from 'src/domain/entities/subscription-invoice';
+import {
+  Subscription,
+  SubscriptionStatus,
+} from 'src/domain/entities/subscription';
+import {
+  SubscriptionNotification,
+  SubscriptionNotificationAction,
+  SubscriptionNotificationType,
+} from 'src/domain/entities/subscription-notification';
+import {
+  SubscriptionInvoice,
+  SubscriptionInvoiceStatus,
+} from 'src/domain/entities/subscription-invoice';
 import { Account } from 'src/domain/entities/account';
 
 @Injectable()
 export class MercadoPagoService implements IPaymentGateway {
   private readonly apiUrl: string;
   private readonly accessToken: string;
-  
+
   constructor(private readonly configService: ConfigService) {
     this.apiUrl = this.configService.get<string>('MERCADOPAGO_API_URL');
-    this.accessToken = this.configService.get<string>('MERCADOPAGO_ACCESS_TOKEN');
+    this.accessToken = this.configService.get<string>(
+      'MERCADOPAGO_ACCESS_TOKEN',
+    );
   }
   changeCard(customerId: string, paymentData: any): Promise<void> {
     throw new Error('Method not implemented.');
@@ -26,11 +41,26 @@ export class MercadoPagoService implements IPaymentGateway {
   getCustomer(customerId: string): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  async updateCustomer(customerId: string, name: string, email: string, address: string, phone: string, documentType: string, documentNumber: string): Promise<{ customerId: string }> {
+  async updateCustomer(
+    customerId: string,
+    name: string,
+    email: string,
+    address: string,
+    phone: string,
+    documentType: string,
+    documentNumber: string,
+  ): Promise<{ customerId: string }> {
     throw new Error('Method not implemented.');
   }
-  
-  async createSubscription(accountId: string, subscriptionId: string, email: string, name: string, plan: Plan, paymentData: Record<string, any>): Promise<{ subscription: Subscription, customer: any }> {
+
+  async createSubscription(
+    accountId: string,
+    subscriptionId: string,
+    email: string,
+    name: string,
+    plan: Plan,
+    paymentData: Record<string, any>,
+  ): Promise<{ subscription: Subscription; customer: any }> {
     const subscriptionToCreate: any = {
       preapproval_plan_id: plan.externalId,
       reason: plan.name,
@@ -43,17 +73,17 @@ export class MercadoPagoService implements IPaymentGateway {
         start_date: new Date(),
         end_date: null,
         transaction_amount: 5, // plan.price,
-        currency_id: 'BRL'
+        currency_id: 'BRL',
       },
-      status: 'authorized'
-    }
+      status: 'authorized',
+    };
 
     const url = `${this.apiUrl}/preapproval`;
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.accessToken}`,
+        Authorization: `Bearer ${this.accessToken}`,
       },
       body: JSON.stringify(subscriptionToCreate),
     });
@@ -62,7 +92,7 @@ export class MercadoPagoService implements IPaymentGateway {
 
     if (!response.ok) {
       const errorBody = responseObject;
-      
+
       const message = `invalid.${errorBody.message || 'Unknown error occurred'}`;
 
       throw new Error(message);
@@ -70,7 +100,7 @@ export class MercadoPagoService implements IPaymentGateway {
 
     const subscription = new Subscription({
       accountId,
-      planId: plan.id, 
+      planId: plan.id,
       externalId: responseObject.id,
       status: SubscriptionStatus.CREATED,
       externalPayerReference: responseObject.payer_id,
@@ -99,11 +129,13 @@ export class MercadoPagoService implements IPaymentGateway {
     throw Error('not implementation');
   }
 
-  async getSubscription(subscriptionNotification: SubscriptionNotification): Promise<Subscription> {
+  async getSubscription(
+    subscriptionNotification: SubscriptionNotification,
+  ): Promise<Subscription> {
     const subscriptionNotificated = subscriptionNotification.subscription;
 
     let status = SubscriptionStatus.UNKNOWN;
-    switch(subscriptionNotificated.status) {
+    switch (subscriptionNotificated.status) {
       case 'pending':
         status = SubscriptionStatus.ACTIVE;
         break;
@@ -130,11 +162,13 @@ export class MercadoPagoService implements IPaymentGateway {
     return subscription;
   }
 
-  async getPayment(subscriptionNotification: SubscriptionNotification): Promise<SubscriptionPayment> {
+  async getPayment(
+    subscriptionNotification: SubscriptionNotification,
+  ): Promise<SubscriptionPayment> {
     const paymentNotificated = subscriptionNotification.payment;
 
     let status = SubscriptionPaymentStatus.UNKNOWN;
-    switch(paymentNotificated.status) {
+    switch (paymentNotificated.status) {
       case 'pending':
         status = SubscriptionPaymentStatus.PENDING;
         break;
@@ -182,11 +216,13 @@ export class MercadoPagoService implements IPaymentGateway {
     });
   }
 
-  async getInvoice(subscriptionNotification: SubscriptionNotification): Promise<SubscriptionInvoice> {
+  async getInvoice(
+    subscriptionNotification: SubscriptionNotification,
+  ): Promise<SubscriptionInvoice> {
     const invoiceNotificated = subscriptionNotification.invoice;
 
     let status = SubscriptionInvoiceStatus.UNKNOWN;
-    switch(invoiceNotificated.status) {
+    switch (invoiceNotificated.status) {
       case 'scheduled':
         status = SubscriptionInvoiceStatus.SCHEDULED;
         break;
@@ -222,7 +258,7 @@ export class MercadoPagoService implements IPaymentGateway {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.accessToken}`,
+        Authorization: `Bearer ${this.accessToken}`,
       },
     });
 
@@ -230,7 +266,7 @@ export class MercadoPagoService implements IPaymentGateway {
 
     if (!response.ok) {
       const errorBody = responseObject;
-      
+
       const message = `invalid.${errorBody.message || 'Unknown error occurred'}`;
 
       throw new Error(message);
@@ -245,7 +281,7 @@ export class MercadoPagoService implements IPaymentGateway {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.accessToken}`,
+        Authorization: `Bearer ${this.accessToken}`,
       },
     });
 
@@ -253,7 +289,7 @@ export class MercadoPagoService implements IPaymentGateway {
 
     if (!response.ok) {
       const errorBody = responseObject;
-      
+
       const message = `invalid.${errorBody.message || 'Unknown error occurred'}`;
 
       throw new Error(message);
@@ -268,7 +304,7 @@ export class MercadoPagoService implements IPaymentGateway {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.accessToken}`,
+        Authorization: `Bearer ${this.accessToken}`,
       },
     });
 
@@ -276,7 +312,7 @@ export class MercadoPagoService implements IPaymentGateway {
 
     if (!response.ok) {
       const errorBody = responseObject;
-      
+
       const message = `invalid.${errorBody.message || 'Unknown error occurred'}`;
 
       throw new Error(message);
@@ -285,7 +321,9 @@ export class MercadoPagoService implements IPaymentGateway {
     return responseObject;
   }
 
-  async getSubscriptionNotification(payload: any): Promise<SubscriptionNotification> {
+  async getSubscriptionNotification(
+    payload: any,
+  ): Promise<SubscriptionNotification> {
     const externalId = payload?.data?.id;
 
     let subscription: any = null;
@@ -293,7 +331,7 @@ export class MercadoPagoService implements IPaymentGateway {
     let invoice: any = null;
 
     let type = SubscriptionNotificationType.UNKNOWN;
-    switch(payload?.type) {
+    switch (payload?.type) {
       case 'subscription_preapproval':
         type = SubscriptionNotificationType.SUBSCRIPTION;
         subscription = await this.getExternalSubscription(externalId);
@@ -309,7 +347,7 @@ export class MercadoPagoService implements IPaymentGateway {
     }
 
     let action = SubscriptionNotificationAction.UNKNOWN;
-    switch(payload?.action) {
+    switch (payload?.action) {
       case 'payment.created':
         action = SubscriptionNotificationAction.CREATE;
         break;
@@ -321,14 +359,13 @@ export class MercadoPagoService implements IPaymentGateway {
         break;
     }
 
-
     const subscriptionNotification = new SubscriptionNotification({
-        type,
-        action,
-        payload,
-        subscription,
-        payment,
-        invoice,
+      type,
+      action,
+      payload,
+      subscription,
+      payment,
+      invoice,
     });
 
     return subscriptionNotification;

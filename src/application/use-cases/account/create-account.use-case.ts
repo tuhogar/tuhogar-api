@@ -5,7 +5,12 @@ import { CreateUserUseCase } from '../user/create-user.use-case';
 import { ISubscriptionRepository } from 'src/application/interfaces/repositories/subscription.repository.interface';
 import { CreateInternalSubscriptionUseCase } from '../subscription/create-internal-subscription.use-case';
 import { UpdateFirebaseUsersDataUseCase } from '../user/update-firebase-users-data.use-case';
-import { Account, AccountDocumentType, AccountStatus, AccountType } from 'src/domain/entities/account';
+import {
+  Account,
+  AccountDocumentType,
+  AccountStatus,
+  AccountType,
+} from 'src/domain/entities/account';
 import { CreateBillingUseCase } from '../billing/create-billing.use-case';
 import { GetByIdAccountUseCase } from './get-by-id-account.use-case';
 
@@ -31,7 +36,7 @@ export class CreateAccountUseCase {
     private readonly createInternalSubscriptionUseCase: CreateInternalSubscriptionUseCase,
     private readonly updateFirebaseUsersDataUseCase: UpdateFirebaseUsersDataUseCase,
     private readonly createBillingUseCase: CreateBillingUseCase,
-    private readonly getByIdAccountUseCase: GetByIdAccountUseCase
+    private readonly getByIdAccountUseCase: GetByIdAccountUseCase,
   ) {}
 
   async execute({
@@ -44,7 +49,7 @@ export class CreateAccountUseCase {
     documentNumber,
     accountType,
     primaryColor,
-    domain
+    domain,
   }: CreateAccountUseCaseCommand): Promise<{ id: string }> {
     const account = new Account({
       planId,
@@ -56,30 +61,37 @@ export class CreateAccountUseCase {
       status: AccountStatus.ACTIVE,
       accountType,
       primaryColor,
-      domain
+      domain,
     });
     const accountCreated = await this.accountRepository.create(account);
-    const subscriptionCreated = await this.createInternalSubscriptionUseCase.execute({ accountId: accountCreated.id, planId });
+    const subscriptionCreated =
+      await this.createInternalSubscriptionUseCase.execute({
+        accountId: accountCreated.id,
+        planId,
+      });
     await this.subscriptionRepository.active(subscriptionCreated.id);
     await this.createUserUseCase.execute({
       email,
       uid,
       name,
       userRole: UserRole.ADMIN,
-      accountId: accountCreated.id
+      accountId: accountCreated.id,
     });
     await this.createBillingUseCase.execute({
-        accountId: accountCreated.id,
-        name,
-        email,
-        phone,
-        documentType,
-        documentNumber,
-      });
+      accountId: accountCreated.id,
+      name,
+      email,
+      phone,
+      documentType,
+      documentNumber,
+    });
     try {
-      await this.updateFirebaseUsersDataUseCase.execute({ accountId: accountCreated.id });
+      await this.updateFirebaseUsersDataUseCase.execute({
+        accountId: accountCreated.id,
+      });
     } catch (error) {
-      if (subscriptionCreated) await this.subscriptionRepository.delete(subscriptionCreated.id);
+      if (subscriptionCreated)
+        await this.subscriptionRepository.delete(subscriptionCreated.id);
       await this.accountRepository.delete(accountCreated.id);
       throw error;
     }

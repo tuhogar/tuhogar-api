@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongooseSubscriptionRepository } from './mongoose-subscription.repository';
 import { getModelToken } from '@nestjs/mongoose';
 import { Subscription as SubscriptionMongoose } from '../entities/subscription.entity';
-import { Subscription, SubscriptionStatus } from 'src/domain/entities/subscription';
+import {
+  Subscription,
+  SubscriptionStatus,
+} from 'src/domain/entities/subscription';
 import { MongooseSubscriptionMapper } from '../mapper/mongoose-subscription.mapper';
 
 describe('MongooseSubscriptionRepository', () => {
@@ -14,7 +17,7 @@ describe('MongooseSubscriptionRepository', () => {
   const mockAccountId = 'account-123';
   const mockExternalId = 'external-123';
   const mockPaymentDate = new Date('2025-04-28T20:00:00Z');
-  
+
   // Mock para Subscription
   const mockSubscription: Subscription = {
     id: mockSubscriptionId,
@@ -24,7 +27,7 @@ describe('MongooseSubscriptionRepository', () => {
     status: SubscriptionStatus.ACTIVE,
     paymentDate: null,
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   } as Subscription;
 
   // Mock para SubscriptionMongoose
@@ -46,8 +49,8 @@ describe('MongooseSubscriptionRepository', () => {
       status: SubscriptionStatus.ACTIVE,
       paymentDate: null,
       createdAt: new Date(),
-      updatedAt: new Date()
-    })
+      updatedAt: new Date(),
+    }),
   };
 
   beforeEach(async () => {
@@ -56,8 +59,8 @@ describe('MongooseSubscriptionRepository', () => {
       findById: jest.fn(),
       findOne: jest.fn(),
       findByIdAndUpdate: jest.fn().mockImplementation(() => ({
-        exec: jest.fn()
-      }))
+        exec: jest.fn(),
+      })),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -65,12 +68,14 @@ describe('MongooseSubscriptionRepository', () => {
         MongooseSubscriptionRepository,
         {
           provide: getModelToken(SubscriptionMongoose.name),
-          useValue: subscriptionModel
-        }
+          useValue: subscriptionModel,
+        },
       ],
     }).compile();
 
-    repository = module.get<MongooseSubscriptionRepository>(MongooseSubscriptionRepository);
+    repository = module.get<MongooseSubscriptionRepository>(
+      MongooseSubscriptionRepository,
+    );
   });
 
   it('should be defined', () => {
@@ -85,29 +90,32 @@ describe('MongooseSubscriptionRepository', () => {
         paymentDate: mockPaymentDate,
         toObject: jest.fn().mockReturnValue({
           ...mockSubscriptionMongoose.toObject(),
-          paymentDate: mockPaymentDate
-        })
+          paymentDate: mockPaymentDate,
+        }),
       };
-      
+
       // Configurar o mock para retornar o documento atualizado
       subscriptionModel.findByIdAndUpdate.mockImplementation(() => ({
-        exec: jest.fn().mockResolvedValue(updatedMongooseSubscription)
+        exec: jest.fn().mockResolvedValue(updatedMongooseSubscription),
       }));
-      
+
       // Spy no método toMongoose do mapper
       jest.spyOn(MongooseSubscriptionMapper, 'toDomain').mockReturnValue({
         ...mockSubscription,
-        paymentDate: mockPaymentDate
+        paymentDate: mockPaymentDate,
       });
-      
+
       // Act
-      const result = await repository.updatePaymentDate(mockSubscriptionId, mockPaymentDate);
-      
+      const result = await repository.updatePaymentDate(
+        mockSubscriptionId,
+        mockPaymentDate,
+      );
+
       // Assert
       expect(subscriptionModel.findByIdAndUpdate).toHaveBeenCalledWith(
         mockSubscriptionId,
         { paymentDate: mockPaymentDate },
-        { new: true, select: { resultIntegration: 0 } }
+        { new: true, select: { resultIntegration: 0 } },
       );
       expect(result).toBeDefined();
       expect(result.paymentDate).toEqual(mockPaymentDate);
@@ -116,17 +124,20 @@ describe('MongooseSubscriptionRepository', () => {
     it('should return null if subscription is not found', async () => {
       // Arrange
       subscriptionModel.findByIdAndUpdate.mockImplementation(() => ({
-        exec: jest.fn().mockResolvedValue(null)
+        exec: jest.fn().mockResolvedValue(null),
       }));
-      
+
       // Act
-      const result = await repository.updatePaymentDate(mockSubscriptionId, mockPaymentDate);
-      
+      const result = await repository.updatePaymentDate(
+        mockSubscriptionId,
+        mockPaymentDate,
+      );
+
       // Assert
       expect(subscriptionModel.findByIdAndUpdate).toHaveBeenCalledWith(
         mockSubscriptionId,
         { paymentDate: mockPaymentDate },
-        { new: true, select: { resultIntegration: 0 } }
+        { new: true, select: { resultIntegration: 0 } },
       );
       expect(result).toBeNull();
     });

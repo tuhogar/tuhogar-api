@@ -6,56 +6,68 @@ import { IAdvertisementRepository } from 'src/application/interfaces/repositorie
 import { RedisService } from 'src/infraestructure/persistence/redis/redis.service';
 
 interface UpdateStatusAllAdvertisementUseCaseCommand {
-    accountId: string,
-    userId: string,
-    userRole: UserRole,
-    advertisementIds: string[],
-    status: AdvertisementStatus,
+  accountId: string;
+  userId: string;
+  userRole: UserRole;
+  advertisementIds: string[];
+  status: AdvertisementStatus;
 }
 
 @Injectable()
 export class UpdateStatusAllAdvertisementUseCase {
-    constructor(
-        private readonly algoliaService: AlgoliaService,
-        private readonly advertisementRepository: IAdvertisementRepository,
-        private readonly redisService: RedisService
-    ) {}
+  constructor(
+    private readonly algoliaService: AlgoliaService,
+    private readonly advertisementRepository: IAdvertisementRepository,
+    private readonly redisService: RedisService,
+  ) {}
 
-    async execute(
-        {accountId, userId, userRole, advertisementIds, status}: UpdateStatusAllAdvertisementUseCaseCommand
-    ): Promise<void> {
-        let publishedAt = undefined;
-        let approvingUserId = undefined;
-        if (status === AdvertisementStatus.ACTIVE) {
-            // Criar data em UTC explicitamente
-            publishedAt = new Date(Date.UTC(
-                new Date().getUTCFullYear(),
-                new Date().getUTCMonth(),
-                new Date().getUTCDate(),
-                new Date().getUTCHours(),
-                new Date().getUTCMinutes(),
-                new Date().getUTCSeconds(),
-                new Date().getUTCMilliseconds()
-            ));
-            approvingUserId = userId;
-        }
-
-        const updatedAdvertisement = await this.advertisementRepository.updateStatus(
-            advertisementIds,
-            userRole !== UserRole.MASTER ? accountId : undefined,
-            status,
-            publishedAt,
-            approvingUserId,
-        );
-
-        if (updatedAdvertisement.upsertedCount === 0 && updatedAdvertisement.modifiedCount === 0 && updatedAdvertisement.matchedCount === 0) throw new Error('notfound.advertisement.do.not.exists');
-
-        if (status !== AdvertisementStatus.ACTIVE) {
-            await Promise.all([
-                advertisementIds.map((a) => this.algoliaService.delete(a)),
-                advertisementIds.map((a) => this.redisService.delete(a))
-            ]);
-        }
-        await this.redisService.deleteByPattern('advertisements-cache:*');
+  async execute({
+    accountId,
+    userId,
+    userRole,
+    advertisementIds,
+    status,
+  }: UpdateStatusAllAdvertisementUseCaseCommand): Promise<void> {
+    let publishedAt = undefined;
+    let approvingUserId = undefined;
+    if (status === AdvertisementStatus.ACTIVE) {
+      // Criar data em UTC explicitamente
+      publishedAt = new Date(
+        Date.UTC(
+          new Date().getUTCFullYear(),
+          new Date().getUTCMonth(),
+          new Date().getUTCDate(),
+          new Date().getUTCHours(),
+          new Date().getUTCMinutes(),
+          new Date().getUTCSeconds(),
+          new Date().getUTCMilliseconds(),
+        ),
+      );
+      approvingUserId = userId;
     }
+
+    const updatedAdvertisement =
+      await this.advertisementRepository.updateStatus(
+        advertisementIds,
+        userRole !== UserRole.MASTER ? accountId : undefined,
+        status,
+        publishedAt,
+        approvingUserId,
+      );
+
+    if (
+      updatedAdvertisement.upsertedCount === 0 &&
+      updatedAdvertisement.modifiedCount === 0 &&
+      updatedAdvertisement.matchedCount === 0
+    )
+      throw new Error('notfound.advertisement.do.not.exists');
+
+    if (status !== AdvertisementStatus.ACTIVE) {
+      await Promise.all([
+        advertisementIds.map((a) => this.algoliaService.delete(a)),
+        advertisementIds.map((a) => this.redisService.delete(a)),
+      ]);
+    }
+    await this.redisService.deleteByPattern('advertisements-cache:*');
+  }
 }

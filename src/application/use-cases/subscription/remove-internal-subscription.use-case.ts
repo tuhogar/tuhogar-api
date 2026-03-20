@@ -11,7 +11,9 @@ export class RemoveInternalSubscriptionUseCase {
     private readonly subscriptionRepository: ISubscriptionRepository,
   ) {}
 
-  async execute({ id }: RemoveInternalSubscriptionUseCaseCommand): Promise<void> {
+  async execute({
+    id,
+  }: RemoveInternalSubscriptionUseCaseCommand): Promise<void> {
     await this.subscriptionRepository.delete(id);
   }
 }

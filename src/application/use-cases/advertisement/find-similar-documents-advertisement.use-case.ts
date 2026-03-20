@@ -4,14 +4,14 @@ import { IAdvertisementRepository } from 'src/application/interfaces/repositorie
 
 @Injectable()
 export class FindSimilarDocumentsAdvertisementUseCase {
-    constructor(
-        private readonly openAiService: OpenAiService,
-        private readonly advertisementRepository: IAdvertisementRepository,
-    ) {}
+  constructor(
+    private readonly openAiService: OpenAiService,
+    private readonly advertisementRepository: IAdvertisementRepository,
+  ) {}
 
-    async execute(query: string) {
-        const embedding = await this.openAiService.getEmbedding(query);
-    
-        return this.advertisementRepository.findSimilarDocuments(embedding);
-    }
+  async execute(query: string) {
+    const embedding = await this.openAiService.getEmbedding(query);
+
+    return this.advertisementRepository.findSimilarDocuments(embedding);
+  }
 }

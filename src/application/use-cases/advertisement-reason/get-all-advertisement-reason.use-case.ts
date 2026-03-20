@@ -4,12 +4,12 @@ import { AdvertisementReason } from 'src/domain/entities/advertisement-reason';
 
 @Injectable()
 export class GetAllAdvertisementReasonUseCase {
-    constructor(
-        private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
-    ) {}
+  constructor(
+    private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
+  ) {}
 
-    async execute(): Promise<AdvertisementReason[]> {
-        const response = await this.advertisementReasonRepository.find();
-        return response;
-    }   
+  async execute(): Promise<AdvertisementReason[]> {
+    const response = await this.advertisementReasonRepository.find();
+    return response;
+  }
 }

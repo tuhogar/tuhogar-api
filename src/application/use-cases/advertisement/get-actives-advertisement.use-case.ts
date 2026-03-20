@@ -7,34 +7,57 @@ import { RedisService } from '../../../infraestructure/persistence/redis/redis.s
 
 @Injectable()
 export class GetActivesAdvertisementUseCase {
-    constructor(
-        private readonly algoliaService: AlgoliaService,
-        private readonly advertisementRepository: IAdvertisementRepository,
-        private readonly redisService: RedisService
-    ) {}
+  constructor(
+    private readonly algoliaService: AlgoliaService,
+    private readonly advertisementRepository: IAdvertisementRepository,
+    private readonly redisService: RedisService,
+  ) {}
 
-    async execute(getActivesAdvertisementDto: GetActivesAdvertisementDto, forMaps?: boolean): Promise<{ data: {id: string, lat: number, lng: number, price: number, type: string}[] | Advertisement[]; count: number }> {
-        const { data: advertisementIds, count } = await this.algoliaService.get(getActivesAdvertisementDto);
-        if (!advertisementIds.length) throw Error('notfound.advertisements');
+  async execute(
+    getActivesAdvertisementDto: GetActivesAdvertisementDto,
+    forMaps?: boolean,
+  ): Promise<{
+    data:
+      | { id: string; lat: number; lng: number; price: number; type: string }[]
+      | Advertisement[];
+    count: number;
+  }> {
+    const { data: advertisementIds, count } = await this.algoliaService.get(
+      getActivesAdvertisementDto,
+    );
+    if (!advertisementIds.length) throw Error('notfound.advertisements');
 
-        const advertisements = await this.redisService.getAll(advertisementIds) as Advertisement[];
-        if (!advertisements?.length) {
-            // advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
-            return { data: [], count: 0 };
-        }
-
-        const advertisementMap = advertisements.reduce((acc, ad) => {
-            acc[ad.id] = ad;
-            return acc;
-        }, {} as { [key: string]: Advertisement });
-        
-        const orderedAdvertisements = advertisementIds.map(id => advertisementMap[id]).filter(ad => ad !== undefined && ad !== null);
-
-        return { data: forMaps ? orderedAdvertisements.map(ad => ({ 
-            id: ad.id, 
-            lat: ad.address?.latitude, 
-            lng: ad.address?.longitude, 
-            price: ad.price, 
-            type: ad.type })) : orderedAdvertisements, count };
+    const advertisements = (await this.redisService.getAll(
+      advertisementIds,
+    )) as Advertisement[];
+    if (!advertisements?.length) {
+      // advertisements = await this.advertisementRepository.findByIdsAndAccountId(advertisementIds, undefined);
+      return { data: [], count: 0 };
     }
+
+    const advertisementMap = advertisements.reduce(
+      (acc, ad) => {
+        acc[ad.id] = ad;
+        return acc;
+      },
+      {} as { [key: string]: Advertisement },
+    );
+
+    const orderedAdvertisements = advertisementIds
+      .map((id) => advertisementMap[id])
+      .filter((ad) => ad !== undefined && ad !== null);
+
+    return {
+      data: forMaps
+        ? orderedAdvertisements.map((ad) => ({
+            id: ad.id,
+            lat: ad.address?.latitude,
+            lng: ad.address?.longitude,
+            price: ad.price,
+            type: ad.type,
+          }))
+        : orderedAdvertisements,
+      count,
+    };
+  }
 }

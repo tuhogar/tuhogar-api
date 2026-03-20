@@ -7,15 +7,19 @@ import { CreateAdvertisementEventUseCase } from 'src/application/use-cases/adver
 @ApiTags('v1/advertisement-events')
 @Controller('v1/advertisement-events')
 export class AdvertisementEventController {
-    constructor(
-        private readonly createAdvertisementEventUseCase: CreateAdvertisementEventUseCase,
-    ) {}
+  constructor(
+    private readonly createAdvertisementEventUseCase: CreateAdvertisementEventUseCase,
+  ) {}
 
-    @Post()
-    async create(@Body() createAdvertisementEventDto: CreateAdvertisementEventDto): Promise<AdvertisementEvent> {
-        const response = await this.createAdvertisementEventUseCase.execute(createAdvertisementEventDto);
-        if (!response) return null;
+  @Post()
+  async create(
+    @Body() createAdvertisementEventDto: CreateAdvertisementEventDto,
+  ): Promise<AdvertisementEvent> {
+    const response = await this.createAdvertisementEventUseCase.execute(
+      createAdvertisementEventDto,
+    );
+    if (!response) return null;
 
-        return response;
-    }
+    return response;
+  }
 }

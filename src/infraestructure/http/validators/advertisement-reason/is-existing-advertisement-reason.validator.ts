@@ -1,4 +1,10 @@
-import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -7,11 +13,18 @@ import { IAdvertisementReasonRepository } from 'src/application/interfaces/repos
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class IsExistingAdvertisementReasonConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly advertisementReasonRepository: IAdvertisementReasonRepository,) {}
+export class IsExistingAdvertisementReasonConstraint
+  implements ValidatorConstraintInterface
+{
+  constructor(
+    private readonly advertisementReasonRepository: IAdvertisementReasonRepository,
+  ) {}
 
   async validate(advertisementReasonId: string): Promise<boolean> {
-    const advertisementReason = await this.advertisementReasonRepository.findOneById(advertisementReasonId);
+    const advertisementReason =
+      await this.advertisementReasonRepository.findOneById(
+        advertisementReasonId,
+      );
     return !!advertisementReason;
   }
 
@@ -21,7 +34,9 @@ export class IsExistingAdvertisementReasonConstraint implements ValidatorConstra
   }
 }
 
-export function IsExistingAdvertisementReason(validationOptions?: ValidationOptions) {
+export function IsExistingAdvertisementReason(
+  validationOptions?: ValidationOptions,
+) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       target: object.constructor,

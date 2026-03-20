@@ -14,11 +14,11 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
         name: 'Plano Premium',
         freeTrialDays: 30,
         items: ['Item 1', 'Item 2'],
-        price: 99.90,
+        price: 99.9,
         photo: 'https://example.com/photo.jpg',
         externalId: 'ext-plan-123',
         maxAdvertisements: 10,
-        maxPhotos: 20
+        maxPhotos: 20,
       });
 
       const mockSubscription: SubscriptionWithRemainingFreeDays = {
@@ -35,11 +35,12 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
         createdAt: mockDate,
         updatedAt: mockDate,
         remainingFreeDays: 5,
-        plan: mockPlan
+        plan: mockPlan,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert
       expect(result).toBeDefined();
@@ -52,12 +53,12 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
       expect(result.nextPaymentDate).toEqual(mockDate);
       expect(result.createdAt).toEqual(mockDate);
       expect(result.remainingFreeDays).toBe(5);
-      
+
       // Verificar o objeto plan
       expect(result.plan).toBeDefined();
       expect(result.plan.id).toBe('plan-789');
       expect(result.plan.name).toBe('Plano Premium');
-      expect(result.plan.price).toBe(99.90);
+      expect(result.plan.price).toBe(99.9);
       expect(result.plan.items).toEqual(['Item 1', 'Item 2']);
       expect(result.plan.freeTrialDays).toBe(30);
       expect(result.plan.photo).toBe('https://example.com/photo.jpg');
@@ -71,11 +72,12 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
         remainingFreeDays: 5,
-        plan: undefined
+        plan: undefined,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert
       expect(result).toBeDefined();
@@ -98,11 +100,12 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
         remainingFreeDays: 5,
-        plan: null
+        plan: null,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert
       const dtoKeys = Object.keys(result);
@@ -115,7 +118,7 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
       expect(dtoKeys).toContain('createdAt');
       expect(dtoKeys).toContain('remainingFreeDays');
       expect(dtoKeys).toContain('plan');
-      
+
       // Verificar que não contém propriedades que não devem estar no DTO
       expect(dtoKeys).not.toContain('accountId');
       expect(dtoKeys).not.toContain('externalId');
@@ -132,8 +135,8 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
         id: 'plan-789',
         name: 'Plano Básico',
         items: ['Item 1'],
-        price: 49.90,
-        externalId: 'ext-plan-123'
+        price: 49.9,
+        externalId: 'ext-plan-123',
       });
 
       const mockSubscription: SubscriptionWithRemainingFreeDays = {
@@ -142,17 +145,18 @@ describe('GetCurrentSubscriptionOutputDtoMapper', () => {
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
         remainingFreeDays: 5,
-        plan: mockPlan
+        plan: mockPlan,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert
       expect(result.plan).toBeDefined();
       expect(result.plan.id).toBe('plan-789');
       expect(result.plan.name).toBe('Plano Básico');
-      expect(result.plan.price).toBe(49.90);
+      expect(result.plan.price).toBe(49.9);
       expect(result.plan.items).toEqual(['Item 1']);
       expect(result.plan.freeTrialDays).toBeNull();
       expect(result.plan.photo).toBeNull();

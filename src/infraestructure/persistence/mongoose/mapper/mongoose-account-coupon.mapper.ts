@@ -3,25 +3,26 @@ import { AccountCoupon as AccountCouponDocument } from '../entities/account-coup
 import { MongooseCouponMapper } from './mongoose-coupon.mapper';
 
 export class MongooseAccountCouponMapper {
-    
-    static toDomain(entity: AccountCouponDocument): AccountCoupon {
-        if (!entity) return null;
-        
-        const model = new AccountCoupon({
-            id: entity._id.toString(),
-            accountId: entity.accountId?.toString(),
-            couponId: entity.couponId?.toString(),
-            coupon: entity.couponId?.createdAt ? MongooseCouponMapper.toDomain(entity.couponId) : undefined,
-            isDepleted: entity.isDepleted,
-        });
-        return model;
-    }
+  static toDomain(entity: AccountCouponDocument): AccountCoupon {
+    if (!entity) return null;
 
-    static toMongoose(accountCoupon: AccountCoupon) {
-        return {
-            accountId: accountCoupon.accountId,
-            couponId: accountCoupon.couponId,
-            isDepleted: accountCoupon.isDepleted,
-        }
-    }
+    const model = new AccountCoupon({
+      id: entity._id.toString(),
+      accountId: entity.accountId?.toString(),
+      couponId: entity.couponId?.toString(),
+      coupon: entity.couponId?.createdAt
+        ? MongooseCouponMapper.toDomain(entity.couponId)
+        : undefined,
+      isDepleted: entity.isDepleted,
+    });
+    return model;
+  }
+
+  static toMongoose(accountCoupon: AccountCoupon) {
+    return {
+      accountId: accountCoupon.accountId,
+      couponId: accountCoupon.couponId,
+      isDepleted: accountCoupon.isDepleted,
+    };
+  }
 }

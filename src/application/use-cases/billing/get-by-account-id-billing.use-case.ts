@@ -8,12 +8,10 @@ interface GetByAccountIdBillingUseCaseCommand {
 
 @Injectable()
 export class GetByAccountIdBillingUseCase {
-  constructor(
-    private readonly billingRepository: IBillingRepository,
-  ) {}
+  constructor(private readonly billingRepository: IBillingRepository) {}
 
   async execute({
-    accountId
+    accountId,
   }: GetByAccountIdBillingUseCaseCommand): Promise<Billing> {
     return this.billingRepository.findOneByAccountId(accountId);
   }

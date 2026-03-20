@@ -11,40 +11,53 @@ import { FindAllWithReportsAdvertisementUseCase } from 'src/application/use-case
 @ApiTags('v1/advertisement-reports')
 @Controller('v1/advertisement-reports')
 export class AdvertisementReportController {
-    constructor(
-        private readonly createAdvertisementReportUseCase: CreateAdvertisementReportUseCase,
-        private readonly deleteAdvertisementReportUseCase: DeleteAdvertisementReportUseCase,
-        private readonly getByAdvertisementIdAdvertisementReportUseCase: GetByAdvertisementIdAdvertisementReportUseCase,
-        private readonly findAllWithReportsAdvertisementUseCase: FindAllWithReportsAdvertisementUseCase,
-    ) {}
+  constructor(
+    private readonly createAdvertisementReportUseCase: CreateAdvertisementReportUseCase,
+    private readonly deleteAdvertisementReportUseCase: DeleteAdvertisementReportUseCase,
+    private readonly getByAdvertisementIdAdvertisementReportUseCase: GetByAdvertisementIdAdvertisementReportUseCase,
+    private readonly findAllWithReportsAdvertisementUseCase: FindAllWithReportsAdvertisementUseCase,
+  ) {}
 
-    @Post()
-    async create(@Body() createAdvertisementReportDto: CreateAdvertisementReportDto): Promise<AdvertisementReport> {
-        const response = await this.createAdvertisementReportUseCase.execute(createAdvertisementReportDto);
-        if (!response) return null;
+  @Post()
+  async create(
+    @Body() createAdvertisementReportDto: CreateAdvertisementReportDto,
+  ): Promise<AdvertisementReport> {
+    const response = await this.createAdvertisementReportUseCase.execute(
+      createAdvertisementReportDto,
+    );
+    if (!response) return null;
 
-        return response;
-    }
+    return response;
+  }
 
-    @ApiBearerAuth()
-    @Get('advertisements/:advertisementid')
-    @Auth('MASTER')
-    async getByAdvertisementId(@Param('advertisementid') advertisementId: string): Promise<AdvertisementReport[]> {
-        const response = await this.getByAdvertisementIdAdvertisementReportUseCase.execute({ advertisementId });
-        return response;
-    }
+  @ApiBearerAuth()
+  @Get('advertisements/:advertisementid')
+  @Auth('MASTER')
+  async getByAdvertisementId(
+    @Param('advertisementid') advertisementId: string,
+  ): Promise<AdvertisementReport[]> {
+    const response =
+      await this.getByAdvertisementIdAdvertisementReportUseCase.execute({
+        advertisementId,
+      });
+    return response;
+  }
 
-    @ApiBearerAuth()
-    @Delete(':advertisementreportid')
-    @Auth('MASTER')
-    async delete(@Param('advertisementreportid') advertisementReportId: string): Promise<void> {
-        await this.deleteAdvertisementReportUseCase.execute({ id: advertisementReportId });
-    }
+  @ApiBearerAuth()
+  @Delete(':advertisementreportid')
+  @Auth('MASTER')
+  async delete(
+    @Param('advertisementreportid') advertisementReportId: string,
+  ): Promise<void> {
+    await this.deleteAdvertisementReportUseCase.execute({
+      id: advertisementReportId,
+    });
+  }
 
-    @ApiBearerAuth()
-    @Auth('MASTER')
-    @Get()
-    async findAll() {
-        return this.findAllWithReportsAdvertisementUseCase.execute();
-    }
+  @ApiBearerAuth()
+  @Auth('MASTER')
+  @Get()
+  async findAll() {
+    return this.findAllWithReportsAdvertisementUseCase.execute();
+  }
 }

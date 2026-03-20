@@ -1,10 +1,10 @@
 export class AccountEvent {
-    id?: string;
-    accountId: string;
-    type: string;
-    count: number
+  id?: string;
+  accountId: string;
+  type: string;
+  count: number;
 
-    constructor(props: AccountEvent) {
-        Object.assign(this, props);
-    }
+  constructor(props: AccountEvent) {
+    Object.assign(this, props);
+  }
 }

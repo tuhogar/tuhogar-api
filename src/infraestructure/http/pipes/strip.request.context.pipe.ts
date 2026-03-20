@@ -27,11 +27,11 @@ const DtoMap = new Map<string, any>([
   ['address', AddressDto],
   ['socialMedia', SocialMediaDto],
   ['CreateFavoriteAdvertisementDto', CreateFavoriteAdvertisementDto],
-  ['CreateSubscriptionDto', CreateSubscriptionDto]
+  ['CreateSubscriptionDto', CreateSubscriptionDto],
 ]);
 
 function cleanObject(obj, allowedProps) {
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (!allowedProps.includes(key)) {
       delete obj[key];
     }
@@ -59,6 +59,5 @@ export class StripRequestContextPipe implements PipeTransform {
     cleanObject(value, allowedProperties);
 
     return value;
-}
-
+  }
 }

@@ -3,18 +3,16 @@ import { User } from 'src/domain/entities/user';
 import { IUserRepository } from 'src/application/interfaces/repositories/user.repository.interface';
 
 interface GetAllUserByAccountIdUseCaseCommand {
-    accountId: string;
+  accountId: string;
 }
 
 @Injectable()
 export class GetAllUserByAccountIdUseCase {
-    constructor(
-        private readonly userRepository: IUserRepository,
-    ) {}
+  constructor(private readonly userRepository: IUserRepository) {}
 
-    async execute({
-        accountId
-    }: GetAllUserByAccountIdUseCaseCommand): Promise<User[]> {
-        return this.userRepository.findByAccountId(accountId);
-    }
+  async execute({
+    accountId,
+  }: GetAllUserByAccountIdUseCaseCommand): Promise<User[]> {
+    return this.userRepository.findByAccountId(accountId);
+  }
 }

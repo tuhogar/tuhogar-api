@@ -1,4 +1,10 @@
-import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 import { Injectable } from '@nestjs/common';
 import { IPlanRepository } from 'src/application/interfaces/repositories/plan.repository.interface';
 

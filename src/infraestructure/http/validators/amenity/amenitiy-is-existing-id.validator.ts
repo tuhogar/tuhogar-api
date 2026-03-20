@@ -1,11 +1,19 @@
-import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 import { Injectable } from '@nestjs/common';
 import { IAmenityRepository } from 'src/application/interfaces/repositories/amenity.repository.interface';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class AmenityIsExistingIdConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly amenityRepository: IAmenityRepository,) {}
+export class AmenityIsExistingIdConstraint
+  implements ValidatorConstraintInterface
+{
+  constructor(private readonly amenityRepository: IAmenityRepository) {}
 
   async validate(id: string): Promise<boolean> {
     if (!id) return false;

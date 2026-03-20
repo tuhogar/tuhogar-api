@@ -3,20 +3,21 @@ import { IBulkUpdateDateRepository } from 'src/application/interfaces/repositori
 import { BulkUpdateDate } from 'src/domain/entities/bulk-update-date';
 
 interface UpdateBulkUpdateDateUseCaseCommand {
-    updatedAt: Date,
+  updatedAt: Date;
 }
 
 @Injectable()
 export class UpdateBulkUpdateDateUseCase {
-    constructor(
-        private readonly bulkUpdateDateRepository: IBulkUpdateDateRepository,
-    ) {
-    }
+  constructor(
+    private readonly bulkUpdateDateRepository: IBulkUpdateDateRepository,
+  ) {}
 
-    async execute({ updatedAt }: UpdateBulkUpdateDateUseCaseCommand): Promise<BulkUpdateDate> {
-        const bulkUpdateDate = new BulkUpdateDate({ updatedAt });
+  async execute({
+    updatedAt,
+  }: UpdateBulkUpdateDateUseCaseCommand): Promise<BulkUpdateDate> {
+    const bulkUpdateDate = new BulkUpdateDate({ updatedAt });
 
-        const response = await this.bulkUpdateDateRepository.update(bulkUpdateDate);
-        return response;
-    }
+    const response = await this.bulkUpdateDateRepository.update(bulkUpdateDate);
+    return response;
+  }
 }

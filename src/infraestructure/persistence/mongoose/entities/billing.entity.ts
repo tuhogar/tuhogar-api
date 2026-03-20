@@ -4,36 +4,35 @@ import { Account } from './account.entity';
 
 @Schema({ timestamps: true, collection: 'billings' })
 export class Billing {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-    accountId: Account;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
+  accountId: Account;
 
-    @Prop()
-    name: string;
+  @Prop()
+  name: string;
 
-    @Prop()
-    email: string;
+  @Prop()
+  email: string;
 
-    @Prop()
-    phone: string;
+  @Prop()
+  phone: string;
 
-    @Prop()
-    address: string;
+  @Prop()
+  address: string;
 
-    @Prop()
-    documentType: string;
+  @Prop()
+  documentType: string;
 
-    @Prop()
-    documentNumber: string;
+  @Prop()
+  documentNumber: string;
 
-    @Prop()
-    createdAt: Date
+  @Prop()
+  createdAt: Date;
 
-    @Prop()
-    updatedAt: Date
+  @Prop()
+  updatedAt: Date;
 }
-
 
 const BillingSchema = SchemaFactory.createForClass(Billing);
 

@@ -11,21 +11,24 @@ import { Authenticated } from 'src/infraestructure/decorators/authenticated.deco
 @ApiTags('v1/coupons')
 @Controller('v1/coupons')
 export class CouponController {
+  constructor(private readonly redeemCouponUseCase: RedeemCouponUseCase) {}
 
-    constructor(
-        private readonly redeemCouponUseCase: RedeemCouponUseCase,
-    ) {}
-
-    @ApiBearerAuth()
-    @Post('apply')
-    @Auth('ADMIN')
-    @ApiResponse({
-        status: 200,
-        description: 'Aplica um cupom',
-        type: ApplyCouponOutputDto
-    })
-    async apply(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() applyCouponDto: ApplyCouponDto): Promise<ApplyCouponOutputDto> {
-        const coupon = await this.redeemCouponUseCase.execute({ coupon: applyCouponDto.coupon, accountId: authenticatedUser.accountId });
-        return ApplyCouponOutputDtoMapper.toOutputDto(coupon);
-    }
+  @ApiBearerAuth()
+  @Post('apply')
+  @Auth('ADMIN')
+  @ApiResponse({
+    status: 200,
+    description: 'Aplica um cupom',
+    type: ApplyCouponOutputDto,
+  })
+  async apply(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Body() applyCouponDto: ApplyCouponDto,
+  ): Promise<ApplyCouponOutputDto> {
+    const coupon = await this.redeemCouponUseCase.execute({
+      coupon: applyCouponDto.coupon,
+      accountId: authenticatedUser.accountId,
+    });
+    return ApplyCouponOutputDtoMapper.toOutputDto(coupon);
+  }
 }

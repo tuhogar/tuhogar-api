@@ -1,4 +1,14 @@
-import { Controller, Post, Body, Delete, Put, Get, HttpStatus, Query, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Delete,
+  Put,
+  Get,
+  HttpStatus,
+  Query,
+  Param,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { CreateSubscriptionUseCase } from 'src/application/use-cases/subscription/create-subscription.use-case';
 import { AuthenticatedUser } from 'src/domain/entities/authenticated-user';
@@ -43,33 +53,36 @@ export class SubscriptionController {
     private readonly changeCardSubscriptionUseCase: ChangeCardSubscriptionUseCase,
     private readonly updateCustomerSubscriptionUseCase: UpdateCustomerSubscriptionUseCase,
     private readonly getCustomerSubscriptionUseCase: GetCustomerSubscriptionUseCase,
-    private readonly updateSubscriptionPlanUseCase: UpdateSubscriptionPlanUseCase) {}
+    private readonly updateSubscriptionPlanUseCase: UpdateSubscriptionPlanUseCase,
+  ) {}
 
   @ApiBearerAuth()
   @Post()
   @Auth('ADMIN')
   async createSubscription(
     @Authenticated() authenticatedUser: AuthenticatedUser,
-    @Body() createSubscriptionDto: CreateSubscriptionDto) {
-
-      const date = new Date(Date.UTC(
+    @Body() createSubscriptionDto: CreateSubscriptionDto,
+  ) {
+    const date = new Date(
+      Date.UTC(
         new Date().getUTCFullYear(),
         new Date().getUTCMonth(),
         new Date().getUTCDate(),
         new Date().getUTCHours(),
         new Date().getUTCMinutes(),
         new Date().getUTCSeconds(),
-        new Date().getUTCMilliseconds()
-      ));
-      
-      console.log(`-------createSubscription.body: ${date.toISOString()} (UTC)`);
-      console.log(createSubscriptionDto);
-      console.log(`-------createSubscription.body: ${date.toISOString()} (UTC)`);
-    const response = await this.createSubscriptionUseCase.execute({ 
+        new Date().getUTCMilliseconds(),
+      ),
+    );
+
+    console.log(`-------createSubscription.body: ${date.toISOString()} (UTC)`);
+    console.log(createSubscriptionDto);
+    console.log(`-------createSubscription.body: ${date.toISOString()} (UTC)`);
+    const response = await this.createSubscriptionUseCase.execute({
       actualSubscriptionId: authenticatedUser.subscriptionId,
       actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
       actualPlanId: authenticatedUser.planId,
-      accountId: authenticatedUser.accountId, 
+      accountId: authenticatedUser.accountId,
       planId: createSubscriptionDto.planId,
       paymentData: createSubscriptionDto.paymentData,
     });
@@ -79,15 +92,17 @@ export class SubscriptionController {
 
   @Post('notifications')
   async notification(@Body() body: any) {
-    const date = new Date(Date.UTC(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth(),
-      new Date().getUTCDate(),
-      new Date().getUTCHours(),
-      new Date().getUTCMinutes(),
-      new Date().getUTCSeconds(),
-      new Date().getUTCMilliseconds()
-    ));
+    const date = new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+        new Date().getUTCHours(),
+        new Date().getUTCMinutes(),
+        new Date().getUTCSeconds(),
+        new Date().getUTCMilliseconds(),
+      ),
+    );
     console.log(`-------post-notification.body: ${date.toISOString()} (UTC)`);
     console.log(body);
     console.log(`-------post-notification.body: ${date.toISOString()} (UTC)`);
@@ -97,15 +112,17 @@ export class SubscriptionController {
 
   @Get('notifications')
   async getNotification(@Body() body: any) {
-    const date = new Date(Date.UTC(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth(),
-      new Date().getUTCDate(),
-      new Date().getUTCHours(),
-      new Date().getUTCMinutes(),
-      new Date().getUTCSeconds(),
-      new Date().getUTCMilliseconds()
-    ));
+    const date = new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+        new Date().getUTCHours(),
+        new Date().getUTCMinutes(),
+        new Date().getUTCSeconds(),
+        new Date().getUTCMilliseconds(),
+      ),
+    );
 
     console.log(`-------get-notification.body: ${date.toISOString()} (UTC)`);
     console.log(body);
@@ -117,8 +134,13 @@ export class SubscriptionController {
   @ApiBearerAuth()
   @Delete()
   @Auth('ADMIN')
-  async cancelSubscription(@Authenticated() authenticatedUser: AuthenticatedUser) {
-    return await this.cancelSubscriptionOnPaymentGatewayUseCase.execute({ id: authenticatedUser.subscriptionId, accountId: authenticatedUser.accountId });
+  async cancelSubscription(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+  ) {
+    return await this.cancelSubscriptionOnPaymentGatewayUseCase.execute({
+      id: authenticatedUser.subscriptionId,
+      accountId: authenticatedUser.accountId,
+    });
   }
 
   @ApiBearerAuth()
@@ -126,19 +148,28 @@ export class SubscriptionController {
   @Auth('ADMIN', 'USER')
   @ApiResponse({
     status: 200,
-    description: 'Retorna a assinatura atual do usuário com dias gratuitos restantes',
-    type: GetCurrentSubscriptionOutputDto
+    description:
+      'Retorna a assinatura atual do usuário com dias gratuitos restantes',
+    type: GetCurrentSubscriptionOutputDto,
   })
-  async getCurrentSubscription(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetCurrentSubscriptionOutputDto> {
-    const subscription = await this.getCurrentSubscriptionUseCase.execute({ accountId: authenticatedUser.accountId });
+  async getCurrentSubscription(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+  ): Promise<GetCurrentSubscriptionOutputDto> {
+    const subscription = await this.getCurrentSubscriptionUseCase.execute({
+      accountId: authenticatedUser.accountId,
+    });
     return GetCurrentSubscriptionOutputDtoMapper.toOutputDto(subscription);
   }
 
   @ApiBearerAuth()
   @Auth('ADMIN')
   @Get('plans')
-  async getAllPlansForSubscriptions(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetAllPlansOutputDto[]> {
-    const plans = await this.getAllPlanUseCase.execute({ accountId: authenticatedUser.accountId });
+  async getAllPlansForSubscriptions(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+  ): Promise<GetAllPlansOutputDto[]> {
+    const plans = await this.getAllPlanUseCase.execute({
+      accountId: authenticatedUser.accountId,
+    });
     return GetAllPlansOutputDtoMapper.toOutputDtoList(plans);
   }
 
@@ -147,12 +178,20 @@ export class SubscriptionController {
   @Auth('ADMIN', 'USER')
   @ApiResponse({
     status: 200,
-    description: 'Retorna o histórico completo de assinaturas do usuário com seus pagamentos',
-    type: [GetSubscriptionHistoryOutputDto]
+    description:
+      'Retorna o histórico completo de assinaturas do usuário com seus pagamentos',
+    type: [GetSubscriptionHistoryOutputDto],
   })
-  async getSubscriptionHistory(@Authenticated() authenticatedUser: AuthenticatedUser): Promise<GetSubscriptionHistoryOutputDto[]> {
-    const subscriptionsWithPayments = await this.getSubscriptionHistoryUseCase.execute({ accountId: authenticatedUser.accountId });
-    return GetSubscriptionHistoryOutputDtoMapper.toOutputDtoList(subscriptionsWithPayments);
+  async getSubscriptionHistory(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+  ): Promise<GetSubscriptionHistoryOutputDto[]> {
+    const subscriptionsWithPayments =
+      await this.getSubscriptionHistoryUseCase.execute({
+        accountId: authenticatedUser.accountId,
+      });
+    return GetSubscriptionHistoryOutputDtoMapper.toOutputDtoList(
+      subscriptionsWithPayments,
+    );
   }
 
   @ApiBearerAuth()
@@ -160,48 +199,70 @@ export class SubscriptionController {
   @Auth('ADMIN', 'USER')
   @ApiResponse({
     status: 200,
-    description: 'Retorna o histórico de pagamentos de assinaturas do usuário com paginação',
+    description:
+      'Retorna o histórico de pagamentos de assinaturas do usuário com paginação',
     schema: {
       type: 'object',
       properties: {
         data: {
           type: 'array',
-          items: { $ref: '#/components/schemas/GetSubscriptionPaymentHistoryOutputDto' }
+          items: {
+            $ref: '#/components/schemas/GetSubscriptionPaymentHistoryOutputDto',
+          },
         },
         count: {
           type: 'number',
-          description: 'Total de pagamentos encontrados'
-        }
-      }
-    }
+          description: 'Total de pagamentos encontrados',
+        },
+      },
+    },
   })
   async getSubscriptionPaymentHistory(
     @Authenticated() authenticatedUser: AuthenticatedUser,
-    @Query() query: GetSubscriptionPaymentHistoryDto
-  ): Promise<{ data: GetSubscriptionPaymentHistoryOutputDto[], count: number }> {
+    @Query() query: GetSubscriptionPaymentHistoryDto,
+  ): Promise<{
+    data: GetSubscriptionPaymentHistoryOutputDto[];
+    count: number;
+  }> {
     // Extrair page e limit do DTO, com valores padrão
     const page = query.page || 1;
     const limit = query.limit || 10;
-    
+
     // Chamar o caso de uso
-    const { data, count } = await this.getSubscriptionPaymentHistoryUseCase.execute({
-      accountId: authenticatedUser.accountId,
-      page,
-      limit
-    });
-    
+    const { data, count } =
+      await this.getSubscriptionPaymentHistoryUseCase.execute({
+        accountId: authenticatedUser.accountId,
+        page,
+        limit,
+      });
+
     // Mapear os resultados e retornar no formato esperado
     return {
       data: GetSubscriptionPaymentHistoryOutputDtoMapper.toOutputDtoList(data),
-      count
+      count,
     };
   }
 
   @ApiBearerAuth()
   @Put('vip-plan')
   @Auth('MASTER')
-  async updateSubscriptionVipPlan(@Body() { planId, accountId, nextPaymentDate }: { planId: string, accountId: string, nextPaymentDate?: string }) {
-    return await this.updateSubscriptionVipPlanUseCase.execute({ planId, accountId, nextPaymentDate });
+  async updateSubscriptionVipPlan(
+    @Body()
+    {
+      planId,
+      accountId,
+      nextPaymentDate,
+    }: {
+      planId: string;
+      accountId: string;
+      nextPaymentDate?: string;
+    },
+  ) {
+    return await this.updateSubscriptionVipPlanUseCase.execute({
+      planId,
+      accountId,
+      nextPaymentDate,
+    });
   }
 
   @ApiBearerAuth()
@@ -211,17 +272,23 @@ export class SubscriptionController {
     status: 200,
     description: 'Retorna sucesso',
   })
-  async changeCardSubscription(@Authenticated() authenticatedUser: AuthenticatedUser, @Body() changeCardSubscriptionDto: ChangeCardSubscriptionDto): Promise<void> {
+  async changeCardSubscription(
+    @Authenticated() authenticatedUser: AuthenticatedUser,
+    @Body() changeCardSubscriptionDto: ChangeCardSubscriptionDto,
+  ): Promise<void> {
     console.log('changeCardSubscription-start');
     console.log('authenticatedUser: ', JSON.stringify(authenticatedUser));
-    console.log('changeCardSubscriptionDto: ', JSON.stringify(changeCardSubscriptionDto));
-    await this.changeCardSubscriptionUseCase.execute({ 
+    console.log(
+      'changeCardSubscriptionDto: ',
+      JSON.stringify(changeCardSubscriptionDto),
+    );
+    await this.changeCardSubscriptionUseCase.execute({
       accountId: authenticatedUser.accountId,
       actualPlanId: authenticatedUser.planId,
       actualSubscriptionId: authenticatedUser.subscriptionId,
       actualSubscriptionStatus: authenticatedUser.subscriptionStatus,
       paymentData: changeCardSubscriptionDto.paymentData,
-     });
+    });
     console.log('changeCardSubscription-end');
   }
 
@@ -232,11 +299,17 @@ export class SubscriptionController {
     status: 200,
     description: 'Retorna sucesso',
   })
-  async updateCustomer(@Param('customerId') customerId: string, @Body() updateCustomerSubscriptionDto: UpdateCustomerSubscriptionDto): Promise<{ customerId: string }> {
+  async updateCustomer(
+    @Param('customerId') customerId: string,
+    @Body() updateCustomerSubscriptionDto: UpdateCustomerSubscriptionDto,
+  ): Promise<{ customerId: string }> {
     console.log('updateCustomer-start');
     console.log('customerId: ', customerId);
-    console.log('updateCustomerSubscriptionDto: ', JSON.stringify(updateCustomerSubscriptionDto));
-    
+    console.log(
+      'updateCustomerSubscriptionDto: ',
+      JSON.stringify(updateCustomerSubscriptionDto),
+    );
+
     const result = await this.updateCustomerSubscriptionUseCase.execute({
       customerId,
       name: updateCustomerSubscriptionDto.name,
@@ -244,9 +317,9 @@ export class SubscriptionController {
       address: updateCustomerSubscriptionDto.address,
       phone: updateCustomerSubscriptionDto.phone,
       documentType: updateCustomerSubscriptionDto.documentType,
-      documentNumber: updateCustomerSubscriptionDto.documentNumber
+      documentNumber: updateCustomerSubscriptionDto.documentNumber,
     });
-    
+
     console.log('updateCustomer-end');
     return result;
   }
@@ -267,26 +340,32 @@ export class SubscriptionController {
   @Auth('ADMIN')
   async updateSubscriptionPlan(
     @Authenticated() authenticatedUser: AuthenticatedUser,
-    @Body() updateSubscriptionDto: UpdateSubscriptionDto) {
-    const date = new Date(Date.UTC(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth(),
-      new Date().getUTCDate(),
-      new Date().getUTCHours(),
-      new Date().getUTCMinutes(),
-      new Date().getUTCSeconds(),
-      new Date().getUTCMilliseconds()
-    ));
+    @Body() updateSubscriptionDto: UpdateSubscriptionDto,
+  ) {
+    const date = new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+        new Date().getUTCHours(),
+        new Date().getUTCMinutes(),
+        new Date().getUTCSeconds(),
+        new Date().getUTCMilliseconds(),
+      ),
+    );
 
-    console.log(`-------updateSubscriptionPlan.body: ${date.toISOString()} (UTC)`);
+    console.log(
+      `-------updateSubscriptionPlan.body: ${date.toISOString()} (UTC)`,
+    );
     console.log(updateSubscriptionDto);
-    console.log(`-------updateSubscriptionPlan.body: ${date.toISOString()} (UTC)`);
-    return await this.updateSubscriptionPlanUseCase.execute({ 
+    console.log(
+      `-------updateSubscriptionPlan.body: ${date.toISOString()} (UTC)`,
+    );
+    return await this.updateSubscriptionPlanUseCase.execute({
       actualSubscriptionId: authenticatedUser.subscriptionId,
-      accountId: authenticatedUser.accountId, 
+      accountId: authenticatedUser.accountId,
       planId: updateSubscriptionDto.planId,
-      paymentData: updateSubscriptionDto.paymentData
+      paymentData: updateSubscriptionDto.paymentData,
     });
   }
 }
-

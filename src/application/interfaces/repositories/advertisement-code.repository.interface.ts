@@ -1,5 +1,5 @@
-import { AdvertisementCode } from "src/domain/entities/advertisement-code";
+import { AdvertisementCode } from 'src/domain/entities/advertisement-code';
 
 export abstract class IAdvertisementCodeRepository {
-    abstract  generateNewCode(): Promise<AdvertisementCode>
+  abstract generateNewCode(): Promise<AdvertisementCode>;
 }

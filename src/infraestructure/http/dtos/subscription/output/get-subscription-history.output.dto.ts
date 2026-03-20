@@ -15,27 +15,46 @@ export class GetSubscriptionHistoryOutputDto {
   @Property()
   planId: string;
 
-  @ApiProperty({ description: 'Status atual da assinatura', enum: SubscriptionStatus })
+  @ApiProperty({
+    description: 'Status atual da assinatura',
+    enum: SubscriptionStatus,
+  })
   @Property()
   status: SubscriptionStatus;
 
-  @ApiProperty({ description: 'Data efetiva de cancelamento da assinatura', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data efetiva de cancelamento da assinatura',
+    required: false,
+    nullable: true,
+  })
   @Property()
   effectiveCancellationDate: Date | null;
 
-  @ApiProperty({ description: 'Data do último pagamento realizado', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data do último pagamento realizado',
+    required: false,
+    nullable: true,
+  })
   @Property()
   paymentDate: Date | null;
 
-  @ApiProperty({ description: 'Data prevista para o próximo pagamento', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data prevista para o próximo pagamento',
+    required: false,
+    nullable: true,
+  })
   @Property()
   nextPaymentDate: Date | null;
 
-  @ApiProperty({ description: 'Data de criação da assinatura', required: false, nullable: true })
+  @ApiProperty({
+    description: 'Data de criação da assinatura',
+    required: false,
+    nullable: true,
+  })
   @Property()
   createdAt: Date | null;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Detalhes do plano associado à assinatura',
     required: false,
     nullable: true,
@@ -44,10 +63,22 @@ export class GetSubscriptionHistoryOutputDto {
       id: { type: 'string', description: 'ID do plano' },
       name: { type: 'string', description: 'Nome do plano', nullable: true },
       price: { type: 'number', description: 'Preço do plano' },
-      items: { type: 'array', items: { type: 'string' }, description: 'Itens incluídos no plano' },
-      freeTrialDays: { type: 'number', description: 'Número de dias gratuitos no período de teste', nullable: true },
-      photo: { type: 'string', description: 'URL da foto do plano', nullable: true }
-    }
+      items: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Itens incluídos no plano',
+      },
+      freeTrialDays: {
+        type: 'number',
+        description: 'Número de dias gratuitos no período de teste',
+        nullable: true,
+      },
+      photo: {
+        type: 'string',
+        description: 'URL da foto do plano',
+        nullable: true,
+      },
+    },
   })
   @Property()
   plan: {
@@ -59,7 +90,7 @@ export class GetSubscriptionHistoryOutputDto {
     photo: string | null;
   } | null;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Pagamentos relacionados à assinatura',
     isArray: true,
     type: 'array',
@@ -67,18 +98,45 @@ export class GetSubscriptionHistoryOutputDto {
       type: 'object',
       properties: {
         id: { type: 'string', description: 'ID do pagamento' },
-        subscriptionId: { type: 'string', description: 'ID da assinatura relacionada' },
+        subscriptionId: {
+          type: 'string',
+          description: 'ID da assinatura relacionada',
+        },
         accountId: { type: 'string', description: 'ID da conta do usuário' },
-        externalId: { type: 'string', description: 'ID externo do pagamento no gateway de pagamento' },
-        type: { type: 'string', description: 'Tipo de pagamento', example: 'subscription' },
-        method: { type: 'string', description: 'Método de pagamento', example: 'credit_card' },
+        externalId: {
+          type: 'string',
+          description: 'ID externo do pagamento no gateway de pagamento',
+        },
+        type: {
+          type: 'string',
+          description: 'Tipo de pagamento',
+          example: 'subscription',
+        },
+        method: {
+          type: 'string',
+          description: 'Método de pagamento',
+          example: 'credit_card',
+        },
         description: { type: 'string', description: 'Descrição do pagamento' },
         amount: { type: 'number', description: 'Valor do pagamento' },
-        currency: { type: 'string', description: 'Moeda do pagamento', example: 'COP' },
-        status: { type: 'string', enum: Object.values(SubscriptionPaymentStatus), description: 'Status do pagamento' },
-        paymentDate: { type: 'string', format: 'date-time', description: 'Data em que o pagamento foi realizado', nullable: true }
-      }
-    }
+        currency: {
+          type: 'string',
+          description: 'Moeda do pagamento',
+          example: 'COP',
+        },
+        status: {
+          type: 'string',
+          enum: Object.values(SubscriptionPaymentStatus),
+          description: 'Status do pagamento',
+        },
+        paymentDate: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data em que o pagamento foi realizado',
+          nullable: true,
+        },
+      },
+    },
   })
   @Property()
   payments: Array<{

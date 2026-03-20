@@ -6,7 +6,7 @@ import { GetCurrentSubscriptionOutputDtoMapper } from './get-current-subscriptio
 
 /**
  * Testes de integração para o mapeador GetCurrentSubscriptionOutputDtoMapper
- * 
+ *
  * Estes testes validam que o mapeador produz um DTO de saída que:
  * 1. Contém todas as propriedades necessárias para a API
  * 2. Não expõe propriedades internas que não devem ser expostas
@@ -22,11 +22,11 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         name: 'Plano Premium',
         freeTrialDays: 30,
         items: ['Item 1', 'Item 2'],
-        price: 99.90,
+        price: 99.9,
         photo: 'https://example.com/photo.jpg',
         externalId: 'ext-plan-123',
         maxAdvertisements: 10,
-        maxPhotos: 20
+        maxPhotos: 20,
       });
 
       const mockSubscription: SubscriptionWithRemainingFreeDays = {
@@ -43,37 +43,45 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         createdAt: mockDate,
         updatedAt: mockDate,
         remainingFreeDays: 5,
-        plan: mockPlan
+        plan: mockPlan,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert
       // Verificar que o resultado tem exatamente as propriedades esperadas
       const expectedProperties = [
-        'id', 'planId', 'status', 'effectiveCancellationDate',
-        'paymentDate', 'nextPaymentDate', 'createdAt', 'remainingFreeDays', 'plan'
+        'id',
+        'planId',
+        'status',
+        'effectiveCancellationDate',
+        'paymentDate',
+        'nextPaymentDate',
+        'createdAt',
+        'remainingFreeDays',
+        'plan',
       ];
-      
+
       const resultProperties = Object.keys(result);
-      
+
       // Verificar que o resultado tem exatamente as propriedades esperadas, nem mais nem menos
       expect(resultProperties.length).toBe(expectedProperties.length);
-      expectedProperties.forEach(prop => {
+      expectedProperties.forEach((prop) => {
         expect(resultProperties).toContain(prop);
       });
-      
+
       // Verificar que propriedades internas não são expostas
       expect(resultProperties).not.toContain('accountId');
       expect(resultProperties).not.toContain('externalId');
       expect(resultProperties).not.toContain('externalPayerReference');
       expect(resultProperties).not.toContain('resultIntegration');
       expect(resultProperties).not.toContain('updatedAt');
-      
+
       // Verificar que o resultado é do tipo correto
       expect(result).toBeInstanceOf(Object);
-      
+
       // Verificar que os valores foram mapeados corretamente
       expect(result.id).toBe('subscription-123');
       expect(result.planId).toBe('plan-789');
@@ -83,12 +91,12 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
       expect(result.nextPaymentDate).toEqual(mockDate);
       expect(result.createdAt).toEqual(mockDate);
       expect(result.remainingFreeDays).toBe(5);
-      
+
       // Verificar o objeto plan
       expect(result.plan).toBeDefined();
       expect(result.plan.id).toBe('plan-789');
       expect(result.plan.name).toBe('Plano Premium');
-      expect(result.plan.price).toBe(99.90);
+      expect(result.plan.price).toBe(99.9);
       expect(result.plan.items).toEqual(['Item 1', 'Item 2']);
       expect(result.plan.freeTrialDays).toBe(30);
       expect(result.plan.photo).toBe('https://example.com/photo.jpg');
@@ -102,11 +110,13 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
         remainingFreeDays: 0,
-        plan: undefined
+        plan: undefined,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockMinimalSubscription);
+      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(
+        mockMinimalSubscription,
+      );
 
       // Assert
       expect(result.id).toBeUndefined();
@@ -126,8 +136,8 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         id: 'plan-789',
         name: 'Plano Básico',
         items: ['Item 1'],
-        price: 49.90,
-        externalId: 'ext-plan-123'
+        price: 49.9,
+        externalId: 'ext-plan-123',
       });
 
       const mockSubscription: SubscriptionWithRemainingFreeDays = {
@@ -136,33 +146,34 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
         remainingFreeDays: 5,
-        plan: mockPlanMinimal
+        plan: mockPlanMinimal,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert - Verificar que o resultado pode ser serializado para JSON sem problemas
       const serialized = JSON.stringify(result);
       const deserialized = JSON.parse(serialized);
-      
+
       // Verificar que a serialização/deserialização mantém a estrutura
       expect(deserialized.id).toBe('subscription-123');
       expect(deserialized.planId).toBe('plan-789');
       expect(deserialized.status).toBe(SubscriptionStatus.ACTIVE);
       expect(deserialized.remainingFreeDays).toBe(5);
-      
+
       // Verificar que as datas são serializadas corretamente (como null neste caso)
       expect(deserialized.effectiveCancellationDate).toBeNull();
       expect(deserialized.paymentDate).toBeNull();
       expect(deserialized.nextPaymentDate).toBeNull();
       expect(deserialized.createdAt).toBeNull();
-      
+
       // Verificar que o objeto plan é serializado corretamente
       expect(deserialized.plan).toBeDefined();
       expect(deserialized.plan.id).toBe('plan-789');
       expect(deserialized.plan.name).toBe('Plano Básico');
-      expect(deserialized.plan.price).toBe(49.90);
+      expect(deserialized.plan.price).toBe(49.9);
       expect(deserialized.plan.items).toEqual(['Item 1']);
       expect(deserialized.plan.freeTrialDays).toBeNull();
       expect(deserialized.plan.photo).toBeNull();
@@ -177,11 +188,11 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         name: 'Plano Premium',
         freeTrialDays: 30,
         items: ['Item 1', 'Item 2'],
-        price: 99.90,
+        price: 99.9,
         photo: 'https://example.com/photo.jpg',
         externalId: 'ext-plan-123',
         maxAdvertisements: 10,
-        maxPhotos: 20
+        maxPhotos: 20,
       });
 
       const mockSubscription: SubscriptionWithRemainingFreeDays = {
@@ -190,24 +201,32 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
         remainingFreeDays: 5,
-        plan: mockPlan
+        plan: mockPlan,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert
       expect(result.plan).toBeDefined();
-      
+
       // Verificar que o objeto plan tem exatamente as propriedades esperadas
       const planProperties = Object.keys(result.plan);
-      const expectedPlanProperties = ['id', 'name', 'price', 'items', 'freeTrialDays', 'photo'];
-      
+      const expectedPlanProperties = [
+        'id',
+        'name',
+        'price',
+        'items',
+        'freeTrialDays',
+        'photo',
+      ];
+
       expect(planProperties.length).toBe(expectedPlanProperties.length);
-      expectedPlanProperties.forEach(prop => {
+      expectedPlanProperties.forEach((prop) => {
         expect(planProperties).toContain(prop);
       });
-      
+
       // Verificar que propriedades internas do Plan não são expostas
       expect(planProperties).not.toContain('externalId');
       expect(planProperties).not.toContain('maxAdvertisements');
@@ -222,11 +241,12 @@ describe('GetCurrentSubscriptionOutputDtoMapper Integration', () => {
         planId: 'plan-789',
         status: SubscriptionStatus.ACTIVE,
         remainingFreeDays: 5,
-        plan: null
+        plan: null,
       };
 
       // Act
-      const result = GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
+      const result =
+        GetCurrentSubscriptionOutputDtoMapper.toOutputDto(mockSubscription);
 
       // Assert
       expect(result.plan).toBeNull();

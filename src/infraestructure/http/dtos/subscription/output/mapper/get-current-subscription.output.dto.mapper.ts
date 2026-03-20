@@ -9,11 +9,13 @@ export class GetCurrentSubscriptionOutputDtoMapper {
   /**
    * Converte a entidade de domínio SubscriptionWithRemainingFreeDays para o DTO de saída
    * Garante que todas as propriedades sejam retornadas, mesmo que sejam null
-   * 
+   *
    * @param subscription Entidade de domínio com os dados da assinatura e dias gratuitos restantes
    * @returns DTO de saída formatado para a API
    */
-  public static toOutputDto(subscription: SubscriptionWithRemainingFreeDays): GetCurrentSubscriptionOutputDto {
+  public static toOutputDto(
+    subscription: SubscriptionWithRemainingFreeDays,
+  ): GetCurrentSubscriptionOutputDto {
     return {
       id: subscription.id,
       planId: subscription.planId,
@@ -25,16 +27,18 @@ export class GetCurrentSubscriptionOutputDtoMapper {
       remainingFreeDays: subscription.remainingFreeDays,
       isCouponRedeemed: subscription.isCouponRedeemed,
       // Mapeia o plan quando disponível
-      plan: subscription.plan ? {
-        id: subscription.plan.id,
-        name: subscription.plan.name,
-        price: subscription.plan.price,
-        items: subscription.plan.items,
-        freeTrialDays: subscription.plan.freeTrialDays || null,
-        maxAdvertisements: subscription.plan.maxAdvertisements,
-        maxPhotos: subscription.plan.maxPhotos,
-        photo: subscription.plan.photo || null
-      } : null
+      plan: subscription.plan
+        ? {
+            id: subscription.plan.id,
+            name: subscription.plan.name,
+            price: subscription.plan.price,
+            items: subscription.plan.items,
+            freeTrialDays: subscription.plan.freeTrialDays || null,
+            maxAdvertisements: subscription.plan.maxAdvertisements,
+            maxPhotos: subscription.plan.maxPhotos,
+            photo: subscription.plan.photo || null,
+          }
+        : null,
     };
   }
 }

@@ -3,12 +3,13 @@ import * as mongoose from 'mongoose';
 
 @Schema({ timestamps: true, collection: 'advertisement-reasons' })
 export class AdvertisementReason {
-    _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
-    @Prop()
-    name: string;
+  @Prop()
+  name: string;
 }
 
-const AdvertisementReasonSchema = SchemaFactory.createForClass(AdvertisementReason);
+const AdvertisementReasonSchema =
+  SchemaFactory.createForClass(AdvertisementReason);
 
 export { AdvertisementReasonSchema };

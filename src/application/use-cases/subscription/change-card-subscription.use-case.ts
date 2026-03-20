@@ -13,7 +13,7 @@ export interface ChangeCardSubscriptionUseCaseCommand {
   actualPlanId: string;
   actualSubscriptionId: string;
   actualSubscriptionStatus: SubscriptionStatus;
-  paymentData: Record<string, any>
+  paymentData: Record<string, any>;
 }
 
 @Injectable()
@@ -25,10 +25,18 @@ export class ChangeCardSubscriptionUseCase {
     private readonly configService: ConfigService,
     private readonly accountRepository: IAccountRepository,
   ) {
-    this.firstSubscriptionPlanId = this.configService.get<string>('FIRST_SUBSCRIPTION_PLAN_ID');
+    this.firstSubscriptionPlanId = this.configService.get<string>(
+      'FIRST_SUBSCRIPTION_PLAN_ID',
+    );
   }
-  
-  async execute({ accountId, actualPlanId, actualSubscriptionId, actualSubscriptionStatus, paymentData }: ChangeCardSubscriptionUseCaseCommand): Promise<void> {
+
+  async execute({
+    accountId,
+    actualPlanId,
+    actualSubscriptionId,
+    actualSubscriptionStatus,
+    paymentData,
+  }: ChangeCardSubscriptionUseCaseCommand): Promise<void> {
     console.log('execute-start');
     console.log('accountId: ', accountId);
     console.log('actualPlanId: ', actualPlanId);
@@ -36,23 +44,28 @@ export class ChangeCardSubscriptionUseCase {
     console.log('actualSubscriptionStatus: ', actualSubscriptionStatus);
     console.log('paymentData: ', JSON.stringify(paymentData));
 
-    if (actualPlanId === this.firstSubscriptionPlanId ||
-       (actualPlanId !== this.firstSubscriptionPlanId && 
-        actualSubscriptionStatus !== SubscriptionStatus.ACTIVE
-      )
+    if (
+      actualPlanId === this.firstSubscriptionPlanId ||
+      (actualPlanId !== this.firstSubscriptionPlanId &&
+        actualSubscriptionStatus !== SubscriptionStatus.ACTIVE)
     ) {
       console.log('error.subscription.not.exists');
       throw new Error('error.subscription.not.exists');
     }
 
-    
-    const subscription = await this.subscriptionRepository.findOneById(actualSubscriptionId);
+    const subscription =
+      await this.subscriptionRepository.findOneById(actualSubscriptionId);
     console.log('subscription: ', JSON.stringify(subscription));
     if (!subscription) throw new Error('error.subscription.not.exists');
-    
-    await this.paymentGateway.changeCard(subscription.externalPayerReference, paymentData);
-    await this.accountRepository.updatePaymentToken(accountId, paymentData.token);
-    console.log('execute-end');
 
+    await this.paymentGateway.changeCard(
+      subscription.externalPayerReference,
+      paymentData,
+    );
+    await this.accountRepository.updatePaymentToken(
+      accountId,
+      paymentData.token,
+    );
+    console.log('execute-end');
   }
 }
