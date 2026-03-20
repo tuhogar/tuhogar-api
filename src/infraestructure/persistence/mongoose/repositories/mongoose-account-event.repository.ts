@@ -40,4 +40,25 @@ export class MongooseAccountEventRepository implements IAccountEventRepository {
 
     return null;
   }
+
+  async findByAccountId(accountId: string): Promise<AccountEvent[]> {
+    const results = await this.accountEventModel.find({ accountId }).exec();
+    return results.map(MongooseAccountEventMapper.toDomain);
+  }
+
+  async findAllGroupedByType(): Promise<AccountEvent[]> {
+    const results = await this.accountEventModel
+      .aggregate([
+        { $group: { _id: '$type', count: { $sum: '$count' } } },
+      ])
+      .exec();
+    return results.map(
+      (r) =>
+        new AccountEvent({
+          accountId: null,
+          type: r._id,
+          count: r.count,
+        }),
+    );
+  }
 }

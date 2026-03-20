@@ -109,6 +109,7 @@ import { UpdateCustomerSubscriptionUseCase } from 'src/application/use-cases/sub
 import { GetCustomerSubscriptionUseCase } from 'src/application/use-cases/subscription/get-customer-subscription.use-case';
 import { ProcessCancelledSubscriptionsToDowngradeUseCase } from 'src/application/use-cases/subscription/process-cancelled-subscriptions-to-downgrade.use-case';
 import { CreateAccountEventUseCase } from 'src/application/use-cases/account-event/create-account-event.use-case';
+import { GetAccountEventsUseCase } from 'src/application/use-cases/account-event/get-account-events.use-case';
 import { AccountEventController } from './controllers/account-event.controller';
 import { BlacklistWordController } from './controllers/blacklist-word.controller';
 import { CreateBlacklistWordUseCase } from 'src/application/use-cases/blacklist-word/create-blacklist-word.use-case';
@@ -210,6 +211,7 @@ import { GetDomainIsAvailableUseCase } from 'src/application/use-cases/account/g
     GetCustomerSubscriptionUseCase,
     ProcessCancelledSubscriptionsToDowngradeUseCase,
     CreateAccountEventUseCase,
+    GetAccountEventsUseCase,
     CreateBlacklistWordUseCase,
     GetAllBlacklistWordUseCase,
     GetDomainIsAvailableUseCase,
