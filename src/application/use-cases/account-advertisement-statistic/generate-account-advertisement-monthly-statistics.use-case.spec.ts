@@ -7,6 +7,7 @@ import { IAccountAdvertisementStatisticsRepository } from '../../interfaces/repo
 import { Account, AccountStatus } from '../../../domain/entities/account';
 import {
   Advertisement,
+  AdvertisementStatus,
   AdvertisementTransactionType,
   AdvertisementType,
 } from '../../../domain/entities/advertisement';
@@ -1286,6 +1287,438 @@ describe('GenerateAccountAdvertisementMonthlyStatisticsUseCase', () => {
         );
         expect(result).toBe(testCase.expected);
       });
+    });
+  });
+
+  describe('dashboard data', () => {
+    const buildAd = (props: Partial<Advertisement>): Advertisement =>
+      ({
+        id: props.id,
+        accountId: mockAccountId,
+        transactionType: AdvertisementTransactionType.SALE,
+        type: AdvertisementType.HOUSE,
+        status: AdvertisementStatus.ACTIVE,
+        advertisementEvents: [],
+        address: { city: '', neighbourhood: '' } as any,
+        ...props,
+      }) as Advertisement;
+
+    const buildEvent = (type: string, count: number) =>
+      ({ type, count }) as any;
+
+    it('filterAdvertisementsForDashboard removes INACTIVE ads and keeps the 4 visible statuses', () => {
+      const ads = [
+        buildAd({ id: 'a1', status: AdvertisementStatus.ACTIVE }),
+        buildAd({ id: 'a2', status: AdvertisementStatus.WAITING_FOR_APPROVAL }),
+        buildAd({ id: 'a3', status: AdvertisementStatus.PAUSED_BY_USER }),
+        buildAd({ id: 'a4', status: AdvertisementStatus.PAUSED_BY_APPLICATION }),
+        buildAd({ id: 'a5', status: AdvertisementStatus.INACTIVE }),
+      ];
+      const result = (useCase as any).filterAdvertisementsForDashboard(ads);
+      expect(result.map((a: Advertisement) => a.id)).toEqual([
+        'a1',
+        'a2',
+        'a3',
+        'a4',
+      ]);
+    });
+
+    it('calculateDashboardCumulative aggregates summary, counts, events, cities and sectors', () => {
+      const ads = [
+        buildAd({
+          id: 'a1',
+          status: AdvertisementStatus.ACTIVE,
+          transactionType: AdvertisementTransactionType.SALE,
+          type: AdvertisementType.HOUSE,
+          address: { city: 'Cúcuta', neighbourhood: 'Los Caobos' } as any,
+          advertisementEvents: [
+            buildEvent('AD_VIEW', 100),
+            buildEvent('AD_PHONE_CLICK', 5),
+            buildEvent('AD_CONTACT_CLICK', 2),
+            buildEvent('AD_PROFILE_VIEW', 3),
+          ],
+        }),
+        buildAd({
+          id: 'a2',
+          status: AdvertisementStatus.WAITING_FOR_APPROVAL,
+          transactionType: AdvertisementTransactionType.RENT,
+          type: AdvertisementType.APARTMENT,
+          address: { city: '  ', neighbourhood: undefined } as any,
+          advertisementEvents: [
+            buildEvent('AD_VIEW', 40),
+            buildEvent('AD_PHONE_CLICK', 2),
+          ],
+        }),
+      ];
+
+      const cumul = (useCase as any).calculateDashboardCumulative(ads);
+
+      expect(cumul.summary.totalProperties).toBe(2);
+      expect(cumul.summary.activeProperties).toBe(1);
+      expect(cumul.summary.totalAdViews).toBe(140);
+      expect(cumul.summary.totalAdWhatsappClicks).toBe(7);
+      expect(cumul.summary.totalAdPhoneClicks).toBe(2);
+      expect(cumul.summary.totalAdCatalogViews).toBe(3);
+
+      expect(cumul.propertyCountsByTransaction.sale.properties).toBe(1);
+      expect(cumul.propertyCountsByTransaction.sale.activeProperties).toBe(1);
+      expect(cumul.propertyCountsByTransaction.rent.properties).toBe(1);
+      expect(cumul.propertyCountsByTransaction.rent.activeProperties).toBe(0);
+
+      expect(cumul.propertyCountsByPropertyType.house.properties).toBe(1);
+      expect(cumul.propertyCountsByPropertyType.apartment.properties).toBe(1);
+
+      expect(cumul.propertyCountsByPropertyTypeAndTransaction.house.sale).toBe(
+        1,
+      );
+      expect(cumul.propertyCountsByPropertyTypeAndTransaction.apartment.rent).toBe(
+        1,
+      );
+
+      expect(cumul.viewsByCityAndTransaction['CÚCUTA']).toEqual({
+        sale: 100,
+        rent: 0,
+      });
+      expect(cumul.viewsByCityAndTransaction['UNKNOWN']).toEqual({
+        sale: 0,
+        rent: 40,
+      });
+      expect(cumul.viewsBySectorAndTransaction['LOS CAOBOS']).toEqual({
+        sale: 100,
+        rent: 0,
+      });
+      expect(cumul.interactionsByCityAndTransaction['CÚCUTA']).toEqual({
+        sale: 7, // 5 whatsapp + 2 phone
+        rent: 0,
+      });
+      expect(cumul.interactionsByCityAndTransaction['UNKNOWN']).toEqual({
+        sale: 0,
+        rent: 2,
+      });
+    });
+
+    it('buildDashboardData returns cumulative values as differentials on first run and maps labels', () => {
+      const cumul = (useCase as any).calculateDashboardCumulative([
+        buildAd({
+          id: 'a1',
+          transactionType: AdvertisementTransactionType.SALE,
+          type: AdvertisementType.HOUSE,
+          address: { city: 'CÚCUTA', neighbourhood: 'LOS CAOBOS' } as any,
+          advertisementEvents: [
+            buildEvent('AD_VIEW', 100),
+            buildEvent('AD_PHONE_CLICK', 5),
+            buildEvent('AD_CONTACT_CLICK', 2),
+          ],
+        }),
+      ]);
+
+      const dashboard = (useCase as any).buildDashboardData(cumul, null);
+
+      expect(dashboard.summary.totalProperties).toBe(1);
+      expect(dashboard.summary.totalAdViews).toBe(100);
+      expect(dashboard.summary.totalAdWhatsappClicks).toBe(5);
+      expect(dashboard.summary.totalAdPhoneClicks).toBe(2);
+
+      const txRent = dashboard.breakdowns.byTransactionType.find(
+        (i: any) => i.key === 'RENT',
+      );
+      const txSale = dashboard.breakdowns.byTransactionType.find(
+        (i: any) => i.key === 'SALE',
+      );
+      expect(txRent.label).toBe('Arriendo');
+      expect(txSale.label).toBe('Venta');
+      expect(txSale.totals.properties).toBe(1);
+      expect(txSale.totals.views).toBe(100);
+      expect(txRent.totals.properties).toBe(0);
+
+      const propHouse = dashboard.breakdowns.byPropertyType.find(
+        (i: any) => i.key === 'HOUSE',
+      );
+      expect(propHouse.label).toBe('Casa');
+      expect(propHouse.totals.views).toBe(100);
+
+      const ptxHouse = dashboard.breakdowns.byPropertyTypeAndTransactionType.find(
+        (i: any) => i.key === 'HOUSE',
+      );
+      expect(ptxHouse.totals.saleProperties).toBe(1);
+      expect(ptxHouse.totals.rentProperties).toBe(0);
+
+      const cucutaViews = dashboard.viewsBreakdowns.byCities.find(
+        (i: any) => i.key === 'CÚCUTA',
+      );
+      expect(cucutaViews.label).toBe('Cúcuta');
+      expect(cucutaViews.totals.saleValue).toBe(100);
+      expect(cucutaViews.totals.rentValue).toBe(0);
+
+      const caobosViews = dashboard.viewsBreakdowns.bySectors.find(
+        (i: any) => i.key === 'LOS CAOBOS',
+      );
+      expect(caobosViews.label).toBe('Los caobos');
+
+      const txSaleInt = dashboard.interactionsBreakdowns.byTransactionType.find(
+        (i: any) => i.key === 'SALE',
+      );
+      expect(txSaleInt.totals.value).toBe(7); // 5 + 2
+    });
+
+    it('viewsBreakdowns.byCities caps to top 10 sorted by (rent+sale)', () => {
+      const ads: Advertisement[] = [];
+      for (let i = 0; i < 12; i++) {
+        ads.push(
+          buildAd({
+            id: `a${i}`,
+            transactionType: AdvertisementTransactionType.SALE,
+            type: AdvertisementType.HOUSE,
+            address: { city: `CITY_${i}`, neighbourhood: '' } as any,
+            advertisementEvents: [buildEvent('AD_VIEW', (i + 1) * 10)],
+          }),
+        );
+      }
+      const cumul = (useCase as any).calculateDashboardCumulative(ads);
+      const dashboard = (useCase as any).buildDashboardData(cumul, null);
+
+      expect(dashboard.viewsBreakdowns.byCities).toHaveLength(10);
+      expect(dashboard.viewsBreakdowns.byCities[0].key).toBe('CITY_11');
+      expect(dashboard.viewsBreakdowns.byCities[9].key).toBe('CITY_2');
+    });
+
+    it('UNKNOWN city key resolves to "Sin definir" label', () => {
+      const cumul = (useCase as any).calculateDashboardCumulative([
+        buildAd({
+          id: 'a1',
+          transactionType: AdvertisementTransactionType.RENT,
+          type: AdvertisementType.APARTMENT,
+          address: { city: undefined, neighbourhood: undefined } as any,
+          advertisementEvents: [buildEvent('AD_VIEW', 10)],
+        }),
+      ]);
+      const dashboard = (useCase as any).buildDashboardData(cumul, null);
+      const unknownCity = dashboard.viewsBreakdowns.byCities.find(
+        (i: any) => i.key === 'UNKNOWN',
+      );
+      expect(unknownCity).toBeDefined();
+      expect(unknownCity.label).toBe('Sin definir');
+    });
+
+    it('buildDashboardData subtracts previous accumulated values (differential) and clamps at zero', () => {
+      const cumul = (useCase as any).calculateDashboardCumulative([
+        buildAd({
+          id: 'a1',
+          transactionType: AdvertisementTransactionType.SALE,
+          type: AdvertisementType.HOUSE,
+          address: { city: 'CÚCUTA', neighbourhood: 'CENTRO' } as any,
+          advertisementEvents: [
+            buildEvent('AD_VIEW', 150),
+            buildEvent('AD_PHONE_CLICK', 10),
+            buildEvent('AD_CONTACT_CLICK', 3),
+            buildEvent('AD_PROFILE_VIEW', 7),
+          ],
+        }),
+      ]);
+
+      const previousAccumulated = {
+        totalVisits: {
+          total: 100,
+          byTransactionType: { sale: 100, rent: 0 },
+          byPropertyTypeAndTransaction: {
+            house: { sale: 100, rent: 0 },
+            apartment: { sale: 0, rent: 0 },
+            lot: { sale: 0, rent: 0 },
+            building: { sale: 0, rent: 0 },
+            warehouse: { sale: 0, rent: 0 },
+            office: { sale: 0, rent: 0 },
+            commercial: { sale: 0, rent: 0 },
+          },
+        },
+        phoneClicks: {
+          total: 6,
+          byTransactionType: { sale: 6, rent: 0 },
+          byPropertyTypeAndTransaction: {
+            house: { sale: 6, rent: 0 },
+            apartment: { sale: 0, rent: 0 },
+            lot: { sale: 0, rent: 0 },
+            building: { sale: 0, rent: 0 },
+            warehouse: { sale: 0, rent: 0 },
+            office: { sale: 0, rent: 0 },
+            commercial: { sale: 0, rent: 0 },
+          },
+        },
+        digitalCatalogViews: 5,
+        contactInfoClicks: {
+          total: 2,
+          byTransactionType: { sale: 2, rent: 0 },
+          byPropertyTypeAndTransaction: {
+            house: { sale: 2, rent: 0 },
+            apartment: { sale: 0, rent: 0 },
+            lot: { sale: 0, rent: 0 },
+            building: { sale: 0, rent: 0 },
+            warehouse: { sale: 0, rent: 0 },
+            office: { sale: 0, rent: 0 },
+            commercial: { sale: 0, rent: 0 },
+          },
+        },
+        dashboard: {
+          catalogViews: {
+            byTransactionType: { sale: 5, rent: 0 },
+            byPropertyType: {
+              house: 5,
+              apartment: 0,
+              lot: 0,
+              building: 0,
+              warehouse: 0,
+              office: 0,
+              commercial: 0,
+            },
+          },
+          views: {
+            byCityAndTransaction: { 'CÚCUTA': { sale: 200, rent: 0 } }, // higher than current → clamp to 0
+            bySectorAndTransaction: { CENTRO: { sale: 100, rent: 0 } },
+          },
+          interactions: {
+            byCityAndTransaction: { 'CÚCUTA': { sale: 8, rent: 0 } },
+            bySectorAndTransaction: { CENTRO: { sale: 8, rent: 0 } },
+          },
+        },
+      };
+
+      const dashboard = (useCase as any).buildDashboardData(
+        cumul,
+        previousAccumulated,
+      );
+
+      expect(dashboard.summary.totalProperties).toBe(1); // snapshot
+      expect(dashboard.summary.totalAdViews).toBe(50); // 150 - 100
+      expect(dashboard.summary.totalAdWhatsappClicks).toBe(4); // 10 - 6
+      expect(dashboard.summary.totalAdPhoneClicks).toBe(1); // 3 - 2
+      expect(dashboard.summary.totalAdCatalogViews).toBe(2); // 7 - 5
+
+      // byCities: current 150 - prev 200 = max(0, -50) = 0 → city removed
+      expect(dashboard.viewsBreakdowns.byCities).toHaveLength(0);
+
+      // sector CENTRO: current 150 - prev 100 = 50 → still shows
+      const centro = dashboard.viewsBreakdowns.bySectors.find(
+        (i: any) => i.key === 'CENTRO',
+      );
+      expect(centro.totals.saleValue).toBe(50);
+
+      // interactions diff: whatsapp (10-6=4) + phone (3-2=1) = 5
+      const txSaleInt = dashboard.interactionsBreakdowns.byTransactionType.find(
+        (i: any) => i.key === 'SALE',
+      );
+      expect(txSaleInt.totals.value).toBe(5);
+    });
+
+    it('buildEmptyDashboard and buildEmptyAccumulatedDashboard return zeroed structures', () => {
+      const empty = (useCase as any).buildEmptyDashboard();
+      expect(empty.summary.totalProperties).toBe(0);
+      expect(empty.breakdowns.byTransactionType).toEqual([]);
+      expect(empty.viewsBreakdowns.byCities).toEqual([]);
+
+      const emptyAcc = (useCase as any).buildEmptyAccumulatedDashboard();
+      expect(emptyAcc.catalogViews.byTransactionType).toEqual({
+        sale: 0,
+        rent: 0,
+      });
+      expect(emptyAcc.views.byCityAndTransaction).toEqual({});
+      expect(emptyAcc.interactions.bySectorAndTransaction).toEqual({});
+    });
+
+    it('generateStatisticsForAccount persists dashboard and accumulatedMetrics.dashboard when no prior accumulated exists', async () => {
+      const ads = [
+        buildAd({
+          id: 'a1',
+          transactionType: AdvertisementTransactionType.SALE,
+          type: AdvertisementType.HOUSE,
+          status: AdvertisementStatus.ACTIVE,
+          address: { city: 'Cúcuta', neighbourhood: 'Centro' } as any,
+          advertisementEvents: [
+            buildEvent('AD_VIEW', 10),
+            buildEvent('AD_PHONE_CLICK', 2),
+            buildEvent('AD_CONTACT_CLICK', 1),
+          ],
+        }),
+      ];
+      mockAccountAdvertisementStatisticsRepository.findByAccountIdAndMonth.mockResolvedValue(
+        null,
+      );
+      mockAccountAdvertisementStatisticsRepository.findLastAccumulatedByAccountId.mockResolvedValue(
+        null,
+      );
+      mockAdvertisementRepository.findByAccountIdWithEvents.mockResolvedValue({
+        data: ads,
+        count: ads.length,
+      });
+      mockAccountAdvertisementStatisticsRepository.create.mockImplementation(
+        async (s) => s,
+      );
+
+      await (useCase as any).generateStatisticsForAccount(
+        mockAccount,
+        mockMonth,
+      );
+
+      const saved =
+        mockAccountAdvertisementStatisticsRepository.create.mock.calls[0][0];
+      expect(saved.dashboard).toBeDefined();
+      expect(saved.dashboard.summary.totalProperties).toBe(1);
+      expect(saved.dashboard.summary.totalAdViews).toBe(10);
+      expect(saved.dashboard.summary.totalAdWhatsappClicks).toBe(2);
+      expect(saved.dashboard.summary.totalAdPhoneClicks).toBe(1);
+      expect(saved.accumulatedMetrics.dashboard).toBeDefined();
+      expect(
+        saved.accumulatedMetrics.dashboard.views.byCityAndTransaction['CÚCUTA'],
+      ).toEqual({ sale: 10, rent: 0 });
+      expect(
+        saved.accumulatedMetrics.dashboard.interactions.byCityAndTransaction[
+          'CÚCUTA'
+        ],
+      ).toEqual({ sale: 3, rent: 0 });
+    });
+
+    it('generateStatisticsForAccount excludes INACTIVE from dashboard totals but keeps them in legacy totalAdvertisements', async () => {
+      const ads = [
+        buildAd({
+          id: 'a1',
+          status: AdvertisementStatus.ACTIVE,
+          transactionType: AdvertisementTransactionType.SALE,
+          type: AdvertisementType.HOUSE,
+          advertisementEvents: [buildEvent('AD_VIEW', 10)],
+        }),
+        buildAd({
+          id: 'a2',
+          status: AdvertisementStatus.INACTIVE,
+          transactionType: AdvertisementTransactionType.SALE,
+          type: AdvertisementType.HOUSE,
+          advertisementEvents: [buildEvent('AD_VIEW', 100)],
+        }),
+      ];
+      mockAccountAdvertisementStatisticsRepository.findByAccountIdAndMonth.mockResolvedValue(
+        null,
+      );
+      mockAccountAdvertisementStatisticsRepository.findLastAccumulatedByAccountId.mockResolvedValue(
+        null,
+      );
+      mockAdvertisementRepository.findByAccountIdWithEvents.mockResolvedValue({
+        data: ads,
+        count: ads.length,
+      });
+      mockAccountAdvertisementStatisticsRepository.create.mockImplementation(
+        async (s) => s,
+      );
+
+      await (useCase as any).generateStatisticsForAccount(
+        mockAccount,
+        mockMonth,
+      );
+
+      const saved =
+        mockAccountAdvertisementStatisticsRepository.create.mock.calls[0][0];
+      // Dashboard ignores the INACTIVE ad
+      expect(saved.dashboard.summary.totalProperties).toBe(1);
+      expect(saved.dashboard.summary.totalAdViews).toBe(10);
+      // Legacy fields still consider all ads (2 ads, 110 views)
+      expect(saved.totalAdvertisements.total).toBe(2);
+      expect(saved.totalVisits.total).toBe(110);
     });
   });
 });

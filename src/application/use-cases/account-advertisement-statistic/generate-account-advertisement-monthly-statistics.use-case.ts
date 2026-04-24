@@ -5,8 +5,17 @@ import { IAdvertisementRepository } from 'src/application/interfaces/repositorie
 import { IAccountAdvertisementStatisticsRepository } from 'src/application/interfaces/repositories/account-advertisement-statistics.repository.interface';
 import {
   AccountAdvertisementStatistics,
+  AccumulatedDashboard,
   AdvertisementMetric,
   ContactInfoClicks,
+  DashboardBreakdownItem,
+  DashboardBreakdowns,
+  DashboardData,
+  DashboardMetricBreakdowns,
+  DashboardMetricByOfferItem,
+  DashboardMetricItem,
+  DashboardPropertyTypeByOfferItem,
+  DashboardSummary,
   MetricBase,
   PhoneClicks,
   PropertyTypeAndTransactionMetrics,
@@ -17,6 +26,7 @@ import {
 } from 'src/domain/entities/account-advertisement-statistics';
 import {
   Advertisement,
+  AdvertisementStatus,
   AdvertisementTransactionType,
   AdvertisementType,
 } from 'src/domain/entities/advertisement';
@@ -25,6 +35,106 @@ import { Account } from 'src/domain/entities/account';
 interface GenerateAccountAdvertisementMonthlyStatisticsUseCaseCommand {
   month?: string; // Formato: "YYYY-MM", se não fornecido, usa o mês anterior ao atual
   accountId?: string; // Se fornecido, gera estatísticas apenas para esta conta
+}
+
+type PropertyTypeKey =
+  | 'house'
+  | 'apartment'
+  | 'lot'
+  | 'building'
+  | 'warehouse'
+  | 'office'
+  | 'commercial';
+
+const PROPERTY_TYPE_KEYS: PropertyTypeKey[] = [
+  'house',
+  'apartment',
+  'lot',
+  'building',
+  'warehouse',
+  'office',
+  'commercial',
+];
+
+const PROPERTY_TYPE_UPPER: Record<PropertyTypeKey, string> = {
+  house: 'HOUSE',
+  apartment: 'APARTMENT',
+  lot: 'LOT',
+  building: 'BUILDING',
+  warehouse: 'WAREHOUSE',
+  office: 'OFFICE',
+  commercial: 'COMMERCIAL',
+};
+
+const PROPERTY_TYPE_LABELS: Record<string, string> = {
+  HOUSE: 'Casa',
+  APARTMENT: 'Apartamento',
+  LOT: 'Lote',
+  BUILDING: 'Edificio',
+  WAREHOUSE: 'Bodega',
+  OFFICE: 'Oficina',
+  COMMERCIAL: 'Local',
+};
+
+const TRANSACTION_TYPE_LABELS: Record<string, string> = {
+  RENT: 'Arriendo',
+  SALE: 'Venta',
+};
+
+const UNKNOWN_LOCATION_KEY = 'UNKNOWN';
+const UNKNOWN_LOCATION_LABEL = 'Sin definir';
+const TOP_N_LOCATIONS = 10;
+
+const DASHBOARD_STATUSES: AdvertisementStatus[] = [
+  AdvertisementStatus.ACTIVE,
+  AdvertisementStatus.WAITING_FOR_APPROVAL,
+  AdvertisementStatus.PAUSED_BY_USER,
+  AdvertisementStatus.PAUSED_BY_APPLICATION,
+];
+
+interface DashboardEventCounts {
+  views: number;
+  whatsappClicks: number;
+  phoneClicks: number;
+  catalogViews: number;
+}
+
+interface DashboardPropertyCount {
+  properties: number;
+  activeProperties: number;
+}
+
+interface CumulativeDashboardSnapshot {
+  summary: {
+    totalProperties: number;
+    activeProperties: number;
+    totalAdViews: number;
+    totalAdWhatsappClicks: number;
+    totalAdPhoneClicks: number;
+    totalAdCatalogViews: number;
+  };
+  propertyCountsByTransaction: Record<'sale' | 'rent', DashboardPropertyCount>;
+  propertyCountsByPropertyType: Record<PropertyTypeKey, DashboardPropertyCount>;
+  propertyCountsByPropertyTypeAndTransaction: Record<
+    PropertyTypeKey,
+    { rent: number; sale: number }
+  >;
+  eventCountsByTransaction: Record<'sale' | 'rent', DashboardEventCounts>;
+  eventCountsByPropertyType: Record<PropertyTypeKey, DashboardEventCounts>;
+  eventCountsByPropertyTypeAndTransaction: Record<
+    PropertyTypeKey,
+    { rent: DashboardEventCounts; sale: DashboardEventCounts }
+  >;
+  viewsByCityAndTransaction: Record<string, { sale: number; rent: number }>;
+  viewsBySectorAndTransaction: Record<string, { sale: number; rent: number }>;
+  interactionsByCityAndTransaction: Record<
+    string,
+    { sale: number; rent: number }
+  >;
+  interactionsBySectorAndTransaction: Record<
+    string,
+    { sale: number; rent: number }
+  >;
 }
 
 @Injectable()
@@ -152,6 +262,20 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
         account.id,
       );
 
+    // Calcular dados do dashboard (consolida os valores que o frontend monta hoje).
+    // Usa apenas os 4 status visíveis ao usuário final para bater com o universo atual do dashboard.
+    const dashboardAdvertisements =
+      this.filterAdvertisementsForDashboard(advertisements);
+    const cumulativeDashboard = this.calculateDashboardCumulative(
+      dashboardAdvertisements,
+    );
+    const accumulatedDashboard =
+      this.buildAccumulatedDashboard(cumulativeDashboard);
+    const dashboardData = this.buildDashboardData(
+      cumulativeDashboard,
+      lastAccumulatedStats?.accumulatedMetrics,
+    );
+
     // Se não há estatísticas acumuladas anteriores, usar métricas acumulativas atuais
     if (!lastAccumulatedStats) {
       this.logger.log(
@@ -170,8 +294,10 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
         contactInfoClicks: currentMetrics.contactInfoClicks,
         topViewedAdvertisements: currentMetrics.topViewedAdvertisements,
         topInteractedAdvertisements: currentMetrics.topInteractedAdvertisements,
+        dashboard: dashboardData,
         // Armazenar os valores acumulados com estrutura completa
         accumulatedMetrics: {
+          dashboard: accumulatedDashboard,
           totalVisits: {
             total: currentMetrics.totalVisits.total,
             byTransactionType: {
@@ -590,8 +716,11 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
         lastAccumulatedStats.topInteractedAdvertisements,
       ),
 
+      dashboard: dashboardData,
+
       // Armazenar os valores acumulados atuais com estrutura completa
       accumulatedMetrics: {
+        dashboard: accumulatedDashboard,
         totalVisits: {
           total: currentMetrics.totalVisits.total,
           byTransactionType: {
@@ -1067,8 +1196,10 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
         sale: [],
         rent: [],
       }),
+      dashboard: this.buildEmptyDashboard(),
       // Adicionar valores acumulados vazios com estrutura completa
       accumulatedMetrics: {
+        dashboard: this.buildEmptyAccumulatedDashboard(),
         totalVisits: {
           total: 0,
           byTransactionType: {
@@ -1665,6 +1796,609 @@ export class GenerateAccountAdvertisementMonthlyStatisticsUseCase {
     return new TopAdvertisements({
       sale: sortedSale,
       rent: sortedRent,
+    });
+  }
+
+  private filterAdvertisementsForDashboard(
+    advertisements: Advertisement[],
+  ): Advertisement[] {
+    const allowed = new Set<string>(
+      DASHBOARD_STATUSES as unknown as string[],
+    );
+    return advertisements.filter((ad) =>
+      allowed.has(ad.status as unknown as string),
+    );
+  }
+
+  private normalizeLocationKey(value?: string): string {
+    const trimmed = (value || '').trim();
+    if (!trimmed) return UNKNOWN_LOCATION_KEY;
+    return trimmed.toUpperCase();
+  }
+
+  private resolveLocationLabel(key: string): string {
+    if (key === UNKNOWN_LOCATION_KEY) return UNKNOWN_LOCATION_LABEL;
+    if (!key) return '';
+    return key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+  }
+
+  private diff(current: number, previous: number): number {
+    return Math.max(0, (current || 0) - (previous || 0));
+  }
+
+  private calculateDashboardCumulative(
+    advertisements: Advertisement[],
+  ): CumulativeDashboardSnapshot {
+    const emptyEvents = (): DashboardEventCounts => ({
+      views: 0,
+      whatsappClicks: 0,
+      phoneClicks: 0,
+      catalogViews: 0,
+    });
+    const emptyPropCount = (): DashboardPropertyCount => ({
+      properties: 0,
+      activeProperties: 0,
+    });
+
+    const summary = {
+      totalProperties: 0,
+      activeProperties: 0,
+      totalAdViews: 0,
+      totalAdWhatsappClicks: 0,
+      totalAdPhoneClicks: 0,
+      totalAdCatalogViews: 0,
+    };
+
+    const propertyCountsByTransaction: Record<
+      'sale' | 'rent',
+      DashboardPropertyCount
+    > = {
+      sale: emptyPropCount(),
+      rent: emptyPropCount(),
+    };
+
+    const propertyCountsByPropertyType = Object.fromEntries(
+      PROPERTY_TYPE_KEYS.map((k) => [k, emptyPropCount()]),
+    ) as Record<PropertyTypeKey, DashboardPropertyCount>;
+
+    const propertyCountsByPropertyTypeAndTransaction = Object.fromEntries(
+      PROPERTY_TYPE_KEYS.map((k) => [k, { rent: 0, sale: 0 }]),
+    ) as Record<PropertyTypeKey, { rent: number; sale: number }>;
+
+    const eventCountsByTransaction: Record<
+      'sale' | 'rent',
+      DashboardEventCounts
+    > = {
+      sale: emptyEvents(),
+      rent: emptyEvents(),
+    };
+
+    const eventCountsByPropertyType = Object.fromEntries(
+      PROPERTY_TYPE_KEYS.map((k) => [k, emptyEvents()]),
+    ) as Record<PropertyTypeKey, DashboardEventCounts>;
+
+    const eventCountsByPropertyTypeAndTransaction = Object.fromEntries(
+      PROPERTY_TYPE_KEYS.map((k) => [
+        k,
+        { rent: emptyEvents(), sale: emptyEvents() },
+      ]),
+    ) as Record<
+      PropertyTypeKey,
+      { rent: DashboardEventCounts; sale: DashboardEventCounts }
+    >;
+
+    const viewsByCityAndTransaction: Record<
+      string,
+      { sale: number; rent: number }
+    > = {};
+    const viewsBySectorAndTransaction: Record<
+      string,
+      { sale: number; rent: number }
+    > = {};
+    const interactionsByCityAndTransaction: Record<
+      string,
+      { sale: number; rent: number }
+    > = {};
+    const interactionsBySectorAndTransaction: Record<
+      string,
+      { sale: number; rent: number }
+    > = {};
+
+    for (const ad of advertisements) {
+      const txKey = this.mapTransactionType(ad.transactionType);
+      const propKey = this.mapPropertyType(ad.type) as PropertyTypeKey;
+      const isActive = ad.status === AdvertisementStatus.ACTIVE;
+      const cityKey = this.normalizeLocationKey(ad.address?.city);
+      const sectorKey = this.normalizeLocationKey(ad.address?.neighbourhood);
+
+      summary.totalProperties++;
+      if (isActive) summary.activeProperties++;
+
+      propertyCountsByTransaction[txKey].properties++;
+      if (isActive) propertyCountsByTransaction[txKey].activeProperties++;
+
+      propertyCountsByPropertyType[propKey].properties++;
+      if (isActive) propertyCountsByPropertyType[propKey].activeProperties++;
+
+      propertyCountsByPropertyTypeAndTransaction[propKey][txKey]++;
+
+      let views = 0;
+      let whatsappClicks = 0;
+      let phoneClicks = 0;
+      let catalogViews = 0;
+
+      if (ad.advertisementEvents && ad.advertisementEvents.length > 0) {
+        for (const event of ad.advertisementEvents) {
+          switch (event.type) {
+            case 'AD_VIEW':
+              views += event.count;
+              break;
+            case 'AD_PHONE_CLICK':
+              whatsappClicks += event.count;
+              break;
+            case 'AD_CONTACT_CLICK':
+              phoneClicks += event.count;
+              break;
+            case 'AD_PROFILE_VIEW':
+              catalogViews += event.count;
+              break;
+          }
+        }
+      }
+
+      summary.totalAdViews += views;
+      summary.totalAdWhatsappClicks += whatsappClicks;
+      summary.totalAdPhoneClicks += phoneClicks;
+      summary.totalAdCatalogViews += catalogViews;
+
+      eventCountsByTransaction[txKey].views += views;
+      eventCountsByTransaction[txKey].whatsappClicks += whatsappClicks;
+      eventCountsByTransaction[txKey].phoneClicks += phoneClicks;
+      eventCountsByTransaction[txKey].catalogViews += catalogViews;
+
+      eventCountsByPropertyType[propKey].views += views;
+      eventCountsByPropertyType[propKey].whatsappClicks += whatsappClicks;
+      eventCountsByPropertyType[propKey].phoneClicks += phoneClicks;
+      eventCountsByPropertyType[propKey].catalogViews += catalogViews;
+
+      const ptxBucket = eventCountsByPropertyTypeAndTransaction[propKey][txKey];
+      ptxBucket.views += views;
+      ptxBucket.whatsappClicks += whatsappClicks;
+      ptxBucket.phoneClicks += phoneClicks;
+      ptxBucket.catalogViews += catalogViews;
+
+      if (!viewsByCityAndTransaction[cityKey])
+        viewsByCityAndTransaction[cityKey] = { sale: 0, rent: 0 };
+      viewsByCityAndTransaction[cityKey][txKey] += views;
+
+      if (!viewsBySectorAndTransaction[sectorKey])
+        viewsBySectorAndTransaction[sectorKey] = { sale: 0, rent: 0 };
+      viewsBySectorAndTransaction[sectorKey][txKey] += views;
+
+      const interactions = whatsappClicks + phoneClicks;
+
+      if (!interactionsByCityAndTransaction[cityKey])
+        interactionsByCityAndTransaction[cityKey] = { sale: 0, rent: 0 };
+      interactionsByCityAndTransaction[cityKey][txKey] += interactions;
+
+      if (!interactionsBySectorAndTransaction[sectorKey])
+        interactionsBySectorAndTransaction[sectorKey] = { sale: 0, rent: 0 };
+      interactionsBySectorAndTransaction[sectorKey][txKey] += interactions;
+    }
+
+    return {
+      summary,
+      propertyCountsByTransaction,
+      propertyCountsByPropertyType,
+      propertyCountsByPropertyTypeAndTransaction,
+      eventCountsByTransaction,
+      eventCountsByPropertyType,
+      eventCountsByPropertyTypeAndTransaction,
+      viewsByCityAndTransaction,
+      viewsBySectorAndTransaction,
+      interactionsByCityAndTransaction,
+      interactionsBySectorAndTransaction,
+    };
+  }
+
+  private buildEmptyAccumulatedDashboard(): AccumulatedDashboard {
+    return {
+      catalogViews: {
+        byTransactionType: { sale: 0, rent: 0 },
+        byPropertyType: {
+          house: 0,
+          apartment: 0,
+          lot: 0,
+          building: 0,
+          warehouse: 0,
+          office: 0,
+          commercial: 0,
+        },
+      },
+      views: {
+        byCityAndTransaction: {},
+        bySectorAndTransaction: {},
+      },
+      interactions: {
+        byCityAndTransaction: {},
+        bySectorAndTransaction: {},
+      },
+    };
+  }
+
+  private buildAccumulatedDashboard(
+    cumulative: CumulativeDashboardSnapshot,
+  ): AccumulatedDashboard {
+    return {
+      catalogViews: {
+        byTransactionType: {
+          sale: cumulative.eventCountsByTransaction.sale.catalogViews,
+          rent: cumulative.eventCountsByTransaction.rent.catalogViews,
+        },
+        byPropertyType: {
+          house: cumulative.eventCountsByPropertyType.house.catalogViews,
+          apartment: cumulative.eventCountsByPropertyType.apartment.catalogViews,
+          lot: cumulative.eventCountsByPropertyType.lot.catalogViews,
+          building: cumulative.eventCountsByPropertyType.building.catalogViews,
+          warehouse: cumulative.eventCountsByPropertyType.warehouse.catalogViews,
+          office: cumulative.eventCountsByPropertyType.office.catalogViews,
+          commercial:
+            cumulative.eventCountsByPropertyType.commercial.catalogViews,
+        },
+      },
+      views: {
+        byCityAndTransaction: { ...cumulative.viewsByCityAndTransaction },
+        bySectorAndTransaction: { ...cumulative.viewsBySectorAndTransaction },
+      },
+      interactions: {
+        byCityAndTransaction: {
+          ...cumulative.interactionsByCityAndTransaction,
+        },
+        bySectorAndTransaction: {
+          ...cumulative.interactionsBySectorAndTransaction,
+        },
+      },
+    };
+  }
+
+  private buildEmptyDashboard(): DashboardData {
+    return new DashboardData({
+      summary: new DashboardSummary({
+        totalProperties: 0,
+        activeProperties: 0,
+        totalAdViews: 0,
+        totalAdWhatsappClicks: 0,
+        totalAdPhoneClicks: 0,
+        totalAdCatalogViews: 0,
+      }),
+      breakdowns: new DashboardBreakdowns({
+        byTransactionType: [],
+        byPropertyType: [],
+        byPropertyTypeAndTransactionType: [],
+      }),
+      viewsBreakdowns: new DashboardMetricBreakdowns({
+        byTransactionType: [],
+        byPropertyType: [],
+        byPropertyTypeAndTransactionType: [],
+        byCities: [],
+        bySectors: [],
+      }),
+      interactionsBreakdowns: new DashboardMetricBreakdowns({
+        byTransactionType: [],
+        byPropertyType: [],
+        byPropertyTypeAndTransactionType: [],
+        byCities: [],
+        bySectors: [],
+      }),
+    });
+  }
+
+  private buildMetricByOfferTopN(
+    current: Record<string, { sale: number; rent: number }>,
+    previous: Record<string, { sale: number; rent: number }> | undefined,
+  ): DashboardMetricByOfferItem[] {
+    const keys = new Set<string>(Object.keys(current));
+    if (previous) Object.keys(previous).forEach((k) => keys.add(k));
+
+    const items: DashboardMetricByOfferItem[] = [];
+    keys.forEach((key) => {
+      const cur = current[key] || { sale: 0, rent: 0 };
+      const prev = (previous || {})[key] || { sale: 0, rent: 0 };
+      const rentValue = this.diff(cur.rent, prev.rent);
+      const saleValue = this.diff(cur.sale, prev.sale);
+      if (rentValue + saleValue === 0) return;
+      items.push(
+        new DashboardMetricByOfferItem({
+          key,
+          label: this.resolveLocationLabel(key),
+          totals: { rentValue, saleValue },
+        }),
+      );
+    });
+
+    items.sort(
+      (a, b) =>
+        b.totals.rentValue +
+        b.totals.saleValue -
+        (a.totals.rentValue + a.totals.saleValue),
+    );
+    return items.slice(0, TOP_N_LOCATIONS);
+  }
+
+  private buildDashboardData(
+    cumulative: CumulativeDashboardSnapshot,
+    previousAccumulated:
+      | AccountAdvertisementStatistics['accumulatedMetrics']
+      | null
+      | undefined,
+  ): DashboardData {
+    const prevDashboard = previousAccumulated?.dashboard;
+    const prevVisits = previousAccumulated?.totalVisits;
+    const prevWhatsapp = previousAccumulated?.phoneClicks;
+    const prevPhone = previousAccumulated?.contactInfoClicks;
+    const prevCatalogTotal = previousAccumulated?.digitalCatalogViews || 0;
+
+    const prevVisitsTx = (tx: 'sale' | 'rent') =>
+      prevVisits?.byTransactionType?.[tx] || 0;
+    const prevWhatsappTx = (tx: 'sale' | 'rent') =>
+      prevWhatsapp?.byTransactionType?.[tx] || 0;
+    const prevPhoneTx = (tx: 'sale' | 'rent') =>
+      prevPhone?.byTransactionType?.[tx] || 0;
+    const prevCatalogTx = (tx: 'sale' | 'rent') =>
+      prevDashboard?.catalogViews?.byTransactionType?.[tx] || 0;
+
+    const prevVisitsProp = (k: PropertyTypeKey) => {
+      const n = prevVisits?.byPropertyTypeAndTransaction?.[k];
+      return (n?.sale || 0) + (n?.rent || 0);
+    };
+    const prevWhatsappProp = (k: PropertyTypeKey) => {
+      const n = prevWhatsapp?.byPropertyTypeAndTransaction?.[k];
+      return (n?.sale || 0) + (n?.rent || 0);
+    };
+    const prevPhoneProp = (k: PropertyTypeKey) => {
+      const n = prevPhone?.byPropertyTypeAndTransaction?.[k];
+      return (n?.sale || 0) + (n?.rent || 0);
+    };
+    const prevCatalogProp = (k: PropertyTypeKey) =>
+      prevDashboard?.catalogViews?.byPropertyType?.[k] || 0;
+
+    const prevVisitsPropTx = (k: PropertyTypeKey, tx: 'sale' | 'rent') =>
+      prevVisits?.byPropertyTypeAndTransaction?.[k]?.[tx] || 0;
+    const prevWhatsappPropTx = (k: PropertyTypeKey, tx: 'sale' | 'rent') =>
+      prevWhatsapp?.byPropertyTypeAndTransaction?.[k]?.[tx] || 0;
+    const prevPhonePropTx = (k: PropertyTypeKey, tx: 'sale' | 'rent') =>
+      prevPhone?.byPropertyTypeAndTransaction?.[k]?.[tx] || 0;
+
+    const summary = new DashboardSummary({
+      totalProperties: cumulative.summary.totalProperties,
+      activeProperties: cumulative.summary.activeProperties,
+      totalAdViews: this.diff(
+        cumulative.summary.totalAdViews,
+        prevVisits?.total || 0,
+      ),
+      totalAdWhatsappClicks: this.diff(
+        cumulative.summary.totalAdWhatsappClicks,
+        prevWhatsapp?.total || 0,
+      ),
+      totalAdPhoneClicks: this.diff(
+        cumulative.summary.totalAdPhoneClicks,
+        prevPhone?.total || 0,
+      ),
+      totalAdCatalogViews: this.diff(
+        cumulative.summary.totalAdCatalogViews,
+        prevCatalogTotal,
+      ),
+    });
+
+    const txOrdered: Array<'RENT' | 'SALE'> = ['RENT', 'SALE'];
+
+    const breakdownByTransactionType: DashboardBreakdownItem[] = txOrdered.map(
+      (txUpper) => {
+        const tx: 'sale' | 'rent' = txUpper === 'RENT' ? 'rent' : 'sale';
+        const counts = cumulative.propertyCountsByTransaction[tx];
+        const ev = cumulative.eventCountsByTransaction[tx];
+        return new DashboardBreakdownItem({
+          key: txUpper,
+          label: TRANSACTION_TYPE_LABELS[txUpper],
+          totals: {
+            properties: counts.properties,
+            activeProperties: counts.activeProperties,
+            views: this.diff(ev.views, prevVisitsTx(tx)),
+            whatsappClicks: this.diff(
+              ev.whatsappClicks,
+              prevWhatsappTx(tx),
+            ),
+            phoneClicks: this.diff(ev.phoneClicks, prevPhoneTx(tx)),
+            catalogViews: this.diff(ev.catalogViews, prevCatalogTx(tx)),
+          },
+        });
+      },
+    );
+
+    const breakdownByPropertyType: DashboardBreakdownItem[] =
+      PROPERTY_TYPE_KEYS.map((k) => {
+        const counts = cumulative.propertyCountsByPropertyType[k];
+        const ev = cumulative.eventCountsByPropertyType[k];
+        const keyUpper = PROPERTY_TYPE_UPPER[k];
+        return new DashboardBreakdownItem({
+          key: keyUpper,
+          label: PROPERTY_TYPE_LABELS[keyUpper],
+          totals: {
+            properties: counts.properties,
+            activeProperties: counts.activeProperties,
+            views: this.diff(ev.views, prevVisitsProp(k)),
+            whatsappClicks: this.diff(ev.whatsappClicks, prevWhatsappProp(k)),
+            phoneClicks: this.diff(ev.phoneClicks, prevPhoneProp(k)),
+            catalogViews: this.diff(ev.catalogViews, prevCatalogProp(k)),
+          },
+        });
+      });
+
+    const breakdownByPropertyTypeAndTransactionType: DashboardPropertyTypeByOfferItem[] =
+      PROPERTY_TYPE_KEYS.map((k) => {
+        const counts = cumulative.propertyCountsByPropertyTypeAndTransaction[k];
+        const keyUpper = PROPERTY_TYPE_UPPER[k];
+        return new DashboardPropertyTypeByOfferItem({
+          key: keyUpper,
+          label: PROPERTY_TYPE_LABELS[keyUpper],
+          totals: {
+            rentProperties: counts.rent,
+            saleProperties: counts.sale,
+          },
+        });
+      });
+
+    const viewsByTransactionType: DashboardMetricItem[] = txOrdered.map(
+      (txUpper) => {
+        const tx: 'sale' | 'rent' = txUpper === 'RENT' ? 'rent' : 'sale';
+        return new DashboardMetricItem({
+          key: txUpper,
+          label: TRANSACTION_TYPE_LABELS[txUpper],
+          totals: {
+            value: this.diff(
+              cumulative.eventCountsByTransaction[tx].views,
+              prevVisitsTx(tx),
+            ),
+          },
+        });
+      },
+    );
+
+    const viewsByPropertyType: DashboardMetricItem[] = PROPERTY_TYPE_KEYS.map(
+      (k) => {
+        const keyUpper = PROPERTY_TYPE_UPPER[k];
+        return new DashboardMetricItem({
+          key: keyUpper,
+          label: PROPERTY_TYPE_LABELS[keyUpper],
+          totals: {
+            value: this.diff(
+              cumulative.eventCountsByPropertyType[k].views,
+              prevVisitsProp(k),
+            ),
+          },
+        });
+      },
+    );
+
+    const viewsByPropertyTypeAndTransactionType: DashboardMetricByOfferItem[] =
+      PROPERTY_TYPE_KEYS.map((k) => {
+        const keyUpper = PROPERTY_TYPE_UPPER[k];
+        const bucket = cumulative.eventCountsByPropertyTypeAndTransaction[k];
+        return new DashboardMetricByOfferItem({
+          key: keyUpper,
+          label: PROPERTY_TYPE_LABELS[keyUpper],
+          totals: {
+            rentValue: this.diff(
+              bucket.rent.views,
+              prevVisitsPropTx(k, 'rent'),
+            ),
+            saleValue: this.diff(
+              bucket.sale.views,
+              prevVisitsPropTx(k, 'sale'),
+            ),
+          },
+        });
+      });
+
+    const viewsByCities = this.buildMetricByOfferTopN(
+      cumulative.viewsByCityAndTransaction,
+      prevDashboard?.views?.byCityAndTransaction,
+    );
+    const viewsBySectors = this.buildMetricByOfferTopN(
+      cumulative.viewsBySectorAndTransaction,
+      prevDashboard?.views?.bySectorAndTransaction,
+    );
+
+    const interactionsByTransactionType: DashboardMetricItem[] = txOrdered.map(
+      (txUpper) => {
+        const tx: 'sale' | 'rent' = txUpper === 'RENT' ? 'rent' : 'sale';
+        const ev = cumulative.eventCountsByTransaction[tx];
+        const monthlyW = this.diff(ev.whatsappClicks, prevWhatsappTx(tx));
+        const monthlyP = this.diff(ev.phoneClicks, prevPhoneTx(tx));
+        return new DashboardMetricItem({
+          key: txUpper,
+          label: TRANSACTION_TYPE_LABELS[txUpper],
+          totals: { value: monthlyW + monthlyP },
+        });
+      },
+    );
+
+    const interactionsByPropertyType: DashboardMetricItem[] =
+      PROPERTY_TYPE_KEYS.map((k) => {
+        const keyUpper = PROPERTY_TYPE_UPPER[k];
+        const ev = cumulative.eventCountsByPropertyType[k];
+        const monthlyW = this.diff(ev.whatsappClicks, prevWhatsappProp(k));
+        const monthlyP = this.diff(ev.phoneClicks, prevPhoneProp(k));
+        return new DashboardMetricItem({
+          key: keyUpper,
+          label: PROPERTY_TYPE_LABELS[keyUpper],
+          totals: { value: monthlyW + monthlyP },
+        });
+      });
+
+    const interactionsByPropertyTypeAndTransactionType: DashboardMetricByOfferItem[] =
+      PROPERTY_TYPE_KEYS.map((k) => {
+        const keyUpper = PROPERTY_TYPE_UPPER[k];
+        const bucket = cumulative.eventCountsByPropertyTypeAndTransaction[k];
+        const rentMonthlyW = this.diff(
+          bucket.rent.whatsappClicks,
+          prevWhatsappPropTx(k, 'rent'),
+        );
+        const rentMonthlyP = this.diff(
+          bucket.rent.phoneClicks,
+          prevPhonePropTx(k, 'rent'),
+        );
+        const saleMonthlyW = this.diff(
+          bucket.sale.whatsappClicks,
+          prevWhatsappPropTx(k, 'sale'),
+        );
+        const saleMonthlyP = this.diff(
+          bucket.sale.phoneClicks,
+          prevPhonePropTx(k, 'sale'),
+        );
+        return new DashboardMetricByOfferItem({
+          key: keyUpper,
+          label: PROPERTY_TYPE_LABELS[keyUpper],
+          totals: {
+            rentValue: rentMonthlyW + rentMonthlyP,
+            saleValue: saleMonthlyW + saleMonthlyP,
+          },
+        });
+      });
+
+    const interactionsByCities = this.buildMetricByOfferTopN(
+      cumulative.interactionsByCityAndTransaction,
+      prevDashboard?.interactions?.byCityAndTransaction,
+    );
+    const interactionsBySectors = this.buildMetricByOfferTopN(
+      cumulative.interactionsBySectorAndTransaction,
+      prevDashboard?.interactions?.bySectorAndTransaction,
+    );
+
+    return new DashboardData({
+      summary,
+      breakdowns: new DashboardBreakdowns({
+        byTransactionType: breakdownByTransactionType,
+        byPropertyType: breakdownByPropertyType,
+        byPropertyTypeAndTransactionType:
+          breakdownByPropertyTypeAndTransactionType,
+      }),
+      viewsBreakdowns: new DashboardMetricBreakdowns({
+        byTransactionType: viewsByTransactionType,
+        byPropertyType: viewsByPropertyType,
+        byPropertyTypeAndTransactionType:
+          viewsByPropertyTypeAndTransactionType,
+        byCities: viewsByCities,
+        bySectors: viewsBySectors,
+      }),
+      interactionsBreakdowns: new DashboardMetricBreakdowns({
+        byTransactionType: interactionsByTransactionType,
+        byPropertyType: interactionsByPropertyType,
+        byPropertyTypeAndTransactionType:
+          interactionsByPropertyTypeAndTransactionType,
+        byCities: interactionsByCities,
+        bySectors: interactionsBySectors,
+      }),
     });
   }
 }
