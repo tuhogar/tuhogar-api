@@ -153,6 +153,125 @@ export class AccountAdvertisementStatistics {
         commercial: { sale: number; rent: number };
       };
     };
+    dashboard?: {
+      catalogViews: {
+        byTransactionType: { sale: number; rent: number };
+        byPropertyType: {
+          house: number;
+          apartment: number;
+          lot: number;
+          building: number;
+          warehouse: number;
+          office: number;
+          commercial: number;
+        };
+      };
+      views: {
+        byCityAndTransaction: Record<string, { sale: number; rent: number }>;
+        bySectorAndTransaction: Record<string, { sale: number; rent: number }>;
+      };
+      interactions: {
+        byCityAndTransaction: Record<string, { sale: number; rent: number }>;
+        bySectorAndTransaction: Record<string, { sale: number; rent: number }>;
+      };
+    };
+  };
+
+  @Prop({ type: Object })
+  dashboard: {
+    summary: {
+      totalProperties: number;
+      activeProperties: number;
+      totalAdViews: number;
+      totalAdWhatsappClicks: number;
+      totalAdPhoneClicks: number;
+      totalAdCatalogViews: number;
+    };
+    breakdowns: {
+      byTransactionType: Array<{
+        key: string;
+        label: string;
+        totals: {
+          properties: number;
+          activeProperties: number;
+          views: number;
+          whatsappClicks: number;
+          phoneClicks: number;
+          catalogViews: number;
+        };
+      }>;
+      byPropertyType: Array<{
+        key: string;
+        label: string;
+        totals: {
+          properties: number;
+          activeProperties: number;
+          views: number;
+          whatsappClicks: number;
+          phoneClicks: number;
+          catalogViews: number;
+        };
+      }>;
+      byPropertyTypeAndTransactionType: Array<{
+        key: string;
+        label: string;
+        totals: { rentProperties: number; saleProperties: number };
+      }>;
+    };
+    viewsBreakdowns: {
+      byTransactionType: Array<{
+        key: string;
+        label: string;
+        totals: { value: number };
+      }>;
+      byPropertyType: Array<{
+        key: string;
+        label: string;
+        totals: { value: number };
+      }>;
+      byPropertyTypeAndTransactionType: Array<{
+        key: string;
+        label: string;
+        totals: { rentValue: number; saleValue: number };
+      }>;
+      byCities: Array<{
+        key: string;
+        label: string;
+        totals: { rentValue: number; saleValue: number };
+      }>;
+      bySectors: Array<{
+        key: string;
+        label: string;
+        totals: { rentValue: number; saleValue: number };
+      }>;
+    };
+    interactionsBreakdowns: {
+      byTransactionType: Array<{
+        key: string;
+        label: string;
+        totals: { value: number };
+      }>;
+      byPropertyType: Array<{
+        key: string;
+        label: string;
+        totals: { value: number };
+      }>;
+      byPropertyTypeAndTransactionType: Array<{
+        key: string;
+        label: string;
+        totals: { rentValue: number; saleValue: number };
+      }>;
+      byCities: Array<{
+        key: string;
+        label: string;
+        totals: { rentValue: number; saleValue: number };
+      }>;
+      bySectors: Array<{
+        key: string;
+        label: string;
+        totals: { rentValue: number; saleValue: number };
+      }>;
+    };
   };
 }
 

@@ -20,6 +20,7 @@ export class MongooseAccountAdvertisementStatisticsMapper {
       contactInfoClicks: entity.contactInfoClicks,
       topViewedAdvertisements: entity.topViewedAdvertisements,
       topInteractedAdvertisements: entity.topInteractedAdvertisements,
+      dashboard: entity.dashboard as any,
       accumulatedMetrics: entity.accumulatedMetrics
         ? {
             totalVisits: {
@@ -126,6 +127,53 @@ export class MongooseAccountAdvertisementStatisticsMapper {
                 },
               },
             },
+            dashboard: entity.accumulatedMetrics.dashboard
+              ? {
+                  catalogViews: {
+                    byTransactionType: entity.accumulatedMetrics.dashboard
+                      .catalogViews?.byTransactionType || { sale: 0, rent: 0 },
+                    byPropertyType: {
+                      house:
+                        entity.accumulatedMetrics.dashboard.catalogViews
+                          ?.byPropertyType?.house || 0,
+                      apartment:
+                        entity.accumulatedMetrics.dashboard.catalogViews
+                          ?.byPropertyType?.apartment || 0,
+                      lot:
+                        entity.accumulatedMetrics.dashboard.catalogViews
+                          ?.byPropertyType?.lot || 0,
+                      building:
+                        entity.accumulatedMetrics.dashboard.catalogViews
+                          ?.byPropertyType?.building || 0,
+                      warehouse:
+                        entity.accumulatedMetrics.dashboard.catalogViews
+                          ?.byPropertyType?.warehouse || 0,
+                      office:
+                        entity.accumulatedMetrics.dashboard.catalogViews
+                          ?.byPropertyType?.office || 0,
+                      commercial:
+                        entity.accumulatedMetrics.dashboard.catalogViews
+                          ?.byPropertyType?.commercial || 0,
+                    },
+                  },
+                  views: {
+                    byCityAndTransaction:
+                      entity.accumulatedMetrics.dashboard.views
+                        ?.byCityAndTransaction || {},
+                    bySectorAndTransaction:
+                      entity.accumulatedMetrics.dashboard.views
+                        ?.bySectorAndTransaction || {},
+                  },
+                  interactions: {
+                    byCityAndTransaction:
+                      entity.accumulatedMetrics.dashboard.interactions
+                        ?.byCityAndTransaction || {},
+                    bySectorAndTransaction:
+                      entity.accumulatedMetrics.dashboard.interactions
+                        ?.bySectorAndTransaction || {},
+                  },
+                }
+              : undefined,
           }
         : undefined,
     });
@@ -370,6 +418,118 @@ export class MongooseAccountAdvertisementStatisticsMapper {
             digitalCatalogViews:
               statistics.accumulatedMetrics.digitalCatalogViews,
             contactInfoClicks: statistics.accumulatedMetrics.contactInfoClicks,
+            dashboard: statistics.accumulatedMetrics.dashboard,
+          }
+        : undefined,
+      dashboard: statistics.dashboard
+        ? {
+            summary: { ...statistics.dashboard.summary },
+            breakdowns: {
+              byTransactionType: statistics.dashboard.breakdowns.byTransactionType.map(
+                (item) => ({
+                  key: item.key,
+                  label: item.label,
+                  totals: { ...item.totals },
+                }),
+              ),
+              byPropertyType: statistics.dashboard.breakdowns.byPropertyType.map(
+                (item) => ({
+                  key: item.key,
+                  label: item.label,
+                  totals: { ...item.totals },
+                }),
+              ),
+              byPropertyTypeAndTransactionType:
+                statistics.dashboard.breakdowns.byPropertyTypeAndTransactionType.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+            },
+            viewsBreakdowns: {
+              byTransactionType:
+                statistics.dashboard.viewsBreakdowns.byTransactionType.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+              byPropertyType:
+                statistics.dashboard.viewsBreakdowns.byPropertyType.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+              byPropertyTypeAndTransactionType:
+                statistics.dashboard.viewsBreakdowns.byPropertyTypeAndTransactionType.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+              byCities: statistics.dashboard.viewsBreakdowns.byCities.map(
+                (item) => ({
+                  key: item.key,
+                  label: item.label,
+                  totals: { ...item.totals },
+                }),
+              ),
+              bySectors: statistics.dashboard.viewsBreakdowns.bySectors.map(
+                (item) => ({
+                  key: item.key,
+                  label: item.label,
+                  totals: { ...item.totals },
+                }),
+              ),
+            },
+            interactionsBreakdowns: {
+              byTransactionType:
+                statistics.dashboard.interactionsBreakdowns.byTransactionType.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+              byPropertyType:
+                statistics.dashboard.interactionsBreakdowns.byPropertyType.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+              byPropertyTypeAndTransactionType:
+                statistics.dashboard.interactionsBreakdowns.byPropertyTypeAndTransactionType.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+              byCities:
+                statistics.dashboard.interactionsBreakdowns.byCities.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+              bySectors:
+                statistics.dashboard.interactionsBreakdowns.bySectors.map(
+                  (item) => ({
+                    key: item.key,
+                    label: item.label,
+                    totals: { ...item.totals },
+                  }),
+                ),
+            },
           }
         : undefined,
     };

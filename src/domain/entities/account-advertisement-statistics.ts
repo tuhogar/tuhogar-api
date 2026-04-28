@@ -91,6 +91,192 @@ export class TopAdvertisements {
   }
 }
 
+export class DashboardSummary {
+  totalProperties: number;
+  activeProperties: number;
+  totalAdViews: number;
+  totalAdWhatsappClicks: number;
+  totalAdPhoneClicks: number;
+  totalAdCatalogViews: number;
+
+  constructor(props: DashboardSummary) {
+    Object.assign(this, props);
+  }
+}
+
+export class DashboardBreakdownTotals {
+  properties: number;
+  activeProperties: number;
+  views: number;
+  whatsappClicks: number;
+  phoneClicks: number;
+  catalogViews: number;
+
+  constructor(props: DashboardBreakdownTotals) {
+    Object.assign(this, props);
+  }
+}
+
+export class DashboardBreakdownItem {
+  key: string;
+  label: string;
+  totals: DashboardBreakdownTotals;
+
+  constructor(props: DashboardBreakdownItem) {
+    this.key = props.key;
+    this.label = props.label;
+    this.totals = new DashboardBreakdownTotals(props.totals);
+  }
+}
+
+export class DashboardPropertyTypeByOfferTotals {
+  rentProperties: number;
+  saleProperties: number;
+
+  constructor(props: DashboardPropertyTypeByOfferTotals) {
+    Object.assign(this, props);
+  }
+}
+
+export class DashboardPropertyTypeByOfferItem {
+  key: string;
+  label: string;
+  totals: DashboardPropertyTypeByOfferTotals;
+
+  constructor(props: DashboardPropertyTypeByOfferItem) {
+    this.key = props.key;
+    this.label = props.label;
+    this.totals = new DashboardPropertyTypeByOfferTotals(props.totals);
+  }
+}
+
+export class DashboardMetricValueTotals {
+  value: number;
+
+  constructor(props: DashboardMetricValueTotals) {
+    Object.assign(this, props);
+  }
+}
+
+export class DashboardMetricItem {
+  key: string;
+  label: string;
+  totals: DashboardMetricValueTotals;
+
+  constructor(props: DashboardMetricItem) {
+    this.key = props.key;
+    this.label = props.label;
+    this.totals = new DashboardMetricValueTotals(props.totals);
+  }
+}
+
+export class DashboardMetricByOfferTotals {
+  rentValue: number;
+  saleValue: number;
+
+  constructor(props: DashboardMetricByOfferTotals) {
+    Object.assign(this, props);
+  }
+}
+
+export class DashboardMetricByOfferItem {
+  key: string;
+  label: string;
+  totals: DashboardMetricByOfferTotals;
+
+  constructor(props: DashboardMetricByOfferItem) {
+    this.key = props.key;
+    this.label = props.label;
+    this.totals = new DashboardMetricByOfferTotals(props.totals);
+  }
+}
+
+export class DashboardBreakdowns {
+  byTransactionType: DashboardBreakdownItem[];
+  byPropertyType: DashboardBreakdownItem[];
+  byPropertyTypeAndTransactionType: DashboardPropertyTypeByOfferItem[];
+
+  constructor(props: DashboardBreakdowns) {
+    this.byTransactionType = (props.byTransactionType || []).map(
+      (item) => new DashboardBreakdownItem(item),
+    );
+    this.byPropertyType = (props.byPropertyType || []).map(
+      (item) => new DashboardBreakdownItem(item),
+    );
+    this.byPropertyTypeAndTransactionType = (
+      props.byPropertyTypeAndTransactionType || []
+    ).map((item) => new DashboardPropertyTypeByOfferItem(item));
+  }
+}
+
+export class DashboardMetricBreakdowns {
+  byTransactionType: DashboardMetricItem[];
+  byPropertyType: DashboardMetricItem[];
+  byPropertyTypeAndTransactionType: DashboardMetricByOfferItem[];
+  byCities: DashboardMetricByOfferItem[];
+  bySectors: DashboardMetricByOfferItem[];
+
+  constructor(props: DashboardMetricBreakdowns) {
+    this.byTransactionType = (props.byTransactionType || []).map(
+      (item) => new DashboardMetricItem(item),
+    );
+    this.byPropertyType = (props.byPropertyType || []).map(
+      (item) => new DashboardMetricItem(item),
+    );
+    this.byPropertyTypeAndTransactionType = (
+      props.byPropertyTypeAndTransactionType || []
+    ).map((item) => new DashboardMetricByOfferItem(item));
+    this.byCities = (props.byCities || []).map(
+      (item) => new DashboardMetricByOfferItem(item),
+    );
+    this.bySectors = (props.bySectors || []).map(
+      (item) => new DashboardMetricByOfferItem(item),
+    );
+  }
+}
+
+export class DashboardData {
+  summary: DashboardSummary;
+  breakdowns: DashboardBreakdowns;
+  viewsBreakdowns: DashboardMetricBreakdowns;
+  interactionsBreakdowns: DashboardMetricBreakdowns;
+
+  constructor(props: DashboardData) {
+    this.summary = new DashboardSummary(props.summary);
+    this.breakdowns = new DashboardBreakdowns(props.breakdowns);
+    this.viewsBreakdowns = new DashboardMetricBreakdowns(props.viewsBreakdowns);
+    this.interactionsBreakdowns = new DashboardMetricBreakdowns(
+      props.interactionsBreakdowns,
+    );
+  }
+}
+
+export interface AccumulatedDashboard {
+  catalogViews: {
+    byTransactionType: {
+      sale: number;
+      rent: number;
+    };
+    byPropertyType: {
+      house: number;
+      apartment: number;
+      lot: number;
+      building: number;
+      warehouse: number;
+      office: number;
+      commercial: number;
+    };
+  };
+  views: {
+    byCityAndTransaction: Record<string, { sale: number; rent: number }>;
+    bySectorAndTransaction: Record<string, { sale: number; rent: number }>;
+  };
+  interactions: {
+    byCityAndTransaction: Record<string, { sale: number; rent: number }>;
+    bySectorAndTransaction: Record<string, { sale: number; rent: number }>;
+  };
+}
+
 export interface AccumulatedMetrics {
   totalVisits: {
     total: number;
@@ -141,6 +327,7 @@ export interface AccumulatedMetrics {
       commercial: { sale: number; rent: number };
     };
   };
+  dashboard?: AccumulatedDashboard;
 }
 
 export class AccountAdvertisementStatistics {
@@ -156,6 +343,7 @@ export class AccountAdvertisementStatistics {
   topViewedAdvertisements: TopAdvertisements;
   topInteractedAdvertisements: TopAdvertisements;
   accumulatedMetrics?: AccumulatedMetrics;
+  dashboard?: DashboardData;
 
   constructor(props: Partial<AccountAdvertisementStatistics>) {
     this.id = props.id;
@@ -208,6 +396,10 @@ export class AccountAdvertisementStatistics {
 
     if (props.accumulatedMetrics) {
       this.accumulatedMetrics = props.accumulatedMetrics;
+    }
+
+    if (props.dashboard) {
+      this.dashboard = new DashboardData(props.dashboard);
     }
   }
 }
