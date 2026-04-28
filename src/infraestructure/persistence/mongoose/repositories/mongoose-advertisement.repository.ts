@@ -208,7 +208,11 @@ export class MongooseAdvertisementRepository
           newRoot: { $mergeObjects: ['$advertisementEvents', '$$ROOT'] },
         },
       },
-      { $sort: { 'advertisementEvents.createdAt': -1 } },
+      // $sort removido: causava "Sort exceeded memory limit of 33554432 bytes" quando o volume
+      // de documentos intermediários (após $unwind) era grande. A ordenação não tem impacto funcional
+      // aqui porque os eventos são apenas somados por tipo (count) nos use cases de estatísticas.
+      // Caso no futuro algum consumidor dependa da ordem dos eventos, reativar com allowDiskUse: true.
+      // { $sort: { 'advertisementEvents.createdAt': -1 } },
       {
         $group: {
           _id: '$_id',
@@ -297,7 +301,11 @@ export class MongooseAdvertisementRepository
           newRoot: { $mergeObjects: ['$advertisementEvents', '$$ROOT'] },
         },
       },
-      { $sort: { 'advertisementEvents.createdAt': -1 } },
+      // $sort removido: causava "Sort exceeded memory limit of 33554432 bytes" quando o volume
+      // de documentos intermediários (após $unwind) era grande. A ordenação não tem impacto funcional
+      // aqui porque os eventos são apenas somados por tipo (count) nos use cases de estatísticas.
+      // Caso no futuro algum consumidor dependa da ordem dos eventos, reativar com allowDiskUse: true.
+      // { $sort: { 'advertisementEvents.createdAt': -1 } },
       {
         $group: {
           _id: '$_id',
